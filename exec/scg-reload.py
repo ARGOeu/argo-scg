@@ -80,10 +80,13 @@ def main():
                     namespace=namespace
                 )
 
-                sensu.handle_proxy_entities(
-                    entities=generator.generate_entities(namespace=namespace),
-                    namespace=namespace
-                )
+                if namespace != "default":
+                    sensu.handle_proxy_entities(
+                        entities=generator.generate_entities(
+                            namespace=namespace
+                        ),
+                        namespace=namespace
+                    )
 
                 sensu.add_subscriptions_to_agents(
                     subscriptions=generator.generate_subscriptions(),
