@@ -1824,6 +1824,127 @@ class SensuCheckTests(unittest.TestCase):
     @patch("argo_scg.sensu.Sensu._delete_checks")
     @patch("argo_scg.sensu.Sensu._get_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_with_removing_proxy_requests(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        mock_checks_small = [mock_checks[0], mock_checks[2]]
+        no_proxy_checks = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 300,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["argo.webui"],
+                "proxy_entity_name": "",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 120,
+                "round_robin": True,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "TENANT1",
+                    "created_by": "root"
+                },
+                "secrets": None,
+                "pipelines": []
+            }
+        ]
+
+        checks2 = [mock_checks[0], no_proxy_checks[0]]
+        mock_get_checks.side_effect = [
+            mock_checks_small, checks2, no_proxy_checks
+        ]
+        mock_get_events.return_value = [mock_events[0], mock_events[1]]
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        self.sensu.handle_checks([no_proxy_checks[0]], namespace="TENANT1")
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.ar-argoui-ni4os"],
+            namespace="TENANT1"
+        )
+        mock_delete_events.assert_called_once_with(
+            events={
+                "argo.ni4os.eu": ["generic.http.ar-argoui-ni4os"]
+            },
+            namespace="TENANT1"
+        )
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            data=json.dumps(no_proxy_checks[0]),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_with_changing_handler(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        check1 = mock_checks[0].copy()
+        check1.pop("high_flap_threshold")
+        check1.pop("low_flap_threshold")
+        check1.pop("runtime_assets")
+        check1.pop("proxy_entity_name")
+        check1.pop("check_hooks")
+        check1.pop("stdin")
+        check1.pop("subdue")
+        check1.pop("ttl")
+        check2 = self.checks[1].copy()
+        check2.update({"handlers": ["publisher-handler"]})
+        checks = [check1, check2]
+        checks2 = [mock_checks[0], mock_checks[1], check2]
+        checks3 = [mock_checks[0], check2]
+        mock_get_checks.side_effect = [mock_checks, checks2, checks3]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.status-argoui-ni4os"],
+            namespace="TENANT1"
+        )
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            data=json.dumps(check2),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_checks_with_error_in_put_check_with_msg(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
             mock_delete_events, mock_put
