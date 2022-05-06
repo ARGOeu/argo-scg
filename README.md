@@ -1,6 +1,6 @@
 # ARGO-SCG
 
-## Description
+## Description (sensu)
 
 The ARGO SCG is a component of ARGO monitoring engine that creates configuration for Sensu based on main sources of truth: ARGO Web-API for topology and metric profiles and ARGO POEM for metric configurations.
 
