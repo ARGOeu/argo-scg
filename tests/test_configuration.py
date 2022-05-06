@@ -2061,6 +2061,53 @@ class ConfigurationTests(unittest.TestCase):
             ]
         )
 
+    def test_generate_checks_configuration_for_default_tenant(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            local_attributes=os.path.join(os.getcwd(), 'ncg.conf')
+        )
+        checks = generator.generate_checks(publish=False, namespace="default")
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 30 "
+                               "-r argo.eu "
+                               "-u /ni4os/report-ar/Critical/"
+                               "NGI?accept=csv "
+                               "--ssl --onredirect follow",
+                    "subscriptions": ["argo.webui", "argo.test"],
+                    "handlers": [],
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.ar-argoui-ni4os",
+                        "namespace": "default"
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "default"
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+
     def test_generate_checks_configuration_without_publish(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
