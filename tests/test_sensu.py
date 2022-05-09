@@ -1130,136 +1130,9 @@ def mock_function(*args, **kwargs):
     pass
 
 
-class SensuTests(unittest.TestCase):
+class SensuNamespaceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
-        self.entities = [
-            {
-                "entity_class": "proxy",
-                "metadata": {
-                    "name": "argo-devel.ni4os.eu",
-                    "namespace": "TENANT1",
-                    "labels": {
-                        "generic_http_ar_argoui_ni4os":
-                            "generic.http.ar-argoui-ni4os",
-                        "generic_http_connect": "generic.http.connect",
-                        "generic_certificate_validity":
-                            "generic.certificate.validity",
-                        "generic_tcp_connect": "generic.tcp.connect",
-                        "hostname": "argo-devel.ni4os.eu"
-                    },
-                },
-                "subscriptions": [
-                    "argo.webui",
-                    "argo-test.web"
-                ]
-            },
-            {
-                "entity_class": "proxy",
-                "metadata": {
-                    "name": "argo.ni4os.eu",
-                    "namespace": "TENANT1",
-                    "labels": {
-                        "generic_http_connect": "generic.http.connect",
-                        "hostname": "argo.ni4os.eu"
-                    }
-                },
-                "subscriptions": [
-                    "argo.webui"
-                ]
-            },
-            {
-                "entity_class": "proxy",
-                "metadata": {
-                    "name": "argo-mon.ni4os.eu",
-                    "namespace": "TENANT1",
-                    "labels": {
-                        "generic_tcp_connect": "generic.tcp.connect",
-                        "hostname": "argo-mon.ni4os.eu"
-                    }
-                },
-                "subscriptions": [
-                    "argo.mon"
-                ]
-            }
-        ]
-        self.checks = [
-            {
-                "command": "/usr/lib64/nagios/plugins/check_http "
-                           "-H {{ .labels.hostname }} -t 30 "
-                           "-r argo.eu "
-                           "-u /ni4os/report-ar/Critical/"
-                           "NGI?accept=csv "
-                           "--ssl --onredirect follow",
-                "subscriptions": ["argo.webui", "argo.test"],
-                "handlers": ["publisher-handler"],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_ar_argoui_ni4os == "
-                        "'generic.http.ar-argoui-ni4os'"
-                    ]
-                },
-                "interval": 300,
-                "timeout": 30,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.ar-argoui-ni4os",
-                    "namespace": "TENANT1"
-                },
-                "round_robin": True
-            },
-            {
-                "command": "/usr/lib64/nagios/plugins/check_tcp "
-                           "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": ["argo.webui"],
-                "handlers": [],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_tcp_connect == "
-                        "'generic.tcp.connect'"
-                    ]
-                },
-                "interval": 300,
-                "timeout": 120,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.tcp.connect",
-                    "namespace": "TENANT1"
-                },
-                "round_robin": True
-            },
-            {
-                "command": "/usr/lib64/nagios/plugins/check_ssl_cert -H "
-                           "{{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
-                           "--altnames "
-                           "--rootcert-dir /etc/grid-security/certificates"
-                           " --rootcert-file "
-                           "/etc/pki/tls/certs/ca-bundle.crt "
-                           "-C {{ .labels.ROBOT_CERT | "
-                           "default /etc/nagios/globus/hostcert.pem }} "
-                           "-K {{ .labels.ROBOT_KEY | "
-                           "default /etc/nagios/globus/hostkey.pem }}",
-                "subscriptions": ["argo.webui"],
-                "handlers": ["publisher-handler"],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_certificate_validity == "
-                        "'generic.certificate.validity'"
-                    ]
-                },
-                "interval": 14400,
-                "timeout": 60,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.certificate.validity",
-                    "namespace": "TENANT1"
-                },
-                "round_robin": True
-            }
-        ]
 
     @patch("requests.get")
     def test_get_namespaces(self, mock_get):
@@ -1386,6 +1259,88 @@ class SensuTests(unittest.TestCase):
             "Sensu error: TeNAnT3: Error handling namespaces: 400 BAD REQUEST"
         )
 
+
+class SensuCheckTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.checks = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 30 "
+                           "-r argo.eu "
+                           "-u /ni4os/report-ar/Critical/"
+                           "NGI?accept=csv "
+                           "--ssl --onredirect follow",
+                "subscriptions": ["argo.webui", "argo.test"],
+                "handlers": ["publisher-handler"],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_ar_argoui_ni4os == "
+                        "'generic.http.ar-argoui-ni4os'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 30,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.ar-argoui-ni4os",
+                    "namespace": "TENANT1"
+                },
+                "round_robin": True
+            },
+            {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.webui"],
+                "handlers": [],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 120,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "TENANT1"
+                },
+                "round_robin": True
+            },
+            {
+                "command": "/usr/lib64/nagios/plugins/check_ssl_cert -H "
+                           "{{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
+                           "--altnames "
+                           "--rootcert-dir /etc/grid-security/certificates"
+                           " --rootcert-file "
+                           "/etc/pki/tls/certs/ca-bundle.crt "
+                           "-C {{ .labels.ROBOT_CERT | "
+                           "default /etc/nagios/globus/hostcert.pem }} "
+                           "-K {{ .labels.ROBOT_KEY | "
+                           "default /etc/nagios/globus/hostkey.pem }}",
+                "subscriptions": ["argo.webui"],
+                "handlers": ["publisher-handler"],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_certificate_validity == "
+                        "'generic.certificate.validity'"
+                    ]
+                },
+                "interval": 14400,
+                "timeout": 60,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.certificate.validity",
+                    "namespace": "TENANT1"
+                },
+                "round_robin": True
+            }
+        ]
+
     @patch("requests.get")
     def test_get_checks(self, mock_get):
         mock_get.side_effect = mock_sensu_request
@@ -1440,53 +1395,6 @@ class SensuTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: TENANT1: Error fetching checks: 400 BAD REQUEST"
-        )
-
-    @patch("requests.get")
-    def test_get_events(self, mock_get):
-        mock_get.side_effect = mock_sensu_request
-        checks = self.sensu._get_events(namespace="TENANT1")
-        self.assertEqual(checks, mock_events)
-
-    @patch("requests.get")
-    def test_get_events_with_error_with_messsage(self, mock_get):
-        mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
-
-        with self.assertRaises(SensuException) as context:
-            self.sensu._get_events(namespace="TENANT1")
-
-            mock_get.assert_called_once_with(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events",
-                headers={
-                    "Authorization": "Key t0k3n",
-                    "Content-Type": "application/json"
-                }
-            )
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST: "
-            "Something went wrong."
-        )
-
-    @patch("requests.get")
-    def test_get_events_with_error_without_messsage(self, mock_get):
-        mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
-
-        with self.assertRaises(SensuException) as context:
-            self.sensu._get_events(namespace="TENANT1")
-
-            mock_get.assert_called_once_with(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events",
-                headers={
-                    "Authorization": "Key t0k3n",
-                    "Content-Type": "application/json"
-                }
-            )
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST"
         )
 
     @patch("requests.delete")
@@ -1569,99 +1477,6 @@ class SensuTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: TENANT1: Error deleting check generic.tcp.connect: "
             "400 BAD REQUEST"
-        )
-
-    @patch("requests.delete")
-    def test_delete_events(self, mock_delete):
-        mock_delete.side_effect = mock_delete_response
-        self.sensu._delete_events(
-            events={
-                "argo.ni4os.eu": [
-                    "generic.tcp.connect",
-                    "generic.http.connect"
-                ],
-                "argo-devel.ni4os.eu": ["generic.certificate.validation"]
-            },
-            namespace="TENANT1"
-        )
-        self.assertEqual(mock_delete.call_count, 3)
-        mock_delete.assert_has_calls([
-            call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
-                headers={
-                    "Authorization": "Key t0k3n"
-                }
-            ),
-            call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.http.connect",
-                headers={
-                    "Authorization": "Key t0k3n"
-                }
-            ),
-            call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/"
-                "argo-devel.ni4os.eu/generic.certificate.validation",
-                headers={
-                    "Authorization": "Key t0k3n"
-                }
-            )
-        ], any_order=True)
-
-    @patch("requests.delete")
-    def test_delete_events_with_error_with_message(self, mock_delete):
-        mock_delete.side_effect = mock_delete_response_event_not_ok_with_msg
-        with self.assertRaises(SensuException) as context:
-            self.sensu._delete_events(
-                events={
-                    "argo.ni4os.eu": [
-                        "generic.tcp.connect",
-                        "generic.http.connect"
-                    ]
-                },
-                namespace="TENANT1"
-            )
-            mock_delete.assert_called_once_with(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
-                headers={
-                    "Authorization": "Key t0k3n"
-                }
-            )
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Sensu error: TENANT1: Error deleting event "
-            "argo.ni4os.eu/generic.tcp.connect: 400 BAD REQUEST: "
-            "Something went wrong."
-        )
-
-    @patch("requests.delete")
-    def test_delete_events_with_error_without_message(self, mock_delete):
-        mock_delete.side_effect = mock_delete_response_event_not_ok_without_msg
-        with self.assertRaises(SensuException) as context:
-            self.sensu._delete_events(
-                events={
-                    "argo.ni4os.eu": [
-                        "generic.tcp.connect",
-                        "generic.http.connect"
-                    ]
-                },
-                namespace="TENANT1"
-            )
-            mock_delete.assert_called_once_with(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
-                headers={
-                    "Authorization": "Key t0k3n"
-                }
-            )
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Sensu error: TENANT1: Error deleting event "
-            "argo.ni4os.eu/generic.tcp.connect: 400 BAD REQUEST"
         )
 
     @patch("requests.put")
@@ -2009,6 +1824,127 @@ class SensuTests(unittest.TestCase):
     @patch("argo_scg.sensu.Sensu._delete_checks")
     @patch("argo_scg.sensu.Sensu._get_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_with_removing_proxy_requests(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        mock_checks_small = [mock_checks[0], mock_checks[2]]
+        no_proxy_checks = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 300,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["argo.webui"],
+                "proxy_entity_name": "",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 120,
+                "round_robin": True,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "TENANT1",
+                    "created_by": "root"
+                },
+                "secrets": None,
+                "pipelines": []
+            }
+        ]
+
+        checks2 = [mock_checks[0], no_proxy_checks[0]]
+        mock_get_checks.side_effect = [
+            mock_checks_small, checks2, no_proxy_checks
+        ]
+        mock_get_events.return_value = [mock_events[0], mock_events[1]]
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        self.sensu.handle_checks([no_proxy_checks[0]], namespace="TENANT1")
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.ar-argoui-ni4os"],
+            namespace="TENANT1"
+        )
+        mock_delete_events.assert_called_once_with(
+            events={
+                "argo.ni4os.eu": ["generic.http.ar-argoui-ni4os"]
+            },
+            namespace="TENANT1"
+        )
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            data=json.dumps(no_proxy_checks[0]),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_with_changing_handler(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        check1 = mock_checks[0].copy()
+        check1.pop("high_flap_threshold")
+        check1.pop("low_flap_threshold")
+        check1.pop("runtime_assets")
+        check1.pop("proxy_entity_name")
+        check1.pop("check_hooks")
+        check1.pop("stdin")
+        check1.pop("subdue")
+        check1.pop("ttl")
+        check2 = self.checks[1].copy()
+        check2.update({"handlers": ["publisher-handler"]})
+        checks = [check1, check2]
+        checks2 = [mock_checks[0], mock_checks[1], check2]
+        checks3 = [mock_checks[0], check2]
+        mock_get_checks.side_effect = [mock_checks, checks2, checks3]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.status-argoui-ni4os"],
+            namespace="TENANT1"
+        )
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            data=json.dumps(check2),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_checks_with_error_in_put_check_with_msg(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
             mock_delete_events, mock_put
@@ -2064,6 +2000,206 @@ class SensuTests(unittest.TestCase):
             "Sensu error: TENANT1: Error handling check "
             "generic.http.ar-argoui-ni4os: 400 BAD REQUEST"
         )
+
+
+class SensuEventsTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+
+    @patch("requests.get")
+    def test_get_events(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        checks = self.sensu._get_events(namespace="TENANT1")
+        self.assertEqual(checks, mock_events)
+
+    @patch("requests.get")
+    def test_get_events_with_error_with_messsage(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_events(namespace="TENANT1")
+
+            mock_get.assert_called_once_with(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events",
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_events_with_error_without_messsage(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_events(namespace="TENANT1")
+
+            mock_get.assert_called_once_with(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events",
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST"
+        )
+
+    @patch("requests.delete")
+    def test_delete_events(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response
+        self.sensu._delete_events(
+            events={
+                "argo.ni4os.eu": [
+                    "generic.tcp.connect",
+                    "generic.http.connect"
+                ],
+                "argo-devel.ni4os.eu": ["generic.certificate.validation"]
+            },
+            namespace="TENANT1"
+        )
+        self.assertEqual(mock_delete.call_count, 3)
+        mock_delete.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+                "generic.tcp.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+                "generic.http.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events/"
+                "argo-devel.ni4os.eu/generic.certificate.validation",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            )
+        ], any_order=True)
+
+    @patch("requests.delete")
+    def test_delete_events_with_error_with_message(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response_event_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._delete_events(
+                events={
+                    "argo.ni4os.eu": [
+                        "generic.tcp.connect",
+                        "generic.http.connect"
+                    ]
+                },
+                namespace="TENANT1"
+            )
+            mock_delete.assert_called_once_with(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+                "generic.tcp.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error deleting event "
+            "argo.ni4os.eu/generic.tcp.connect: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.delete")
+    def test_delete_events_with_error_without_message(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response_event_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._delete_events(
+                events={
+                    "argo.ni4os.eu": [
+                        "generic.tcp.connect",
+                        "generic.http.connect"
+                    ]
+                },
+                namespace="TENANT1"
+            )
+            mock_delete.assert_called_once_with(
+                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+                "generic.tcp.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error deleting event "
+            "argo.ni4os.eu/generic.tcp.connect: 400 BAD REQUEST"
+        )
+
+
+class SensuEntityTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.entities = [
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo-devel.ni4os.eu",
+                    "namespace": "TENANT1",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "generic_http_connect": "generic.http.connect",
+                        "generic_certificate_validity":
+                            "generic.certificate.validity",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo-devel.ni4os.eu"
+                    },
+                },
+                "subscriptions": [
+                    "argo.webui",
+                    "argo-test.web"
+                ]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.ni4os.eu",
+                    "namespace": "TENANT1",
+                    "labels": {
+                        "generic_http_connect": "generic.http.connect",
+                        "hostname": "argo.ni4os.eu"
+                    }
+                },
+                "subscriptions": [
+                    "argo.webui"
+                ]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo-mon.ni4os.eu",
+                    "namespace": "TENANT1",
+                    "labels": {
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo-mon.ni4os.eu"
+                    }
+                },
+                "subscriptions": [
+                    "argo.mon"
+                ]
+            }
+        ]
 
     @patch("requests.get")
     def test_get_proxy_entities(self, mock_get):
@@ -2293,6 +2429,11 @@ class SensuTests(unittest.TestCase):
             "argo-devel.ni4os.eu: 400 BAD REQUEST"
         )
 
+
+class SensuAgentsTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+
     @patch("requests.get")
     @patch("requests.patch")
     def test_add_subscriptions_to_agents(self, mock_patch, mock_get):
@@ -2450,6 +2591,11 @@ class SensuTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: TENANT1: Error updating agents: 400 BAD REQUEST"
         )
+
+
+class SensuHandlersTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
 
     @patch("requests.get")
     def test_get_handlers(self, mock_get):

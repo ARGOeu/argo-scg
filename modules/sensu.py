@@ -159,13 +159,26 @@ class Sensu:
 
     @staticmethod
     def _compare_checks(check1, check2):
+        def proxy_equality(check1, check2):
+            proxy_equal = False
+            key1 = "proxy_requests"
+            key2 = "entity_attributes"
+            condition1 = key1 in check1 and key1 in check2
+            condition2 = key1 not in check1 and key1 not in check2
+            condition3 = False
+            if condition1:
+                condition3 = check1[key1][key2] == check2[key1][key2]
+            if (condition1 and condition3) or condition2:
+                proxy_equal = True
+
+            return proxy_equal
+
         equal = False
         if check1["command"] == check2["command"] and \
                 sorted(check1["subscriptions"]) == \
                 sorted(check2["subscriptions"]) and \
                 sorted(check1["handlers"]) == sorted(check2["handlers"]) and \
-                check1["proxy_requests"]["entity_attributes"] == \
-                check2["proxy_requests"]["entity_attributes"] and \
+                proxy_equality(check1, check2) and \
                 check1["interval"] == check2["interval"] and \
                 check1["timeout"] == check2["timeout"] and \
                 check1["publish"] == check2["publish"] and \

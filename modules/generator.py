@@ -336,16 +336,6 @@ class ConfigurationGenerator:
                     "command": command.strip(),
                     "subscriptions": self.servicetypes4metrics[name],
                     "handlers": [],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.{} == '{}'".format(
-                                name.lower().replace(".", "_").replace(
-                                    "-", "_"
-                                ), name
-                            )
-                        ]
-                    },
                     "interval":
                         int(configuration["config"]["interval"]) * 60,
                     "timeout": 900,
@@ -359,6 +349,20 @@ class ConfigurationGenerator:
 
                 if publish and "NOPUBLISH" not in configuration["flags"]:
                     check.update({"handlers": ["publisher-handler"]})
+
+                if namespace != "default":
+                    check.update({
+                        "proxy_requests": {
+                            "entity_attributes": [
+                                "entity.entity_class == 'proxy'",
+                                "entity.labels.{} == '{}'".format(
+                                    name.lower().replace(".", "_").replace(
+                                        "-", "_"
+                                    ), name
+                                )
+                            ]
+                        }
+                    })
 
                 checks.append(check)
 
