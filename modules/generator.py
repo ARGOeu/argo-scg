@@ -74,7 +74,8 @@ secrets = [
 
 class ConfigurationGenerator:
     def __init__(
-            self, metrics, metric_profiles, topology, profiles, local_attributes
+            self, metrics, metric_profiles, topology, profiles,
+            local_attributes, secrets_file
     ):
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
@@ -109,6 +110,7 @@ class ConfigurationGenerator:
 
         self.metrics = metrics_list
         self.topology = topology
+        self.secrets = secrets_file
         self.local_attributes = self._read_local_attributes(local_attributes)
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
@@ -328,8 +330,8 @@ class ConfigurationGenerator:
                 )
 
                 if issecret:
-                    command = f"source /etc/sensu_envs ; " \
-                              f"export $(cut -d= -f1 /etc/sensu_envs) ; " \
+                    command = f"source {self.secrets} ; " \
+                              f"export $(cut -d= -f1 {self.secrets}) ; " \
                               f"{command}"
 
                 check = {
