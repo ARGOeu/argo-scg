@@ -138,6 +138,19 @@ class Config:
         except configparser.NoOptionError as err:
             raise ConfigException(err)
 
+    def get_secrets(self):
+        secrets = dict()
+        for tenant in self.tenants:
+            try:
+                secret_value = self.conf.get(tenant, "secrets")
+
+            except configparser.NoOptionError:
+                secret_value = ""
+
+            secrets.update({tenant: secret_value})
+
+        return secrets
+
     def publish(self):
         try:
             publish = dict()
