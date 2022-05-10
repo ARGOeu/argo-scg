@@ -75,6 +75,11 @@ def main():
                 if publish_bool[namespace]:
                     sensu.handle_publisher_handler(namespace=namespace)
 
+                else:
+                    sensu.handle_slack_handler(
+                        secrets_file=secrets, namespace=namespace
+                    )
+
                 sensu.handle_checks(
                     checks=generator.generate_checks(
                         publish=publish_bool[namespace], namespace=namespace
