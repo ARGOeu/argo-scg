@@ -76,6 +76,7 @@ def main():
                     sensu.handle_publisher_handler(namespace=namespace)
 
                 else:
+                    sensu.add_daily_filter(namespace=namespace)
                     sensu.handle_slack_handler(
                         secrets_file=secrets, namespace=namespace
                     )

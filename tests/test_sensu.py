@@ -980,6 +980,22 @@ mock_handlers3 = [
     }
 ]
 
+mock_filters1 = [
+    {
+        "metadata": {
+            "name": "daily",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "event.check.occurrences == 1 || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+        ],
+        "runtime_assets": None
+    }
+]
+
 
 def mock_sensu_request(*args, **kwargs):
     if args[0].endswith("entities"):
@@ -996,6 +1012,9 @@ def mock_sensu_request(*args, **kwargs):
 
     elif args[0].endswith("handlers"):
         return MockResponse(mock_handlers1, status_code=200)
+
+    elif args[0].endswith("filters"):
+        return MockResponse(mock_filters1, status_code=200)
 
 
 def mock_sensu_request_entity_not_ok_with_msg(*args, **kwargs):
@@ -3057,3 +3076,131 @@ class SensuHandlersTests(unittest.TestCase):
             "Sensu error: TENANT1: Error updating handler slack: "
             "400 BAD REQUEST"
         )
+
+
+class SensuFiltersTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.daily = {
+            "metadata": {
+                "name": "daily",
+                "namespace": "TENANT1"
+            },
+            "action": "allow",
+            "expressions": [
+                "event.check.occurrences == 1 || "
+                "event.check.occurrences % (86400 / event.check.interval) == 0"
+            ]
+        }
+
+    @patch("requests.get")
+    def test_get_filters(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        filters = self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(filters, mock_filters1)
+
+    @patch("requests.get")
+    def test_get_filters_with_error_with_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_filters_with_error_without_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response
+        self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_with_err_with_msg(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding daily filter: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_with_err_no_msg(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding daily filter: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_if_exists(self, mock_filters, mock_post):
+        mock_filters.return_value = mock_filters1
+        self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)

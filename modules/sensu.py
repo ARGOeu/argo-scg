@@ -159,15 +159,15 @@ class Sensu:
 
     @staticmethod
     def _compare_checks(check1, check2):
-        def proxy_equality(check1, check2):
+        def proxy_equality(c1, c2):
             proxy_equal = False
             key1 = "proxy_requests"
             key2 = "entity_attributes"
-            condition1 = key1 in check1 and key1 in check2
-            condition2 = key1 not in check1 and key1 not in check2
+            condition1 = key1 in c1 and key1 in c2
+            condition2 = key1 not in c1 and key1 not in c2
             condition3 = False
             if condition1:
-                condition3 = check1[key1][key2] == check2[key1][key2]
+                condition3 = c1[key1][key2] == c2[key1][key2]
             if (condition1 and condition3) or condition2:
                 proxy_equal = True
 
@@ -537,6 +537,69 @@ class Sensu:
             },
             namespace=namespace
         )
+
+    def _get_filters(self, namespace):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Error fetching filters: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = "{}: {}".format(msg, response.json()["message"])
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
+    def add_daily_filter(self, namespace="default"):
+        filters = [
+            f["metadata"]["name"] for f in self._get_filters(
+                namespace=namespace
+            )
+        ]
+
+        if "daily" not in filters:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                },
+                data=json.dumps({
+                    "metadata": {
+                        "name": "daily",
+                        "namespace": namespace
+                    },
+                    "action": "allow",
+                    "expressions": [
+                        "event.check.occurrences == 1 || "
+                        "event.check.occurrences % "
+                        "(86400 / event.check.interval) == 0"
+                    ]
+                })
+            )
+
+            if not response.ok:
+                msg = f"{namespace}: Error adding daily filter: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = "{}: {}".format(msg, response.json()["message"])
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                raise SensuException(msg)
 
 
 class MetricOutput:
