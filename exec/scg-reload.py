@@ -69,7 +69,7 @@ def main():
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
                     local_attributes=attributes[tenant],
-                    secrets_file=secrets
+                    secrets_file=secrets[namespace]
                 )
 
                 if publish_bool[namespace]:
@@ -78,7 +78,7 @@ def main():
                 else:
                     sensu.add_daily_filter(namespace=namespace)
                     sensu.handle_slack_handler(
-                        secrets_file=secrets, namespace=namespace
+                        secrets_file=secrets[namespace], namespace=namespace
                     )
                     sensu.add_reduce_alerts_pipeline(namespace=namespace)
 
