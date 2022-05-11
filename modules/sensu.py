@@ -601,6 +601,85 @@ class Sensu:
 
                 raise SensuException(msg)
 
+    def _get_pipelines(self, namespace):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Error fetching pipelines: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = "{}: {}".format(msg, response.json()["message"])
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
+    def add_reduce_alerts_pipeline(self, namespace="default"):
+        pipelines = [
+            f["metadata"]["name"] for f in self._get_pipelines(
+                namespace=namespace
+            )
+        ]
+
+        if "reduce_alerts" not in pipelines:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                },
+                data=json.dumps({
+                    "metadata": {
+                        "name": "reduce_alerts",
+                        "namespace": namespace
+                    },
+                    "workflows": [
+                        {
+                            "name": "slack_alerts",
+                            "filters": [
+                                {
+                                    "name": "is_incident",
+                                    "type": "EventFilter",
+                                    "api_version": "core/v2"
+                                },
+                                {
+                                    "name": "daily",
+                                    "type": "EventFilter",
+                                    "api_version": "core/v2"
+                                }
+                            ],
+                            "handler": {
+                                "name": "slack",
+                                "type": "Handler",
+                                "api_version": "core/v2"
+                            }
+                        }
+                    ]
+                })
+            )
+
+            if not response.ok:
+                msg = f"{namespace}: Error adding reduce_alerts pipeline: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = "{}: {}".format(msg, response.json()["message"])
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                raise SensuException(msg)
+
 
 class MetricOutput:
     def __init__(self, data):

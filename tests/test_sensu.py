@@ -996,6 +996,39 @@ mock_filters1 = [
     }
 ]
 
+mock_pipelines1 = [
+    {
+        'metadata': {
+            'name': 'reduce_alerts',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'slack_alerts',
+                'filters': [
+                    {
+                        'name': 'is_incident',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    },
+                    {
+                        'name': 'daily',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'slack',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    }
+]
+
 
 def mock_sensu_request(*args, **kwargs):
     if args[0].endswith("entities"):
@@ -1015,6 +1048,9 @@ def mock_sensu_request(*args, **kwargs):
 
     elif args[0].endswith("filters"):
         return MockResponse(mock_filters1, status_code=200)
+
+    elif args[0].endswith("pipelines"):
+        return MockResponse(mock_pipelines1, status_code=200)
 
 
 def mock_sensu_request_entity_not_ok_with_msg(*args, **kwargs):
@@ -3203,4 +3239,150 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = mock_filters1
         self.sensu.add_daily_filter(namespace="TENANT1")
         mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+
+
+class SensuPipelinesTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.reduce_alerts = {
+            "metadata": {
+                "name": "reduce_alerts",
+                "namespace": "TENANT1"
+            },
+            "workflows": [
+                {
+                    "name": "slack_alerts",
+                    "filters": [
+                        {
+                            "name": "is_incident",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "daily",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "handler": {
+                        "name": "slack",
+                        "type": "Handler",
+                        "api_version": "core/v2"
+                    }
+                }
+            ]
+        }
+
+    @patch("requests.get")
+    def test_get_pipelines(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        pipelines = self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(pipelines, mock_pipelines1)
+
+    @patch("requests.get")
+    def test_get_pipelines_with_error_with_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_pipelines_with_error_without_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_reduce_alerts_pipeline(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response
+        self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alerts_pipe_with_err_with_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding reduce_alerts pipeline: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_with_err_no_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding reduce_alerts pipeline: "
+            "400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_if_exists(self, mock_pipeline, mock_post):
+        mock_pipeline.return_value = mock_pipelines1
+        self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
