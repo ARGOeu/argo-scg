@@ -1414,7 +1414,8 @@ class SensuCheckTests(unittest.TestCase):
                     "name": "generic.http.ar-argoui-ni4os",
                     "namespace": "TENANT1"
                 },
-                "round_robin": True
+                "round_robin": True,
+                "pipelines": []
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -1435,7 +1436,8 @@ class SensuCheckTests(unittest.TestCase):
                     "name": "generic.tcp.connect",
                     "namespace": "TENANT1"
                 },
-                "round_robin": True
+                "round_robin": True,
+                "pipelines": []
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_ssl_cert -H "
@@ -1464,7 +1466,8 @@ class SensuCheckTests(unittest.TestCase):
                     "name": "generic.certificate.validity",
                     "namespace": "TENANT1"
                 },
-                "round_robin": True
+                "round_robin": True,
+                "pipelines": []
             }
         ]
 
