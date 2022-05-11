@@ -905,6 +905,127 @@ mock_handlers2 = [
         "env_vars": None,
         "runtime_assets": None,
         "secrets": None
+    },
+    {
+        "metadata": {
+            "name": "slack",
+            "namespace": "TENANT1",
+            "created_by": "root"
+        },
+        "type": "pipe",
+        "command": "source /etc/sensu/secrets ; "
+                   "export $(cut -d= -f1 /etc/sensu/secrets) ; "
+                   "sensu-slack-handler --channel '#monitoring'",
+        "timeout": 0,
+        "handlers": None,
+        "filters": None,
+        "env_vars": [],
+        "runtime_assets": ["sensu-slack-handler"],
+        "secrets": None
+    }
+]
+
+mock_handlers3 = [
+    {
+        "metadata": {
+            "name": "simple_handler",
+            "namespace": "TENANT1",
+            "labels": {
+                "sensu.io/managed_by": "sensuctl"
+            },
+            "created_by": "root"
+        },
+        "type": "pipe",
+        "command": "jq '{header: {hostname: .entity.labels.hostname, "
+                   "metric: .check.metadata.name, status: .check.status}, "
+                   "body: .check.output}' \u003e\u003e /tmp/events.json",
+        "timeout": 0,
+        "handlers": None,
+        "filters": None,
+        "env_vars": None,
+        "runtime_assets": None,
+        "secrets": None
+    },
+    {
+        "metadata": {
+            "name": "publisher-handler",
+            "namespace": "TENANT1"
+        },
+        "type": "pipe",
+        "command": "/bin/sensu2publisher.py >> /tmp/test",
+        "timeout": 0,
+        "handlers": None,
+        "filters": None,
+        "env_vars": None,
+        "runtime_assets": None,
+        "secrets": None
+    },
+    {
+        "metadata": {
+            "name": "slack",
+            "namespace": "TENANT1",
+            "created_by": "root"
+        },
+        "type": "pipe",
+        "command": "sensu-slack-handler --channel '#monitoring'",
+        "timeout": 0,
+        "handlers": None,
+        "filters": None,
+        "env_vars": [
+            'SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T0000/B000/'
+            'XXXXXXXX'
+        ],
+        "runtime_assets": ["sensu-slack-handler"],
+        "secrets": None
+    }
+]
+
+mock_filters1 = [
+    {
+        "metadata": {
+            "name": "daily",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "event.check.occurrences == 1 || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+        ],
+        "runtime_assets": None
+    }
+]
+
+mock_pipelines1 = [
+    {
+        'metadata': {
+            'name': 'reduce_alerts',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'slack_alerts',
+                'filters': [
+                    {
+                        'name': 'is_incident',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    },
+                    {
+                        'name': 'daily',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'slack',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
     }
 ]
 
@@ -924,6 +1045,12 @@ def mock_sensu_request(*args, **kwargs):
 
     elif args[0].endswith("handlers"):
         return MockResponse(mock_handlers1, status_code=200)
+
+    elif args[0].endswith("filters"):
+        return MockResponse(mock_filters1, status_code=200)
+
+    elif args[0].endswith("pipelines"):
+        return MockResponse(mock_pipelines1, status_code=200)
 
 
 def mock_sensu_request_entity_not_ok_with_msg(*args, **kwargs):
@@ -2596,6 +2723,25 @@ class SensuAgentsTests(unittest.TestCase):
 class SensuHandlersTests(unittest.TestCase):
     def setUp(self) -> None:
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.publisher_handler = {
+            "metadata": {
+                "name": "publisher-handler",
+                "namespace": "TENANT1"
+            },
+            "type": "pipe",
+            "command": "/bin/sensu2publisher.py"
+        }
+        self.slack_handler = {
+            "metadata": {
+                "name": "slack",
+                "namespace": "TENANT1"
+            },
+            "type": "pipe",
+            "command": "source /etc/sensu/secrets ; "
+                       "export $(cut -d= -f1 /etc/sensu/secrets) ; "
+                       "sensu-slack-handler --channel '#monitoring'",
+            "runtime_assets": ["sensu-slack-handler"]
+        }
 
     @patch("requests.get")
     def test_get_handlers(self, mock_get):
@@ -2654,19 +2800,11 @@ class SensuHandlersTests(unittest.TestCase):
     def test_handle_publisher_handler(self, mock_get_handlers, mock_post):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response
-        publisher_handler = {
-            "metadata": {
-                "name": "publisher-handler",
-                "namespace": "TENANT1"
-            },
-            "type": "pipe",
-            "command": "/bin/sensu2publisher.py"
-        }
         self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
-            data=json.dumps(publisher_handler),
+            data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2680,21 +2818,13 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_with_msg
-        publisher_handler = {
-            "metadata": {
-                "name": "publisher-handler",
-                "namespace": "TENANT1"
-            },
-            "type": "pipe",
-            "command": "/bin/sensu2publisher.py"
-        }
         with self.assertRaises(SensuException) as context:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
-            data=json.dumps(publisher_handler),
+            data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2713,21 +2843,13 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_without_msg
-        publisher_handler = {
-            "metadata": {
-                "name": "publisher-handler",
-                "namespace": "TENANT1"
-            },
-            "type": "pipe",
-            "command": "/bin/sensu2publisher.py"
-        }
         with self.assertRaises(SensuException) as context:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
-            data=json.dumps(publisher_handler),
+            data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2741,11 +2863,526 @@ class SensuHandlersTests(unittest.TestCase):
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_handlers")
-    def test_handle_publisher_handler_if_exists(
+    def test_handle_publisher_handler_if_exists_and_same(
             self, mock_get_handlers, mock_post
     ):
         mock_get_handlers.return_value = mock_handlers2
         mock_post.side_effect = mock_post_response
         self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_publisher_handler_if_exists_and_different(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response
+        self.sensu.handle_publisher_handler(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
+            "publisher-handler",
+            data=json.dumps({
+                "command": "/bin/sensu2publisher.py"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_publisher_handler_if_exists_and_different_with_err_with_msg(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_publisher_handler(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
+            "publisher-handler",
+            data=json.dumps({
+                "command": "/bin/sensu2publisher.py"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error updating handler publisher-handler: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_publisher_handler_if_exists_and_different_with_err_no_msg(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_publisher_handler(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
+            "publisher-handler",
+            data=json.dumps({
+                "command": "/bin/sensu2publisher.py"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error updating handler publisher-handler: "
+            "400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler(self, mock_get_handlers, mock_post):
+        mock_get_handlers.return_value = mock_handlers1
+        mock_post.side_effect = mock_post_response
+        self.sensu.handle_slack_handler(
+            secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+        )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            data=json.dumps(self.slack_handler),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_with_error_with_msg(
+            self, mock_get_handlers, mock_post
+    ):
+        mock_get_handlers.return_value = mock_handlers1
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_slack_handler(
+                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+            )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            data=json.dumps(self.slack_handler),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error posting handler slack: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_with_error_without_msg(
+            self, mock_get_handlers, mock_post
+    ):
+        mock_get_handlers.return_value = mock_handlers1
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_slack_handler(
+                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+            )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            data=json.dumps(self.slack_handler),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error posting handler slack: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_if_exists_and_same(
+            self, mock_get_handlers, mock_post
+    ):
+        mock_get_handlers.return_value = mock_handlers2
+        mock_post.side_effect = mock_post_response
+        self.sensu.handle_slack_handler(
+            secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+        )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_if_exists_and_different(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response
+        self.sensu.handle_slack_handler(
+            secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+        )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            data=json.dumps({
+                "command": "source /etc/sensu/secrets ; "
+                           "export $(cut -d= -f1 /etc/sensu/secrets) ; "
+                           "sensu-slack-handler --channel '#monitoring'"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_if_exists_and_different_with_err_with_msg(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_slack_handler(
+                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+            )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            data=json.dumps({
+                "command": "source /etc/sensu/secrets ; "
+                           "export $(cut -d= -f1 /etc/sensu/secrets) ; "
+                           "sensu-slack-handler --channel '#monitoring'"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error updating handler slack: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_handlers")
+    def test_handle_slack_handler_if_exists_and_different_with_err_without_msg(
+            self, mock_get_handlers, mock_patch
+    ):
+        mock_get_handlers.return_value = mock_handlers3
+        mock_patch.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.handle_slack_handler(
+                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+            )
+        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            data=json.dumps({
+                "command": "source /etc/sensu/secrets ; "
+                           "export $(cut -d= -f1 /etc/sensu/secrets) ; "
+                           "sensu-slack-handler --channel '#monitoring'"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error updating handler slack: "
+            "400 BAD REQUEST"
+        )
+
+
+class SensuFiltersTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.daily = {
+            "metadata": {
+                "name": "daily",
+                "namespace": "TENANT1"
+            },
+            "action": "allow",
+            "expressions": [
+                "event.check.occurrences == 1 || "
+                "event.check.occurrences % (86400 / event.check.interval) == 0"
+            ]
+        }
+
+    @patch("requests.get")
+    def test_get_filters(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        filters = self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(filters, mock_filters1)
+
+    @patch("requests.get")
+    def test_get_filters_with_error_with_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_filters_with_error_without_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_filters(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response
+        self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_with_err_with_msg(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding daily filter: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_with_err_no_msg(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.daily),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding daily filter: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_if_exists(self, mock_filters, mock_post):
+        mock_filters.return_value = mock_filters1
+        self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+
+
+class SensuPipelinesTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.reduce_alerts = {
+            "metadata": {
+                "name": "reduce_alerts",
+                "namespace": "TENANT1"
+            },
+            "workflows": [
+                {
+                    "name": "slack_alerts",
+                    "filters": [
+                        {
+                            "name": "is_incident",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "daily",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "handler": {
+                        "name": "slack",
+                        "type": "Handler",
+                        "api_version": "core/v2"
+                    }
+                }
+            ]
+        }
+
+    @patch("requests.get")
+    def test_get_pipelines(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        pipelines = self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(pipelines, mock_pipelines1)
+
+    @patch("requests.get")
+    def test_get_pipelines_with_error_with_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_pipelines_with_error_without_msg(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu._get_pipelines(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_reduce_alerts_pipeline(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response
+        self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alerts_pipe_with_err_with_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding reduce_alerts pipeline: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_with_err_no_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.reduce_alerts),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error adding reduce_alerts pipeline: "
+            "400 BAD REQUEST"
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_if_exists(self, mock_pipeline, mock_post):
+        mock_pipeline.return_value = mock_pipelines1
+        self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)

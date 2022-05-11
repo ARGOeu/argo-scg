@@ -159,15 +159,15 @@ class Sensu:
 
     @staticmethod
     def _compare_checks(check1, check2):
-        def proxy_equality(check1, check2):
+        def proxy_equality(c1, c2):
             proxy_equal = False
             key1 = "proxy_requests"
             key2 = "entity_attributes"
-            condition1 = key1 in check1 and key1 in check2
-            condition2 = key1 not in check1 and key1 not in check2
+            condition1 = key1 in c1 and key1 in c2
+            condition2 = key1 not in c1 and key1 not in c2
             condition3 = False
             if condition1:
-                condition3 = check1[key1][key2] == check2[key1][key2]
+                condition3 = c1[key1][key2] == c2[key1][key2]
             if (condition1 and condition3) or condition2:
                 proxy_equal = True
 
@@ -455,33 +455,222 @@ class Sensu:
         else:
             return response.json()
 
-    def handle_publisher_handler(self, namespace="default"):
-        handlers = [
-            handler["metadata"]["name"] for handler in
-            self._get_handlers(namespace=namespace)
+    def _handle_handler(self, name, data, namespace="default"):
+        existing_handler = [
+            handler for handler in self._get_handlers(namespace=namespace)
+            if handler["metadata"]["name"] == name
         ]
 
-        if "publisher-handler" not in handlers:
+        if len(existing_handler) == 0:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/handlers",
                 headers={
                     "Authorization": f"Key {self.token}",
                     "Content-Type": "application/json"
                 },
+                data=json.dumps(data)
+            )
+
+            if not response.ok:
+                msg = f"{namespace}: Error posting handler {name}: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = "{}: {}".format(msg, response.json()["message"])
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                raise SensuException(msg)
+
+        else:
+            if existing_handler[0]["command"] != data["command"]:
+                response = requests.patch(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/handlers/"
+                    f"{name}",
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/merge-patch+json"
+                    },
+                    data=json.dumps({"command": data["command"]})
+                )
+
+                if not response.ok:
+                    msg = f"{namespace}: Error updating handler {name}: " \
+                          f"{response.status_code} {response.reason}"
+
+                    try:
+                        msg = "{}: {}".format(msg, response.json()["message"])
+
+                    except (ValueError, KeyError, TypeError):
+                        pass
+
+                    raise SensuException(msg)
+
+    def handle_publisher_handler(self, namespace="default"):
+        self._handle_handler(
+            name="publisher-handler",
+            data={
+                "metadata": {
+                    "name": "publisher-handler",
+                    "namespace": namespace
+                },
+                "type": "pipe",
+                "command": "/bin/sensu2publisher.py"
+            },
+            namespace=namespace
+        )
+
+    def handle_slack_handler(self, secrets_file, namespace="default"):
+        self._handle_handler(
+            name="slack",
+            data={
+                "metadata": {
+                    "name": "slack",
+                    "namespace": namespace
+                },
+                "type": "pipe",
+                "command": f"source {secrets_file} ; "
+                           f"export $(cut -d= -f1 {secrets_file}) ; "
+                           f"sensu-slack-handler --channel '#monitoring'",
+                "runtime_assets": ["sensu-slack-handler"]
+            },
+            namespace=namespace
+        )
+
+    def _get_filters(self, namespace):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Error fetching filters: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = "{}: {}".format(msg, response.json()["message"])
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
+    def add_daily_filter(self, namespace="default"):
+        filters = [
+            f["metadata"]["name"] for f in self._get_filters(
+                namespace=namespace
+            )
+        ]
+
+        if "daily" not in filters:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                },
                 data=json.dumps({
                     "metadata": {
-                        "name": "publisher-handler",
+                        "name": "daily",
                         "namespace": namespace
                     },
-                    "type": "pipe",
-                    "command": "/bin/sensu2publisher.py"
+                    "action": "allow",
+                    "expressions": [
+                        "event.check.occurrences == 1 || "
+                        "event.check.occurrences % "
+                        "(86400 / event.check.interval) == 0"
+                    ]
                 })
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error posting handler " \
-                      f"publisher-handler: {response.status_code} " \
-                      f"{response.reason}"
+                msg = f"{namespace}: Error adding daily filter: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = "{}: {}".format(msg, response.json()["message"])
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                raise SensuException(msg)
+
+    def _get_pipelines(self, namespace):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Error fetching pipelines: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = "{}: {}".format(msg, response.json()["message"])
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
+    def add_reduce_alerts_pipeline(self, namespace="default"):
+        pipelines = [
+            f["metadata"]["name"] for f in self._get_pipelines(
+                namespace=namespace
+            )
+        ]
+
+        if "reduce_alerts" not in pipelines:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                },
+                data=json.dumps({
+                    "metadata": {
+                        "name": "reduce_alerts",
+                        "namespace": namespace
+                    },
+                    "workflows": [
+                        {
+                            "name": "slack_alerts",
+                            "filters": [
+                                {
+                                    "name": "is_incident",
+                                    "type": "EventFilter",
+                                    "api_version": "core/v2"
+                                },
+                                {
+                                    "name": "daily",
+                                    "type": "EventFilter",
+                                    "api_version": "core/v2"
+                                }
+                            ],
+                            "handler": {
+                                "name": "slack",
+                                "type": "Handler",
+                                "api_version": "core/v2"
+                            }
+                        }
+                    ]
+                })
+            )
+
+            if not response.ok:
+                msg = f"{namespace}: Error adding reduce_alerts pipeline: " \
+                      f"{response.status_code} {response.reason}"
 
                 try:
                     msg = "{}: {}".format(msg, response.json()["message"])

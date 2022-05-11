@@ -35,6 +35,7 @@ def main():
         metricprofiles = config.get_metricprofiles()
         attributes = config.get_local_attributes()
         local_topology = config.get_topology()
+        secrets = config.get_secrets()
         publish_bool = config.publish()
 
         tenants = config.get_tenants()
@@ -67,11 +68,19 @@ def main():
                     profiles=metricprofiles[tenant],
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
-                    local_attributes=attributes[tenant]
+                    local_attributes=attributes[tenant],
+                    secrets_file=secrets[namespace]
                 )
 
                 if publish_bool[namespace]:
                     sensu.handle_publisher_handler(namespace=namespace)
+
+                else:
+                    sensu.add_daily_filter(namespace=namespace)
+                    sensu.handle_slack_handler(
+                        secrets_file=secrets[namespace], namespace=namespace
+                    )
+                    sensu.add_reduce_alerts_pipeline(namespace=namespace)
 
                 sensu.handle_checks(
                     checks=generator.generate_checks(

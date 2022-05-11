@@ -17,6 +17,7 @@ webapi_token = w3b4p1t0k3n\n
 attributes = /path/to/attributes1\n
 metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
 topology = /path/to/topology1\n
+secrets = /path/to/secrets\n
 publish = true\n
 publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
 \n
@@ -341,6 +342,28 @@ class ConfigTests(unittest.TestCase):
         config = Config(config_file=config_file_name)
         self.assertEqual(
             config.get_topology(),
+            {
+                "TENANT1": "",
+                "TENANT2": ""
+            }
+        )
+
+    def test_get_secrets(self):
+        self.assertEqual(
+            self.config.get_secrets(),
+            {
+                "TENANT1": "/path/to/secrets",
+                "TENANT2": ""
+            }
+        )
+
+    def test_get_secrets_missing_option(self):
+        with open(config_file_name, "w") as f:
+            f.write(config_file_missing_option_tenant)
+
+        config = Config(config_file=config_file_name)
+        self.assertEqual(
+            config.get_secrets(),
             {
                 "TENANT1": "",
                 "TENANT2": ""

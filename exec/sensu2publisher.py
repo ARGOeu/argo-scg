@@ -64,7 +64,7 @@ def main():
         sys.exit(1)
 
     try:
-        config = Config(config_file="/etc/argo-scg/sensu.conf")
+        config = Config(config_file="/etc/argo-scg/scg.conf")
         publisher_queue = config.get_publisher_queue()[namespace]
 
     except (
