@@ -1999,7 +1999,7 @@ mock_local_topology = [
 ]
 
 
-class ConfigurationTests(unittest.TestCase):
+class CheckConfigurationTests(unittest.TestCase):
     def test_generate_checks_configuration(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -2091,7 +2091,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "generic.http.ar-argoui-ni4os",
                         "namespace": "default"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2105,7 +2112,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "generic.tcp.connect",
                         "namespace": "default"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -2146,7 +2160,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "generic.http.ar-argoui-ni4os",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2167,7 +2188,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "generic.tcp.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -2297,7 +2325,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.GRAM-CertValidity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2324,7 +2359,14 @@ class ConfigurationTests(unittest.TestCase):
                         "name": "generic.certificate.validity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -3244,6 +3286,8 @@ class ConfigurationTests(unittest.TestCase):
             ]
         )
 
+
+class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,

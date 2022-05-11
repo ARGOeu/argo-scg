@@ -352,6 +352,17 @@ class ConfigurationGenerator:
                 if publish and "NOPUBLISH" not in configuration["flags"]:
                     check.update({"handlers": ["publisher-handler"]})
 
+                if not publish:
+                    check.update({
+                        "pipelines": [
+                            {
+                                "name": "reduce_alerts",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ]
+                    })
+
                 if namespace != "default":
                     check.update({
                         "proxy_requests": {
