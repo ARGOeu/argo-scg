@@ -36,8 +36,8 @@ class Poem:
             metric_confs = list()
             for metric in metrics:
                 for name, configuration in metric.items():
-                    path = configuration["config"]["path"]
-                    if path == "$USER1$":
+                    if "path" in configuration["config"] and \
+                            configuration["config"]["path"] == "$USER1$":
                         configuration["config"]["path"] = \
                             "/usr/lib64/nagios/plugins"
                     metric_confs.append({name: configuration})
