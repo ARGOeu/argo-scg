@@ -2022,6 +2022,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--ssl --onredirect follow",
                     "subscriptions": ["argo.webui", "argo.test"],
                     "handlers": ["publisher-handler"],
+                    "pipelines": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2043,6 +2044,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.webui"],
                     "handlers": ["publisher-handler"],
+                    "pipelines": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2236,7 +2238,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.GRAM-CertValidity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2263,7 +2266,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.certificate.validity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
@@ -2284,7 +2288,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.GridFTP-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2406,7 +2411,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eudat.b2access.unity.login-local",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2435,7 +2441,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "grnet.rciam.oidc-login-edugain-ni4os",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2476,7 +2483,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.http.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2516,7 +2524,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "ch.cern.WebDAV",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
@@ -2540,7 +2549,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "ch.cern.WebDAV-dynafed",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2563,7 +2573,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.grycap.IM-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2602,7 +2613,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.bdii.Entries",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
@@ -2627,7 +2639,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.GLUE2-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2667,7 +2680,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.DynDNS-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2715,7 +2729,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
@@ -2748,7 +2763,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2787,7 +2803,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.seadatanet.org.replicationmanager-check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2815,7 +2832,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                 "status",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2853,7 +2871,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.InfoProvider",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2876,7 +2895,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.OpenStack-Swift",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2902,7 +2922,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.OpenStack-VM",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2924,7 +2945,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.Keystone-TCP",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2965,7 +2987,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.sec.ARCCE-Pakiti-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3006,7 +3029,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.SRM-All",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3055,7 +3079,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3095,7 +3120,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "pl.plgrid.QCG-Broker",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3137,7 +3163,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.certificate.validity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3177,7 +3204,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "grnet.agora.healthcheck",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3219,7 +3247,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "argo.API-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3260,7 +3289,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "argo.AMSPublisher-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3281,7 +3311,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.tcp.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )

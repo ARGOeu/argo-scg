@@ -363,6 +363,9 @@ class ConfigurationGenerator:
                         ]
                     })
 
+                else:
+                    check.update({"pipelines": []})
+
                 if namespace != "default":
                     check.update({
                         "proxy_requests": {
