@@ -1,4 +1,3 @@
-import os.path
 import unittest
 
 from argo_scg.generator import ConfigurationGenerator
@@ -1998,6 +1997,56 @@ mock_local_topology = [
     }
 ]
 
+mock_attributes = {
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "OIDC_TOKEN_FILE",
+                "value": "/etc/nagios/globus/oidc"
+            },
+            {
+                "attribute": "OIDC_ACCESS_TOKEN",
+                "value": "/etc/nagios/globus/oidc"
+            },
+            {
+                "attribute": "OS_APPDB_IMAGE",
+                "value": "xxxx"
+            },
+            {
+                "attribute": "X509_USER_PROXY",
+                "value": "/etc/nagios/globus/userproxy.pem"
+            },
+            {
+                "attribute": "VONAME",
+                "value": "test"
+            },
+            {
+                "attribute": "ARC_GOOD_SES",
+                "value": "good_ses_file=/var/lib/gridprobes/ops/GoodSEs"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
+    }
+}
+
+mock_attributes_with_robot = {
+    "robot": {
+        "global_attributes": [
+            {
+                "attribute": "ROBOT_CERT",
+                "value": "/etc/nagios/robot/robot.pem"
+            },
+            {
+                "attribute": "ROBOT_KEY",
+                "value": "/etc/nagios/robot/robot.key"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
+    }
+}
+
 
 class CheckConfigurationTests(unittest.TestCase):
     def test_generate_checks_configuration(self):
@@ -2006,7 +2055,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2070,7 +2119,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="default")
@@ -2132,7 +2181,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="mockspace")
@@ -2208,7 +2257,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST2", "ARGO_TEST3"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2300,7 +2349,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST2"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg2.conf'),
+            attributes=mock_attributes_with_robot,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="mockspace")
@@ -2376,84 +2425,13 @@ class CheckConfigurationTests(unittest.TestCase):
             ]
         )
 
-    def test_generate_check_configuration_with_file_defined_attributes(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST4"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
-            secrets_file=""
-        )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
-        self.assertEqual(
-            sorted(checks, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "command": "/usr/libexec/argo-monitoring/probes/"
-                               "eudat-b2access/check_b2access_simple.py "
-                               "-H {{ .labels.hostname }} "
-                               "--url https://b2access.fz-juelich.de:8443 "
-                               "--username username --password pa55w0rD",
-                    "subscriptions": ["b2access.unity", "argo.test"],
-                    "handlers": ["publisher-handler"],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.eudat_b2access_unity_login_local == "
-                            "'eudat.b2access.unity.login-local'"
-                        ]
-                    },
-                    "interval": 900,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "eudat.b2access.unity.login-local",
-                        "namespace": "mockspace"
-                    },
-                    "round_robin": False,
-                    "pipelines": []
-                },
-                {
-                    "command": "/usr/libexec/argo-monitoring/probes/"
-                               "rciam_probes/checklogin "
-                               "-H {{ .labels.hostname }} -t 10 "
-                               "-i https://idp.admin.grnet.gr/idp/shibboleth "
-                               "-s https://snf-666522.vm.okeanos.grnet.gr/"
-                               "ni4os-rp/auth.php -C "
-                               "-e https://mon-dev.rciam.grnet.gr/probes/"
-                               "results "
-                               "-u edugain_user -a 3dug41npwd",
-                    "subscriptions": ["aai.oidc.login"],
-                    "handlers": ["publisher-handler"],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.grnet_rciam_oidc_login_edugain_"
-                            "ni4os == "
-                            "'grnet.rciam.oidc-login-edugain-ni4os'"
-                        ]
-                    },
-                    "interval": 900,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "grnet.rciam.oidc-login-edugain-ni4os",
-                        "namespace": "mockspace"
-                    },
-                    "round_robin": False,
-                    "pipelines": []
-                }
-            ]
-        )
-
     def test_generate_check_configuration_with_SSL(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
             profiles=["ARGO_TEST7"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2495,7 +2473,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST8"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2585,7 +2563,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST10"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2651,7 +2629,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST12"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2692,7 +2670,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST19"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2775,7 +2753,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST20"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2844,7 +2822,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST13"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2957,7 +2935,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST15"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2999,7 +2977,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST16"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3041,7 +3019,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST17"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3091,7 +3069,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST18"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3132,7 +3110,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST21"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3175,7 +3153,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST22"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file="/path/to/secrets"
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3216,7 +3194,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST23"],
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file="/path/to/secrets"
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3259,7 +3237,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST24"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3325,7 +3303,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST5"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3379,7 +3357,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST6"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3483,7 +3461,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST7"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3535,7 +3513,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST8"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3603,7 +3581,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST9"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3637,7 +3615,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST10"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3734,7 +3712,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST11"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3798,7 +3776,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST12"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3863,7 +3841,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST20"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3921,7 +3899,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST13"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4001,7 +3979,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST14"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4053,7 +4031,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST16"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4104,7 +4082,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST17"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4152,12 +4130,10 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST21"],
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
-
         entities = generator.generate_entities()
-
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4200,7 +4176,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         subscriptions = generator.generate_subscriptions()

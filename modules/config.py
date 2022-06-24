@@ -1,4 +1,5 @@
 import configparser
+
 from argo_scg.exceptions import ConfigException
 
 
@@ -46,17 +47,6 @@ class Config:
 
     def get_tenants(self):
         return self.tenants
-
-    def get_local_attributes(self):
-        try:
-            attrs = dict()
-            for tenant in self.tenants:
-                attrs.update({tenant: self.conf.get(tenant, "attributes")})
-
-            return attrs
-
-        except configparser.NoOptionError as err:
-            raise ConfigException(err)
 
     def get_poem_urls(self):
         try:

@@ -81,7 +81,7 @@ secrets = [
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            local_attributes, secrets_file
+            attributes, secrets_file
     ):
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
@@ -117,7 +117,7 @@ class ConfigurationGenerator:
         self.metrics = metrics_list
         self.topology = topology
         self.secrets = secrets_file
-        self.local_attributes = self._read_local_attributes(local_attributes)
+        self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
         self.metrics4servicetypes = self._get_metrics4servicetypes()
@@ -143,14 +143,12 @@ class ConfigurationGenerator:
             )
 
     @staticmethod
-    def _read_local_attributes(filename):
+    def _read_global_attributes(input_attrs):
         attrs = dict()
-        with open(filename, 'r') as f:
-            lines = f.readlines()
 
-        for line in lines:
-            data = line.strip().split('=')
-            attrs.update({data[0].strip(): "=".join(data[1:]).strip()})
+        for file, attributes in input_attrs.items():
+            for item in attributes["global_attributes"]:
+                attrs.update({item["attribute"]: item["value"]})
 
         return attrs
 
@@ -220,8 +218,8 @@ class ConfigurationGenerator:
         attributes = ""
         issecret = False
         for key, value in attrs.items():
-            if key in self.local_attributes:
-                key = self.local_attributes[key]
+            if key in self.global_attributes:
+                key = self.global_attributes[key]
 
             elif key in secrets:
                 if "." in key:
@@ -232,14 +230,14 @@ class ConfigurationGenerator:
 
             else:
                 if key == "NAGIOS_HOST_CERT":
-                    if "ROBOT_CERT" in self.local_attributes:
-                        key = self.local_attributes["ROBOT_CERT"]
+                    if "ROBOT_CERT" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_CERT"]
                     else:
                         key = hardcoded_attributes[key]
 
                 elif key == "NAGIOS_HOST_KEY":
-                    if "ROBOT_KEY" in self.local_attributes:
-                        key = self.local_attributes["ROBOT_KEY"]
+                    if "ROBOT_KEY" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_KEY"]
 
                     else:
                         key = hardcoded_attributes[key]
@@ -248,8 +246,8 @@ class ConfigurationGenerator:
                     key = hardcoded_attributes[key]
 
                 elif key == "TOP_BDII":
-                    if "BDII_HOST" in self.local_attributes:
-                        key = self.local_attributes["BDII_HOST"]
+                    if "BDII_HOST" in self.global_attributes:
+                        key = self.global_attributes["BDII_HOST"]
                     else:
                         key = ""
 

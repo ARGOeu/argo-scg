@@ -68,7 +68,7 @@ def main():
                     profiles=metricprofiles[tenant],
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
-                    local_attributes=attributes[tenant],
+                    attributes=poem.get_metric_overrides(),
                     secrets_file=secrets[namespace]
                 )
 
