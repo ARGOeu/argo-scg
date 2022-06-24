@@ -29,6 +29,28 @@ class Poem:
         else:
             return response.json()
 
+    def get_metric_overrides(self):
+        response = requests.get(
+            "{}/api/v2/metricoverrides".format(self.url),
+            headers={"x-api-key": self.token}
+        )
+
+        if not response.ok:
+            msg = "Error fetching metric overrides: {} {}".format(
+                response.status_code, response.reason
+            )
+
+            try:
+                msg = "{}: {}".format(msg, response.json()["detail"])
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise PoemException(msg)
+
+        else:
+            return response.json()
+
     def get_metrics_configurations(self):
         metrics = self._get_metrics()
 
