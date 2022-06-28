@@ -117,7 +117,12 @@ class ConfigurationGenerator:
         self.metrics = metrics_list
         self.topology = topology
         self.secrets = secrets_file
+
         self.global_attributes = self._read_global_attributes(attributes)
+        self.metric_parameter_overrides = self._read_metric_parameter_overrides(
+            attributes
+        )
+
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
         self.metrics4servicetypes = self._get_metrics4servicetypes()
@@ -146,11 +151,35 @@ class ConfigurationGenerator:
     def _read_global_attributes(input_attrs):
         attrs = dict()
 
-        for file, attributes in input_attrs.items():
-            for item in attributes["global_attributes"]:
+        for file, keys in input_attrs.items():
+            for item in keys["global_attributes"]:
                 attrs.update({item["attribute"]: item["value"]})
 
         return attrs
+
+    def _read_metric_parameter_overrides(self, input_attrs):
+        metric_parameter_overrides = dict()
+
+        for file, keys in input_attrs.items():
+            for item in keys["metric_parameters"]:
+                metric_parameter_overrides.update({
+                    item["metric"]: {
+                        "hostname": item["hostname"],
+                        "label": self._create_metric_parameter_label(
+                            item["metric"], item["parameter"]
+                        ),
+                        "value": item["value"]
+                    }
+                })
+
+        return metric_parameter_overrides
+
+    @staticmethod
+    def _create_label(item):
+        return item.lower().replace(".", "_").replace("-", "_")
+
+    def _create_metric_parameter_label(self, metric, parameter):
+        return f"{self._create_label(metric)}_{parameter.strip('-').strip('-')}"
 
     def _is_extension_present_in_all_endpoints(self, services, extension):
         is_present = True
@@ -321,6 +350,12 @@ class ConfigurationGenerator:
                     parameters = parameters.strip()
 
                 for key, value in configuration["parameter"].items():
+                    if name in self.metric_parameter_overrides:
+                        value = "{{ .labels.%s | default '%s' }}" % (
+                            self.metric_parameter_overrides[name]["label"],
+                            value
+                        )
+
                     param = f"{key} {value}".strip()
                     parameters = f"{parameters} {param}".strip()
 
@@ -480,9 +515,17 @@ class ConfigurationGenerator:
 
             types.append(item["service"])
             for metric in self.metrics4servicetypes[item["service"]]:
-                key = metric.lower().replace(".", "_").replace("-", "_")
+                key = self._create_label(metric)
                 if key not in labels:
-                    labels.update({key.lower(): metric})
+                    labels.update({key: metric})
+
+                if metric in self.metric_parameter_overrides and \
+                        item["hostname"] in \
+                        self.metric_parameter_overrides[metric]["hostname"]:
+                    labels.update({
+                        self.metric_parameter_overrides[metric]["label"]:
+                            self.metric_parameter_overrides[metric]["value"]
+                    })
 
                 if metric == "generic.ssh.connect" and "port" not in labels:
                     labels.update({"port": "22"})
