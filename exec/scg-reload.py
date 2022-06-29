@@ -33,7 +33,6 @@ def main():
         poem_urls = config.get_poem_urls()
         poem_tokens = config.get_poem_tokens()
         metricprofiles = config.get_metricprofiles()
-        attributes = config.get_local_attributes()
         local_topology = config.get_topology()
         secrets = config.get_secrets()
         publish_bool = config.publish()
@@ -68,7 +67,7 @@ def main():
                     profiles=metricprofiles[tenant],
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
-                    local_attributes=attributes[tenant],
+                    attributes=poem.get_metric_overrides(),
                     secrets_file=secrets[namespace]
                 )
 

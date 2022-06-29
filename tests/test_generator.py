@@ -1,4 +1,3 @@
-import os.path
 import unittest
 
 from argo_scg.generator import ConfigurationGenerator
@@ -75,6 +74,38 @@ mock_metrics = [
             "parent": "",
             "docurl": "https://github.com/ARGOeu/nagios-plugins-argo/blob/"
                       "master/README.md"
+        }
+    },
+    {
+        "argo.nagios.freshness-simple-login": {
+            "tags": [
+                "argo",
+                "authentication",
+                "monitoring",
+                "nagios"
+            ],
+            "probe": "check_nagios",
+            "config": {
+                "interval": "15",
+                "maxCheckAttempts": "2",
+                "path": "/usr/libexec/argo/probes/nagios",
+                "retryInterval": "10",
+                "timeout": "60"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_FRESHNESS_USERNAME": "--username",
+                "NAGIOS_FRESHNESS_PASSWORD": "--password"
+            },
+            "parameter": {
+                "--nagios-service": "org.nagios.NagiosCmdFile"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-nagios/"
+                      "blob/master/README.md"
         }
     },
     {
@@ -1974,6 +2005,46 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2021-12-01",
+        "name": "ARGO_TEST25",
+        "description": "Profile for testing metric parameter override",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.ssh.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2021-12-01",
+        "name": "ARGO_TEST26",
+        "description": "Profile for testing host attribute override",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "argo.nagios.freshness-simple-login"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -1998,6 +2069,56 @@ mock_local_topology = [
     }
 ]
 
+mock_attributes = {
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "OIDC_TOKEN_FILE",
+                "value": "/etc/nagios/globus/oidc"
+            },
+            {
+                "attribute": "OIDC_ACCESS_TOKEN",
+                "value": "/etc/nagios/globus/oidc"
+            },
+            {
+                "attribute": "OS_APPDB_IMAGE",
+                "value": "xxxx"
+            },
+            {
+                "attribute": "X509_USER_PROXY",
+                "value": "/etc/nagios/globus/userproxy.pem"
+            },
+            {
+                "attribute": "VONAME",
+                "value": "test"
+            },
+            {
+                "attribute": "ARC_GOOD_SES",
+                "value": "good_ses_file=/var/lib/gridprobes/ops/GoodSEs"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
+    }
+}
+
+mock_attributes_with_robot = {
+    "robot": {
+        "global_attributes": [
+            {
+                "attribute": "ROBOT_CERT",
+                "value": "/etc/nagios/robot/robot.pem"
+            },
+            {
+                "attribute": "ROBOT_KEY",
+                "value": "/etc/nagios/robot/robot.key"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
+    }
+}
+
 
 class CheckConfigurationTests(unittest.TestCase):
     def test_generate_checks_configuration(self):
@@ -2006,7 +2127,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2022,6 +2143,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--ssl --onredirect follow",
                     "subscriptions": ["argo.webui", "argo.test"],
                     "handlers": ["publisher-handler"],
+                    "pipelines": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2043,6 +2165,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.webui"],
                     "handlers": ["publisher-handler"],
+                    "pipelines": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2068,7 +2191,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="default")
@@ -2130,7 +2253,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="mockspace")
@@ -2206,7 +2329,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST2", "ARGO_TEST3"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2236,7 +2359,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.GRAM-CertValidity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2263,7 +2387,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.certificate.validity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
@@ -2284,7 +2409,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.GridFTP-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2295,7 +2421,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST2"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg2.conf'),
+            attributes=mock_attributes_with_robot,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=False, namespace="mockspace")
@@ -2371,82 +2497,13 @@ class CheckConfigurationTests(unittest.TestCase):
             ]
         )
 
-    def test_generate_check_configuration_with_file_defined_attributes(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST4"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
-            secrets_file=""
-        )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
-        self.assertEqual(
-            sorted(checks, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "command": "/usr/libexec/argo-monitoring/probes/"
-                               "eudat-b2access/check_b2access_simple.py "
-                               "-H {{ .labels.hostname }} "
-                               "--url https://b2access.fz-juelich.de:8443 "
-                               "--username username --password pa55w0rD",
-                    "subscriptions": ["b2access.unity", "argo.test"],
-                    "handlers": ["publisher-handler"],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.eudat_b2access_unity_login_local == "
-                            "'eudat.b2access.unity.login-local'"
-                        ]
-                    },
-                    "interval": 900,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "eudat.b2access.unity.login-local",
-                        "namespace": "mockspace"
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/libexec/argo-monitoring/probes/"
-                               "rciam_probes/checklogin "
-                               "-H {{ .labels.hostname }} -t 10 "
-                               "-i https://idp.admin.grnet.gr/idp/shibboleth "
-                               "-s https://snf-666522.vm.okeanos.grnet.gr/"
-                               "ni4os-rp/auth.php -C "
-                               "-e https://mon-dev.rciam.grnet.gr/probes/"
-                               "results "
-                               "-u edugain_user -a 3dug41npwd",
-                    "subscriptions": ["aai.oidc.login"],
-                    "handlers": ["publisher-handler"],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.grnet_rciam_oidc_login_edugain_"
-                            "ni4os == "
-                            "'grnet.rciam.oidc-login-edugain-ni4os'"
-                        ]
-                    },
-                    "interval": 900,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "grnet.rciam.oidc-login-edugain-ni4os",
-                        "namespace": "mockspace"
-                    },
-                    "round_robin": False
-                }
-            ]
-        )
-
     def test_generate_check_configuration_with_SSL(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
             profiles=["ARGO_TEST7"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2476,7 +2533,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.http.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2487,7 +2545,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST8"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2516,7 +2574,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "ch.cern.WebDAV",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
@@ -2540,7 +2599,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "ch.cern.WebDAV-dynafed",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2563,7 +2623,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.grycap.IM-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2574,7 +2635,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST10"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2602,7 +2663,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.bdii.Entries",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
@@ -2627,7 +2689,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.GLUE2-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2638,7 +2701,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST12"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2667,7 +2730,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.DynDNS-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2678,7 +2742,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST19"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2715,7 +2779,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
@@ -2748,7 +2813,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2759,7 +2825,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST20"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2787,7 +2853,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.seadatanet.org.replicationmanager-check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2815,7 +2882,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                 "status",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2826,7 +2894,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST13"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2853,7 +2921,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.InfoProvider",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2876,7 +2945,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.OpenStack-Swift",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2902,7 +2972,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.cloud.OpenStack-VM",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2924,7 +2995,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nagios.Keystone-TCP",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2935,7 +3007,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST15"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -2965,7 +3037,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.sec.ARCCE-Pakiti-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -2976,7 +3049,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST16"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3006,7 +3079,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "eu.egi.SRM-All",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3017,7 +3091,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST17"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3055,7 +3129,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3066,7 +3141,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST18"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3095,7 +3170,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "pl.plgrid.QCG-Broker",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3106,7 +3182,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST21"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3137,7 +3213,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.certificate.validity",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3148,7 +3225,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST22"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file="/path/to/secrets"
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3177,7 +3254,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "grnet.agora.healthcheck",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3188,7 +3266,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST23"],
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file="/path/to/secrets"
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3219,7 +3297,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "argo.API-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3230,7 +3309,7 @@ class CheckConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST24"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         checks = generator.generate_checks(publish=True, namespace="mockspace")
@@ -3260,7 +3339,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "argo.AMSPublisher-Check",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3281,7 +3361,166 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.tcp.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "pipelines": []
+                }
+            ]
+        )
+
+    def test_generate_check_configuration_with_metric_parameter_override(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "argo.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "80"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST25"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssh "
+                               "-H {{ .labels.hostname }} -t 60 "
+                               "-p {{ .labels.port }}",
+                    "subscriptions": ["argo.test"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_ssh_connect == "
+                            "'generic.ssh.connect'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.ssh.connect",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 "
+                               "-p {{ .labels.generic_tcp_connect_p | "
+                               "default '443' }}",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                }
+            ]
+        )
+
+    def test_generate_check_configuration_with_host_attribute_override(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "source  ; export $(cut -d= -f1 ) ; "
+                               "/usr/libexec/argo/probes/nagios/check_nagios "
+                               "-H {{ .labels.hostname }} -t 60 "
+                               "--nagios-service org.nagios.NagiosCmdFile "
+                               "--username "
+                               "{{ .labels.nagios_freshness_username }} "
+                               "--password "
+                               "{{ .labels.nagios_freshness_password }}",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_nagios_freshness_simple_login "
+                            "== 'argo.nagios.freshness-simple-login'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.nagios.freshness-simple-login",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.test"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -3294,7 +3533,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST5"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3348,7 +3587,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST6"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3452,7 +3691,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST7"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3504,7 +3743,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST8"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3572,7 +3811,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST9"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3606,7 +3845,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST10"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3703,7 +3942,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST11"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3767,7 +4006,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST12"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3832,7 +4071,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST20"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3890,7 +4129,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST13"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -3970,7 +4209,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST14"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4022,7 +4261,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST16"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4073,7 +4312,7 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST17"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         entities = generator.generate_entities()
@@ -4121,12 +4360,10 @@ class EntityConfigurationTests(unittest.TestCase):
             profiles=["ARGO_TEST21"],
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
-
         entities = generator.generate_entities()
-
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4163,13 +4400,176 @@ class EntityConfigurationTests(unittest.TestCase):
             ]
         )
 
+    def test_generate_entities_with_metric_parameter_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "argo.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "80"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST25"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "port": "443",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_tcp_connect_p": "80",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
+    def test_generate_entities_with_host_attribute_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
             profiles=["ARGO_TEST1"],
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
-            local_attributes=os.path.join(os.getcwd(), 'ncg.conf'),
+            attributes=mock_attributes,
             secrets_file=""
         )
         subscriptions = generator.generate_subscriptions()

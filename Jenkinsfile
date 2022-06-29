@@ -13,7 +13,6 @@ pipeline {
     stages {
         stage ('Build'){
             parallel {
-                
                 stage ('Build Centos 7') {
                     agent {
                         docker {
@@ -34,7 +33,26 @@ pipeline {
                             cleanWs()
                         }
                     }
-                } 
+                }
+                stage ('Execute tests') {
+                    agent {
+                        docker {
+                            image 'argo.registry:5000/epel-7-ams'
+                            args '-u jenkins:jenkins -v /dev/log:/dev/log'
+                        }
+                    }
+                    steps {
+                        sh '''
+                            cd $WORKSPACE/$PROJECT_DIR/
+                            rm -f tests/argo_scg
+                            ln -s $PWD/modules/ tests/argo_scg
+                            coverage run -m xmlrunner discover --output-file junit.xml -v tests/
+                            coverage xml
+                        '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
+                        junit '**/junit.xml'
+                    }
+                }
             }
         }
     }
@@ -54,7 +72,7 @@ pipeline {
                 if ( env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'devel' ) {
                     slackSend( message: ":rain_cloud: Build Failed for <$BUILD_URL|$PROJECT_DIR>:$BRANCH_NAME Job: $JOB_NAME")
                 }
-            }   
+            }
         }
     }
 }

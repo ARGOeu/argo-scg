@@ -220,7 +220,6 @@ mock_metrics = [
             "attribute": {
                 "NAGIOS_ACTUAL_HOST_CERT": "-J",
                 "NAGIOS_ACTUAL_HOST_KEY": "-K",
-                "SAM_PORT": "-p"
             },
             "parameter": {
                 "--ssl": "0",
@@ -237,26 +236,60 @@ mock_metrics = [
 ]
 
 
+mock_metric_overrides = {
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "NAGIOS_ACTUAL_HOST_CERT",
+                "value": "/etc/nagios/actual/path/hostcert.pem"
+            },
+            {
+                "attribute": "NAGIOS_ACTUAL_HOST_KEY",
+                "value": "/etc/nagios/actual/path/hostkey.pem"
+            }
+        ],
+        "host_attributes": [
+            {
+                "hostname": "host.argo.com",
+                "attribute": "AMS_TOKEN",
+                "value": "ANOTHER_AMS_TOKEN"
+            },
+            {
+                "hostname": "host2.argo.com",
+                "attribute": "GRIDPROXY_NAGIOS_SERVICE",
+                "value": "hr.srce.GridProxy-Valid-ops"
+            }
+        ],
+        "metric_parameters": [
+            {
+                "hostname": "host.argo.com",
+                "metric": "argo.mock.metric",
+                "parameter": "-u",
+                "value": "https://some.other.url"
+            }
+        ]
+    }
+}
+
+
 def mock_poem_metrics_request(*args, **kwargs):
     return MockResponse(mock_metrics, status_code=200)
 
 
-def mock_poem_metrics_request_with_error_with_msg(*args, **kwargs):
+def mock_poem_metric_overrides_request(*args, **kwargs):
+    return MockResponse(mock_metric_overrides, status_code=200)
+
+
+def mock_poem_request_with_error_with_msg(*args, **kwargs):
     return MockResponse({"detail": "Something went wrong."}, status_code=400)
 
 
-def mock_poem_metrics_request_with_error_without_msg(*args, **kwargs):
+def mock_poem_request_with_error_without_msg(*args, **kwargs):
     return MockResponse(None, status_code=400)
 
 
 class PoemTests(unittest.TestCase):
     def setUp(self) -> None:
-        servicetypes = {
-            "generic.http.ar-argoui-ni4os": ["argo.webui"],
-            "generic.http.connect": ["argo.webui"],
-            "generic.certificate.validity": ["argo.webui", "argo.test"],
-            "generic.tcp.connect": ["argo.test"]
-        }
         self.poem = Poem(
             url="https://mock.poem.url", token="P03mt0k3n"
         )
@@ -278,7 +311,7 @@ class PoemTests(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_metrics_with_error_with_msg(self, mock_request):
-        mock_request.side_effect = mock_poem_metrics_request_with_error_with_msg
+        mock_request.side_effect = mock_poem_request_with_error_with_msg
         with self.assertRaises(PoemException) as context:
             self.poem.get_metrics_configurations()
             mock_request.assert_called_once_with(
@@ -294,8 +327,7 @@ class PoemTests(unittest.TestCase):
 
     @patch("requests.get")
     def test_get_metrics_with_error_without_msg(self, mock_request):
-        mock_request.side_effect = \
-            mock_poem_metrics_request_with_error_without_msg
+        mock_request.side_effect = mock_poem_request_with_error_without_msg
         with self.assertRaises(PoemException) as context:
             self.poem.get_metrics_configurations()
             mock_request.assert_called_once_with(
@@ -306,4 +338,46 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: Error fetching metrics: 400 BAD REQUEST"
+        )
+
+    @patch("requests.get")
+    def test_get_metric_overrides(self, mock_request):
+        mock_request.side_effect = mock_poem_metric_overrides_request
+        overrides = self.poem.get_metric_overrides()
+        mock_request.assert_called_once()
+        mock_request.assert_called_with(
+            "https://mock.poem.url/api/v2/metricoverrides",
+            headers={'x-api-key': 'P03mt0k3n'}
+        )
+        self.assertEqual(overrides, mock_metric_overrides)
+
+    @patch("requests.get")
+    def test_get_metric_overrides_with_error_with_msg(self, mock_request):
+        mock_request.side_effect = mock_poem_request_with_error_with_msg
+        with self.assertRaises(PoemException) as context:
+            self.poem.get_metric_overrides()
+            mock_request.assert_called_once_with(
+                "https://mock.poem.url/api/v2/metricoverrides",
+                headers={'x-api-key': 'P03mt0k3n'}
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: Error fetching metric overrides: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_metric_overrides_with_error_without_msg(self, mock_request):
+        mock_request.side_effect = mock_poem_request_with_error_without_msg
+        with self.assertRaises(PoemException) as context:
+            self.poem.get_metric_overrides()
+            mock_request.assert_called_once_with(
+                "https://mock.poem.url/api/v2/metricoverrides",
+                headers={'x-api-key': 'P03mt0k3n'}
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: Error fetching metric overrides: 400 BAD REQUEST"
         )

@@ -68,14 +68,20 @@ secrets = [
     "EGISSO_USER",
     "OIDC_CLIENT_SECRET",
     "argo.api_TOKEN",
-    "EDUGAIN_PASSWORD"
+    "EDUGAIN_PASSWORD",
+    "NAGIOS_UI_CREDENTIALS",
+    "NAGIOS_FRESHNESS_USERNAME",
+    "NAGIOS_FRESHNESS_PASSWORD",
+    "SDC_NAGIOS_UI_CREDENTIALS",
+    "SDC_NAGIOS_FRESHNESS_USERNAME",
+    "SDC_NAGIOS_FRESHNESS_PASSWORD"
 ]
 
 
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            local_attributes, secrets_file
+            attributes, secrets_file
     ):
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
@@ -111,7 +117,16 @@ class ConfigurationGenerator:
         self.metrics = metrics_list
         self.topology = topology
         self.secrets = secrets_file
-        self.local_attributes = self._read_local_attributes(local_attributes)
+
+        self.global_attributes = self._read_global_attributes(attributes)
+        self.metric_parameter_overrides = self._read_metric_parameter_overrides(
+            attributes
+        )
+        self.metrics_attr_override = dict()
+        self.host_attribute_overrides = self._read_host_attribute_overrides(
+            attributes
+        )
+
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
         self.metrics4servicetypes = self._get_metrics4servicetypes()
@@ -137,16 +152,75 @@ class ConfigurationGenerator:
             )
 
     @staticmethod
-    def _read_local_attributes(filename):
+    def _read_global_attributes(input_attrs):
         attrs = dict()
-        with open(filename, 'r') as f:
-            lines = f.readlines()
 
-        for line in lines:
-            data = line.strip().split('=')
-            attrs.update({data[0].strip(): "=".join(data[1:]).strip()})
+        for file, keys in input_attrs.items():
+            for item in keys["global_attributes"]:
+                attrs.update({item["attribute"]: item["value"]})
 
         return attrs
+
+    def _read_metric_parameter_overrides(self, input_attrs):
+        metric_parameter_overrides = dict()
+
+        for file, keys in input_attrs.items():
+            for item in keys["metric_parameters"]:
+                metric_parameter_overrides.update({
+                    item["metric"]: {
+                        "hostname": item["hostname"],
+                        "label": self._create_metric_parameter_label(
+                            item["metric"], item["parameter"]
+                        ),
+                        "value": item["value"]
+                    }
+                })
+
+        return metric_parameter_overrides
+
+    def _read_host_attribute_overrides(self, input_attrs):
+        host_attribute_overrides = list()
+
+        for files, keys in input_attrs.items():
+            for item in keys["host_attributes"]:
+                host_attribute_overrides.append({
+                    "hostname": item["hostname"],
+                    "attribute": item["attribute"],
+                    "label": self._create_label(item["attribute"], False),
+                    "value": item["value"].strip("$")
+                })
+                for metric in self._get_metrics4attribute(item["attribute"]):
+                    if metric in self.metrics_attr_override:
+                        attrs = self.metrics_attr_override[metric]
+                        attrs.add(item["attribute"])
+                        self.metrics_attr_override.update({metric: attrs})
+
+                    else:
+                        self.metrics_attr_override.update({
+                            metric: {item["attribute"]}
+                        })
+
+        return host_attribute_overrides
+
+    @staticmethod
+    def _create_label(item, remove_dot=True):
+        if remove_dot:
+            return item.lower().replace(".", "_").replace("-", "_")
+
+        else:
+            return item.lower().replace("-", "_")
+
+    def _get_metrics4attribute(self, attribute):
+        metrics_with_attribute = list()
+        for metric in self.metrics:
+            for name, config in metric.items():
+                if attribute in config["attribute"]:
+                    metrics_with_attribute.append(name)
+
+        return metrics_with_attribute
+
+    def _create_metric_parameter_label(self, metric, parameter):
+        return f"{self._create_label(metric)}_{parameter.strip('-').strip('-')}"
 
     def _is_extension_present_in_all_endpoints(self, services, extension):
         is_present = True
@@ -213,27 +287,35 @@ class ConfigurationGenerator:
     def _handle_attributes(self, metric, attrs):
         attributes = ""
         issecret = False
+        overridden_attributes = [
+            item["attribute"] for item in self.host_attribute_overrides
+        ]
         for key, value in attrs.items():
-            if key in self.local_attributes:
-                key = self.local_attributes[key]
+            if key in self.global_attributes:
+                key = self.global_attributes[key]
 
             elif key in secrets:
                 if "." in key:
                     key = key.split(".")[-1].upper()
 
-                key = f"${key}"
+                if key in overridden_attributes:
+                    key = "{{ .labels.%s }}" % self._create_label(key)
+
+                else:
+                    key = f"${key}"
+
                 issecret = True
 
             else:
                 if key == "NAGIOS_HOST_CERT":
-                    if "ROBOT_CERT" in self.local_attributes:
-                        key = self.local_attributes["ROBOT_CERT"]
+                    if "ROBOT_CERT" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_CERT"]
                     else:
                         key = hardcoded_attributes[key]
 
                 elif key == "NAGIOS_HOST_KEY":
-                    if "ROBOT_KEY" in self.local_attributes:
-                        key = self.local_attributes["ROBOT_KEY"]
+                    if "ROBOT_KEY" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_KEY"]
 
                     else:
                         key = hardcoded_attributes[key]
@@ -242,8 +324,8 @@ class ConfigurationGenerator:
                     key = hardcoded_attributes[key]
 
                 elif key == "TOP_BDII":
-                    if "BDII_HOST" in self.local_attributes:
-                        key = self.local_attributes["BDII_HOST"]
+                    if "BDII_HOST" in self.global_attributes:
+                        key = self.global_attributes["BDII_HOST"]
                     else:
                         key = ""
 
@@ -317,6 +399,12 @@ class ConfigurationGenerator:
                     parameters = parameters.strip()
 
                 for key, value in configuration["parameter"].items():
+                    if name in self.metric_parameter_overrides:
+                        value = "{{ .labels.%s | default '%s' }}" % (
+                            self.metric_parameter_overrides[name]["label"],
+                            value
+                        )
+
                     param = f"{key} {value}".strip()
                     parameters = f"{parameters} {param}".strip()
 
@@ -362,6 +450,9 @@ class ConfigurationGenerator:
                             }
                         ]
                     })
+
+                else:
+                    check.update({"pipelines": []})
 
                 if namespace != "default":
                     check.update({
@@ -473,9 +564,35 @@ class ConfigurationGenerator:
 
             types.append(item["service"])
             for metric in self.metrics4servicetypes[item["service"]]:
-                key = metric.lower().replace(".", "_").replace("-", "_")
+                key = self._create_label(metric)
                 if key not in labels:
-                    labels.update({key.lower(): metric})
+                    labels.update({key: metric})
+
+                if metric in self.metric_parameter_overrides and \
+                        item["hostname"] in \
+                        self.metric_parameter_overrides[metric]["hostname"]:
+                    labels.update({
+                        self.metric_parameter_overrides[metric]["label"]:
+                            self.metric_parameter_overrides[metric]["value"]
+                    })
+
+                if metric in self.metrics_attr_override:
+                    overrides = [
+                        entry for entry in self.host_attribute_overrides if
+                        entry["hostname"] == item["hostname"]
+                    ]
+                    if len(overrides) > 0:
+                        for override in overrides:
+                            labels.update({
+                                override["label"]: f"${override['value']}"
+                            })
+
+                    else:
+                        for attribute in self.metrics_attr_override[metric]:
+                            labels.update({
+                                self._create_label(attribute, False):
+                                    f"${attribute}"
+                            })
 
                 if metric == "generic.ssh.connect" and "port" not in labels:
                     labels.update({"port": "22"})

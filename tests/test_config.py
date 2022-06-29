@@ -172,30 +172,6 @@ class ConfigTests(unittest.TestCase):
             "No option 'sensu_token' in section: 'GENERAL'"
         )
 
-    def test_get_attributes(self):
-        self.assertEqual(
-            self.config.get_local_attributes(),
-            {
-                "TENANT1": "/path/to/attributes1",
-                "TENANT2": "/path/to/attributes2"
-            }
-        )
-
-    def test_get_attributes_missing_option(self):
-        with open(config_file_name, "w") as f:
-            f.write(config_file_missing_option_tenant)
-
-        config = Config(config_file=config_file_name)
-
-        with self.assertRaises(ConfigException) as context:
-            config.get_local_attributes()
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Error reading configuration file: "
-            "No option 'attributes' in section: 'TENANT1'"
-        )
-
     def test_get_poem_urls(self):
         self.assertEqual(
             self.config.get_poem_urls(),
