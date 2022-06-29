@@ -33,7 +33,6 @@ def main():
         poem_urls = config.get_poem_urls()
         poem_tokens = config.get_poem_tokens()
         metricprofiles = config.get_metricprofiles()
-        attributes = config.get_local_attributes()
         local_topology = config.get_topology()
         secrets = config.get_secrets()
         publish_bool = config.publish()
