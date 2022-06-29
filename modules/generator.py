@@ -122,6 +122,10 @@ class ConfigurationGenerator:
         self.metric_parameter_overrides = self._read_metric_parameter_overrides(
             attributes
         )
+        self.metrics_attr_override = dict()
+        self.host_attribute_overrides = self._read_host_attribute_overrides(
+            attributes
+        )
 
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
@@ -174,9 +178,46 @@ class ConfigurationGenerator:
 
         return metric_parameter_overrides
 
+    def _read_host_attribute_overrides(self, input_attrs):
+        host_attribute_overrides = list()
+
+        for files, keys in input_attrs.items():
+            for item in keys["host_attributes"]:
+                host_attribute_overrides.append({
+                    "hostname": item["hostname"],
+                    "attribute": item["attribute"],
+                    "label": self._create_label(item["attribute"], False),
+                    "value": item["value"].strip("$")
+                })
+                for metric in self._get_metrics4attribute(item["attribute"]):
+                    if metric in self.metrics_attr_override:
+                        attrs = self.metrics_attr_override[metric]
+                        attrs.add(item["attribute"])
+                        self.metrics_attr_override.update({metric: attrs})
+
+                    else:
+                        self.metrics_attr_override.update({
+                            metric: {item["attribute"]}
+                        })
+
+        return host_attribute_overrides
+
     @staticmethod
-    def _create_label(item):
-        return item.lower().replace(".", "_").replace("-", "_")
+    def _create_label(item, remove_dot=True):
+        if remove_dot:
+            return item.lower().replace(".", "_").replace("-", "_")
+
+        else:
+            return item.lower().replace("-", "_")
+
+    def _get_metrics4attribute(self, attribute):
+        metrics_with_attribute = list()
+        for metric in self.metrics:
+            for name, config in metric.items():
+                if attribute in config["attribute"]:
+                    metrics_with_attribute.append(name)
+
+        return metrics_with_attribute
 
     def _create_metric_parameter_label(self, metric, parameter):
         return f"{self._create_label(metric)}_{parameter.strip('-').strip('-')}"
@@ -246,6 +287,9 @@ class ConfigurationGenerator:
     def _handle_attributes(self, metric, attrs):
         attributes = ""
         issecret = False
+        overridden_attributes = [
+            item["attribute"] for item in self.host_attribute_overrides
+        ]
         for key, value in attrs.items():
             if key in self.global_attributes:
                 key = self.global_attributes[key]
@@ -254,7 +298,12 @@ class ConfigurationGenerator:
                 if "." in key:
                     key = key.split(".")[-1].upper()
 
-                key = f"${key}"
+                if key in overridden_attributes:
+                    key = "{{ .labels.%s }}" % self._create_label(key)
+
+                else:
+                    key = f"${key}"
+
                 issecret = True
 
             else:
@@ -526,6 +575,24 @@ class ConfigurationGenerator:
                         self.metric_parameter_overrides[metric]["label"]:
                             self.metric_parameter_overrides[metric]["value"]
                     })
+
+                if metric in self.metrics_attr_override:
+                    overrides = [
+                        entry for entry in self.host_attribute_overrides if
+                        entry["hostname"] == item["hostname"]
+                    ]
+                    if len(overrides) > 0:
+                        for override in overrides:
+                            labels.update({
+                                override["label"]: f"${override['value']}"
+                            })
+
+                    else:
+                        for attribute in self.metrics_attr_override[metric]:
+                            labels.update({
+                                self._create_label(attribute, False):
+                                    f"${attribute}"
+                            })
 
                 if metric == "generic.ssh.connect" and "port" not in labels:
                     labels.update({"port": "22"})

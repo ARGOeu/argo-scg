@@ -77,6 +77,38 @@ mock_metrics = [
         }
     },
     {
+        "argo.nagios.freshness-simple-login": {
+            "tags": [
+                "argo",
+                "authentication",
+                "monitoring",
+                "nagios"
+            ],
+            "probe": "check_nagios",
+            "config": {
+                "interval": "15",
+                "maxCheckAttempts": "2",
+                "path": "/usr/libexec/argo/probes/nagios",
+                "retryInterval": "10",
+                "timeout": "60"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_FRESHNESS_USERNAME": "--username",
+                "NAGIOS_FRESHNESS_PASSWORD": "--password"
+            },
+            "parameter": {
+                "--nagios-service": "org.nagios.NagiosCmdFile"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-nagios/"
+                      "blob/master/README.md"
+        }
+    },
+    {
         "ch.cern.WebDAV": {
             "tags": [],
             "probe": "check_webdav",
@@ -1993,6 +2025,26 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2021-12-01",
+        "name": "ARGO_TEST26",
+        "description": "Profile for testing host attribute override",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "argo.nagios.freshness-simple-login"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3391,6 +3443,88 @@ class CheckConfigurationTests(unittest.TestCase):
             ]
         )
 
+    def test_generate_check_configuration_with_host_attribute_override(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "source  ; export $(cut -d= -f1 ) ; "
+                               "/usr/libexec/argo/probes/nagios/check_nagios "
+                               "-H {{ .labels.hostname }} -t 60 "
+                               "--nagios-service org.nagios.NagiosCmdFile "
+                               "--username "
+                               "{{ .labels.nagios_freshness_username }} "
+                               "--password "
+                               "{{ .labels.nagios_freshness_password }}",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_nagios_freshness_simple_login "
+                            "== 'argo.nagios.freshness-simple-login'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.nagios.freshness-simple-login",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.test"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                }
+            ]
+        )
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -4331,6 +4465,93 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_tcp_connect": "generic.tcp.connect",
                             "generic_tcp_connect_p": "80",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
+    def test_generate_entities_with_host_attribute_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file=""
+        )
+        entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_NAGIOS_FRESHNESS_PASSWORD",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
