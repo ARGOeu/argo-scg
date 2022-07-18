@@ -173,6 +173,21 @@ class Sensu:
 
             return proxy_equal
 
+        def annotations_equality(c1, c2):
+            annotations_equal = False
+            key = "annotations"
+            condition1 = key in c1 and key in c2
+            condition2 = key not in c1 and key not in c2
+
+            condition3 = False
+            if condition1:
+                condition3 = c1[key] == c2[key]
+
+            if (condition1 and condition3) or condition2:
+                annotations_equal = True
+
+            return annotations_equal
+
         equal = False
         if check1["command"] == check2["command"] and \
                 sorted(check1["subscriptions"]) == \
@@ -187,7 +202,7 @@ class Sensu:
                 check2["metadata"]["namespace"] and \
                 check1["round_robin"] == check2["round_robin"] and \
                 check1["pipelines"] == check2["pipelines"] and \
-                check1["annotations"] == check2["annotations"]:
+                annotations_equality(check1, check2):
             equal = True
 
         return equal
