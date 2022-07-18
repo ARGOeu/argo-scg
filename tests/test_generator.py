@@ -2156,12 +2156,12 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.http.ar-argoui-ni4os",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
-                    "round_robin": False,
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2181,12 +2181,12 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
-                    "round_robin": False,
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "round_robin": False
                 }
             ]
         )
@@ -2218,7 +2218,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.http.ar-argoui-ni4os",
-                        "namespace": "default"
+                        "namespace": "default",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2227,10 +2230,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2242,7 +2242,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "default"
+                        "namespace": "default",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2251,10 +2254,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    ]
                 }
             ]
         )
@@ -2293,7 +2293,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.http.ar-argoui-ni4os",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2302,10 +2305,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2324,7 +2324,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2333,10 +2336,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    ]
                 }
             ]
         )
@@ -2375,13 +2375,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.GRAM-CertValidity",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2406,13 +2406,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.certificate.validity",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
@@ -2431,13 +2431,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nagios.GridFTP-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "4"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2476,7 +2476,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.GRAM-CertValidity",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2485,10 +2488,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2513,7 +2513,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.certificate.validity",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
                     "pipelines": [
@@ -2522,10 +2525,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    ]
                 }
             ]
         )
@@ -2564,13 +2564,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.http.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2608,13 +2608,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "ch.cern.WebDAV",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
@@ -2636,13 +2636,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "ch.cern.WebDAV-dynafed",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2663,13 +2663,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.grycap.IM-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2706,13 +2706,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.bdii.Entries",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "4"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
@@ -2735,13 +2735,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nagios.GLUE2-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2779,13 +2779,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.cloud.DynDNS-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2831,13 +2831,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
@@ -2868,13 +2868,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nordugrid.ARC-CE-submit",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2911,13 +2911,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.seadatanet.org.replicationmanager-check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2943,13 +2943,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "metadata": {
                         "name": "eu.seadatanet.org.replicationmanager-check-"
                                 "status",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -2985,13 +2985,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.cloud.InfoProvider",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -3012,13 +3012,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.cloud.OpenStack-Swift",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -3042,13 +3042,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.cloud.OpenStack-VM",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3068,13 +3068,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nagios.Keystone-TCP",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3113,13 +3113,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.sec.ARCCE-Pakiti-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3158,13 +3158,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eu.egi.SRM-All",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "4"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3211,13 +3211,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "org.nordugrid.ARC-CE-SRM-submit",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3255,13 +3255,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "pl.plgrid.QCG-Broker",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3301,13 +3301,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.certificate.validity",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3345,13 +3345,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "grnet.agora.healthcheck",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3391,13 +3391,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "argo.API-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3436,13 +3436,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "argo.AMSPublisher-Check",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "1"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "1"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3461,13 +3461,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3516,13 +3516,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.ssh.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "4"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3543,13 +3543,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )
@@ -3606,13 +3606,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "argo.nagios.freshness-simple-login",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "2"
-                    }
+                    "pipelines": []
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3631,13 +3631,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
                     },
                     "round_robin": False,
-                    "pipelines": [],
-                    "annotations": {
-                        "attempts": "3"
-                    }
+                    "pipelines": []
                 }
             ]
         )

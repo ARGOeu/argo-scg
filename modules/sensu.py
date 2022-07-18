@@ -175,13 +175,14 @@ class Sensu:
 
         def annotations_equality(c1, c2):
             annotations_equal = False
-            key = "annotations"
-            condition1 = key in c1 and key in c2
-            condition2 = key not in c1 and key not in c2
+            key1 = "metadata"
+            key2 = "annotations"
+            condition1 = key2 in c1[key1] and key2 in c2[key1]
+            condition2 = key2 not in c1[key1] and key2 not in c2[key1]
 
             condition3 = False
             if condition1:
-                condition3 = c1[key] == c2[key]
+                condition3 = c1[key1][key2] == c2[key1][key2]
 
             if (condition1 and condition3) or condition2:
                 annotations_equal = True

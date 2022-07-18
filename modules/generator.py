@@ -432,12 +432,13 @@ class ConfigurationGenerator:
                     "publish": True,
                     "metadata": {
                         "name": name,
-                        "namespace": namespace
+                        "namespace": namespace,
+                        "annotations": {
+                            "attempts":
+                                configuration["config"]["maxCheckAttempts"]
+                        }
                     },
-                    "round_robin": False,
-                    "annotations": {
-                        "attempts": configuration["config"]["maxCheckAttempts"]
-                    }
+                    "round_robin": False
                 }
 
                 if publish and "NOPUBLISH" not in configuration["flags"]:

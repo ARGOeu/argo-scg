@@ -234,13 +234,13 @@ mock_checks = [
         "metadata": {
             "name": "generic.http.ar-argoui-ni4os",
             "namespace": "TENANT1",
-            "created_by": "root"
+            "created_by": "root",
+            "annotations": {
+                "attempts": "2"
+            }
         },
         "secrets": None,
-        "pipelines": [],
-        "annotations": {
-            "attempts": "2"
-        }
+        "pipelines": []
     },
     {
         "command": "/usr/lib64/nagios/plugins/check_http "
@@ -276,13 +276,13 @@ mock_checks = [
         "metadata": {
             "name": "generic.http.status-argoui-ni4os",
             "namespace": "TENANT1",
-            "created_by": "root"
+            "created_by": "root",
+            "annotations": {
+                "attempts": "2"
+            }
         },
         "secrets": None,
-        "pipelines": [],
-        "annotations": {
-            "attempts": "2"
-        }
+        "pipelines": []
     },
     {
         "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -315,13 +315,13 @@ mock_checks = [
         "metadata": {
             "name": "generic.tcp.connect",
             "namespace": "TENANT1",
-            "created_by": "root"
+            "created_by": "root",
+            "annotations": {
+                "attempts": "3"
+            }
         },
         "secrets": None,
-        "pipelines": [],
-        "annotations": {
-            "attempts": "3"
-        }
+        "pipelines": []
     }
 ]
 
@@ -1441,13 +1441,13 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.http.ar-argoui-ni4os",
-                    "namespace": "TENANT1"
+                    "namespace": "TENANT1",
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 "round_robin": True,
-                "pipelines": [],
-                "annotations": {
-                    "attempts": "3"
-                }
+                "pipelines": []
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -1466,13 +1466,13 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "TENANT1",
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 "round_robin": True,
-                "pipelines": [],
-                "annotations": {
-                    "attempts": "3"
-                }
+                "pipelines": []
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_ssl_cert -H "
@@ -1499,13 +1499,13 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.certificate.validity",
-                    "namespace": "TENANT1"
+                    "namespace": "TENANT1",
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 "round_robin": True,
-                "pipelines": [],
-                "annotations": {
-                    "attempts": "2"
-                }
+                "pipelines": []
             }
         ]
 
