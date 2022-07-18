@@ -564,13 +564,20 @@ class Sensu:
             return response.json()
 
     def add_daily_filter(self, namespace="default"):
-        filters = [
-            f["metadata"]["name"] for f in self._get_filters(
-                namespace=namespace
-            )
+        filters = self._get_filters(namespace=namespace)
+        filters_names = [f["metadata"]["name"] for f in filters]
+
+        expressions = [
+            "((event.check.occurrences == 1 && event.check.status == 0 "
+            "&& event.check.occurrences_watermark > 1) || "
+            "(event.check.occurrences <= event.check.annotations.attempts "
+            "&& event.check.status != 0)) || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+
         ]
 
-        if "daily" not in filters:
+        response = None
+        if "daily" not in filters_names:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
                 headers={
@@ -583,14 +590,26 @@ class Sensu:
                         "namespace": namespace
                     },
                     "action": "allow",
-                    "expressions": [
-                        "event.check.occurrences == 1 || "
-                        "event.check.occurrences % "
-                        "(86400 / event.check.interval) == 0"
-                    ]
+                    "expressions": expressions
                 })
             )
 
+        else:
+            daily_filter = [
+                f for f in filters if f["metadata"]["name"] == "daily"
+            ][0]
+            if daily_filter["expressions"] != expressions:
+                response = requests.patch(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/"
+                    f"filters/daily",
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/merge-patch+json"
+                    },
+                    data=json.dumps({"expressions": expressions})
+                )
+
+        if response:
             if not response.ok:
                 msg = f"{namespace}: Error adding daily filter: " \
                       f"{response.status_code} {response.reason}"

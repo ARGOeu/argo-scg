@@ -998,6 +998,26 @@ mock_filters1 = [
         },
         "action": "allow",
         "expressions": [
+            "((event.check.occurrences == 1 && event.check.status == 0 && "
+            "event.check.occurrences_watermark > 1) || "
+            "(event.check.occurrences <= event.check.annotations.attempts "
+            "&& event.check.status != 0)) || "
+            "event.check.occurrences % "
+            "(86400 / event.check.interval) == 0"
+        ],
+        "runtime_assets": None
+    }
+]
+
+mock_filters2 = [
+    {
+        "metadata": {
+            "name": "daily",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
             "event.check.occurrences == 1 || "
             "event.check.occurrences % (86400 / event.check.interval) == 0"
         ],
@@ -3145,8 +3165,12 @@ class SensuFiltersTests(unittest.TestCase):
             },
             "action": "allow",
             "expressions": [
-                "event.check.occurrences == 1 || "
-                "event.check.occurrences % (86400 / event.check.interval) == 0"
+                "((event.check.occurrences == 1 && event.check.status == 0 && "
+                "event.check.occurrences_watermark > 1) || "
+                "(event.check.occurrences <= event.check.annotations.attempts "
+                "&& event.check.status != 0)) || "
+                "event.check.occurrences % "
+                "(86400 / event.check.interval) == 0"
             ]
         }
 
@@ -3256,11 +3280,40 @@ class SensuFiltersTests(unittest.TestCase):
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_filters")
-    def test_add_daily_filter_if_exists(self, mock_filters, mock_post):
+    def test_add_daily_filter_if_exists_and_same(self, mock_filters, mock_post):
         mock_filters.return_value = mock_filters1
         self.sensu.add_daily_filter(namespace="TENANT1")
         mock_filters.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
+
+    @patch("requests.patch")
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_daily_filter_if_exists_and_different(
+            self, mock_filters, mock_post, mock_patch
+    ):
+        mock_filters.return_value = mock_filters2
+        self.sensu.add_daily_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters/daily",
+            data=json.dumps({
+                "expressions": [
+                    "((event.check.occurrences == 1 && event.check.status == 0 "
+                    "&& event.check.occurrences_watermark > 1) || "
+                    "(event.check.occurrences <= "
+                    "event.check.annotations.attempts "
+                    "&& event.check.status != 0)) || "
+                    "event.check.occurrences % "
+                    "(86400 / event.check.interval) == 0"
+                ]
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
 
 
 class SensuPipelinesTests(unittest.TestCase):
