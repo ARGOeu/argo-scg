@@ -1000,7 +1000,7 @@ mock_filters1 = [
         "expressions": [
             "((event.check.occurrences == 1 && event.check.status == 0 && "
             "event.check.occurrences_watermark > 1) || "
-            "(event.check.occurrences <= event.check.annotations.attempts "
+            "(event.check.occurrences >= event.check.annotations.attempts "
             "&& event.check.status != 0)) || "
             "event.check.occurrences % "
             "(86400 / event.check.interval) == 0"
@@ -3167,7 +3167,7 @@ class SensuFiltersTests(unittest.TestCase):
             "expressions": [
                 "((event.check.occurrences == 1 && event.check.status == 0 && "
                 "event.check.occurrences_watermark > 1) || "
-                "(event.check.occurrences <= event.check.annotations.attempts "
+                "(event.check.occurrences >= event.check.annotations.attempts "
                 "&& event.check.status != 0)) || "
                 "event.check.occurrences % "
                 "(86400 / event.check.interval) == 0"
@@ -3302,7 +3302,7 @@ class SensuFiltersTests(unittest.TestCase):
                 "expressions": [
                     "((event.check.occurrences == 1 && event.check.status == 0 "
                     "&& event.check.occurrences_watermark > 1) || "
-                    "(event.check.occurrences <= "
+                    "(event.check.occurrences >= "
                     "event.check.annotations.attempts "
                     "&& event.check.status != 0)) || "
                     "event.check.occurrences % "
