@@ -2158,7 +2158,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.http.ar-argoui-ni4os",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2180,7 +2183,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "name": "generic.tcp.connect",
                         "namespace": "mockspace"
                     },
-                    "round_robin": False
+                    "round_robin": False,
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2221,7 +2227,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2242,7 +2251,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2290,7 +2302,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2318,7 +2333,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2360,7 +2378,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2388,7 +2409,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
@@ -2410,7 +2434,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "4"
+                    }
                 }
             ]
         )
@@ -2458,7 +2485,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2492,7 +2522,10 @@ class CheckConfigurationTests(unittest.TestCase):
                             "type": "Pipeline",
                             "api_version": "core/v2"
                         }
-                    ]
+                    ],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 }
             ]
         )
@@ -2534,7 +2567,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2575,7 +2611,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
@@ -2600,7 +2639,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2624,7 +2666,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2664,7 +2709,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "4"
+                    }
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
@@ -2690,7 +2738,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2731,7 +2782,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2780,7 +2834,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
@@ -2814,7 +2871,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 }
             ]
         )
@@ -2854,7 +2914,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2883,7 +2946,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -2922,7 +2988,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2946,7 +3015,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -2973,7 +3045,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -2996,7 +3071,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3038,7 +3116,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3080,7 +3161,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "4"
+                    }
                 }
             ]
         )
@@ -3130,7 +3214,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 }
             ]
         )
@@ -3171,7 +3258,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 }
             ]
         )
@@ -3214,7 +3304,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 }
             ]
         )
@@ -3255,7 +3348,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3298,7 +3394,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3340,7 +3439,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "1"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3362,7 +3464,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3414,7 +3519,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "4"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3438,7 +3546,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
@@ -3498,7 +3609,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "2"
+                    }
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3520,7 +3634,10 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace"
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [],
+                    "annotations": {
+                        "attempts": "3"
+                    }
                 }
             ]
         )
