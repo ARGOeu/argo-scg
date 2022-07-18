@@ -186,7 +186,8 @@ class Sensu:
                 check1["metadata"]["namespace"] == \
                 check2["metadata"]["namespace"] and \
                 check1["round_robin"] == check2["round_robin"] and \
-                check1["pipelines"] == check2["pipelines"]:
+                check1["pipelines"] == check2["pipelines"] and \
+                check1["annotations"] == check2["annotations"]:
             equal = True
 
         return equal

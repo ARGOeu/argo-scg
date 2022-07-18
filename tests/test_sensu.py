@@ -237,7 +237,10 @@ mock_checks = [
             "created_by": "root"
         },
         "secrets": None,
-        "pipelines": []
+        "pipelines": [],
+        "annotations": {
+            "attempts": "2"
+        }
     },
     {
         "command": "/usr/lib64/nagios/plugins/check_http "
@@ -276,7 +279,10 @@ mock_checks = [
             "created_by": "root"
         },
         "secrets": None,
-        "pipelines": []
+        "pipelines": [],
+        "annotations": {
+            "attempts": "2"
+        }
     },
     {
         "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -312,7 +318,10 @@ mock_checks = [
             "created_by": "root"
         },
         "secrets": None,
-        "pipelines": []
+        "pipelines": [],
+        "annotations": {
+            "attempts": "3"
+        }
     }
 ]
 
@@ -1415,7 +1424,10 @@ class SensuCheckTests(unittest.TestCase):
                     "namespace": "TENANT1"
                 },
                 "round_robin": True,
-                "pipelines": []
+                "pipelines": [],
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -1437,7 +1449,10 @@ class SensuCheckTests(unittest.TestCase):
                     "namespace": "TENANT1"
                 },
                 "round_robin": True,
-                "pipelines": []
+                "pipelines": [],
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             {
                 "command": "/usr/lib64/nagios/plugins/check_ssl_cert -H "
@@ -1467,7 +1482,10 @@ class SensuCheckTests(unittest.TestCase):
                     "namespace": "TENANT1"
                 },
                 "round_robin": True,
-                "pipelines": []
+                "pipelines": [],
+                "annotations": {
+                    "attempts": "2"
+                }
             }
         ]
 
