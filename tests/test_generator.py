@@ -3376,7 +3376,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "web-api -H {{ .labels.hostname }} -t 120 "
                                "--tenant EGI --rtype ar --unused-reports "
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
-                               "--day 1 --token $API_TOKEN",
+                               "--day 1 --token $ARGO_API_TOKEN",
                     "subscriptions": ["argo.api"],
                     "handlers": ["publisher-handler"],
                     "proxy_requests": {

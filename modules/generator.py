@@ -297,7 +297,7 @@ class ConfigurationGenerator:
 
             elif key in secrets:
                 if "." in key:
-                    key = key.split(".")[-1].upper()
+                    key = key.upper().replace(".", "_")
 
                 if key in overridden_attributes:
                     key = "{{ .labels.%s }}" % self._create_label(key)
