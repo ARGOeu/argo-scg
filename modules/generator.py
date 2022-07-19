@@ -71,11 +71,7 @@ secrets = [
     "EDUGAIN_PASSWORD",
     "NAGIOS_UI_CREDENTIALS",
     "NAGIOS_FRESHNESS_USERNAME",
-    "NAGIOS_FRESHNESS_PASSWORD",
-    "SDC_NAGIOS_UI_CREDENTIALS",
-    "SDC_NAGIOS_FRESHNESS_USERNAME",
-    "SDC_NAGIOS_FRESHNESS_PASSWORD",
-    "AMS_TOKEN"
+    "NAGIOS_FRESHNESS_PASSWORD"
 ]
 
 
@@ -187,7 +183,7 @@ class ConfigurationGenerator:
                 host_attribute_overrides.append({
                     "hostname": item["hostname"],
                     "attribute": item["attribute"],
-                    "label": self._create_label(item["attribute"], False),
+                    "label": self._create_label(item["attribute"]),
                     "value": item["value"].strip("$")
                 })
                 for metric in self._get_metrics4attribute(item["attribute"]):
@@ -204,12 +200,8 @@ class ConfigurationGenerator:
         return host_attribute_overrides
 
     @staticmethod
-    def _create_label(item, remove_dot=True):
-        if remove_dot:
-            return item.lower().replace(".", "_").replace("-", "_")
-
-        else:
-            return item.lower().replace("-", "_")
+    def _create_label(item):
+        return item.lower().replace(".", "_").replace("-", "_")
 
     def _get_metrics4attribute(self, attribute):
         metrics_with_attribute = list()
@@ -296,13 +288,13 @@ class ConfigurationGenerator:
                 key = self.global_attributes[key]
 
             elif key in secrets:
-                if "." in key:
-                    key = key.upper().replace(".", "_")
-
                 if key in overridden_attributes:
                     key = "{{ .labels.%s }}" % self._create_label(key)
 
                 else:
+                    if "." in key:
+                        key = key.upper().replace(".", "_")
+
                     key = f"${key}"
 
                 issecret = True
@@ -595,7 +587,7 @@ class ConfigurationGenerator:
                     else:
                         for attribute in self.metrics_attr_override[metric]:
                             labels.update({
-                                self._create_label(attribute, False):
+                                self._create_label(attribute):
                                     f"${attribute}"
                             })
 
