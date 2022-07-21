@@ -74,7 +74,8 @@ secrets = [
     "NAGIOS_FRESHNESS_PASSWORD",
     "SDC_NAGIOS_UI_CREDENTIALS",
     "SDC_NAGIOS_FRESHNESS_USERNAME",
-    "SDC_NAGIOS_FRESHNESS_PASSWORD"
+    "SDC_NAGIOS_FRESHNESS_PASSWORD",
+    "AMS_TOKEN"
 ]
 
 
@@ -432,7 +433,11 @@ class ConfigurationGenerator:
                     "publish": True,
                     "metadata": {
                         "name": name,
-                        "namespace": namespace
+                        "namespace": namespace,
+                        "annotations": {
+                            "attempts":
+                                configuration["config"]["maxCheckAttempts"]
+                        }
                     },
                     "round_robin": False
                 }

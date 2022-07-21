@@ -173,6 +173,22 @@ class Sensu:
 
             return proxy_equal
 
+        def annotations_equality(c1, c2):
+            annotations_equal = False
+            key1 = "metadata"
+            key2 = "annotations"
+            condition1 = key2 in c1[key1] and key2 in c2[key1]
+            condition2 = key2 not in c1[key1] and key2 not in c2[key1]
+
+            condition3 = False
+            if condition1:
+                condition3 = c1[key1][key2] == c2[key1][key2]
+
+            if (condition1 and condition3) or condition2:
+                annotations_equal = True
+
+            return annotations_equal
+
         equal = False
         if check1["command"] == check2["command"] and \
                 sorted(check1["subscriptions"]) == \
@@ -186,7 +202,8 @@ class Sensu:
                 check1["metadata"]["namespace"] == \
                 check2["metadata"]["namespace"] and \
                 check1["round_robin"] == check2["round_robin"] and \
-                check1["pipelines"] == check2["pipelines"]:
+                check1["pipelines"] == check2["pipelines"] and \
+                annotations_equality(check1, check2):
             equal = True
 
         return equal
@@ -563,13 +580,21 @@ class Sensu:
             return response.json()
 
     def add_daily_filter(self, namespace="default"):
-        filters = [
-            f["metadata"]["name"] for f in self._get_filters(
-                namespace=namespace
-            )
+        filters = self._get_filters(namespace=namespace)
+        filters_names = [f["metadata"]["name"] for f in filters]
+
+        expressions = [
+            "((event.check.occurrences == 1 && event.check.status == 0 "
+            "&& event.check.occurrences_watermark > 1) || "
+            "(event.check.occurrences == "
+            "Number(event.check.annotations.attempts) "
+            "&& event.check.status != 0)) || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+
         ]
 
-        if "daily" not in filters:
+        response = None
+        if "daily" not in filters_names:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
                 headers={
@@ -582,14 +607,26 @@ class Sensu:
                         "namespace": namespace
                     },
                     "action": "allow",
-                    "expressions": [
-                        "event.check.occurrences == 1 || "
-                        "event.check.occurrences % "
-                        "(86400 / event.check.interval) == 0"
-                    ]
+                    "expressions": expressions
                 })
             )
 
+        else:
+            daily_filter = [
+                f for f in filters if f["metadata"]["name"] == "daily"
+            ][0]
+            if daily_filter["expressions"] != expressions:
+                response = requests.patch(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/"
+                    f"filters/daily",
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/merge-patch+json"
+                    },
+                    data=json.dumps({"expressions": expressions})
+                )
+
+        if response:
             if not response.ok:
                 msg = f"{namespace}: Error adding daily filter: " \
                       f"{response.status_code} {response.reason}"
