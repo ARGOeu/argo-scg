@@ -203,6 +203,10 @@ class ConfigurationGenerator:
     def _create_label(item):
         return item.lower().replace(".", "_").replace("-", "_")
 
+    @staticmethod
+    def _create_attribute_env(item):
+        return item.upper().replace(".", "_").replace("-", "_")
+
     def _get_metrics4attribute(self, attribute):
         metrics_with_attribute = list()
         for metric in self.metrics:
@@ -580,15 +584,18 @@ class ConfigurationGenerator:
                     ]
                     if len(overrides) > 0:
                         for override in overrides:
+                            override_value = self._create_attribute_env(
+                                override["value"]
+                            )
                             labels.update({
-                                override["label"]: f"${override['value']}"
+                                override["label"]: f"${override_value}"
                             })
 
                     else:
                         for attribute in self.metrics_attr_override[metric]:
                             labels.update({
                                 self._create_label(attribute):
-                                    f"${attribute}"
+                                    f"${self._create_attribute_env(attribute)}"
                             })
 
                 if metric == "generic.ssh.connect" and "port" not in labels:

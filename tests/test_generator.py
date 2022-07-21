@@ -4778,10 +4778,6 @@ class EntityConfigurationTests(unittest.TestCase):
                 "global_attributes":
                     mock_attributes["local"]["global_attributes"],
                 "host_attributes": [{
-                    "hostname": "api.argo.grnet.gr",
-                    "attribute": "argo.api_TOKEN",
-                    "value": "PROD_API_TOKEN"
-                }, {
                     "hostname": "api.devel.argo.grnet.gr",
                     "attribute": "argo.api_TOKEN",
                     "value": "DEVEL_API_TOKEN"
@@ -4808,7 +4804,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "argo_api_check": "argo.API-Check",
-                            "argo_api_token": "$PROD_API_TOKEN",
+                            "argo_api_token": "$ARGO_API_TOKEN",
                             "hostname": "api.argo.grnet.gr",
                             "info_url": "https://api.argo.grnet.gr/",
                             "service": "argo.api",
