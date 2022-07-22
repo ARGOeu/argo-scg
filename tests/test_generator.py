@@ -1595,6 +1595,34 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2022-04-20",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "argo.api",
+        "hostname": "api.devel.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://api.devel.argo.grnet.gr/",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2022-04-20",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "argo.api",
+        "hostname": "api.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://api.argo.grnet.gr/",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -3376,7 +3404,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "web-api -H {{ .labels.hostname }} -t 120 "
                                "--tenant EGI --rtype ar --unused-reports "
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
-                               "--day 1 --token $API_TOKEN",
+                               "--day 1 --token $ARGO_API_TOKEN",
                     "subscriptions": ["argo.api"],
                     "handlers": ["publisher-handler"],
                     "proxy_requests": {
@@ -3631,6 +3659,70 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                }
+            ]
+        )
+
+    def test_generate_check_configuration_with_overridden_secrets_with_dots(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "api.argo.grnet.gr",
+                    "attribute": "argo.api_TOKEN",
+                    "value": "PROD_API_TOKEN"
+                }, {
+                    "hostname": "argo.devel.api.grnet.gr",
+                    "attribute": "argo.api_TOKEN",
+                    "value": "DEVEL_API_TOKEN"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST23"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_local_topology,
+            attributes=attributes,
+            secrets_file="/path/to/secrets"
+        )
+        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "source /path/to/secrets ; "
+                               "export $(cut -d= -f1 /path/to/secrets) ; "
+                               "/usr/libexec/argo-monitoring/probes/argo/"
+                               "web-api -H {{ .labels.hostname }} -t 120 "
+                               "--tenant EGI --rtype ar --unused-reports "
+                               "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
+                               "--day 1 --token {{ .labels.argo_api_token }}",
+                    "subscriptions": ["argo.api"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_api_check == "
+                            "'argo.API-Check'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.API-Check",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
@@ -4676,6 +4768,66 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
+    def test_generate_entities_with_overridden_secrets_with_dots(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "api.devel.argo.grnet.gr",
+                    "attribute": "argo.api_TOKEN",
+                    "value": "DEVEL_API_TOKEN"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST23"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="/path/to/secrets"
+        )
+        entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.api__api.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_api_check": "argo.API-Check",
+                            "argo_api_token": "$ARGO_API_TOKEN",
+                            "hostname": "api.argo.grnet.gr",
+                            "info_url": "https://api.argo.grnet.gr/",
+                            "service": "argo.api",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["argo.api"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.api__api.devel.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_api_check": "argo.API-Check",
+                            "argo_api_token": "$DEVEL_API_TOKEN",
+                            "hostname": "api.devel.argo.grnet.gr",
+                            "info_url": "https://api.devel.argo.grnet.gr/",
+                            "service": "argo.api",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["argo.api"]
                 }
             ]
         )
