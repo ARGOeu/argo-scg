@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import logging
 
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, PoemException, \
@@ -10,24 +11,51 @@ from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
 from argo_scg.webapi import WebApi
 
+CONFFILE = "/etc/argo-scg/scg.conf"
+LOGFILE = "/var/log/argo-scg/argo-scg.log"
+LOGNAME = "argo-scg"
+
+
+def get_logger():
+    logger = logging.getLogger(LOGNAME)
+    logger.setLevel(logging.INFO)
+
+    # setting up stdout
+    stdout = logging.StreamHandler()
+    stdout.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+    logger.addHandler(stdout)
+
+    # setting up logging to a file
+    logfile = logging.handlers.RotatingFileHandler(
+        LOGFILE, maxBytes=512 * 1024, backupCount=5
+    )
+    logfile.setLevel(logging.INFO)
+    logfile.setFormatter(logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "%Y-%m-%d %H:%M:%S"
+    ))
+    logger.addHandler(logfile)
+
+    return logger
+
 
 def main():
     parser = argparse.ArgumentParser(
         "Sync data from POEM and Web-api with Sensu"
     )
     parser.add_argument(
-        "-c", "--conf", dest="conf", help="configuration file",
-        default="/etc/argo-scg/scg.conf"
+        "-c", "--conf", dest="conf", help="configuration file", default=CONFFILE
     )
     args = parser.parse_args()
 
+    logger = get_logger()
+
     try:
+        logger.info(f"Reading configuration file {args.conf}...")
         config = Config(config_file=args.conf)
 
-        sensu = Sensu(
-            url=config.get_sensu_url(),
-            token=config.get_sensu_token(),
-        )
+        sensu_url = config.get_sensu_url()
+        sensu_token = config.get_sensu_token()
         webapi_url = config.get_webapi_url()
         webapi_tokens = config.get_webapi_tokens()
         poem_urls = config.get_poem_urls()
@@ -38,6 +66,10 @@ def main():
         publish_bool = config.publish()
 
         tenants = config.get_tenants()
+
+        logger.info(f"Reading configuration file {args.conf}... ok")
+
+        sensu = Sensu(url=sensu_url, token=sensu_token)
 
         sensu.handle_namespaces(tenants=tenants)
 
@@ -104,9 +136,10 @@ def main():
             except Exception as e:
                 print(f"{namespace}: {str(e)}")
 
-    except (
-            SensuException, PoemException, WebApiException, ConfigException
-    ) as e:
+    except ConfigException as e:
+        logger.error(str(e))
+
+    except (SensuException, PoemException, WebApiException) as e:
         print("\n{}".format(str(e)))
 
     except Exception as e:
