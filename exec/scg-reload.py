@@ -2,6 +2,7 @@
 import argparse
 import json
 import logging
+import logging.handlers
 
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, PoemException, \
@@ -79,7 +80,8 @@ def main():
             try:
                 webapi = WebApi(
                     url=webapi_url,
-                    token=webapi_tokens[tenant]
+                    token=webapi_tokens[tenant],
+                    tenant=tenant
                 )
 
                 poem = Poem(

@@ -1,37 +1,44 @@
+import logging
+
 import requests
 from argo_scg.exceptions import WebApiException
 
 
 class WebApi:
-    def __init__(self, url, token):
+    def __init__(self, url, token, tenant):
         self.url = url
         self.token = token
+        self.tenant = tenant
+        self.logger = logging.getLogger("argo-scg.webapi")
 
     def get_metric_profiles(self):
+        self.logger.info(f"{self.tenant}: Fetching metric profiles...")
         response = requests.get(
             "{}/api/v2/metric_profiles".format(self.url),
             headers={"Accept": "application/json", "x-api-key": self.token}
         )
 
         if not response.ok:
-            msg = "Error fetching metric profiles: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Error fetching metric profiles: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise WebApiException(msg)
 
         else:
             mps = response.json()["data"]
+            self.logger.info(f"{self.tenant}: Fetching metric profiles... ok")
 
             return mps
 
     def get_topology(self):
+        self.logger.info(f"{self.tenant}: Fetching topology endpoints...")
         response = requests.get(
             "{}/api/v2/topology/endpoints".format(self.url),
             headers={
@@ -42,19 +49,22 @@ class WebApi:
         )
 
         if not response.ok:
-            msg = "Error fetching topology endpoints: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Error fetching topology endpoints: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise WebApiException(msg)
 
         else:
             topology = response.json()["data"]
+            self.logger.info(
+                f"{self.tenant}: Fetching topology endpoints... ok"
+            )
 
             return topology
