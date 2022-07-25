@@ -86,7 +86,8 @@ def main():
 
                 poem = Poem(
                     url=poem_urls[tenant],
-                    token=poem_tokens[tenant]
+                    token=poem_tokens[tenant],
+                    tenant=tenant
                 )
 
                 if local_topology[tenant]:
@@ -138,10 +139,10 @@ def main():
             except Exception as e:
                 print(f"{namespace}: {str(e)}")
 
-    except ConfigException as e:
+    except (ConfigException, PoemException, WebApiException) as e:
         logger.error(str(e))
 
-    except (SensuException, PoemException, WebApiException) as e:
+    except SensuException as e:
         print("\n{}".format(str(e)))
 
     except Exception as e:

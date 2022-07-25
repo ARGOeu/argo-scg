@@ -1,71 +1,85 @@
+import logging
+
 import requests
 from argo_scg.exceptions import PoemException
 
 
 class Poem:
-    def __init__(self, url, token):
+    def __init__(self, url, token, tenant):
         self.url = url
         self.token = token
+        self.tenant = tenant
+        self.logger = logging.getLogger("argo-scg.poem")
 
     def _get_metrics(self):
+        self.logger.info(f"{self.tenant}: Fetching metrics...")
         response = requests.get(
             "{}/api/v2/metrics".format(self.url),
             headers={"x-api-key": self.token}
         )
 
         if not response.ok:
-            msg = "Error fetching metrics: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Error fetching metrics: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["detail"])
+                msg = f"{msg}: {response.json()['detail']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise PoemException(msg)
 
         else:
+            self.logger.info(f"{self.tenant}: Fetching metrics... ok")
             return response.json()
 
     def get_metric_overrides(self):
+        self.logger.info(f"{self.tenant}: Fetching metric overrides...")
         response = requests.get(
             "{}/api/v2/metricoverrides".format(self.url),
             headers={"x-api-key": self.token}
         )
 
         if not response.ok:
-            msg = "Error fetching metric overrides: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Error fetching metric overrides: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["detail"])
+                msg = f"{msg}: {response.json()['detail']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise PoemException(msg)
 
         else:
+            self.logger.info(f"{self.tenant}: Fetching metric overrides... ok")
             return response.json()
 
     def get_metrics_configurations(self):
         metrics = self._get_metrics()
 
-        try:
-            metric_confs = list()
-            for metric in metrics:
-                for name, configuration in metric.items():
-                    if "path" in configuration["config"] and \
+        metric_confs = list()
+        for metric in metrics:
+            for name, configuration in metric.items():
+                try:
+                    if configuration["config"] and \
                             configuration["config"]["path"] == "$USER1$":
                         configuration["config"]["path"] = \
                             "/usr/lib64/nagios/plugins"
                     metric_confs.append({name: configuration})
+                    self.logger.info(
+                        f"{self.tenant}: Checking metric configuration: "
+                        f"{name}... ok"
+                    )
 
-            return metric_confs
+                except KeyError as e:
+                    self.logger.warning(
+                        f"{self.tenant}: Error checking metric configuration: "
+                        f"{name}: Missing key {str(e)}"
+                    )
 
-        except Exception as e:
-            msg = "Error creating metric configuration: {}".format(str(e))
-            raise PoemException(msg)
+        return metric_confs
