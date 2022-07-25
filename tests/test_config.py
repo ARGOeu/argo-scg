@@ -105,6 +105,16 @@ class ConfigTests(unittest.TestCase):
         if os.path.isfile(config_file_name):
             os.remove(config_file_name)
 
+    def test_read_config_nonexisting_file(self):
+        with self.assertRaises(ConfigException) as context:
+            Config(config_file="nonexisting.conf")
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Error reading configuration file: "
+            "File nonexisting.conf does not exist"
+        )
+
     def test_get_tenants(self):
         self.assertEqual(self.config.get_tenants(), ["TENANT1", "TENANT2"])
 
