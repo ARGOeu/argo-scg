@@ -103,7 +103,8 @@ def main():
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
                     attributes=poem.get_metric_overrides(),
-                    secrets_file=secrets[namespace]
+                    secrets_file=secrets[namespace],
+                    tenant=tenant
                 )
 
                 if publish_bool[namespace]:

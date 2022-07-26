@@ -380,25 +380,10 @@ class PoemTests(unittest.TestCase):
             log.output, [
                 f"INFO:{self.logname}:MOCK_TENANT: Fetching metrics...",
                 f"INFO:{self.logname}:MOCK_TENANT: Fetching metrics... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"generic.http.ar-argoui-ni4os... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: generic.http.connect... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: generic.tcp.connect... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: generic.http.connect-gocdb... "
-                f"ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"generic.http.connect-gocdb-pi-ni4os... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"generic.certificate.validity... ok",
-                f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"generic.http.connect-nagios-ui... ok"
+                f"INFO:{self.logname}:MOCK_TENANT: Checking metric "
+                f"configurations...",
+                f"INFO:{self.logname}:MOCK_TENANT: Checking metric "
+                f"configurations... ok"
             ]
         )
 
@@ -474,14 +459,12 @@ class PoemTests(unittest.TestCase):
                 f"INFO:{self.logname}:MOCK_TENANT: Fetching metrics...",
                 f"INFO:{self.logname}:MOCK_TENANT: Fetching metrics... ok",
                 f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"generic.http.ar-argoui-ni4os... ok",
+                f"Checking metric configurations...",
                 f"WARNING:{self.logname}:MOCK_TENANT: "
                 f"Error checking metric configuration: "
                 f"generic.http.connect: Missing key 'path'",
                 f"INFO:{self.logname}:MOCK_TENANT: "
-                f"Checking metric configuration: "
-                f"ch.cern.HTCondorCE-JobSubmit... ok"
+                f"Checking metric configurations... ok"
             ]
         )
 

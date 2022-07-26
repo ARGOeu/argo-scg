@@ -62,6 +62,7 @@ class Poem:
     def get_metrics_configurations(self):
         metrics = self._get_metrics()
 
+        self.logger.info(f"{self.tenant}: Checking metric configurations...")
         metric_confs = list()
         for metric in metrics:
             for name, configuration in metric.items():
@@ -71,10 +72,6 @@ class Poem:
                         configuration["config"]["path"] = \
                             "/usr/lib64/nagios/plugins"
                     metric_confs.append({name: configuration})
-                    self.logger.info(
-                        f"{self.tenant}: Checking metric configuration: "
-                        f"{name}... ok"
-                    )
 
                 except KeyError as e:
                     self.logger.warning(
@@ -82,4 +79,5 @@ class Poem:
                         f"{name}: Missing key {str(e)}"
                     )
 
+        self.logger.info(f"{self.tenant}: Checking metric configurations... ok")
         return metric_confs

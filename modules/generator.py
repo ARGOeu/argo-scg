@@ -1,3 +1,4 @@
+import logging
 import os
 from urllib.parse import urlparse
 
@@ -78,8 +79,10 @@ secrets = [
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file
+            attributes, secrets_file, tenant
     ):
+        self.logger = logging.getLogger("argo-scg.generator")
+        self.tenant = tenant
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -375,6 +378,7 @@ class ConfigurationGenerator:
         return attributes, issecret
 
     def generate_checks(self, publish, namespace="default"):
+        self.logger.info(f"{self.tenant}: Generating checks...")
         checks = list()
 
         for metric in self.metrics:
@@ -471,6 +475,7 @@ class ConfigurationGenerator:
 
                 checks.append(check)
 
+        self.logger.info(f"{self.tenant}: Generating checks... ok")
         return checks
 
     def _get_servicetypes(self):
@@ -482,6 +487,7 @@ class ConfigurationGenerator:
         return service_types
 
     def generate_entities(self, namespace="default"):
+        self.logger.info(f"{self.tenant}: Generating entities...")
         entities = list()
         topo_entities = [
             item for item in self.topology if
@@ -649,19 +655,21 @@ class ConfigurationGenerator:
             if len(site_bdii_entries) > 0:
                 labels.update({"site_bdii": site_bdii_entries[0]["hostname"]})
 
+            entity_name = f"{item['service']}__{item['hostname']}"
+
             entities.append({
                 "entity_class": "proxy",
                 "metadata": {
-                    "name": "{}__{}".format(
-                        item["service"], item["hostname"]
-                    ),
+                    "name": entity_name,
                     "namespace": namespace,
                     "labels": labels
                 },
                 "subscriptions": types
             })
 
+        self.logger.info(f"{self.tenant}: Generating entities... ok")
         return entities
 
     def generate_subscriptions(self):
+        self.logger.info(f"{self.tenant}: Generating subscriptions... ok")
         return self.servicetypes
