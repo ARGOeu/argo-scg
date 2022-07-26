@@ -5,8 +5,8 @@ import logging
 import logging.handlers
 
 from argo_scg.config import Config
-from argo_scg.exceptions import SensuException, PoemException, \
-    WebApiException, ConfigException
+from argo_scg.exceptions import SensuException, ConfigException, \
+    PoemException, WebApiException
 from argo_scg.generator import ConfigurationGenerator
 from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
@@ -137,17 +137,17 @@ def main():
                     namespace=namespace
                 )
 
+            except (SensuException, PoemException, WebApiException):
+                logger.error("Exiting...")
+
             except Exception as e:
-                print(f"{namespace}: {str(e)}")
+                logger.error(f"{namespace}: {str(e)} Exiting...")
 
-    except (ConfigException, PoemException, WebApiException) as e:
-        logger.error(str(e))
-
-    except SensuException as e:
-        print("\n{}".format(str(e)))
+    except (ConfigException, SensuException):
+        logger.error("Exiting...")
 
     except Exception as e:
-        print("\n{}".format(str(e)))
+        logger.error(f"{str(e)} Exiting...")
 
 
 if __name__ == "__main__":

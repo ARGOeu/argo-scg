@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 from argo_scg.exceptions import SensuException
@@ -8,6 +9,7 @@ class Sensu:
     def __init__(self, url, token):
         self.url = url
         self.token = token
+        self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
         response = requests.get(
@@ -23,14 +25,16 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
+            self.logger.info("Fetching namespaces... ok")
             return [namespace["name"] for namespace in response.json()]
 
     def handle_namespaces(self, tenants):
@@ -48,18 +52,20 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error handling namespaces: " \
+                    msg = f"Error creating namespace {namespace}: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(
-                            msg, response.json()["message"]
-                        )
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
+                    self.logger.error(msg)
                     raise SensuException(msg)
+
+                else:
+                    self.logger.info(f"Created namespace {namespace}")
 
     def _get_checks(self, namespace):
         response = requests.get(
@@ -75,14 +81,16 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.warning(msg)
             raise SensuException(msg)
 
         else:
+            self.logger.info(f"{namespace}: Fetching checks... ok")
             return response.json()
 
     def _get_events(self, namespace):
@@ -101,14 +109,17 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
-        return response.json()
+        else:
+            self.logger.info(f"{namespace}: Fetching events... ok")
+            return response.json()
 
     def _delete_checks(self, checks, namespace):
         for check in checks:
@@ -124,12 +135,16 @@ class Sensu:
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, TypeError, KeyError):
                     pass
 
-                raise SensuException(msg)
+                self.logger.warning(msg)
+                continue
+
+            else:
+                self.logger.info(f"{namespace}: Removed check {check}")
 
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
@@ -144,18 +159,22 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error deleting event " \
+                    msg = f"{namespace}: Error removing event " \
                           f"{entity}/{check}: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()[
-                            "message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: Removed event {entity}/{check}"
+                    )
 
     @staticmethod
     def _compare_checks(check1, check2):
@@ -222,14 +241,16 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
+            self.logger.info(f"{namespace}: Fetching entities... ok")
             data = response.json()
             return [
                 entity for entity in data if entity["entity_class"] == "proxy"
@@ -245,16 +266,19 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error deleting entity {entity}: " \
+                msg = f"{namespace}: Error removing entity {entity}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, TypeError, KeyError):
                     pass
 
-                raise SensuException(msg)
+                self.logger.warning(msg)
+
+            else:
+                self.logger.info(f"{namespace}: Removed entity {entity}")
 
     @staticmethod
     def _compare_entities(entity1, entity2):
@@ -286,6 +310,12 @@ class Sensu:
                 ec["metadata"]["name"] == check["metadata"]["name"]
             ]
 
+            if len(existing_check) == 0:
+                word = "creating"
+
+            else:
+                word = "updating"
+
             if len(existing_check) == 0 or \
                     not self._compare_checks(check, existing_check[0]):
                 response = requests.put(
@@ -300,19 +330,22 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = "{}: Error handling check {}: {} {}".format(
-                        namespace, check["metadata"]["name"],
-                        response.status_code, response.reason
-                    )
+                    msg = f"{namespace}: " \
+                          f"Error {word} check {check['metadata']['name']}: " \
+                          f"{response.status_code} {response.reason}"
                     try:
-                        msg = "{}: {}".format(
-                            msg, response.json()["message"]
-                        )
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: {word[:-3].capitalize()}ed check "
+                        f"{check['metadata']['name']}"
+                    )
 
         updated_existing_checks = self._get_checks(namespace=namespace)
         checks_tobedeleted = sorted(list(set(
@@ -353,6 +386,12 @@ class Sensu:
                 ent["metadata"]["name"] == entity["metadata"]["name"]
             ]
 
+            if len(existing_entity) == 0:
+                word = "creating"
+
+            else:
+                word = "updating"
+
             if len(existing_entity) == 0 or \
                     not self._compare_entities(entity, existing_entity[0]):
                 response = requests.put(
@@ -367,18 +406,23 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = "{}: Error handling proxy entity {}: {} {}".format(
-                        namespace, entity["metadata"]["name"],
-                        response.status_code, response.reason
-                    )
+                    msg = f"{namespace}: Error {word} proxy entity " \
+                          f"{entity['metadata']['name']}: " \
+                          f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()["message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: {word[:-3].capitalize()}ed entity "
+                        f"{entity['metadata']['name']}"
+                    )
 
         entities_tobedeleted = list(set(
             [entity["metadata"]["name"] for entity in existing_entities]
@@ -404,12 +448,15 @@ class Sensu:
             msg = f"{namespace}: Error fetching entities: " \
                   f"{response.status_code} {response.reason}"
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            self.logger.error(msg)
+            self.logger.warning(
+                f"{namespace}: Agents' subscriptions not updated"
+            )
 
         else:
             entities = response.json()
@@ -437,17 +484,22 @@ class Sensu:
                     )
 
                     if not response.ok:
-                        msg = f"{namespace}: Error updating agents: " \
+                        msg = f"{namespace}: Error updating " \
+                              f"{agent['metadata']['name']} subscriptions: " \
                               f"{response.status_code} {response.reason}"
                         try:
-                            msg = "{}: {}".format(
-                                msg, response.json()["message"]
-                            )
+                            msg = f"{msg}: {response.json()['message']}"
 
                         except (ValueError, TypeError, KeyError):
                             pass
 
-                        raise SensuException(msg)
+                        self.logger.error(msg)
+
+                    else:
+                        self.logger.info(
+                            f"{namespace}: Updated "
+                            f"{agent['metadata']['name']} subscriptions"
+                        )
 
     def _get_handlers(self, namespace):
         response = requests.get(
@@ -463,14 +515,17 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
+            self.logger.warning(f"{namespace}: Unable to update handlers")
             raise SensuException(msg)
 
         else:
+            self.logger.info(f"{namespace}: Fetching handlers... ok")
             return response.json()
 
     def _handle_handler(self, name, data, namespace="default"):
@@ -479,6 +534,7 @@ class Sensu:
             if handler["metadata"]["name"] == name
         ]
 
+        print_name = name if name.endswith("handler") else f"{name}-handler"
         if len(existing_handler) == 0:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/handlers",
@@ -490,16 +546,23 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error posting handler {name}: " \
+                msg = f"{namespace}: Error creating {print_name}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
+                self.logger.error(msg)
+                self.logger.error(
+                    f"{namespace}: Unable to create {print_name}"
+                )
                 raise SensuException(msg)
+
+            else:
+                self.logger.info(f"{namespace}: Created {print_name}")
 
         else:
             if existing_handler[0]["command"] != data["command"]:
@@ -514,16 +577,22 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error updating handler {name}: " \
+                    msg = f"{namespace}: Error updating {print_name}: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()["message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, KeyError, TypeError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.error(msg)
+                    self.logger.warning(
+                        f"{namespace}: Unable to update {print_name}"
+                    )
+
+                else:
+                    self.logger.info(f"{namespace}: Updated {print_name}")
 
     def handle_publisher_handler(self, namespace="default"):
         self._handle_handler(
@@ -569,14 +638,17 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
+            self.logger.error(f"{namespace}: Unable to create filters")
             raise SensuException(msg)
 
         else:
+            self.logger.info(f"{namespace}: Fetching filters... ok")
             return response.json()
 
     def add_daily_filter(self, namespace="default"):
@@ -595,6 +667,7 @@ class Sensu:
 
         response = None
         if "daily" not in filters_names:
+            word = "creat"
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
                 headers={
@@ -612,6 +685,7 @@ class Sensu:
             )
 
         else:
+            word = "updat"
             daily_filter = [
                 f for f in filters if f["metadata"]["name"] == "daily"
             ][0]
@@ -628,16 +702,22 @@ class Sensu:
 
         if response:
             if not response.ok:
-                msg = f"{namespace}: Error adding daily filter: " \
+                msg = f"{namespace}: Error {word}ing daily filter: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
+                self.logger.error(msg)
                 raise SensuException(msg)
+
+            else:
+                self.logger.info(
+                    f"{namespace}: {word.capitalize()}ed daily filter"
+                )
 
     def _get_pipelines(self, namespace):
         response = requests.get(
@@ -652,14 +732,17 @@ class Sensu:
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
+            self.logger.error(f"{namespace}: Unable to create pipelines")
             raise SensuException(msg)
 
         else:
+            self.logger.info(f"{namespace}: Fetching pipelines... ok")
             return response.json()
 
     def add_reduce_alerts_pipeline(self, namespace="default"):
@@ -707,16 +790,20 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error adding reduce_alerts pipeline: " \
+                msg = f"{namespace}: Error creating reduce_alerts pipeline: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
+                self.logger.error(msg)
                 raise SensuException(msg)
+
+            else:
+                self.logger.info(f"{namespace}: Created reduce_alerts pipeline")
 
 
 class MetricOutput:
