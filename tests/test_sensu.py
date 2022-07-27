@@ -1062,6 +1062,8 @@ mock_pipelines1 = [
 
 LOGFILE = "argo-scg.sensu"
 
+mock_logger = logging.getLogger(LOGFILE)
+
 
 def mock_sensu_request(*args, **kwargs):
     if args[0].endswith("entities"):
@@ -1274,13 +1276,14 @@ def mock_function(*args, **kwargs):
 
 
 class SensuNamespaceTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
 
     @patch("requests.get")
     def test_get_namespaces(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGFILE) as log:
+            mock_logger.info("dummy")
             namespaces = self.sensu._get_namespaces()
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces",
@@ -1290,9 +1293,7 @@ class SensuNamespaceTests(unittest.TestCase):
             }
         )
         self.assertEqual(sorted(namespaces), ["TENANT1", "TENANT2", "default"])
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:Fetching namespaces... ok"]
-        )
+        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
 
     @patch("requests.get")
     def test_get_namespaces_with_error_with_message(self, mock_get):
@@ -1316,7 +1317,8 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGFILE}:Error fetching namespaces: "
-                f"400 BAD REQUEST: Something went wrong."
+                f"400 BAD REQUEST: Something went wrong.",
+                f"WARNING:{LOGFILE}:Unable to proceed"
             ]
         )
 
@@ -1340,7 +1342,8 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGFILE}:Error fetching namespaces: "
-                f"400 BAD REQUEST"
+                f"400 BAD REQUEST",
+                f"WARNING:{LOGFILE}:Unable to proceed"
             ]
         )
 
@@ -1407,7 +1410,8 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGFILE}:Error creating namespace TeNAnT3: "
-                f"400 BAD REQUEST: Something went wrong."
+                f"400 BAD REQUEST: Something went wrong.",
+                f"WARNING:{LOGFILE}:Unable to proceed"
             ]
         )
 
@@ -1438,7 +1442,8 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGFILE}:Error creating namespace TeNAnT3: "
-                f"400 BAD REQUEST"
+                f"400 BAD REQUEST",
+                f"WARNING:{LOGFILE}:Unable to proceed"
             ]
         )
 

@@ -31,10 +31,10 @@ class Sensu:
                 pass
 
             self.logger.error(msg)
+            self.logger.warning("Unable to proceed")
             raise SensuException(msg)
 
         else:
-            self.logger.info("Fetching namespaces... ok")
             return [namespace["name"] for namespace in response.json()]
 
     def handle_namespaces(self, tenants):
@@ -62,6 +62,7 @@ class Sensu:
                         pass
 
                     self.logger.error(msg)
+                    self.logger.warning("Unable to proceed")
                     raise SensuException(msg)
 
                 else:
