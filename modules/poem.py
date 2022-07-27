@@ -18,7 +18,7 @@ class Poem:
         )
 
         if not response.ok:
-            msg = f"{self.tenant}: Error fetching metrics: " \
+            msg = f"{self.tenant}: Metrics fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -31,7 +31,7 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            self.logger.info(f"{self.tenant}: Successfully fetched metrics")
+            self.logger.info(f"{self.tenant}: Metrics fetched successfully")
             return response.json()
 
     def get_metric_overrides(self):
@@ -41,7 +41,7 @@ class Poem:
         )
 
         if not response.ok:
-            msg = f"{self.tenant}: Metric overrides not fetched: " \
+            msg = f"{self.tenant}: Metric overrides fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -55,7 +55,7 @@ class Poem:
 
         else:
             self.logger.info(
-                f"{self.tenant}: Successfully fetched metric overrides"
+                f"{self.tenant}: Metric overrides fetched successfully"
             )
             return response.json()
 

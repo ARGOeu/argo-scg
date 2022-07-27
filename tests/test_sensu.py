@@ -1315,12 +1315,12 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: Error fetching namespaces: 400 BAD REQUEST: "
+            "Sensu error: Namespaces fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:Error fetching namespaces: "
+                f"ERROR:{LOGNAME}:Namespaces fetch error: "
                 f"400 BAD REQUEST: Something went wrong.",
                 f"WARNING:{LOGNAME}:Unable to proceed"
             ]
@@ -1341,11 +1341,11 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: Error fetching namespaces: 400 BAD REQUEST"
+            "Sensu error: Namespaces fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:Error fetching namespaces: "
+                f"ERROR:{LOGNAME}:Namespaces fetch error: "
                 f"400 BAD REQUEST",
                 f"WARNING:{LOGNAME}:Unable to proceed"
             ]
@@ -1381,8 +1381,8 @@ class SensuNamespaceTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:Created namespace TeNAnT3",
-                f"INFO:{LOGNAME}:Created namespace tenant4"
+                f"INFO:{LOGNAME}:Namespace TeNAnT3 created",
+                f"INFO:{LOGNAME}:Namespace tenant4 created"
             }
         )
 
@@ -1408,12 +1408,12 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: Error creating namespace TeNAnT3: 400 BAD REQUEST: "
+            "Sensu error: Namespace TeNAnT3 create error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:Error creating namespace TeNAnT3: "
+                f"ERROR:{LOGNAME}:Namespace TeNAnT3 create error: "
                 f"400 BAD REQUEST: Something went wrong.",
                 f"WARNING:{LOGNAME}:Unable to proceed"
             ]
@@ -1441,11 +1441,11 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: Error creating namespace TeNAnT3: 400 BAD REQUEST"
+            "Sensu error: Namespace TeNAnT3 create error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:Error creating namespace TeNAnT3: "
+                f"ERROR:{LOGNAME}:Namespace TeNAnT3 create error: "
                 f"400 BAD REQUEST",
                 f"WARNING:{LOGNAME}:Unable to proceed"
             ]
@@ -1581,12 +1581,12 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching checks: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching checks: "
+                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -1609,11 +1609,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching checks: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching checks: "
+                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -1658,11 +1658,11 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: "
-                f"Removed check generic.tcp.connect",
+                f"Check generic.tcp.connect removed",
                 f"INFO:{LOGNAME}:TENANT1: "
-                f"Removed check generic.http.connect",
+                f"Check generic.http.connect removed",
                 f"INFO:{LOGNAME}:TENANT1: "
-                f"Removed check generic.certificate.validity"
+                f"Check generic.certificate.validity removed"
             }
         )
 
@@ -1702,7 +1702,7 @@ class SensuCheckTests(unittest.TestCase):
                 f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST: Something went wrong.",
                 f"INFO:{LOGNAME}:TENANT1: "
-                f"Removed check generic.http.connect"
+                f"Check generic.http.connect removed"
             }
         )
 
@@ -1742,7 +1742,7 @@ class SensuCheckTests(unittest.TestCase):
                 f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST",
                 f"INFO:{LOGNAME}:TENANT1: "
-                f"Removed check generic.http.connect"
+                f"Check generic.http.connect removed"
             }
         )
 
@@ -2435,12 +2435,12 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: Error fetching events: "
+                f"WARNING:{LOGNAME}:TENANT1: Events fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2463,11 +2463,11 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching events: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: Error fetching events: "
+                f"WARNING:{LOGNAME}:TENANT1: Events fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -2704,12 +2704,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching entities: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2731,11 +2731,11 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching entities: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3118,7 +3118,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
                 f"400 BAD REQUEST: Something went wrong.",
                 f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
             ]
@@ -3147,7 +3147,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
                 f"400 BAD REQUEST",
                 f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
             ]
@@ -3346,12 +3346,12 @@ class SensuHandlersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching handlers: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Handlers fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching handlers: "
+                f"ERROR:{LOGNAME}:TENANT1: Handlers fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3373,11 +3373,11 @@ class SensuHandlersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching handlers: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Handlers fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching handlers: "
+                f"ERROR:{LOGNAME}:TENANT1: Handlers fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3401,9 +3401,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Created publisher-handler"
-            ]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: publisher-handler created"]
         )
 
     @patch("requests.post")
@@ -3428,12 +3426,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating publisher-handler: "
+            "Sensu error: TENANT1: publisher-handler create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating publisher-handler: "
+                f"ERROR:{LOGNAME}:TENANT1: publisher-handler create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3460,12 +3458,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating publisher-handler: "
+            "Sensu error: TENANT1: publisher-handler create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating publisher-handler: "
+                f"ERROR:{LOGNAME}:TENANT1: publisher-handler create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3507,7 +3505,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Updated publisher-handler"
+                f"INFO:{LOGNAME}:TENANT1: publisher-handler updated"
             ]
         )
 
@@ -3586,7 +3584,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: Created slack-handler"]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: slack-handler created"]
         )
 
     @patch("requests.post")
@@ -3612,12 +3610,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating slack-handler: "
+            "Sensu error: TENANT1: slack-handler create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating slack-handler: "
+                f"ERROR:{LOGNAME}:TENANT1: slack-handler create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3645,12 +3643,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating slack-handler: "
+            "Sensu error: TENANT1: slack-handler create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating slack-handler: "
+                f"ERROR:{LOGNAME}:TENANT1: slack-handler create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3696,7 +3694,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: Updated slack-handler"]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: slack-handler updated"]
         )
 
     @patch("requests.patch")
@@ -3813,12 +3811,12 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Filters fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching filters: "
+                f"ERROR:{LOGNAME}:TENANT1: Filters fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3838,11 +3836,11 @@ class SensuFiltersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching filters: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Filters fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching filters: "
+                f"ERROR:{LOGNAME}:TENANT1: Filters fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3889,13 +3887,13 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating daily filter: "
+            "Sensu error: TENANT1: daily filter create error: "
             "400 BAD REQUEST: Something went wrong."
         )
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating daily filter: "
+                f"ERROR:{LOGNAME}:TENANT1: daily filter create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3921,11 +3919,11 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating daily filter: 400 BAD REQUEST"
+            "Sensu error: TENANT1: daily filter create error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error creating daily filter: "
+                f"ERROR:{LOGNAME}:TENANT1: daily filter create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -4037,12 +4035,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST: "
+            "Sensu error: TENANT1: Pipelines fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching pipelines: "
+                f"ERROR:{LOGNAME}:TENANT1: Pipelines fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -4061,11 +4059,11 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching pipelines: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Pipelines fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching pipelines: "
+                f"ERROR:{LOGNAME}:TENANT1: Pipelines fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -4110,13 +4108,13 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating reduce_alerts pipeline: "
+            "Sensu error: TENANT1: reduce_alerts pipeline create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGNAME}:TENANT1: "
-                f"Error creating reduce_alerts pipeline: "
+                f"reduce_alerts pipeline create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -4140,13 +4138,13 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error creating reduce_alerts pipeline: "
+            "Sensu error: TENANT1: reduce_alerts pipeline create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
                 f"ERROR:{LOGNAME}:TENANT1: "
-                f"Error creating reduce_alerts pipeline: "
+                f"reduce_alerts pipeline create error: "
                 f"400 BAD REQUEST"
             ]
         )

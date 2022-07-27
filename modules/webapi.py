@@ -18,7 +18,7 @@ class WebApi:
         )
 
         if not response.ok:
-            msg = f"{self.tenant}: Error fetching metric profiles: " \
+            msg = f"{self.tenant}: Metric profiles fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -33,7 +33,7 @@ class WebApi:
         else:
             mps = response.json()["data"]
             self.logger.info(
-                f"{self.tenant}: Successfully fetched metric profiles"
+                f"{self.tenant}: Metric profiles fetched successfully"
             )
 
             return mps
@@ -49,7 +49,7 @@ class WebApi:
         )
 
         if not response.ok:
-            msg = f"{self.tenant}: Error fetching topology endpoints: " \
+            msg = f"{self.tenant}: Topology endpoints fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -64,7 +64,7 @@ class WebApi:
         else:
             topology = response.json()["data"]
             self.logger.info(
-                f"{self.tenant}: Successfully fetched topology endpoints"
+                f"{self.tenant}: Topology endpoints fetched successfully"
             )
 
             return topology

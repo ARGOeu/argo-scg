@@ -378,8 +378,7 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(metrics, metrics2)
         self.assertEqual(
             log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Successfully fetched "
-                f"metrics"
+                f"INFO:{self.logname}:MOCK_TENANT: Metrics fetched successfully"
             ]
         )
 
@@ -397,12 +396,12 @@ class PoemTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Poem error: MOCK_TENANT: Error fetching metrics: 400 BAD REQUEST: "
+            "Poem error: MOCK_TENANT: Metrics fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{self.logname}:MOCK_TENANT: Error fetching metrics: "
+                f"ERROR:{self.logname}:MOCK_TENANT: Metrics fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -421,12 +420,12 @@ class PoemTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Poem error: MOCK_TENANT: Error fetching metrics: 400 BAD REQUEST"
+            "Poem error: MOCK_TENANT: Metrics fetch error: 400 BAD REQUEST"
         )
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{self.logname}:MOCK_TENANT: Error fetching metrics: "
+                f"ERROR:{self.logname}:MOCK_TENANT: Metrics fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -450,8 +449,8 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(metrics, metrics2)
         self.assertEqual(
             log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Successfully fetched "
-                f"metrics",
+                f"INFO:{self.logname}:MOCK_TENANT: Metrics fetched "
+                f"successfully",
                 f"WARNING:{self.logname}:MOCK_TENANT: "
                 f"Metric generic.http.connect skipped: Missing key 'path'"
             ]
@@ -470,8 +469,8 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(overrides, mock_metric_overrides)
         self.assertEqual(
             log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Successfully fetched metric "
-                f"overrides"
+                f"INFO:{self.logname}:MOCK_TENANT: Metric overrides fetched "
+                f"successfully"
             ]
         )
 
@@ -491,7 +490,7 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
-                f"Metric overrides not fetched: 400 BAD REQUEST: "
+                f"Metric overrides fetch error: 400 BAD REQUEST: "
                 f"Something went wrong."
             ]
         )
@@ -512,6 +511,6 @@ class PoemTests(unittest.TestCase):
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
-                f"Metric overrides not fetched: 400 BAD REQUEST"
+                f"Metric overrides fetch error: 400 BAD REQUEST"
             ]
         )

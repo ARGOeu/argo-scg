@@ -67,7 +67,7 @@ def main():
 
         tenants = config.get_tenants()
 
-        logger.info(f"Successfully read configuration file {args.conf}")
+        logger.info(f"Configuration file {args.conf} read successfully")
 
         sensu = Sensu(url=sensu_url, token=sensu_token)
 
@@ -154,6 +154,8 @@ def main():
                 )
                 continue
 
+        logger.info("Done")
+
     except ConfigException as e:
         logger.error(str(e))
         logger.info("Exiting...")
@@ -162,7 +164,8 @@ def main():
         logger.info("Exiting...")
 
     except Exception as e:
-        logger.error(f"{str(e)} Exiting...")
+        logger.error(f"{str(e)}")
+        logger.info("Exiting...")
 
 
 if __name__ == "__main__":

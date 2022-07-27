@@ -21,7 +21,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"Error fetching namespaces: " \
+            msg = f"Namespaces fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -52,7 +52,7 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"Error creating namespace {namespace}: " \
+                    msg = f"Namespace {namespace} create error: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
@@ -66,7 +66,7 @@ class Sensu:
                     raise SensuException(msg)
 
                 else:
-                    self.logger.info(f"Created namespace {namespace}")
+                    self.logger.info(f"Namespace {namespace} created")
 
     def _get_checks(self, namespace):
         response = requests.get(
@@ -78,7 +78,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching checks: " \
+            msg = f"{namespace}: Checks fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -105,7 +105,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching events: " \
+            msg = f"{namespace}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -143,7 +143,7 @@ class Sensu:
                 continue
 
             else:
-                self.logger.info(f"{namespace}: Removed check {check}")
+                self.logger.info(f"{namespace}: Check {check} removed")
 
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
@@ -236,7 +236,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching entities: " \
+            msg = f"{namespace}: Entity fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -448,7 +448,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching entities: " \
+            msg = f"{namespace}: Entity fetch error: " \
                   f"{response.status_code} {response.reason}"
             try:
                 msg = f"{msg}: {response.json()['message']}"
@@ -514,7 +514,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching handlers: " \
+            msg = f"{namespace}: Handlers fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -547,7 +547,7 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error creating {print_name}: " \
+                msg = f"{namespace}: {print_name} create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -560,7 +560,7 @@ class Sensu:
                 raise SensuException(msg)
 
             else:
-                self.logger.info(f"{namespace}: Created {print_name}")
+                self.logger.info(f"{namespace}: {print_name} created")
 
         else:
             if existing_handler[0]["command"] != data["command"]:
@@ -587,7 +587,7 @@ class Sensu:
                     self.logger.warning(msg)
 
                 else:
-                    self.logger.info(f"{namespace}: Updated {print_name}")
+                    self.logger.info(f"{namespace}: {print_name} updated")
 
     def handle_publisher_handler(self, namespace="default"):
         self._handle_handler(
@@ -629,7 +629,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching filters: " \
+            msg = f"{namespace}: Filters fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -679,7 +679,6 @@ class Sensu:
             )
 
         else:
-            word = "updat"
             daily_filter = [
                 f for f in filters if f["metadata"]["name"] == "daily"
             ][0]
@@ -697,7 +696,7 @@ class Sensu:
         if response:
             if not response.ok:
                 if added:
-                    intra_msg = "Error creating daily filter"
+                    intra_msg = "daily filter create error"
 
                 else:
                     intra_msg = "daily filter not updated"
@@ -737,7 +736,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching pipelines: " \
+            msg = f"{namespace}: Pipelines fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -797,7 +796,7 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error creating reduce_alerts pipeline: " \
+                msg = f"{namespace}: reduce_alerts pipeline create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:

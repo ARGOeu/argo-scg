@@ -295,8 +295,8 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(
             log.output,
             [
-                "INFO:argo-scg.webapi:MOCK_TENANT: Successfully fetched "
-                "metric profiles"
+                "INFO:argo-scg.webapi:MOCK_TENANT: Metric profiles fetched "
+                "successfully"
             ]
         )
 
@@ -309,7 +309,7 @@ class WebApiTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: MOCK_TENANT: Error fetching metric profiles: "
+            "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
             "400 BAD REQUEST: There has been an error."
         )
 
@@ -317,7 +317,7 @@ class WebApiTests(unittest.TestCase):
             log.output,
             [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
-                f"Error fetching metric profiles: 400 BAD REQUEST: "
+                f"Metric profiles fetch error: 400 BAD REQUEST: "
                 f"There has been an error."
             ]
         )
@@ -331,13 +331,13 @@ class WebApiTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: MOCK_TENANT: Error fetching metric profiles: "
+            "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
-                f"Error fetching metric profiles: 400 BAD REQUEST"
+                f"Metric profiles fetch error: 400 BAD REQUEST"
             ]
         )
 
@@ -350,8 +350,8 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(topology, mock_topology_endpoints)
         self.assertEqual(
             log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Successfully fetched "
-                f"topology endpoints"
+                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
+                f"successfully"
             ]
         )
 
@@ -364,13 +364,13 @@ class WebApiTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: MOCK_TENANT: Error fetching topology endpoints: "
+            "WebApi error: MOCK_TENANT: Topology endpoints fetch error: "
             "400 BAD REQUEST: There has been an error."
         )
         self.assertEqual(
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
-                f"Error fetching topology endpoints: "
+                f"Topology endpoints fetch error: "
                 f"400 BAD REQUEST: There has been an error."
             ]
         )
@@ -385,12 +385,12 @@ class WebApiTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "WebApi error: MOCK_TENANT: "
-            "Error fetching topology endpoints: 400 BAD REQUEST"
+            "Topology endpoints fetch error: 400 BAD REQUEST"
         )
 
         self.assertEqual(
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
-                f"Error fetching topology endpoints: 400 BAD REQUEST"
+                f"Topology endpoints fetch error: 400 BAD REQUEST"
             ]
         )

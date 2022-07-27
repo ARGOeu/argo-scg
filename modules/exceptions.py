@@ -23,7 +23,7 @@ class WebApiException(MyException):
 
 class ConfigException(MyException):
     def __str__(self):
-        return f"Error reading configuration file: {str(self.msg)}"
+        return f"Configuration file error: {str(self.msg)}"
 
 
 class GeneratorException(MyException):
