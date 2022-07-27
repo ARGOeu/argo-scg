@@ -31,7 +31,7 @@ Package includes script that configures Sensu checks, entities, and namespaces u
 
 %install
 %{py3_install "--record=INSTALLED_FILES" }
-install --directory %{buildroot}/%{_localstatedir}/log/argo-poem-tools/
+install --directory %{buildroot}/%{_localstatedir}/log/argo-scg/
 
 
 %clean
