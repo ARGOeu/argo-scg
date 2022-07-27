@@ -43,6 +43,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{python3_sitelib}/%{underscore %{name}}/
 %{python3_sitelib}/%{underscore %{name}}/*.py
 
+%attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
+
 %changelog
 * Thu May 5 2022 Katarina Zailac <kzailac@srce.hr> - 0.1.0-1%{?dist}
 - ARGO-3606 Investigate Sensu as replacement for Nagios
