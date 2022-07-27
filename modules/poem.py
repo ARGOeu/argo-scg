@@ -12,7 +12,6 @@ class Poem:
         self.logger = logging.getLogger("argo-scg.poem")
 
     def _get_metrics(self):
-        self.logger.info(f"{self.tenant}: Fetching metrics...")
         response = requests.get(
             "{}/api/v2/metrics".format(self.url),
             headers={"x-api-key": self.token}
@@ -32,18 +31,17 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            self.logger.info(f"{self.tenant}: Fetching metrics... ok")
+            self.logger.info(f"{self.tenant}: Successfully fetched metrics")
             return response.json()
 
     def get_metric_overrides(self):
-        self.logger.info(f"{self.tenant}: Fetching metric overrides...")
         response = requests.get(
             "{}/api/v2/metricoverrides".format(self.url),
             headers={"x-api-key": self.token}
         )
 
         if not response.ok:
-            msg = f"{self.tenant}: Error fetching metric overrides: " \
+            msg = f"{self.tenant}: Metric overrides not fetched: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -52,17 +50,18 @@ class Poem:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            self.logger.error(msg)
-            raise PoemException(msg)
+            self.logger.warning(msg)
+            return dict()
 
         else:
-            self.logger.info(f"{self.tenant}: Fetching metric overrides... ok")
+            self.logger.info(
+                f"{self.tenant}: Successfully fetched metric overrides"
+            )
             return response.json()
 
     def get_metrics_configurations(self):
         metrics = self._get_metrics()
 
-        self.logger.info(f"{self.tenant}: Checking metric configurations...")
         metric_confs = list()
         for metric in metrics:
             for name, configuration in metric.items():
@@ -75,9 +74,8 @@ class Poem:
 
                 except KeyError as e:
                     self.logger.warning(
-                        f"{self.tenant}: Error checking metric configuration: "
-                        f"{name}: Missing key {str(e)}"
+                        f"{self.tenant}: Metric {name} skipped: "
+                        f"Missing key {str(e)}"
                     )
 
-        self.logger.info(f"{self.tenant}: Checking metric configurations... ok")
         return metric_confs
