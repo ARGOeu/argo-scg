@@ -6,7 +6,7 @@ import logging.handlers
 
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, ConfigException, \
-    PoemException, WebApiException
+    PoemException, WebApiException, GeneratorException
 from argo_scg.generator import ConfigurationGenerator
 from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
@@ -141,7 +141,7 @@ def main():
                 logger.warning(f"{namespace}: Skipping configuration...")
                 continue
 
-            except (WebApiException, PoemException):
+            except (WebApiException, PoemException, GeneratorException):
                 logger.warning(f"{namespace}: Skipping configuration...")
                 continue
 

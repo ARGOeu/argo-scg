@@ -2,6 +2,7 @@ import logging
 import os
 from urllib.parse import urlparse
 
+from argo_scg.exceptions import GeneratorException
 
 hardcoded_attributes = {
     "NAGIOS_HOST_CERT": "/etc/nagios/globus/hostcert.pem",
@@ -378,104 +379,110 @@ class ConfigurationGenerator:
         return attributes, issecret
 
     def generate_checks(self, publish, namespace="default"):
-        self.logger.info(f"{self.tenant}: Generating checks...")
         checks = list()
 
         for metric in self.metrics:
             for name, configuration in metric.items():
-                path = configuration["config"]["path"]
-                if path.endswith("/"):
-                    path = path[:-1]
+                try:
+                    path = configuration["config"]["path"]
+                    if path.endswith("/"):
+                        path = path[:-1]
 
-                executable = os.path.join(path, configuration["probe"])
+                    executable = os.path.join(path, configuration["probe"])
 
-                if "NOTIMEOUT" not in configuration["flags"]:
-                    parameters = "-t " + configuration["config"]["timeout"]
+                    if "NOTIMEOUT" not in configuration["flags"]:
+                        parameters = "-t " + configuration["config"]["timeout"]
 
-                else:
-                    parameters = ""
+                    else:
+                        parameters = ""
 
-                if "NOHOSTNAME" not in configuration["flags"]:
-                    parameters = "-H {{ .labels.hostname }} " + parameters
-                    parameters = parameters.strip()
+                    if "NOHOSTNAME" not in configuration["flags"]:
+                        parameters = "-H {{ .labels.hostname }} " + parameters
+                        parameters = parameters.strip()
 
-                for key, value in configuration["parameter"].items():
-                    if name in self.metric_parameter_overrides:
-                        value = "{{ .labels.%s | default '%s' }}" % (
-                            self.metric_parameter_overrides[name]["label"],
-                            value
-                        )
+                    for key, value in configuration["parameter"].items():
+                        if name in self.metric_parameter_overrides:
+                            value = "{{ .labels.%s | default '%s' }}" % (
+                                self.metric_parameter_overrides[name]["label"],
+                                value
+                            )
 
-                    param = f"{key} {value}".strip()
-                    parameters = f"{parameters} {param}".strip()
+                        param = f"{key} {value}".strip()
+                        parameters = f"{parameters} {param}".strip()
 
-                attributes, issecret = self._handle_attributes(
-                    metric=name,
-                    attrs=configuration["attribute"]
-                )
+                    attributes, issecret = self._handle_attributes(
+                        metric=name,
+                        attrs=configuration["attribute"]
+                    )
 
-                command = "{} {} {}".format(
-                    executable, parameters.strip(), attributes.lstrip()
-                )
+                    command = "{} {} {}".format(
+                        executable, parameters.strip(), attributes.lstrip()
+                    )
 
-                if issecret:
-                    command = f"source {self.secrets} ; " \
-                              f"export $(cut -d= -f1 {self.secrets}) ; " \
-                              f"{command}"
+                    if issecret:
+                        command = f"source {self.secrets} ; " \
+                                  f"export $(cut -d= -f1 {self.secrets}) ; " \
+                                  f"{command}"
 
-                check = {
-                    "command": command.strip(),
-                    "subscriptions": self.servicetypes4metrics[name],
-                    "handlers": [],
-                    "interval":
-                        int(configuration["config"]["interval"]) * 60,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": name,
-                        "namespace": namespace,
-                        "annotations": {
-                            "attempts":
-                                configuration["config"]["maxCheckAttempts"]
-                        }
-                    },
-                    "round_robin": False
-                }
-
-                if publish and "NOPUBLISH" not in configuration["flags"]:
-                    check.update({"handlers": ["publisher-handler"]})
-
-                if not publish:
-                    check.update({
-                        "pipelines": [
-                            {
-                                "name": "reduce_alerts",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
+                    check = {
+                        "command": command.strip(),
+                        "subscriptions": self.servicetypes4metrics[name],
+                        "handlers": [],
+                        "interval":
+                            int(configuration["config"]["interval"]) * 60,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": name,
+                            "namespace": namespace,
+                            "annotations": {
+                                "attempts":
+                                    configuration["config"]["maxCheckAttempts"]
                             }
-                        ]
-                    })
+                        },
+                        "round_robin": False
+                    }
 
-                else:
-                    check.update({"pipelines": []})
+                    if publish and "NOPUBLISH" not in configuration["flags"]:
+                        check.update({"handlers": ["publisher-handler"]})
 
-                if namespace != "default":
-                    check.update({
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.{} == '{}'".format(
-                                    name.lower().replace(".", "_").replace(
-                                        "-", "_"
-                                    ), name
-                                )
+                    if not publish:
+                        check.update({
+                            "pipelines": [
+                                {
+                                    "name": "reduce_alerts",
+                                    "type": "Pipeline",
+                                    "api_version": "core/v2"
+                                }
                             ]
-                        }
-                    })
+                        })
 
-                checks.append(check)
+                    else:
+                        check.update({"pipelines": []})
 
-        self.logger.info(f"{self.tenant}: Generating checks... ok")
+                    if namespace != "default":
+                        check.update({
+                            "proxy_requests": {
+                                "entity_attributes": [
+                                    "entity.entity_class == 'proxy'",
+                                    "entity.labels.{} == '{}'".format(
+                                        name.lower().replace(".", "_").replace(
+                                            "-", "_"
+                                        ), name
+                                    )
+                                ]
+                            }
+                        })
+
+                    checks.append(check)
+
+                except KeyError as e:
+                    self.logger.warning(
+                        f"{self.tenant}: Skipping check {name}: "
+                        f"Missing key {str(e)}"
+                    )
+                    continue
+
         return checks
 
     def _get_servicetypes(self):
@@ -487,189 +494,196 @@ class ConfigurationGenerator:
         return service_types
 
     def generate_entities(self, namespace="default"):
-        self.logger.info(f"{self.tenant}: Generating entities...")
-        entities = list()
-        topo_entities = [
-            item for item in self.topology if
-            item["service"] in self.servicetypes
-        ]
-        for item in topo_entities:
-            types = list()
-            labels = {"hostname": item["hostname"]}
+        try:
+            entities = list()
+            topo_entities = [
+                item for item in self.topology if
+                item["service"] in self.servicetypes
+            ]
+            for item in topo_entities:
+                types = list()
+                labels = {"hostname": item["hostname"]}
 
-            if "info_URL" in item["tags"]:
-                labels.update({"info_url": item["tags"]["info_URL"]})
-                o = urlparse(item["tags"]["info_URL"])
-                port = o.port
+                if "info_URL" in item["tags"]:
+                    labels.update({"info_url": item["tags"]["info_URL"]})
+                    o = urlparse(item["tags"]["info_URL"])
+                    port = o.port
 
-                if item["service"] in self.servicetypes_with_SSL:
-                    if o.scheme == "https":
-                        ssl = "-S --sni"
-                    else:
-                        ssl = ""
-
-                    labels.update({"ssl": ssl})
-
-                    path = o.path
-                    if not o.path:
-                        path = "/"
-
-                    labels.update({"path": path})
-
-                if item["service"] in self.servicetypes_with_port:
-                    if port:
-                        port = str(port)
-
-                    else:
+                    if item["service"] in self.servicetypes_with_SSL:
                         if o.scheme == "https":
-                            port = "443"
+                            ssl = "-S --sni"
+                        else:
+                            ssl = ""
+
+                        labels.update({"ssl": ssl})
+
+                        path = o.path
+                        if not o.path:
+                            path = "/"
+
+                        labels.update({"path": path})
+
+                    if item["service"] in self.servicetypes_with_port:
+                        if port:
+                            port = str(port)
 
                         else:
-                            port = "80"
+                            if o.scheme == "https":
+                                port = "443"
 
-                    labels.update({"port": port})
+                            else:
+                                port = "80"
 
-                if item["service"] in [
-                    "org.openstack.nova", "org.openstack.swift"
-                ]:
-                    if port:
-                        labels.update({"os_keystone_port": str(port)})
+                        labels.update({"port": port})
 
-                    labels.update({"os_keystone_host": o.hostname})
+                    if item["service"] in [
+                        "org.openstack.nova", "org.openstack.swift"
+                    ]:
+                        if port:
+                            labels.update({"os_keystone_port": str(port)})
 
-            if "info_service_endpoint_URL" in item["tags"]:
-                url = item["tags"]["info_service_endpoint_URL"]
-                if "," in item["tags"]["info_service_endpoint_URL"]:
-                    url = url.split(",")[0].strip()
+                        labels.update({"os_keystone_host": o.hostname})
 
-                labels.update({"info_service_endpoint_url": url})
+                if "info_service_endpoint_URL" in item["tags"]:
+                    url = item["tags"]["info_service_endpoint_URL"]
+                    if "," in item["tags"]["info_service_endpoint_URL"]:
+                        url = url.split(",")[0].strip()
 
-            else:
-                if item["service"] in self.servicetypes_with_endpointURL:
+                    labels.update({"info_service_endpoint_url": url})
+
+                else:
+                    if item["service"] in self.servicetypes_with_endpointURL:
+                        labels.update(
+                            {"info_service_endpoint_url": item["tags"]["info_URL"]}
+                        )
+
+                if item["service"] == "Top-BDII":
+                    labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
+                    labels.update({"bdii_type": "bdii_top"})
                     labels.update(
-                        {"info_service_endpoint_url": item["tags"]["info_URL"]}
+                        {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
                     )
 
-            if item["service"] == "Top-BDII":
-                labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
-                labels.update({"bdii_type": "bdii_top"})
-                labels.update(
-                    {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
-                )
+                if item["service"] == "Site-BDII":
+                    labels.update(
+                        {"bdii_dn": "Mds-Vo-Name=%s,O=Grid" % item["group"]}
+                    )
+                    labels.update({"bdii_type": "bdii_site"})
+                    labels.update(
+                        {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
+                    )
 
-            if item["service"] == "Site-BDII":
-                labels.update(
-                    {"bdii_dn": "Mds-Vo-Name=%s,O=Grid" % item["group"]}
-                )
-                labels.update({"bdii_type": "bdii_site"})
-                labels.update(
-                    {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
-                )
+                if "info_HOSTDN" in item["tags"]:
+                    labels.update({"info_hostdn": item["tags"]["info_HOSTDN"]})
 
-            if "info_HOSTDN" in item["tags"]:
-                labels.update({"info_hostdn": item["tags"]["info_HOSTDN"]})
+                types.append(item["service"])
+                for metric in self.metrics4servicetypes[item["service"]]:
+                    key = self._create_label(metric)
+                    if key not in labels:
+                        labels.update({key: metric})
 
-            types.append(item["service"])
-            for metric in self.metrics4servicetypes[item["service"]]:
-                key = self._create_label(metric)
-                if key not in labels:
-                    labels.update({key: metric})
+                    if metric in self.metric_parameter_overrides and \
+                            item["hostname"] in \
+                            self.metric_parameter_overrides[metric]["hostname"]:
+                        labels.update({
+                            self.metric_parameter_overrides[metric]["label"]:
+                                self.metric_parameter_overrides[metric]["value"]
+                        })
 
-                if metric in self.metric_parameter_overrides and \
-                        item["hostname"] in \
-                        self.metric_parameter_overrides[metric]["hostname"]:
-                    labels.update({
-                        self.metric_parameter_overrides[metric]["label"]:
-                            self.metric_parameter_overrides[metric]["value"]
-                    })
+                    if metric in self.metrics_attr_override:
+                        overrides = [
+                            entry for entry in self.host_attribute_overrides if
+                            entry["hostname"] == item["hostname"]
+                        ]
+                        if len(overrides) > 0:
+                            for override in overrides:
+                                override_value = self._create_attribute_env(
+                                    override["value"]
+                                )
+                                labels.update({
+                                    override["label"]: f"${override_value}"
+                                })
 
-                if metric in self.metrics_attr_override:
-                    overrides = [
-                        entry for entry in self.host_attribute_overrides if
-                        entry["hostname"] == item["hostname"]
-                    ]
-                    if len(overrides) > 0:
-                        for override in overrides:
-                            override_value = self._create_attribute_env(
-                                override["value"]
-                            )
-                            labels.update({
-                                override["label"]: f"${override_value}"
-                            })
-
-                    else:
-                        for attribute in self.metrics_attr_override[metric]:
-                            labels.update({
-                                self._create_label(attribute):
-                                    f"${self._create_attribute_env(attribute)}"
-                            })
-
-                if metric == "generic.ssh.connect" and "port" not in labels:
-                    labels.update({"port": "22"})
-
-            for tag, value in item["tags"].items():
-                if tag.startswith("info_ext_"):
-                    if tag.lower() == "info_ext_port":
-                        labels.update({"port": value})
-
-                    else:
-                        if self._is_extension_present_in_all_endpoints(
-                            services=[item["service"]], extension=tag
-                        ):
-                            labels.update({tag[9:].lower(): value})
                         else:
-                            metrics = list()
-                            for metric in self.metrics:
-                                for name, configuration in metric.items():
-                                    if name in self.metrics4servicetypes[
-                                        item["service"]
-                                    ]:
-                                        metrics.append(metric)
+                            for attribute in self.metrics_attr_override[metric]:
+                                labels.update({
+                                    self._create_label(attribute):
+                                        f"${self._create_attribute_env(attribute)}"
+                                })
 
-                            for metric in metrics:
-                                for name, configuration in metric.items():
-                                    if tag[9:] in configuration["attribute"]:
-                                        labels.update({
-                                            "{}__{}".format(
-                                                configuration["attribute"][
-                                                    tag[9:]
-                                                ].lstrip("-").lstrip(
-                                                    "-"
-                                                ).replace("-", "_"),
-                                                tag[9:].lower()
-                                            ): "{} {}".format(
-                                                configuration["attribute"][
-                                                    tag[9:]
-                                                ], value
-                                            )
-                                        })
+                    if metric == "generic.ssh.connect" and "port" not in labels:
+                        labels.update({"port": "22"})
 
-            labels.update({"service": item["service"], "site": item["group"]})
+                for tag, value in item["tags"].items():
+                    if tag.startswith("info_ext_"):
+                        if tag.lower() == "info_ext_port":
+                            labels.update({"port": value})
 
-            site_entries = [
-                i for i in self.topology if i["group"] == item["group"]
-            ]
-            site_bdii_entries = [
-                i for i in site_entries if i["service"] == "Site-BDII"
-            ]
-            if len(site_bdii_entries) > 0:
-                labels.update({"site_bdii": site_bdii_entries[0]["hostname"]})
+                        else:
+                            if self._is_extension_present_in_all_endpoints(
+                                services=[item["service"]], extension=tag
+                            ):
+                                labels.update({tag[9:].lower(): value})
+                            else:
+                                metrics = list()
+                                for metric in self.metrics:
+                                    for name, configuration in metric.items():
+                                        if name in self.metrics4servicetypes[
+                                            item["service"]
+                                        ]:
+                                            metrics.append(metric)
 
-            entity_name = f"{item['service']}__{item['hostname']}"
+                                for metric in metrics:
+                                    for name, configuration in metric.items():
+                                        if tag[9:] in configuration["attribute"]:
+                                            labels.update({
+                                                "{}__{}".format(
+                                                    configuration["attribute"][
+                                                        tag[9:]
+                                                    ].lstrip("-").lstrip(
+                                                        "-"
+                                                    ).replace("-", "_"),
+                                                    tag[9:].lower()
+                                                ): "{} {}".format(
+                                                    configuration["attribute"][
+                                                        tag[9:]
+                                                    ], value
+                                                )
+                                            })
 
-            entities.append({
-                "entity_class": "proxy",
-                "metadata": {
-                    "name": entity_name,
-                    "namespace": namespace,
-                    "labels": labels
-                },
-                "subscriptions": types
-            })
+                labels.update({"service": item["service"], "site": item["group"]})
 
-        self.logger.info(f"{self.tenant}: Generating entities... ok")
-        return entities
+                site_entries = [
+                    i for i in self.topology if i["group"] == item["group"]
+                ]
+                site_bdii_entries = [
+                    i for i in site_entries if i["service"] == "Site-BDII"
+                ]
+                if len(site_bdii_entries) > 0:
+                    labels.update({"site_bdii": site_bdii_entries[0]["hostname"]})
+
+                entity_name = f"{item['service']}__{item['hostname']}"
+
+                entities.append({
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": entity_name,
+                        "namespace": namespace,
+                        "labels": labels
+                    },
+                    "subscriptions": types
+                })
+
+            return entities
+
+        except KeyError:
+            self.logger.error(
+                f"{self.tenant}: Skipping entities generation: faulty topology"
+            )
+
+            raise GeneratorException(
+                f"{self.tenant}: Error generating entities: faulty topology"
+            )
 
     def generate_subscriptions(self):
-        self.logger.info(f"{self.tenant}: Generating subscriptions... ok")
         return self.servicetypes
