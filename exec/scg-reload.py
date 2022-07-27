@@ -141,15 +141,18 @@ def main():
                 logger.warning(f"{namespace}: Skipping configuration...")
                 continue
 
-            except (WebApiException, PoemException, GeneratorException):
+            except (
+                    WebApiException, PoemException, GeneratorException,
+                    SensuException
+            ):
                 logger.warning(f"{namespace}: Skipping configuration...")
                 continue
 
-            except SensuException:
-                logger.error("Exiting...")
-
             except Exception as e:
-                logger.error(f"{namespace}: {str(e)} Exiting...")
+                logger.warning(
+                    f"{namespace}: {str(e)} Skipping configuration..."
+                )
+                continue
 
     except ConfigException as e:
         logger.error(str(e))

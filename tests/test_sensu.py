@@ -1060,9 +1060,13 @@ mock_pipelines1 = [
     }
 ]
 
-LOGFILE = "argo-scg.sensu"
+LOGNAME = "argo-scg.sensu"
+DUMMY_LOGGER = logging.getLogger(LOGNAME)
+DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
 
-mock_logger = logging.getLogger(LOGFILE)
+
+def _log_dummy():
+    DUMMY_LOGGER.info("dummy")
 
 
 def mock_sensu_request(*args, **kwargs):
@@ -1282,8 +1286,8 @@ class SensuNamespaceTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_namespaces(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
-            mock_logger.info("dummy")
+        with self.assertLogs(LOGNAME) as log:
+            DUMMY_LOGGER.info("dummy")
             namespaces = self.sensu._get_namespaces()
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces",
@@ -1293,13 +1297,13 @@ class SensuNamespaceTests(unittest.TestCase):
             }
         )
         self.assertEqual(sorted(namespaces), ["TENANT1", "TENANT2", "default"])
-        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
+        self.assertEqual(log.output, [f"INFO:{LOGNAME}:dummy"])
 
     @patch("requests.get")
     def test_get_namespaces_with_error_with_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_namespaces_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_namespaces()
 
         mock_get.assert_called_once_with(
@@ -1316,9 +1320,9 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:Error fetching namespaces: "
+                f"ERROR:{LOGNAME}:Error fetching namespaces: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:Unable to proceed"
+                f"WARNING:{LOGNAME}:Unable to proceed"
             ]
         )
 
@@ -1326,7 +1330,7 @@ class SensuNamespaceTests(unittest.TestCase):
     def test_get_namespaces_with_error_without_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_namespaces_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_namespaces()
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces",
@@ -1341,9 +1345,9 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:Error fetching namespaces: "
+                f"ERROR:{LOGNAME}:Error fetching namespaces: "
                 f"400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:Unable to proceed"
+                f"WARNING:{LOGNAME}:Unable to proceed"
             ]
         )
 
@@ -1352,7 +1356,7 @@ class SensuNamespaceTests(unittest.TestCase):
     def test_handle_namespaces(self, mock_put, mock_namespace):
         mock_put.side_effect = mock_post_response
         mock_namespace.return_value = ["Tenant1", "Tenant2"]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
                 tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
             )
@@ -1377,8 +1381,8 @@ class SensuNamespaceTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:Created namespace TeNAnT3",
-                f"INFO:{LOGFILE}:Created namespace tenant4"
+                f"INFO:{LOGNAME}:Created namespace TeNAnT3",
+                f"INFO:{LOGNAME}:Created namespace tenant4"
             }
         )
 
@@ -1390,7 +1394,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2"]
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_namespaces(
                     tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
                 )
@@ -1409,9 +1413,9 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:Error creating namespace TeNAnT3: "
+                f"ERROR:{LOGNAME}:Error creating namespace TeNAnT3: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:Unable to proceed"
+                f"WARNING:{LOGNAME}:Unable to proceed"
             ]
         )
 
@@ -1423,7 +1427,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2"]
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_namespaces(
                     tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
                 )
@@ -1441,15 +1445,15 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:Error creating namespace TeNAnT3: "
+                f"ERROR:{LOGNAME}:Error creating namespace TeNAnT3: "
                 f"400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:Unable to proceed"
+                f"WARNING:{LOGNAME}:Unable to proceed"
             ]
         )
 
 
 class SensuCheckTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
         self.checks = [
             {
@@ -1544,7 +1548,8 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_checks(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             checks = self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -1556,16 +1561,14 @@ class SensuCheckTests(unittest.TestCase):
         )
 
         self.assertEqual(checks, mock_checks)
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Fetching checks... ok"]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_checks_with_error_with_messsage(self, mock_get):
         mock_get.side_effect = mock_sensu_request_check_not_ok_with_msg
 
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -1583,7 +1586,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGFILE}:TENANT1: Error fetching checks: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching checks: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -1593,7 +1596,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_check_not_ok_without_msg
 
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -1610,7 +1613,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGFILE}:TENANT1: Error fetching checks: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching checks: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -1618,7 +1621,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.delete")
     def test_delete_checks(self, mock_delete):
         mock_delete.side_effect = mock_delete_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=[
                     "generic.tcp.connect",
@@ -1654,11 +1657,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: "
+                f"INFO:{LOGNAME}:TENANT1: "
                 f"Removed check generic.tcp.connect",
-                f"INFO:{LOGFILE}:TENANT1: "
+                f"INFO:{LOGNAME}:TENANT1: "
                 f"Removed check generic.http.connect",
-                f"INFO:{LOGFILE}:TENANT1: "
+                f"INFO:{LOGNAME}:TENANT1: "
                 f"Removed check generic.certificate.validity"
             }
         )
@@ -1669,7 +1672,7 @@ class SensuCheckTests(unittest.TestCase):
             MockResponse({"message": "Something went wrong."}, status_code=400),
             MockResponse(None, status_code=204)
         ]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
                 namespace="TENANT1"
@@ -1695,10 +1698,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGFILE}:TENANT1: "
-                f"Error deleting check generic.tcp.connect: "
+                f"WARNING:{LOGNAME}:TENANT1: "
+                f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGFILE}:TENANT1: "
+                f"INFO:{LOGNAME}:TENANT1: "
                 f"Removed check generic.http.connect"
             }
         )
@@ -1709,7 +1712,7 @@ class SensuCheckTests(unittest.TestCase):
             MockResponse(None, status_code=400),
             MockResponse(None, status_code=204)
         ]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
                 namespace="TENANT1"
@@ -1735,10 +1738,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGFILE}:TENANT1: "
-                f"Error deleting check generic.tcp.connect: "
+                f"WARNING:{LOGNAME}:TENANT1: "
+                f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST",
-                f"INFO:{LOGFILE}:TENANT1: "
+                f"INFO:{LOGNAME}:TENANT1: "
                 f"Removed check generic.http.connect"
             }
         )
@@ -1762,7 +1765,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(self.checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -1802,10 +1805,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Created check "
-                f"generic.certificate.validity",
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.http.ar-argoui-ni4os"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.certificate.validity "
+                f"created",
+                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"updated"
             }
         )
 
@@ -1838,7 +1841,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -1860,8 +1863,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.tcp.connect"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
             ]
         )
 
@@ -1940,7 +1942,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, namespace="TENANT1")
         self.assertEqual(mock_get_checks.call_count, 3)
         mock_get_checks.assert_called_with(namespace="TENANT1")
@@ -1989,10 +1991,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Created check "
-                f"org.activemq.OpenWireSSL",
-                f"INFO:{LOGFILE}:TENANT1: Created check "
-                f"org.nagiosexchange.Broker-BDII"
+                f"INFO:{LOGNAME}:TENANT1: Check org.activemq.OpenWireSSL "
+                f"created",
+                f"INFO:{LOGNAME}:TENANT1: Check org.nagiosexchange.Broker-BDII "
+                f"created"
             }
         )
 
@@ -2066,7 +2068,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -2118,10 +2120,9 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Created check "
-                f"eudat.b2access.unity.login-local",
-                f"INFO:{LOGFILE}:TENANT1: Created check "
-                f"pl.plgrid.QCG-Computing"
+                f"INFO:{LOGNAME}:TENANT1: Check "
+                f"eudat.b2access.unity.login-local created",
+                f"INFO:{LOGNAME}:TENANT1: Check pl.plgrid.QCG-Computing created"
             }
         )
 
@@ -2175,7 +2176,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks([no_proxy_checks[0]], namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -2203,8 +2204,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.tcp.connect"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
             ]
         )
 
@@ -2237,7 +2237,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete_events.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -2259,8 +2259,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.tcp.connect"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
             ]
         )
 
@@ -2286,7 +2285,7 @@ class SensuCheckTests(unittest.TestCase):
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -2326,11 +2325,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGFILE}:TENANT1: Error creating check "
-                f"generic.certificate.validity: "
+                f"WARNING:{LOGNAME}:TENANT1: Check "
+                f"generic.certificate.validity not created: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.http.ar-argoui-ni4os"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"updated"
             }
         )
 
@@ -2356,7 +2355,7 @@ class SensuCheckTests(unittest.TestCase):
             MockResponse(None, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
@@ -2396,11 +2395,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGFILE}:TENANT1: Error creating check "
-                f"generic.certificate.validity: "
+                f"WARNING:{LOGNAME}:TENANT1: Check "
+                f"generic.certificate.validity not created: "
                 f"400 BAD REQUEST",
-                f"INFO:{LOGFILE}:TENANT1: Updated check "
-                f"generic.http.ar-argoui-ni4os"
+                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"updated"
             }
         )
 
@@ -2412,19 +2411,18 @@ class SensuEventsTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_events(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             checks = self.sensu._get_events(namespace="TENANT1")
         self.assertEqual(checks, mock_events)
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Fetching events... ok"]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_events_with_error_with_messsage(self, mock_get):
         mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
 
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -2442,7 +2440,7 @@ class SensuEventsTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching events: "
+                f"WARNING:{LOGNAME}:TENANT1: Error fetching events: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2452,7 +2450,7 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
 
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -2469,7 +2467,7 @@ class SensuEventsTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching events: "
+                f"WARNING:{LOGNAME}:TENANT1: Error fetching events: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -2477,7 +2475,7 @@ class SensuEventsTests(unittest.TestCase):
     @patch("requests.delete")
     def test_delete_events(self, mock_delete):
         mock_delete.side_effect = mock_delete_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
                     "argo.ni4os.eu": [
@@ -2516,12 +2514,12 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed event "
-                f"argo-devel.ni4os.eu/generic.certificate.validation",
-                f"INFO:{LOGFILE}:TENANT1: Removed event "
-                f"argo.ni4os.eu/generic.http.connect",
-                f"INFO:{LOGFILE}:TENANT1: Removed event "
-                f"argo.ni4os.eu/generic.tcp.connect"
+                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"argo-devel.ni4os.eu/generic.certificate.validation removed",
+                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.http.connect removed",
+                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.tcp.connect removed"
             }
         )
 
@@ -2531,7 +2529,7 @@ class SensuEventsTests(unittest.TestCase):
             MockResponse(None, status_code=204),
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
                     "argo.ni4os.eu": [
@@ -2562,10 +2560,10 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed event "
-                f"argo.ni4os.eu/generic.tcp.connect",
-                f"WARNING:{LOGFILE}:TENANT1: Error removing event "
-                f"argo.ni4os.eu/generic.http.connect: "
+                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.tcp.connect removed",
+                f"WARNING:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.http.connect not removed: "
                 f"400 BAD REQUEST: Something went wrong."
             }
         )
@@ -2576,7 +2574,7 @@ class SensuEventsTests(unittest.TestCase):
             MockResponse(None, status_code=204),
             MockResponse(None, status_code=400)
         ]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
                     "argo.ni4os.eu": [
@@ -2607,10 +2605,11 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed event "
-                f"argo.ni4os.eu/generic.tcp.connect",
-                f"WARNING:{LOGFILE}:TENANT1: Error removing event "
-                f"argo.ni4os.eu/generic.http.connect: 400 BAD REQUEST"
+                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.tcp.connect removed",
+                f"WARNING:{LOGNAME}:TENANT1: Event "
+                f"argo.ni4os.eu/generic.http.connect not removed: "
+                f"400 BAD REQUEST"
             }
         )
 
@@ -2672,7 +2671,8 @@ class SensuEntityTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_proxy_entities(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             entities = self.sensu._get_proxy_entities(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/entities",
@@ -2685,17 +2685,13 @@ class SensuEntityTests(unittest.TestCase):
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             mock_entities[:-2]
         )
-        self.assertEqual(
-            log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Fetching entities... ok"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_proxy_entities_with_error_with_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_proxy_entities(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -2713,7 +2709,7 @@ class SensuEntityTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2722,7 +2718,7 @@ class SensuEntityTests(unittest.TestCase):
     def test_get_proxy_entities_with_error_without_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_proxy_entities(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -2739,7 +2735,7 @@ class SensuEntityTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -2749,7 +2745,7 @@ class SensuEntityTests(unittest.TestCase):
         mock_delete.side_effect = mock_delete_response
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
@@ -2779,10 +2775,9 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed entity argo.ni4os.eu",
-                f"INFO:{LOGFILE}:TENANT1: Removed entity "
-                f"argo-devel.ni4os.eu",
-                f"INFO:{LOGFILE}:TENANT1: Removed entity gocdb.ni4os.eu"
+                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
+                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu removed",
+                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -2794,7 +2789,7 @@ class SensuEntityTests(unittest.TestCase):
             MockResponse(None, status_code=204)
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
@@ -2824,10 +2819,10 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed entity argo.ni4os.eu",
-                f"WARNING:{LOGFILE}:TENANT1: Error removing entity "
-                f"argo-devel.ni4os.eu: 400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGFILE}:TENANT1: Removed entity gocdb.ni4os.eu"
+                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
+                f"WARNING:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu "
+                f"not removed: 400 BAD REQUEST: Something went wrong.",
+                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -2839,7 +2834,7 @@ class SensuEntityTests(unittest.TestCase):
             MockResponse(None, status_code=204)
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
@@ -2869,10 +2864,10 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Removed entity argo.ni4os.eu",
-                f"WARNING:{LOGFILE}:TENANT1: Error removing entity "
-                f"argo-devel.ni4os.eu: 400 BAD REQUEST",
-                f"INFO:{LOGFILE}:TENANT1: Removed entity gocdb.ni4os.eu"
+                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
+                f"WARNING:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu not "
+                f"removed: 400 BAD REQUEST",
+                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -2886,7 +2881,7 @@ class SensuEntityTests(unittest.TestCase):
         mock_delete_entities.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
                 entities=self.entities, namespace="TENANT1"
             )
@@ -2921,10 +2916,8 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Created entity "
-                f"argo-mon.ni4os.eu",
-                f"INFO:{LOGFILE}:TENANT1: Updated entity "
-                f"argo-devel.ni4os.eu"
+                f"INFO:{LOGNAME}:TENANT1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated"
             }
         )
 
@@ -2941,7 +2934,7 @@ class SensuEntityTests(unittest.TestCase):
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
                 entities=self.entities, namespace="TENANT1"
             )
@@ -2976,10 +2969,9 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Updated entity "
-                f"argo-devel.ni4os.eu",
-                f"WARNING:{LOGFILE}:TENANT1: Error creating proxy entity "
-                f"argo-mon.ni4os.eu: 400 BAD REQUEST: Something went wrong."
+                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated",
+                f"WARNING:{LOGNAME}:TENANT1: Proxy entity argo-mon.ni4os.eu "
+                f"not created: 400 BAD REQUEST: Something went wrong."
             }
         )
 
@@ -2996,7 +2988,7 @@ class SensuEntityTests(unittest.TestCase):
             MockResponse(None, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
                 entities=self.entities, namespace="TENANT1"
             )
@@ -3031,10 +3023,9 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Updated entity "
-                f"argo-devel.ni4os.eu",
-                f"WARNING:{LOGFILE}:TENANT1: Error creating proxy entity "
-                f"argo-mon.ni4os.eu: 400 BAD REQUEST"
+                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated",
+                f"WARNING:{LOGNAME}:TENANT1: Proxy entity argo-mon.ni4os.eu "
+                f"not created: 400 BAD REQUEST"
             }
         )
 
@@ -3049,7 +3040,7 @@ class SensuAgentsTests(unittest.TestCase):
         mock_patch.side_effect = mock_post_response
         mock_get.side_effect = mock_sensu_request
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_subscriptions_to_agents(
                 ["argo.webui", "argo.test"], namespace="TENANT1"
             )
@@ -3099,8 +3090,8 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Updated sensu-agent1 subscriptions",
-                f"INFO:{LOGFILE}:TENANT1: Updated sensu-agent2 subscriptions"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated"
             }
         )
 
@@ -3111,7 +3102,7 @@ class SensuAgentsTests(unittest.TestCase):
     ):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_subscriptions_to_agents(
                 ["argo.webui", "argo.test"], namespace="TENANT1"
             )
@@ -3127,9 +3118,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:TENANT1: Agents' subscriptions not updated"
+                f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
             ]
         )
 
@@ -3140,7 +3131,7 @@ class SensuAgentsTests(unittest.TestCase):
     ):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_subscriptions_to_agents(
                 ["argo.webui", "argo.test"], namespace="TENANT1"
             )
@@ -3156,9 +3147,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching entities: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching entities: "
                 f"400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:TENANT1: Agents' subscriptions not updated"
+                f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
             ]
         )
 
@@ -3173,7 +3164,7 @@ class SensuAgentsTests(unittest.TestCase):
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_subscriptions_to_agents(
                 ["argo.webui", "argo.test"], namespace="TENANT1"
             )
@@ -3224,9 +3215,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Updated sensu-agent1 subscriptions",
-                f"ERROR:{LOGFILE}:TENANT1: Error updating sensu-agent2 "
-                f"subscriptions: 400 BAD REQUEST: Something went wrong."
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 subscriptions not "
+                f"updated: 400 BAD REQUEST: Something went wrong."
             }
         )
 
@@ -3241,7 +3232,7 @@ class SensuAgentsTests(unittest.TestCase):
             MockResponse(None, status_code=400)
         ]
 
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_subscriptions_to_agents(
                 ["argo.webui", "argo.test"], namespace="TENANT1"
             )
@@ -3292,9 +3283,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGFILE}:TENANT1: Updated sensu-agent1 subscriptions",
-                f"ERROR:{LOGFILE}:TENANT1: Error updating sensu-agent2 "
-                f"subscriptions: 400 BAD REQUEST"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 subscriptions not "
+                f"updated: 400 BAD REQUEST"
             }
         )
 
@@ -3325,7 +3316,8 @@ class SensuHandlersTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_handlers(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             handlers = self.sensu._get_handlers(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
@@ -3335,15 +3327,13 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(handlers, mock_handlers1)
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Fetching handlers... ok"]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_handlers_with_error_with_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_handlers(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -3361,9 +3351,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching handlers: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update handlers"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching handlers: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -3371,7 +3360,7 @@ class SensuHandlersTests(unittest.TestCase):
     def test_get_handlers_with_error_without_message(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_handlers(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -3388,9 +3377,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching handlers: "
-                f"400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update handlers"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching handlers: "
+                f"400 BAD REQUEST"
             ]
         )
 
@@ -3399,7 +3387,7 @@ class SensuHandlersTests(unittest.TestCase):
     def test_handle_publisher_handler(self, mock_get_handlers, mock_post):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
@@ -3414,7 +3402,7 @@ class SensuHandlersTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Created publisher-handler"
+                f"INFO:{LOGNAME}:TENANT1: Created publisher-handler"
             ]
         )
 
@@ -3426,7 +3414,7 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_publisher_handler(namespace="TENANT1")
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
@@ -3445,9 +3433,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating publisher-handler: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create publisher-handler"
+                f"ERROR:{LOGNAME}:TENANT1: Error creating publisher-handler: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -3459,7 +3446,7 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_publisher_handler(namespace="TENANT1")
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
@@ -3478,9 +3465,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating publisher-handler: "
-                f"400 BAD REQUEST",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create publisher-handler"
+                f"ERROR:{LOGNAME}:TENANT1: Error creating publisher-handler: "
+                f"400 BAD REQUEST"
             ]
         )
 
@@ -3489,15 +3475,14 @@ class SensuHandlersTests(unittest.TestCase):
     def test_handle_publisher_handler_if_exists_and_same(
             self, mock_get_handlers, mock_post
     ):
-        logger = logging.getLogger(LOGFILE)
         mock_get_handlers.return_value = mock_handlers2
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
-            logger.info("dummy")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
-        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.patch")
     @patch("argo_scg.sensu.Sensu._get_handlers")
@@ -3506,7 +3491,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
@@ -3522,7 +3507,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Updated publisher-handler"
+                f"INFO:{LOGNAME}:TENANT1: Updated publisher-handler"
             ]
         )
 
@@ -3533,7 +3518,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_with_msg
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
@@ -3549,9 +3534,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error updating publisher-handler: "
+                f"WARNING:{LOGNAME}:TENANT1: publisher-handler not updated: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update publisher-handler"
             ]
         )
 
@@ -3562,7 +3546,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_without_msg
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
@@ -3578,9 +3562,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error updating publisher-handler: "
+                f"WARNING:{LOGNAME}:TENANT1: publisher-handler not updated: "
                 f"400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update publisher-handler"
             ]
         )
 
@@ -3589,7 +3572,7 @@ class SensuHandlersTests(unittest.TestCase):
     def test_handle_slack_handler(self, mock_get_handlers, mock_post):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
                 secrets_file="/etc/sensu/secrets", namespace="TENANT1"
             )
@@ -3603,7 +3586,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Created slack-handler"]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: Created slack-handler"]
         )
 
     @patch("requests.post")
@@ -3614,7 +3597,7 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_slack_handler(
                     secrets_file="/etc/sensu/secrets", namespace="TENANT1"
                 )
@@ -3634,9 +3617,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating slack-handler: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create slack-handler"
+                f"ERROR:{LOGNAME}:TENANT1: Error creating slack-handler: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -3648,7 +3630,7 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_slack_handler(
                     secrets_file="/etc/sensu/secrets", namespace="TENANT1"
                 )
@@ -3668,9 +3650,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating slack-handler: "
-                f"400 BAD REQUEST",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create slack-handler"
+                f"ERROR:{LOGNAME}:TENANT1: Error creating slack-handler: "
+                f"400 BAD REQUEST"
             ]
         )
 
@@ -3679,17 +3660,16 @@ class SensuHandlersTests(unittest.TestCase):
     def test_handle_slack_handler_if_exists_and_same(
             self, mock_get_handlers, mock_post
     ):
-        logger = logging.getLogger(LOGFILE)
         mock_get_handlers.return_value = mock_handlers2
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
-            logger.info("dummy")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             self.sensu.handle_slack_handler(
                 secrets_file="/etc/sensu/secrets", namespace="TENANT1"
             )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
-        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.patch")
     @patch("argo_scg.sensu.Sensu._get_handlers")
@@ -3698,7 +3678,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
                 secrets_file="/etc/sensu/secrets", namespace="TENANT1"
             )
@@ -3716,9 +3696,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [
-                f"INFO:{LOGFILE}:TENANT1: Updated slack-handler"
-            ]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: Updated slack-handler"]
         )
 
     @patch("requests.patch")
@@ -3728,7 +3706,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_with_msg
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
                 secrets_file="/etc/sensu/secrets", namespace="TENANT1"
             )
@@ -3747,9 +3725,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error updating slack-handler: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update slack-handler"
+                f"WARNING:{LOGNAME}:TENANT1: slack-handler not updated: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -3760,7 +3737,7 @@ class SensuHandlersTests(unittest.TestCase):
     ):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_without_msg
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
                 secrets_file="/etc/sensu/secrets", namespace="TENANT1"
             )
@@ -3779,9 +3756,8 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error updating slack-handler: "
-                "400 BAD REQUEST",
-                f"WARNING:{LOGFILE}:TENANT1: Unable to update slack-handler"
+                f"WARNING:{LOGNAME}:TENANT1: slack-handler not updated: "
+                "400 BAD REQUEST"
             ]
         )
 
@@ -3809,7 +3785,8 @@ class SensuFiltersTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_filters(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             filters = self.sensu._get_filters(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/filters",
@@ -3818,15 +3795,13 @@ class SensuFiltersTests(unittest.TestCase):
             }
         )
         self.assertEqual(filters, mock_filters1)
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Fetching filters... ok"]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_filters_with_error_with_msg(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_filters(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -3843,9 +3818,8 @@ class SensuFiltersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching filters: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create filters"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching filters: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -3853,7 +3827,7 @@ class SensuFiltersTests(unittest.TestCase):
     def test_get_filters_with_error_without_msg(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_filters(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
@@ -3868,9 +3842,8 @@ class SensuFiltersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching filters: "
-                f"400 BAD REQUEST",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create filters"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching filters: "
+                f"400 BAD REQUEST"
             ]
         )
 
@@ -3879,7 +3852,7 @@ class SensuFiltersTests(unittest.TestCase):
     def test_add_daily_filter(self, mock_filters, mock_post):
         mock_filters.return_value = []
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_daily_filter(namespace="TENANT1")
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
@@ -3892,7 +3865,7 @@ class SensuFiltersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Created daily filter"]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter created"]
         )
 
     @patch("requests.post")
@@ -3901,7 +3874,7 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = []
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_daily_filter(namespace="TENANT1")
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
@@ -3922,7 +3895,7 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating daily filter: "
+                f"ERROR:{LOGNAME}:TENANT1: Error creating daily filter: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3933,7 +3906,7 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = []
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_daily_filter(namespace="TENANT1")
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
@@ -3952,7 +3925,7 @@ class SensuFiltersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error creating daily filter: "
+                f"ERROR:{LOGNAME}:TENANT1: Error creating daily filter: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3960,14 +3933,13 @@ class SensuFiltersTests(unittest.TestCase):
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_filters")
     def test_add_daily_filter_if_exists_and_same(self, mock_filters, mock_post):
-        logger = logging.getLogger(LOGFILE)
         mock_filters.return_value = mock_filters1
-        with self.assertLogs(LOGFILE) as log:
-            logger.info("dummy")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             self.sensu.add_daily_filter(namespace="TENANT1")
         mock_filters.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
-        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.patch")
     @patch("requests.post")
@@ -3976,7 +3948,7 @@ class SensuFiltersTests(unittest.TestCase):
             self, mock_filters, mock_post, mock_patch
     ):
         mock_filters.return_value = mock_filters2
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_daily_filter(namespace="TENANT1")
         mock_filters.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
@@ -4000,7 +3972,7 @@ class SensuFiltersTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Updated daily filter"]
+            log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter updated"]
         )
 
 
@@ -4039,7 +4011,8 @@ class SensuPipelinesTests(unittest.TestCase):
     @patch("requests.get")
     def test_get_pipelines(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             pipelines = self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
@@ -4048,15 +4021,13 @@ class SensuPipelinesTests(unittest.TestCase):
             }
         )
         self.assertEqual(pipelines, mock_pipelines1)
-        self.assertEqual(
-            log.output, [f"INFO:{LOGFILE}:TENANT1: Fetching pipelines... ok"]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_pipelines_with_error_with_msg(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
@@ -4071,9 +4042,8 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching pipelines: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create pipelines"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching pipelines: "
+                f"400 BAD REQUEST: Something went wrong."
             ]
         )
 
@@ -4081,7 +4051,7 @@ class SensuPipelinesTests(unittest.TestCase):
     def test_get_pipelines_with_error_without_msg(self, mock_get):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
@@ -4095,9 +4065,8 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: Error fetching pipelines: "
-                f"400 BAD REQUEST",
-                f"ERROR:{LOGFILE}:TENANT1: Unable to create pipelines"
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching pipelines: "
+                f"400 BAD REQUEST"
             ]
         )
 
@@ -4106,7 +4075,7 @@ class SensuPipelinesTests(unittest.TestCase):
     def test_reduce_alerts_pipeline(self, mock_pipelines, mock_post):
         mock_pipelines.return_value = []
         mock_post.side_effect = mock_post_response
-        with self.assertLogs(LOGFILE) as log:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
@@ -4119,7 +4088,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGFILE}:TENANT1: Created reduce_alerts pipeline"]
+            [f"INFO:{LOGNAME}:TENANT1: reduce_alerts pipeline created"]
         )
 
     @patch("requests.post")
@@ -4128,7 +4097,7 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipelines.return_value = []
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
@@ -4146,7 +4115,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: "
+                f"ERROR:{LOGNAME}:TENANT1: "
                 f"Error creating reduce_alerts pipeline: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
@@ -4158,7 +4127,7 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipelines.return_value = []
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
-            with self.assertLogs(LOGFILE) as log:
+            with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
@@ -4176,7 +4145,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGFILE}:TENANT1: "
+                f"ERROR:{LOGNAME}:TENANT1: "
                 f"Error creating reduce_alerts pipeline: "
                 f"400 BAD REQUEST"
             ]
@@ -4185,11 +4154,10 @@ class SensuPipelinesTests(unittest.TestCase):
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_pipelines")
     def test_add_alert_pipe_if_exists(self, mock_pipeline, mock_post):
-        logger = logging.getLogger(LOGFILE)
         mock_pipeline.return_value = mock_pipelines1
-        with self.assertLogs(LOGFILE) as log:
-            logger.info("dummy")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
             self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
-        self.assertEqual(log.output, [f"INFO:{LOGFILE}:dummy"])
+        self.assertEqual(log.output, DUMMY_LOG)
