@@ -138,7 +138,11 @@ def main():
 
             except json.decoder.JSONDecodeError as e:
                 logger.error(f"{namespace}: Error reading JSON: {str(e)}")
-                logger.warning(f"{namespace}: Skipping the configuration...")
+                logger.warning(f"{namespace}: Skipping configuration...")
+                continue
+
+            except WebApiException:
+                logger.warning(f"{namespace}: Skipping configuration...")
                 continue
 
             except (SensuException, PoemException, WebApiException):

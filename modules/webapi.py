@@ -12,7 +12,6 @@ class WebApi:
         self.logger = logging.getLogger("argo-scg.webapi")
 
     def get_metric_profiles(self):
-        self.logger.info(f"{self.tenant}: Fetching metric profiles...")
         response = requests.get(
             "{}/api/v2/metric_profiles".format(self.url),
             headers={"Accept": "application/json", "x-api-key": self.token}
@@ -33,12 +32,13 @@ class WebApi:
 
         else:
             mps = response.json()["data"]
-            self.logger.info(f"{self.tenant}: Fetching metric profiles... ok")
+            self.logger.info(
+                f"{self.tenant}: Successfully fetched metric profiles"
+            )
 
             return mps
 
     def get_topology(self):
-        self.logger.info(f"{self.tenant}: Fetching topology endpoints...")
         response = requests.get(
             "{}/api/v2/topology/endpoints".format(self.url),
             headers={
@@ -64,7 +64,7 @@ class WebApi:
         else:
             topology = response.json()["data"]
             self.logger.info(
-                f"{self.tenant}: Fetching topology endpoints... ok"
+                f"{self.tenant}: Successfully fetched topology endpoints"
             )
 
             return topology
