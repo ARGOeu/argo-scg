@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 from argo_scg.exceptions import SensuException
@@ -8,6 +9,7 @@ class Sensu:
     def __init__(self, url, token):
         self.url = url
         self.token = token
+        self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
         response = requests.get(
@@ -19,15 +21,17 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"Error fetching namespaces: " \
+            msg = f"Namespaces fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
+            self.logger.warning("Unable to proceed")
             raise SensuException(msg)
 
         else:
@@ -48,18 +52,21 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error handling namespaces: " \
+                    msg = f"Namespace {namespace} create error: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(
-                            msg, response.json()["message"]
-                        )
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
+                    self.logger.error(msg)
+                    self.logger.warning("Unable to proceed")
                     raise SensuException(msg)
+
+                else:
+                    self.logger.info(f"Namespace {namespace} created")
 
     def _get_checks(self, namespace):
         response = requests.get(
@@ -71,15 +78,16 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching checks: " \
+            msg = f"{namespace}: Checks fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
@@ -97,18 +105,20 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching events: " \
+            msg = f"{namespace}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.warning(msg)
             raise SensuException(msg)
 
-        return response.json()
+        else:
+            return response.json()
 
     def _delete_checks(self, checks, namespace):
         for check in checks:
@@ -120,16 +130,20 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error deleting check {check}: " \
+                msg = f"{namespace}: Check {check} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, TypeError, KeyError):
                     pass
 
-                raise SensuException(msg)
+                self.logger.warning(msg)
+                continue
+
+            else:
+                self.logger.info(f"{namespace}: Check {check} removed")
 
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
@@ -144,18 +158,22 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error deleting event " \
-                          f"{entity}/{check}: " \
+                    msg = f"{namespace}: Event " \
+                          f"{entity}/{check} not removed: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()[
-                            "message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: Event {entity}/{check} removed"
+                    )
 
     @staticmethod
     def _compare_checks(check1, check2):
@@ -218,15 +236,16 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching entities: " \
+            msg = f"{namespace}: Entity fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
@@ -245,16 +264,19 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error deleting entity {entity}: " \
+                msg = f"{namespace}: Entity {entity} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, TypeError, KeyError):
                     pass
 
-                raise SensuException(msg)
+                self.logger.warning(msg)
+
+            else:
+                self.logger.info(f"{namespace}: Entity {entity} removed")
 
     @staticmethod
     def _compare_entities(entity1, entity2):
@@ -286,6 +308,12 @@ class Sensu:
                 ec["metadata"]["name"] == check["metadata"]["name"]
             ]
 
+            if len(existing_check) == 0:
+                word = "created"
+
+            else:
+                word = "updated"
+
             if len(existing_check) == 0 or \
                     not self._compare_checks(check, existing_check[0]):
                 response = requests.put(
@@ -300,19 +328,21 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = "{}: Error handling check {}: {} {}".format(
-                        namespace, check["metadata"]["name"],
-                        response.status_code, response.reason
-                    )
+                    msg = f"{namespace}: " \
+                          f"Check {check['metadata']['name']} not {word}: " \
+                          f"{response.status_code} {response.reason}"
                     try:
-                        msg = "{}: {}".format(
-                            msg, response.json()["message"]
-                        )
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: Check {check['metadata']['name']} {word}"
+                    )
 
         updated_existing_checks = self._get_checks(namespace=namespace)
         checks_tobedeleted = sorted(list(set(
@@ -329,21 +359,27 @@ class Sensu:
                     namespace=namespace
                 )
             ]
-            existing_events = self._get_events(namespace=namespace)
-            events_tobedeleted = dict()
-            for event in existing_events:
-                check = event["check"]["metadata"]["name"]
-                if check not in after_delete_checks:
-                    entity = event["entity"]["metadata"]["name"]
-                    if entity not in events_tobedeleted.keys():
-                        events_tobedeleted.update({entity: [check]})
+            try:
+                existing_events = self._get_events(namespace=namespace)
+                events_tobedeleted = dict()
+                for event in existing_events:
+                    check = event["check"]["metadata"]["name"]
+                    if check not in after_delete_checks:
+                        entity = event["entity"]["metadata"]["name"]
+                        if entity not in events_tobedeleted.keys():
+                            events_tobedeleted.update({entity: [check]})
 
-                    else:
-                        entity_checks = events_tobedeleted[entity]
-                        entity_checks.append(check)
-                        events_tobedeleted.update({entity: entity_checks})
+                        else:
+                            entity_checks = events_tobedeleted[entity]
+                            entity_checks.append(check)
+                            events_tobedeleted.update({entity: entity_checks})
 
-            self._delete_events(events=events_tobedeleted, namespace=namespace)
+                self._delete_events(
+                    events=events_tobedeleted, namespace=namespace
+                )
+
+            except SensuException:
+                pass
 
     def handle_proxy_entities(self, entities, namespace="default"):
         existing_entities = self._get_proxy_entities(namespace=namespace)
@@ -352,6 +388,12 @@ class Sensu:
                 ent for ent in existing_entities if
                 ent["metadata"]["name"] == entity["metadata"]["name"]
             ]
+
+            if len(existing_entity) == 0:
+                word = "created"
+
+            else:
+                word = "updated"
 
             if len(existing_entity) == 0 or \
                     not self._compare_entities(entity, existing_entity[0]):
@@ -367,18 +409,23 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = "{}: Error handling proxy entity {}: {} {}".format(
-                        namespace, entity["metadata"]["name"],
-                        response.status_code, response.reason
-                    )
+                    msg = f"{namespace}: Proxy entity " \
+                          f"{entity['metadata']['name']} not {word}: " \
+                          f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()["message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, TypeError, KeyError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(
+                        f"{namespace}: Entity {entity['metadata']['name']} "
+                        f"{word}"
+                    )
 
         entities_tobedeleted = list(set(
             [entity["metadata"]["name"] for entity in existing_entities]
@@ -401,15 +448,18 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching entities: " \
+            msg = f"{namespace}: Entity fetch error: " \
                   f"{response.status_code} {response.reason}"
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            self.logger.error(msg)
+            self.logger.warning(
+                f"{namespace}: Agents' subscriptions not updated"
+            )
 
         else:
             entities = response.json()
@@ -437,17 +487,22 @@ class Sensu:
                     )
 
                     if not response.ok:
-                        msg = f"{namespace}: Error updating agents: " \
+                        msg = f"{namespace}: {agent['metadata']['name']} " \
+                              f"subscriptions not updated: " \
                               f"{response.status_code} {response.reason}"
                         try:
-                            msg = "{}: {}".format(
-                                msg, response.json()["message"]
-                            )
+                            msg = f"{msg}: {response.json()['message']}"
 
                         except (ValueError, TypeError, KeyError):
                             pass
 
-                        raise SensuException(msg)
+                        self.logger.error(msg)
+
+                    else:
+                        self.logger.info(
+                            f"{namespace}: {agent['metadata']['name']} "
+                            f"subscriptions updated"
+                        )
 
     def _get_handlers(self, namespace):
         response = requests.get(
@@ -459,15 +514,16 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching handlers: " \
+            msg = f"{namespace}: Handlers fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
@@ -479,6 +535,7 @@ class Sensu:
             if handler["metadata"]["name"] == name
         ]
 
+        print_name = name if name.endswith("handler") else f"{name}-handler"
         if len(existing_handler) == 0:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/handlers",
@@ -490,16 +547,20 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error posting handler {name}: " \
+                msg = f"{namespace}: {print_name} create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
+                self.logger.error(msg)
                 raise SensuException(msg)
+
+            else:
+                self.logger.info(f"{namespace}: {print_name} created")
 
         else:
             if existing_handler[0]["command"] != data["command"]:
@@ -514,16 +575,19 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Error updating handler {name}: " \
+                    msg = f"{namespace}: {print_name} not updated: " \
                           f"{response.status_code} {response.reason}"
 
                     try:
-                        msg = "{}: {}".format(msg, response.json()["message"])
+                        msg = f"{msg}: {response.json()['message']}"
 
                     except (ValueError, KeyError, TypeError):
                         pass
 
-                    raise SensuException(msg)
+                    self.logger.warning(msg)
+
+                else:
+                    self.logger.info(f"{namespace}: {print_name} updated")
 
     def handle_publisher_handler(self, namespace="default"):
         self._handle_handler(
@@ -565,15 +629,16 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching filters: " \
+            msg = f"{namespace}: Filters fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
@@ -594,7 +659,9 @@ class Sensu:
         ]
 
         response = None
+        added = False
         if "daily" not in filters_names:
+            added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
                 headers={
@@ -628,16 +695,37 @@ class Sensu:
 
         if response:
             if not response.ok:
-                msg = f"{namespace}: Error adding daily filter: " \
+                if added:
+                    intra_msg = "daily filter create error"
+
+                else:
+                    intra_msg = "daily filter not updated"
+
+                msg = f"{namespace}: {intra_msg}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
-                raise SensuException(msg)
+                if added:
+                    self.logger.error(msg)
+                    raise SensuException(msg)
+
+                else:
+                    self.logger.warning(msg)
+
+            else:
+                if added:
+                    operation = "created"
+
+                else:
+                    operation = "updated"
+                self.logger.info(
+                    f"{namespace}: daily filter {operation}"
+                )
 
     def _get_pipelines(self, namespace):
         response = requests.get(
@@ -648,15 +736,16 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Error fetching pipelines: " \
+            msg = f"{namespace}: Pipelines fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, KeyError, TypeError):
                 pass
 
+            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
@@ -707,16 +796,20 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Error adding reduce_alerts pipeline: " \
+                msg = f"{namespace}: reduce_alerts pipeline create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
-                    msg = "{}: {}".format(msg, response.json()["message"])
+                    msg = f"{msg}: {response.json()['message']}"
 
                 except (ValueError, KeyError, TypeError):
                     pass
 
+                self.logger.error(msg)
                 raise SensuException(msg)
+
+            else:
+                self.logger.info(f"{namespace}: reduce_alerts pipeline created")
 
 
 class MetricOutput:

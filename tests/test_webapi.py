@@ -280,65 +280,117 @@ def mock_webapi_requests_endpoints_error_without_msg(*args, **kwargs):
 
 
 class WebApiTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.webapi = WebApi(
-            url="https://web-api.com", token="W3b4p1t0k3n"
+            url="https://web-api.com", token="W3b4p1t0k3n", tenant="MOCK_TENANT"
         )
+        self.logname = "argo-scg.webapi"
 
     @patch("requests.get")
     def test_get_metric_profiles(self, mock_request):
         mock_request.side_effect = mock_webapi_requests
-        data = self.webapi.get_metric_profiles()
+        with self.assertLogs(self.logname) as log:
+            data = self.webapi.get_metric_profiles()
         self.assertEqual(data, mock_metric_profiles)
+        self.assertEqual(
+            log.output,
+            [
+                "INFO:argo-scg.webapi:MOCK_TENANT: Metric profiles fetched "
+                "successfully"
+            ]
+        )
 
     @patch("requests.get")
     def test_error_fetching_metricprofiles_with_msg(self, mock_get):
         mock_get.side_effect = mock_webapi_metricprofile_error_with_msg
         with self.assertRaises(WebApiException) as context:
-            self.webapi.get_metric_profiles()
+            with self.assertLogs(self.logname) as log:
+                self.webapi.get_metric_profiles()
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: Error fetching metric profiles: 400 BAD REQUEST: "
-            "There has been an error."
+            "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
+            "400 BAD REQUEST: There has been an error."
+        )
+
+        self.assertEqual(
+            log.output,
+            [
+                f"ERROR:{self.logname}:MOCK_TENANT: "
+                f"Metric profiles fetch error: 400 BAD REQUEST: "
+                f"There has been an error."
+            ]
         )
 
     @patch("requests.get")
     def test_error_fetching_metricprofiles_without_msg(self, mock_get):
         mock_get.side_effect = mock_webapi_metricprofile_error_without_msg
         with self.assertRaises(WebApiException) as context:
-            self.webapi.get_metric_profiles()
+            with self.assertLogs(self.logname) as log:
+                self.webapi.get_metric_profiles()
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: Error fetching metric profiles: 400 BAD REQUEST"
+            "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{self.logname}:MOCK_TENANT: "
+                f"Metric profiles fetch error: 400 BAD REQUEST"
+            ]
         )
 
     @patch("requests.get")
     def test_get_topology(self, mock_request):
         mock_request.side_effect = mock_webapi_requests
-        topology = self.webapi.get_topology()
+        with self.assertLogs(self.logname) as log:
+            topology = self.webapi.get_topology()
+
         self.assertEqual(topology, mock_topology_endpoints)
+        self.assertEqual(
+            log.output, [
+                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
+                f"successfully"
+            ]
+        )
 
     @patch("requests.get")
     def test_error_fetching_topology_with_msg(self, mock_get):
         mock_get.side_effect = mock_webapi_requests_endpoints_error_with_msg
         with self.assertRaises(WebApiException) as context:
-            self.webapi.get_topology()
+            with self.assertLogs(self.logname) as log:
+                self.webapi.get_topology()
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: Error fetching topology endpoints: 400 BAD REQUEST: "
-            "There has been an error."
+            "WebApi error: MOCK_TENANT: Topology endpoints fetch error: "
+            "400 BAD REQUEST: There has been an error."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{self.logname}:MOCK_TENANT: "
+                f"Topology endpoints fetch error: "
+                f"400 BAD REQUEST: There has been an error."
+            ]
         )
 
     @patch("requests.get")
     def test_error_fetching_topology_without_msg(self, mock_get):
         mock_get.side_effect = mock_webapi_requests_endpoints_error_without_msg
         with self.assertRaises(WebApiException) as context:
-            self.webapi.get_topology()
+            with self.assertLogs(self.logname) as log:
+                self.webapi.get_topology()
 
         self.assertEqual(
             context.exception.__str__(),
-            "WebApi error: Error fetching topology endpoints: 400 BAD REQUEST"
+            "WebApi error: MOCK_TENANT: "
+            "Topology endpoints fetch error: 400 BAD REQUEST"
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{self.logname}:MOCK_TENANT: "
+                f"Topology endpoints fetch error: 400 BAD REQUEST"
+            ]
         )

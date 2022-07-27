@@ -3,24 +3,29 @@ class MyException(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Error: {}".format(str(self.msg))
+        return f"Error: {str(self.msg)}"
 
 
 class SensuException(MyException):
     def __str__(self):
-        return "Sensu error: {}".format(str(self.msg))
+        return f"Sensu error: {str(self.msg)}"
 
 
 class PoemException(MyException):
     def __str__(self):
-        return "Poem error: {}".format(str(self.msg))
+        return f"Poem error: {str(self.msg)}"
 
 
 class WebApiException(MyException):
     def __str__(self):
-        return "WebApi error: {}".format(str(self.msg))
+        return f"WebApi error: {str(self.msg)}"
 
 
 class ConfigException(MyException):
     def __str__(self):
-        return "Error reading configuration file: {}".format(str(self.msg))
+        return f"Configuration file error: {str(self.msg)}"
+
+
+class GeneratorException(MyException):
+    def __str__(self):
+        return str(self.msg)

@@ -5,13 +5,23 @@ from argo_scg.exceptions import ConfigException
 
 class Config:
     def __init__(self, config_file):
-        self.conf = self._read(config_file)
+        self.file = config_file
+        self._check_file_exists()
+        self.conf = self._read()
         self.tenants = self._get_tenants()
 
-    @staticmethod
-    def _read(config_file):
+    def _check_file_exists(self):
+        conf = configparser.ConfigParser()
+        try:
+            with open(self.file) as f:
+                conf.read_file(f)
+
+        except IOError:
+            raise ConfigException(f"File {self.file} does not exist")
+
+    def _read(self):
         config = configparser.ConfigParser()
-        config.read(config_file)
+        config.read(self.file)
         return config
 
     @staticmethod

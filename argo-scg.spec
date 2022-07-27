@@ -31,6 +31,7 @@ Package includes script that configures Sensu checks, entities, and namespaces u
 
 %install
 %{py3_install "--record=INSTALLED_FILES" }
+install --directory %{buildroot}/%{_localstatedir}/log/argo-scg/
 
 
 %clean
@@ -42,6 +43,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/%{name}/scg.conf
 %dir %{python3_sitelib}/%{underscore %{name}}/
 %{python3_sitelib}/%{underscore %{name}}/*.py
+
+%attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
 %changelog
 * Thu May 5 2022 Katarina Zailac <kzailac@srce.hr> - 0.1.0-1%{?dist}

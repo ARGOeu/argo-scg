@@ -1,11 +1,15 @@
+import logging
+
 import requests
 from argo_scg.exceptions import WebApiException
 
 
 class WebApi:
-    def __init__(self, url, token):
+    def __init__(self, url, token, tenant):
         self.url = url
         self.token = token
+        self.tenant = tenant
+        self.logger = logging.getLogger("argo-scg.webapi")
 
     def get_metric_profiles(self):
         response = requests.get(
@@ -14,20 +18,23 @@ class WebApi:
         )
 
         if not response.ok:
-            msg = "Error fetching metric profiles: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Metric profiles fetch error: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise WebApiException(msg)
 
         else:
             mps = response.json()["data"]
+            self.logger.info(
+                f"{self.tenant}: Metric profiles fetched successfully"
+            )
 
             return mps
 
@@ -42,19 +49,22 @@ class WebApi:
         )
 
         if not response.ok:
-            msg = "Error fetching topology endpoints: {} {}".format(
-                response.status_code, response.reason
-            )
+            msg = f"{self.tenant}: Topology endpoints fetch error: " \
+                  f"{response.status_code} {response.reason}"
 
             try:
-                msg = "{}: {}".format(msg, response.json()["message"])
+                msg = f"{msg}: {response.json()['message']}"
 
             except (ValueError, TypeError, KeyError):
                 pass
 
+            self.logger.error(msg)
             raise WebApiException(msg)
 
         else:
             topology = response.json()["data"]
+            self.logger.info(
+                f"{self.tenant}: Topology endpoints fetched successfully"
+            )
 
             return topology

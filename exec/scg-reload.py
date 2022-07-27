@@ -1,14 +1,43 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import logging
+import logging.handlers
 
 from argo_scg.config import Config
-from argo_scg.exceptions import SensuException, PoemException, \
-    WebApiException, ConfigException
+from argo_scg.exceptions import SensuException, ConfigException, \
+    PoemException, WebApiException, GeneratorException
 from argo_scg.generator import ConfigurationGenerator
 from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
 from argo_scg.webapi import WebApi
+
+CONFFILE = "/etc/argo-scg/scg.conf"
+LOGFILE = "/var/log/argo-scg/argo-scg.log"
+LOGNAME = "argo-scg"
+
+
+def get_logger():
+    logger = logging.getLogger(LOGNAME)
+    logger.setLevel(logging.INFO)
+
+    # setting up stdout
+    stdout = logging.StreamHandler()
+    stdout.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+    logger.addHandler(stdout)
+
+    # setting up logging to a file
+    logfile = logging.handlers.RotatingFileHandler(
+        LOGFILE, maxBytes=512 * 1024, backupCount=5
+    )
+    logfile.setLevel(logging.INFO)
+    logfile.setFormatter(logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "%Y-%m-%d %H:%M:%S"
+    ))
+    logger.addHandler(logfile)
+
+    return logger
 
 
 def main():
@@ -16,18 +45,17 @@ def main():
         "Sync data from POEM and Web-api with Sensu"
     )
     parser.add_argument(
-        "-c", "--conf", dest="conf", help="configuration file",
-        default="/etc/argo-scg/scg.conf"
+        "-c", "--conf", dest="conf", help="configuration file", default=CONFFILE
     )
     args = parser.parse_args()
+
+    logger = get_logger()
 
     try:
         config = Config(config_file=args.conf)
 
-        sensu = Sensu(
-            url=config.get_sensu_url(),
-            token=config.get_sensu_token(),
-        )
+        sensu_url = config.get_sensu_url()
+        sensu_token = config.get_sensu_token()
         webapi_url = config.get_webapi_url()
         webapi_tokens = config.get_webapi_tokens()
         poem_urls = config.get_poem_urls()
@@ -39,6 +67,10 @@ def main():
 
         tenants = config.get_tenants()
 
+        logger.info(f"Configuration file {args.conf} read successfully")
+
+        sensu = Sensu(url=sensu_url, token=sensu_token)
+
         sensu.handle_namespaces(tenants=tenants)
 
         for tenant in tenants:
@@ -47,12 +79,14 @@ def main():
             try:
                 webapi = WebApi(
                     url=webapi_url,
-                    token=webapi_tokens[tenant]
+                    token=webapi_tokens[tenant],
+                    tenant=tenant
                 )
 
                 poem = Poem(
                     url=poem_urls[tenant],
-                    token=poem_tokens[tenant]
+                    token=poem_tokens[tenant],
+                    tenant=tenant
                 )
 
                 if local_topology[tenant]:
@@ -68,7 +102,8 @@ def main():
                     metric_profiles=webapi.get_metric_profiles(),
                     topology=topology,
                     attributes=poem.get_metric_overrides(),
-                    secrets_file=secrets[namespace]
+                    secrets_file=secrets[namespace],
+                    tenant=tenant
                 )
 
                 if publish_bool[namespace]:
@@ -101,16 +136,36 @@ def main():
                     namespace=namespace
                 )
 
-            except Exception as e:
-                print(f"{namespace}: {str(e)}")
+            except json.decoder.JSONDecodeError as e:
+                logger.error(f"{namespace}: Error reading JSON: {str(e)}")
+                logger.warning(f"{namespace}: Skipping configuration...")
+                continue
 
-    except (
-            SensuException, PoemException, WebApiException, ConfigException
-    ) as e:
-        print("\n{}".format(str(e)))
+            except (
+                    WebApiException, PoemException, GeneratorException,
+                    SensuException
+            ):
+                logger.warning(f"{namespace}: Skipping configuration...")
+                continue
+
+            except Exception as e:
+                logger.warning(
+                    f"{namespace}: {str(e)} Skipping configuration..."
+                )
+                continue
+
+        logger.info("Done")
+
+    except ConfigException as e:
+        logger.error(str(e))
+        logger.info("Exiting...")
+
+    except SensuException:
+        logger.info("Exiting...")
 
     except Exception as e:
-        print("\n{}".format(str(e)))
+        logger.error(f"{str(e)}")
+        logger.info("Exiting...")
 
 
 if __name__ == "__main__":

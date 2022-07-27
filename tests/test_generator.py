@@ -1,5 +1,7 @@
+import logging
 import unittest
 
+from argo_scg.exceptions import GeneratorException
 from argo_scg.generator import ConfigurationGenerator
 
 mock_metrics = [
@@ -1031,6 +1033,97 @@ mock_metrics = [
             "file_attribute": {},
             "parent": "",
             "docurl": "http://www.qoscosgrid.org/trac/qcg-broker"
+        }
+    }
+]
+
+faulty_metrics = [
+    {
+        "generic.http.ar-argoui-ni4os": {
+            "tags": [
+                "argo.webui",
+                "harmonized"
+            ],
+            "probe": "check_http",
+            "config": {
+                "retryInterval": "3",
+                "path": "/usr/lib64/nagios/plugins",
+                "maxCheckAttempts": "3",
+                "interval": "5"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {
+                "-r": "argo.eu",
+                "-u": "/ni4os/report-ar/Critical/NGI?accept=csv",
+                "--ssl": "",
+                "--onredirect": "follow"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://nagios-plugins.org/doc/man/check_http."
+                      "html"
+        }
+    },
+    {
+        "generic.ssh.connect": {
+            "tags": [
+                "harmonized"
+            ],
+            "probe": "check_ssh",
+            "config": {
+                "interval": "15",
+                "maxCheckAttempts": "4",
+                "path": "/usr/lib64/nagios/plugins",
+                "retryInterval": "5",
+                "timeout": "60"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "PORT": "-p"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://nagios-plugins.org/doc/man/index.html"
+        }
+    },
+    {
+        "generic.tcp.connect": {
+            "tags": [
+                "harmonized"
+            ],
+            "probe": "check_tcp",
+            "config": {
+                "interval": "5",
+                "maxCheckAttempts": "3",
+                "path": "/usr/lib64/nagios/plugins/",
+                "retryInterval": "3",
+                "timeout": "120"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {
+                "-p": "443"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://nagios-plugins.org/doc/man/check_tcp.html"
         }
     }
 ]
@@ -2097,6 +2190,26 @@ mock_local_topology = [
     }
 ]
 
+faulty_local_topology = [
+    {
+        "group": "SRCE",
+        "hostname": "argo-mon-devel.egi.eu",
+        "tags": {}
+    },
+    {
+        "group": "SRCE",
+        "service": "argo.mon",
+        "hostname": "argo-mon-devel.ni4os.eu",
+        "tags": {}
+    },
+    {
+        "group": "argo-public-production",
+        "service": "argo.api",
+        "hostname": "api.argo.grnet.gr",
+        "tags": {}
+    }
+]
+
 mock_attributes = {
     "local": {
         "global_attributes": [
@@ -2147,6 +2260,14 @@ mock_attributes_with_robot = {
     }
 }
 
+LOGNAME = "argo-scg.generator"
+DUMMY_LOGGER = logging.getLogger(LOGNAME)
+DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
+
+
+def _log_dummy():
+    DUMMY_LOGGER.info("dummy")
+
 
 class CheckConfigurationTests(unittest.TestCase):
     def test_generate_checks_configuration(self):
@@ -2156,9 +2277,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2216,6 +2342,58 @@ class CheckConfigurationTests(unittest.TestCase):
                     },
                     "round_robin": False
                 }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_checks_configuration_with_faulty_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=faulty_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": ["publisher-handler"],
+                    "pipelines": [],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:MOCK_TENANT: Skipping check "
+                f"generic.http.ar-argoui-ni4os: Missing key 'timeout'"
             ]
         )
 
@@ -2226,9 +2404,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="default"
         )
-        checks = generator.generate_checks(publish=False, namespace="default")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=False, namespace="default"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2286,6 +2469,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_checks_configuration_without_publish(self):
         generator = ConfigurationGenerator(
@@ -2294,9 +2478,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=False, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=False, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2368,6 +2557,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_hardcoded_attributes(self):
         generator = ConfigurationGenerator(
@@ -2376,9 +2566,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2469,6 +2664,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_robot_cert_key(self):
         generator = ConfigurationGenerator(
@@ -2477,9 +2673,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes_with_robot,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=False, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=False, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2557,6 +2758,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_SSL(self):
         generator = ConfigurationGenerator(
@@ -2565,9 +2767,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2602,6 +2809,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_various_URLs(self):
         generator = ConfigurationGenerator(
@@ -2610,9 +2818,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2701,6 +2914,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_BDII(self):
         generator = ConfigurationGenerator(
@@ -2709,9 +2923,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2773,6 +2992,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_mandatory_extensions(self):
         generator = ConfigurationGenerator(
@@ -2781,9 +3001,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -2817,6 +3042,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_optional_extensions(self):
         generator = ConfigurationGenerator(
@@ -2825,9 +3051,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2906,6 +3137,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_different_parameter_exts(self):
         generator = ConfigurationGenerator(
@@ -2914,9 +3146,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -2981,6 +3218,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_openstack_check_configuration(self):
         generator = ConfigurationGenerator(
@@ -2989,9 +3227,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -3106,6 +3349,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_pakiti_check_configuration(self):
         generator = ConfigurationGenerator(
@@ -3114,9 +3358,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -3151,6 +3400,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_SITE_BDII(self):
         generator = ConfigurationGenerator(
@@ -3159,9 +3409,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3196,6 +3451,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_ARC_GOOD_SES(self):
         generator = ConfigurationGenerator(
@@ -3204,9 +3460,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3249,6 +3510,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_HOSTDN(self):
         generator = ConfigurationGenerator(
@@ -3257,9 +3519,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3293,6 +3560,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_local_topology(self):
         generator = ConfigurationGenerator(
@@ -3301,9 +3569,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3339,6 +3612,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_secrets(self):
         generator = ConfigurationGenerator(
@@ -3347,9 +3621,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file="/path/to/secrets"
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3383,6 +3662,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_secrets_with_dots(self):
         generator = ConfigurationGenerator(
@@ -3391,9 +3671,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
             attributes=mock_attributes,
-            secrets_file="/path/to/secrets"
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3429,6 +3714,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_if_NOPUBLISH(self):
         generator = ConfigurationGenerator(
@@ -3437,9 +3723,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -3499,6 +3790,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_metric_parameter_override(self):
         attributes = {
@@ -3520,9 +3812,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -3581,6 +3878,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_host_attribute_override(self):
         attributes = {
@@ -3605,9 +3903,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -3669,6 +3972,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_overridden_secrets_with_dots(
             self
@@ -3695,9 +3999,14 @@ class CheckConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
             attributes=attributes,
-            secrets_file="/path/to/secrets"
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
         )
-        checks = generator.generate_checks(publish=True, namespace="mockspace")
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
         self.assertEqual(
             checks,
             [
@@ -3733,6 +4042,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
 
 class EntityConfigurationTests(unittest.TestCase):
@@ -3743,9 +4053,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -3789,6 +4102,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_port_and_path(self):
         generator = ConfigurationGenerator(
@@ -3797,9 +4111,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -3893,6 +4210,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 },
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_SSL(self):
         generator = ConfigurationGenerator(
@@ -3901,9 +4219,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -3945,6 +4266,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_URLs(self):
         generator = ConfigurationGenerator(
@@ -3953,9 +4275,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4013,6 +4338,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_multiple_endpoint_URLs(self):
         generator = ConfigurationGenerator(
@@ -4021,9 +4347,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4047,6 +4376,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_BDII(self):
         generator = ConfigurationGenerator(
@@ -4055,9 +4385,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4144,6 +4477,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_different_PORTs(self):
         generator = ConfigurationGenerator(
@@ -4152,9 +4486,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4208,6 +4545,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_mandatory_extensions(self):
         generator = ConfigurationGenerator(
@@ -4216,9 +4554,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4273,6 +4614,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_optional_extensions(self):
         generator = ConfigurationGenerator(
@@ -4281,9 +4623,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4331,6 +4676,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_openstack_entities(self):
         generator = ConfigurationGenerator(
@@ -4339,9 +4685,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4411,6 +4760,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_multiple_same_host_entities(self):
         generator = ConfigurationGenerator(
@@ -4419,9 +4769,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4463,6 +4816,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_SITE_BDII(self):
         generator = ConfigurationGenerator(
@@ -4471,9 +4825,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4514,6 +4871,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_ARC_CE_MEMORY_LIMIT(self):
         generator = ConfigurationGenerator(
@@ -4522,9 +4880,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             entities,
             [
@@ -4562,6 +4923,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_local_topology(self):
         generator = ConfigurationGenerator(
@@ -4570,9 +4932,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_local_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4608,6 +4973,32 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_faulty_topology(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST21"],
+            metric_profiles=mock_metric_profiles,
+            topology=faulty_local_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertRaises(GeneratorException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                generator.generate_entities()
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "MOCK_TENANT: Error generating entities: faulty topology"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:MOCK_TENANT: Skipping entities generation: "
+                f"faulty topology"
+            ]
+        )
 
     def test_generate_entities_with_metric_parameter_overrides(self):
         attributes = {
@@ -4629,9 +5020,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4684,6 +5078,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_host_attribute_overrides(self):
         attributes = {
@@ -4708,9 +5103,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4771,6 +5169,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_overridden_secrets_with_dots(self):
         attributes = {
@@ -4791,9 +5190,12 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=attributes,
-            secrets_file="/path/to/secrets"
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
         )
-        entities = generator.generate_entities()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
         self.assertEqual(
             sorted(entities, key=lambda k: k["metadata"]["name"]),
             [
@@ -4831,6 +5233,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 }
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
@@ -4839,7 +5242,11 @@ class EntityConfigurationTests(unittest.TestCase):
             metric_profiles=mock_metric_profiles,
             topology=mock_topology,
             attributes=mock_attributes,
-            secrets_file=""
+            secrets_file="",
+            tenant="MOCK_TENANT"
         )
-        subscriptions = generator.generate_subscriptions()
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
         self.assertEqual(sorted(subscriptions), ["argo.test", "argo.webui"])
+        self.assertEqual(log.output, DUMMY_LOG)

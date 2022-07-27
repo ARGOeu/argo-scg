@@ -105,6 +105,16 @@ class ConfigTests(unittest.TestCase):
         if os.path.isfile(config_file_name):
             os.remove(config_file_name)
 
+    def test_read_config_nonexisting_file(self):
+        with self.assertRaises(ConfigException) as context:
+            Config(config_file="nonexisting.conf")
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Configuration file error: "
+            "File nonexisting.conf does not exist"
+        )
+
     def test_get_tenants(self):
         self.assertEqual(self.config.get_tenants(), ["TENANT1", "TENANT2"])
 
@@ -122,7 +132,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: No section: 'GENERAL'"
+            "Configuration file error: No section: 'GENERAL'"
         )
 
     def test_get_sensu_url_missing_option(self):
@@ -136,7 +146,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'sensu_url' in section: 'GENERAL'"
         )
 
@@ -154,7 +164,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: No section: 'GENERAL'"
+            "Configuration file error: No section: 'GENERAL'"
         )
 
     def test_get_sensu_token_missing_option(self):
@@ -168,7 +178,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'sensu_token' in section: 'GENERAL'"
         )
 
@@ -192,7 +202,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'poem_url' in section: 'TENANT1'"
         )
 
@@ -216,7 +226,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'poem_token' in section: 'TENANT1'"
         )
 
@@ -236,7 +246,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: No section: 'GENERAL'"
+            "Configuration file error: No section: 'GENERAL'"
         )
 
     def test_get_webapi_url_missing_option(self):
@@ -250,7 +260,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'webapi_url' in section: 'GENERAL'"
         )
 
@@ -274,7 +284,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'webapi_token' in section: 'TENANT1'"
         )
 
@@ -298,7 +308,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'metricprofiles' in section: 'TENANT1'"
         )
 
@@ -362,7 +372,7 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Error reading configuration file: "
+            "Configuration file error: "
             "No option 'publish' in section: 'TENANT1'"
         )
 
