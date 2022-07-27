@@ -136,6 +136,11 @@ def main():
                     namespace=namespace
                 )
 
+            except json.decoder.JSONDecodeError as e:
+                logger.error(f"{namespace}: Error reading JSON: {str(e)}")
+                logger.warning(f"{namespace}: Skipping the configuration...")
+                continue
+
             except (SensuException, PoemException, WebApiException):
                 logger.error("Exiting...")
 
