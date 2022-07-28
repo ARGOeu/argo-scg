@@ -1000,7 +1000,8 @@ mock_filters1 = [
         "action": "allow",
         "expressions": [
             "((event.check.occurrences == 1 && event.check.status == 0 && "
-            "event.check.occurrences_watermark > 1) || "
+            "event.check.occurrences_watermark >= "
+            "Number(event.check.annotations.attempts)) || "
             "(event.check.occurrences == "
             "Number(event.check.annotations.attempts) "
             "&& event.check.status != 0)) || "
@@ -3771,7 +3772,8 @@ class SensuFiltersTests(unittest.TestCase):
             "action": "allow",
             "expressions": [
                 "((event.check.occurrences == 1 && event.check.status == 0 && "
-                "event.check.occurrences_watermark > 1) || "
+                "event.check.occurrences_watermark >= "
+                "Number(event.check.annotations.attempts)) || "
                 "(event.check.occurrences == "
                 "Number(event.check.annotations.attempts) "
                 "&& event.check.status != 0)) || "
@@ -3955,7 +3957,8 @@ class SensuFiltersTests(unittest.TestCase):
             data=json.dumps({
                 "expressions": [
                     "((event.check.occurrences == 1 && event.check.status == 0 "
-                    "&& event.check.occurrences_watermark > 1) || "
+                    "&& event.check.occurrences_watermark >= "
+                    "Number(event.check.annotations.attempts)) || "
                     "(event.check.occurrences == "
                     "Number(event.check.annotations.attempts) "
                     "&& event.check.status != 0)) || "
