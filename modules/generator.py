@@ -94,6 +94,7 @@ class ConfigurationGenerator:
                     metrics_set.add(metric)
 
         metrics_list = list()
+        internal_metrics = list()
         metrics_with_endpoint_url = list()
         metrics_with_ports = list()
         metrics_with_ssl = list()
@@ -108,6 +109,9 @@ class ConfigurationGenerator:
                     if "SSL" in value["attribute"]:
                         metrics_with_ssl.append(key)
 
+                    if "internal" in value["tags"]:
+                        internal_metrics.append(key)
+
                     for attribute, attr_val in value["attribute"].items():
                         if attribute == "URL" or \
                                 (attribute.endswith("_URL") and not
@@ -116,6 +120,7 @@ class ConfigurationGenerator:
                             metrics_with_endpoint_url.append(key)
 
         self.metrics = metrics_list
+        self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
 
@@ -446,7 +451,7 @@ class ConfigurationGenerator:
                     if publish and "NOPUBLISH" not in configuration["flags"]:
                         check.update({"handlers": ["publisher-handler"]})
 
-                    if not publish:
+                    if not publish or "internal" in configuration["tags"]:
                         check.update({
                             "pipelines": [
                                 {
@@ -460,7 +465,8 @@ class ConfigurationGenerator:
                     else:
                         check.update({"pipelines": []})
 
-                    if namespace != "default":
+                    if namespace != "default" and \
+                            "internal" not in configuration["tags"]:
                         check.update({
                             "proxy_requests": {
                                 "entity_attributes": [
@@ -553,34 +559,39 @@ class ConfigurationGenerator:
 
                 else:
                     if item["service"] in self.servicetypes_with_endpointURL:
-                        labels.update(
-                            {"info_service_endpoint_url": item["tags"]["info_URL"]}
-                        )
+                        labels.update({
+                            "info_service_endpoint_url":
+                                item["tags"]["info_URL"]
+                        })
 
                 if item["service"] == "Top-BDII":
                     labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
                     labels.update({"bdii_type": "bdii_top"})
-                    labels.update(
-                        {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
-                    )
+                    labels.update({
+                        "glue2_bdii_dn":
+                            "GLUE2DomainID=%s,o=glue" % item["group"]
+                    })
 
                 if item["service"] == "Site-BDII":
                     labels.update(
                         {"bdii_dn": "Mds-Vo-Name=%s,O=Grid" % item["group"]}
                     )
                     labels.update({"bdii_type": "bdii_site"})
-                    labels.update(
-                        {"glue2_bdii_dn": "GLUE2DomainID=%s,o=glue" % item["group"]}
-                    )
+                    labels.update({
+                        "glue2_bdii_dn":
+                            "GLUE2DomainID=%s,o=glue" % item["group"]
+                    })
 
                 if "info_HOSTDN" in item["tags"]:
                     labels.update({"info_hostdn": item["tags"]["info_HOSTDN"]})
 
                 types.append(item["service"])
                 for metric in self.metrics4servicetypes[item["service"]]:
-                    key = self._create_label(metric)
-                    if key not in labels:
-                        labels.update({key: metric})
+                    if metric not in self.internal_metrics:
+                        key = self._create_label(metric)
+
+                        if key not in labels:
+                            labels.update({key: metric})
 
                     if metric in self.metric_parameter_overrides and \
                             item["hostname"] in \
@@ -606,9 +617,10 @@ class ConfigurationGenerator:
 
                         else:
                             for attribute in self.metrics_attr_override[metric]:
+                                label = \
+                                    f"${self._create_attribute_env(attribute)}"
                                 labels.update({
-                                    self._create_label(attribute):
-                                        f"${self._create_attribute_env(attribute)}"
+                                    self._create_label(attribute): label
                                 })
 
                     if metric == "generic.ssh.connect" and "port" not in labels:
@@ -635,7 +647,8 @@ class ConfigurationGenerator:
 
                                 for metric in metrics:
                                     for name, configuration in metric.items():
-                                        if tag[9:] in configuration["attribute"]:
+                                        if tag[9:] in \
+                                                configuration["attribute"]:
                                             labels.update({
                                                 "{}__{}".format(
                                                     configuration["attribute"][
@@ -651,7 +664,9 @@ class ConfigurationGenerator:
                                                 )
                                             })
 
-                labels.update({"service": item["service"], "site": item["group"]})
+                labels.update({
+                    "service": item["service"], "site": item["group"]
+                })
 
                 site_entries = [
                     i for i in self.topology if i["group"] == item["group"]
@@ -660,7 +675,9 @@ class ConfigurationGenerator:
                     i for i in site_entries if i["service"] == "Site-BDII"
                 ]
                 if len(site_bdii_entries) > 0:
-                    labels.update({"site_bdii": site_bdii_entries[0]["hostname"]})
+                    labels.update({
+                        "site_bdii": site_bdii_entries[0]["hostname"]
+                    })
 
                 entity_name = f"{item['service']}__{item['hostname']}"
 

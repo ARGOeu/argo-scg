@@ -1005,6 +1005,48 @@ mock_metrics = [
         }
     },
     {
+        "org.nordugrid.ARC-CE-monitor": {
+            "tags": [
+                "arc",
+                "compute",
+                "htc"
+            ],
+            "probe": "check_arcce_monitor",
+            "config": {
+                "interval": "20",
+                "maxCheckAttempts": "2",
+                "path": "/usr/lib64/nagios/plugins",
+                "retryInterval": "20",
+                "timeout": "900"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "NOTIMEOUT": "1",
+                "REQUIREMENT": "org.nordugrid.ARC-CE-submit",
+                "VO": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {
+                "hr.srce.GridProxy-Valid": "0"
+            },
+            "attribute": {
+                "X509_USER_PROXY": "--user-proxy"
+            },
+            "parameter": {
+                "-O": "service_suffix=-$_SERVICEVO_FQAN$ -O lfc_host=dummy "
+                      "-O se_host=dummy",
+                "--timeout": "900",
+                "--command-file": "/var/nagios/rw/nagios.cmd",
+                "--how-invoked": "nagios"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://git.nbi.ku.dk/downloads/NorduGridARCNagiosPlugins"
+                      "/index.html#"
+        }
+    },
+    {
         "pl.plgrid.QCG-Broker": {
             "tags": [],
             "probe": "org.qoscosgrid/broker/qcg-broker-probe",
@@ -2121,7 +2163,7 @@ mock_metric_profiles = [
             {
                 "service": "argo.test",
                 "metrics": [
-                    "argo.AMSPublisher-Check",
+                    "org.nordugrid.ARC-CE-monitor",
                     "generic.tcp.connect"
                 ]
             }
@@ -2162,6 +2204,21 @@ mock_metric_profiles = [
             {
                 "service": "argo.test",
                 "metrics": [
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2021-12-01",
+        "name": "ARGO_TEST27",
+        "description": "Profile for testing internal metric",
+        "services": [
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "argo.AMSPublisher-Check",
                     "generic.tcp.connect"
                 ]
             }
@@ -3735,35 +3792,6 @@ class CheckConfigurationTests(unittest.TestCase):
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
                 {
-                    "command": "/usr/libexec/argo-monitoring/probes/argo/"
-                               "ams-publisher-probe "
-                               "-s /var/run/argo-nagios-ams-publisher/sock "
-                               "-q 'w:metrics+g:published180' -c 4000 -q "
-                               "'w:alarms+g:published180' -c 1 "
-                               "-q 'w:metricsdevel+g:published180' -c 4000",
-                    "subscriptions": ["argo.test"],
-                    "handlers": [],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.argo_amspublisher_check == "
-                            "'argo.AMSPublisher-Check'"
-                        ]
-                    },
-                    "interval": 10800,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "argo.AMSPublisher-Check",
-                        "namespace": "mockspace",
-                        "annotations": {
-                            "attempts": "1"
-                        }
-                    },
-                    "round_robin": False,
-                    "pipelines": []
-                },
-                {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.test"],
@@ -3783,6 +3811,35 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_arcce_monitor "
+                               "-O service_suffix=-$_SERVICEVO_FQAN$ -O "
+                               "lfc_host=dummy -O se_host=dummy --timeout 900 "
+                               "--command-file /var/nagios/rw/nagios.cmd "
+                               "--how-invoked nagios --user-proxy "
+                               "/etc/nagios/globus/userproxy.pem",
+                    "subscriptions": ["argo.test"],
+                    "handlers": [],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.org_nordugrid_arc_ce_monitor == "
+                            "'org.nordugrid.ARC-CE-monitor'"
+                        ]
+                    },
+                    "interval": 1200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "org.nordugrid.ARC-CE-monitor",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
                         }
                     },
                     "round_robin": False,
@@ -4032,6 +4089,81 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "argo.API-Check",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_internal_metric(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST27"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/argo/"
+                               "ams-publisher-probe "
+                               "-s /var/run/argo-nagios-ams-publisher/sock "
+                               "-q 'w:metrics+g:published180' -c 4000 -q "
+                               "'w:alarms+g:published180' -c 1 -q "
+                               "'w:metricsdevel+g:published180' -c 4000",
+                    "subscriptions": ["argo.test"],
+                    "handlers": [],
+                    "interval": 10800,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.AMSPublisher-Check",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "1"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.test"],
+                    "handlers": ["publisher-handler"],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
@@ -5230,6 +5362,41 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.api"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_configuration_with_internal_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST27"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
                 }
             ]
         )
