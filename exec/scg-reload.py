@@ -106,15 +106,14 @@ def main():
                     tenant=tenant
                 )
 
+                sensu.add_daily_filter(namespace=namespace)
+                sensu.handle_slack_handler(
+                    secrets_file=secrets[namespace], namespace=namespace
+                )
+                sensu.add_reduce_alerts_pipeline(namespace=namespace)
+
                 if publish_bool[namespace]:
                     sensu.handle_publisher_handler(namespace=namespace)
-
-                else:
-                    sensu.add_daily_filter(namespace=namespace)
-                    sensu.handle_slack_handler(
-                        secrets_file=secrets[namespace], namespace=namespace
-                    )
-                    sensu.add_reduce_alerts_pipeline(namespace=namespace)
 
                 sensu.handle_checks(
                     checks=generator.generate_checks(
