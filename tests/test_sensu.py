@@ -1009,6 +1009,20 @@ mock_filters1 = [
             "(86400 / event.check.interval) == 0"
         ],
         "runtime_assets": None
+    },
+    {
+        "metadata": {
+            "name": "hard-state",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "((event.check.status == 0) || (event.check.occurrences >= "
+            "Number(event.check.annotations.attempts) "
+            "&& event.check.status != 0))"
+        ],
+        "runtime_assets": None
     }
 ]
 
@@ -1016,6 +1030,19 @@ mock_filters2 = [
     {
         "metadata": {
             "name": "daily",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "event.check.occurrences == 1 || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+        ],
+        "runtime_assets": None
+    },
+    {
+        "metadata": {
+            "name": "hard-state",
             "namespace": "default",
             "created_by": "root"
         },
@@ -1053,6 +1080,31 @@ mock_pipelines1 = [
                 ],
                 'handler': {
                     'name': 'slack',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    },
+    {
+        'metadata': {
+            'name': 'hard_state',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'mimic_hard_state',
+                'filters': [
+                    {
+                        'name': 'hard-state',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'publisher-handler',
                     'type': 'Handler',
                     'api_version': 'core/v2'
                 }
@@ -3781,6 +3833,18 @@ class SensuFiltersTests(unittest.TestCase):
                 "(86400 / event.check.interval) == 0"
             ]
         }
+        self.hard = {
+            "metadata": {
+                "name": "hard-state",
+                "namespace": "TENANT1"
+            },
+            "action": "allow",
+            "expressions": [
+                "((event.check.status == 0) || (event.check.occurrences >= "
+                "Number(event.check.annotations.attempts) "
+                "&& event.check.status != 0))"
+            ]
+        }
 
     @patch("requests.get")
     def test_get_filters(self, mock_get):
@@ -3976,6 +4040,137 @@ class SensuFiltersTests(unittest.TestCase):
             log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter updated"]
         )
 
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter created"]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_with_err_with_msg(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard-state filter create error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_with_err_no_msg(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard-state filter create error: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_if_exists_and_same(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = mock_filters1
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.patch")
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_if_exists_and_different(
+            self, mock_filters, mock_post, mock_patch
+    ):
+        mock_filters.return_value = mock_filters2
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters/hard-state",
+            data=json.dumps({
+                "expressions": [
+                    "((event.check.status == 0) || (event.check.occurrences >= "
+                    "Number(event.check.annotations.attempts) "
+                    "&& event.check.status != 0))"
+                ]
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+
+        self.assertEqual(
+            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter updated"]
+        )
+
 
 class SensuPipelinesTests(unittest.TestCase):
     def setUp(self):
@@ -4002,6 +4197,30 @@ class SensuPipelinesTests(unittest.TestCase):
                     ],
                     "handler": {
                         "name": "slack",
+                        "type": "Handler",
+                        "api_version": "core/v2"
+                    }
+                }
+            ]
+        }
+
+        self.hard_state = {
+            "metadata": {
+                "name": "hard_state",
+                "namespace": "TENANT1"
+            },
+            "workflows": [
+                {
+                    "name": "mimic_hard_state",
+                    "filters": [
+                        {
+                            "name": "hard-state",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "handler": {
+                        "name": "publisher-handler",
                         "type": "Handler",
                         "api_version": "core/v2"
                     }
@@ -4159,6 +4378,98 @@ class SensuPipelinesTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_hard_state_pipeline(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_hard_state_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.hard_state),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: hard_state pipeline created"]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_hard_pipe_with_err_with_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.hard_state),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard_state pipeline create error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: "
+                f"hard_state pipeline create error: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_hard_pipe_with_err_no_msg(self, mock_pipelines, mock_post):
+        mock_pipelines.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_pipeline(namespace="TENANT1")
+        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            data=json.dumps(self.hard_state),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard_state pipeline create error: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: "
+                f"hard_state pipeline create error: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_hard_pipe_if_exists(self, mock_pipeline, mock_post):
+        mock_pipeline.return_value = mock_pipelines1
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.add_hard_state_pipeline(namespace="TENANT1")
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)

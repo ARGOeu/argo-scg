@@ -644,24 +644,13 @@ class Sensu:
         else:
             return response.json()
 
-    def add_daily_filter(self, namespace="default"):
+    def _add_filter(self, name, expressions, namespace="default"):
         filters = self._get_filters(namespace=namespace)
         filters_names = [f["metadata"]["name"] for f in filters]
 
-        expressions = [
-            "((event.check.occurrences == 1 && event.check.status == 0 "
-            "&& event.check.occurrences_watermark >= "
-            "Number(event.check.annotations.attempts)) || "
-            "(event.check.occurrences == "
-            "Number(event.check.annotations.attempts) "
-            "&& event.check.status != 0)) || "
-            "event.check.occurrences % (86400 / event.check.interval) == 0"
-
-        ]
-
         response = None
         added = False
-        if "daily" not in filters_names:
+        if name not in filters_names:
             added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/filters",
@@ -671,7 +660,7 @@ class Sensu:
                 },
                 data=json.dumps({
                     "metadata": {
-                        "name": "daily",
+                        "name": name,
                         "namespace": namespace
                     },
                     "action": "allow",
@@ -680,13 +669,13 @@ class Sensu:
             )
 
         else:
-            daily_filter = [
-                f for f in filters if f["metadata"]["name"] == "daily"
+            the_filter = [
+                f for f in filters if f["metadata"]["name"] == name
             ][0]
-            if daily_filter["expressions"] != expressions:
+            if the_filter["expressions"] != expressions:
                 response = requests.patch(
                     f"{self.url}/api/core/v2/namespaces/{namespace}/"
-                    f"filters/daily",
+                    f"filters/{name}",
                     headers={
                         "Authorization": f"Key {self.token}",
                         "Content-Type": "application/merge-patch+json"
@@ -697,10 +686,10 @@ class Sensu:
         if response:
             if not response.ok:
                 if added:
-                    intra_msg = "daily filter create error"
+                    intra_msg = f"{name} filter create error"
 
                 else:
-                    intra_msg = "daily filter not updated"
+                    intra_msg = f"{name} filter not updated"
 
                 msg = f"{namespace}: {intra_msg}: " \
                       f"{response.status_code} {response.reason}"
@@ -725,8 +714,34 @@ class Sensu:
                 else:
                     operation = "updated"
                 self.logger.info(
-                    f"{namespace}: daily filter {operation}"
+                    f"{namespace}: {name} filter {operation}"
                 )
+
+    def add_daily_filter(self, namespace="default"):
+        expressions = [
+            "((event.check.occurrences == 1 && event.check.status == 0 "
+            "&& event.check.occurrences_watermark >= "
+            "Number(event.check.annotations.attempts)) || "
+            "(event.check.occurrences == "
+            "Number(event.check.annotations.attempts) "
+            "&& event.check.status != 0)) || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+        ]
+
+        self._add_filter(
+            name="daily", expressions=expressions, namespace=namespace
+        )
+
+    def add_hard_state_filter(self, namespace="default"):
+        expressions = [
+            "((event.check.status == 0) || (event.check.occurrences >= "
+            "Number(event.check.annotations.attempts) "
+            "&& event.check.status != 0))"
+        ]
+
+        self._add_filter(
+            name="hard-state", expressions=expressions, namespace=namespace
+        )
 
     def _get_pipelines(self, namespace):
         response = requests.get(
@@ -752,14 +767,14 @@ class Sensu:
         else:
             return response.json()
 
-    def add_reduce_alerts_pipeline(self, namespace="default"):
+    def _add_pipeline(self, name, workflows, namespace="default"):
         pipelines = [
             f["metadata"]["name"] for f in self._get_pipelines(
                 namespace=namespace
             )
         ]
 
-        if "reduce_alerts" not in pipelines:
+        if name not in pipelines:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
                 headers={
@@ -768,36 +783,15 @@ class Sensu:
                 },
                 data=json.dumps({
                     "metadata": {
-                        "name": "reduce_alerts",
+                        "name": name,
                         "namespace": namespace
                     },
-                    "workflows": [
-                        {
-                            "name": "slack_alerts",
-                            "filters": [
-                                {
-                                    "name": "is_incident",
-                                    "type": "EventFilter",
-                                    "api_version": "core/v2"
-                                },
-                                {
-                                    "name": "daily",
-                                    "type": "EventFilter",
-                                    "api_version": "core/v2"
-                                }
-                            ],
-                            "handler": {
-                                "name": "slack",
-                                "type": "Handler",
-                                "api_version": "core/v2"
-                            }
-                        }
-                    ]
+                    "workflows": workflows
                 })
             )
 
             if not response.ok:
-                msg = f"{namespace}: reduce_alerts pipeline create error: " \
+                msg = f"{namespace}: {name} pipeline create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -810,7 +804,58 @@ class Sensu:
                 raise SensuException(msg)
 
             else:
-                self.logger.info(f"{namespace}: reduce_alerts pipeline created")
+                self.logger.info(f"{namespace}: {name} pipeline created")
+
+    def add_reduce_alerts_pipeline(self, namespace="default"):
+        workflows = [
+            {
+                "name": "slack_alerts",
+                "filters": [
+                    {
+                        "name": "is_incident",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    },
+                    {
+                        "name": "daily",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "handler": {
+                    "name": "slack",
+                    "type": "Handler",
+                    "api_version": "core/v2"
+                }
+            }
+        ]
+
+        self._add_pipeline(
+            name="reduce_alerts", workflows=workflows, namespace=namespace
+        )
+
+    def add_hard_state_pipeline(self, namespace="default"):
+        workflows = [
+            {
+                "name": "mimic_hard_state",
+                "filters": [
+                    {
+                        "name": "hard-state",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "handler": {
+                    "name": "publisher-handler",
+                    "type": "Handler",
+                    "api_version": "core/v2"
+                }
+            }
+        ]
+
+        self._add_pipeline(
+            name="hard_state", workflows=workflows, namespace=namespace
+        )
 
 
 class MetricOutput:
