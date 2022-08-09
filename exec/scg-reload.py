@@ -114,6 +114,8 @@ def main():
 
                 if publish_bool[namespace]:
                     sensu.handle_publisher_handler(namespace=namespace)
+                    sensu.add_hard_state_filter(namespace=namespace)
+                    sensu.add_hard_state_pipeline(namespace=namespace)
 
                 sensu.handle_checks(
                     checks=generator.generate_checks(
