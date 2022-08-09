@@ -767,14 +767,14 @@ class Sensu:
         else:
             return response.json()
 
-    def add_reduce_alerts_pipeline(self, namespace="default"):
+    def _add_pipeline(self, name, workflows, namespace="default"):
         pipelines = [
             f["metadata"]["name"] for f in self._get_pipelines(
                 namespace=namespace
             )
         ]
 
-        if "reduce_alerts" not in pipelines:
+        if name not in pipelines:
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
                 headers={
@@ -783,36 +783,15 @@ class Sensu:
                 },
                 data=json.dumps({
                     "metadata": {
-                        "name": "reduce_alerts",
+                        "name": name,
                         "namespace": namespace
                     },
-                    "workflows": [
-                        {
-                            "name": "slack_alerts",
-                            "filters": [
-                                {
-                                    "name": "is_incident",
-                                    "type": "EventFilter",
-                                    "api_version": "core/v2"
-                                },
-                                {
-                                    "name": "daily",
-                                    "type": "EventFilter",
-                                    "api_version": "core/v2"
-                                }
-                            ],
-                            "handler": {
-                                "name": "slack",
-                                "type": "Handler",
-                                "api_version": "core/v2"
-                            }
-                        }
-                    ]
+                    "workflows": workflows
                 })
             )
 
             if not response.ok:
-                msg = f"{namespace}: reduce_alerts pipeline create error: " \
+                msg = f"{namespace}: {name} pipeline create error: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -825,7 +804,58 @@ class Sensu:
                 raise SensuException(msg)
 
             else:
-                self.logger.info(f"{namespace}: reduce_alerts pipeline created")
+                self.logger.info(f"{namespace}: {name} pipeline created")
+
+    def add_reduce_alerts_pipeline(self, namespace="default"):
+        workflows = [
+            {
+                "name": "slack_alerts",
+                "filters": [
+                    {
+                        "name": "is_incident",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    },
+                    {
+                        "name": "daily",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "handler": {
+                    "name": "slack",
+                    "type": "Handler",
+                    "api_version": "core/v2"
+                }
+            }
+        ]
+
+        self._add_pipeline(
+            name="reduce_alerts", workflows=workflows, namespace=namespace
+        )
+
+    def add_hard_state_pipeline(self, namespace="default"):
+        workflows = [
+            {
+                "name": "mimic_hard_state",
+                "filters": [
+                    {
+                        "name": "hard-state",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "handler": {
+                    "name": "publisher-handler",
+                    "type": "Handler",
+                    "api_version": "core/v2"
+                }
+            }
+        ]
+
+        self._add_pipeline(
+            name="hard_state", workflows=workflows, namespace=namespace
+        )
 
 
 class MetricOutput:
