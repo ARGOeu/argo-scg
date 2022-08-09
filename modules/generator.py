@@ -449,9 +449,17 @@ class ConfigurationGenerator:
                     }
 
                     if publish and "NOPUBLISH" not in configuration["flags"]:
-                        check.update({"handlers": ["publisher-handler"]})
+                        check.update({
+                            "pipelines": [
+                                {
+                                    "name": "hard_state",
+                                    "type": "Pipeline",
+                                    "api_version": "core/v2"
+                                }
+                            ]
+                        })
 
-                    if not publish or "internal" in configuration["tags"]:
+                    elif not publish or "internal" in configuration["tags"]:
                         check.update({
                             "pipelines": [
                                 {

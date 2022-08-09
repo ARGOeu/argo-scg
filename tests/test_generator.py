@@ -2353,8 +2353,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": ["argo.webui", "argo.test"],
-                    "handlers": ["publisher-handler"],
-                    "pipelines": [],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2378,8 +2384,14 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
-                    "pipelines": [],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2424,8 +2436,14 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
-                    "pipelines": [],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2642,7 +2660,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/globus/hostcert.pem "
                                "-K /etc/nagios/globus/hostkey.pem -p 2119",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2661,7 +2679,13 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
@@ -2673,7 +2697,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/globus/hostcert.pem "
                                "-K /etc/nagios/globus/hostkey.pem",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2692,13 +2716,19 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
                                "-H {{ .labels.hostname }} -t 60 -p 2811",
                     "subscriptions": ["argo.test"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2717,7 +2747,13 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -2843,7 +2879,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p {{ .labels.port }} "
                                "-u {{ .labels.path | default '/' }}",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2862,7 +2898,13 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False,
-                    "pipelines": []
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -2893,7 +2935,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.info_service_endpoint_url }} "
                                "-E /etc/nagios/globus/userproxy.pem",
                     "subscriptions": ["webdav"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2911,8 +2960,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
@@ -2921,7 +2969,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.info_service_endpoint_url }} "
                                "-E /etc/nagios/globus/userproxy.pem",
                     "subscriptions": ["ch.cern.dynafed"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2939,8 +2994,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -2948,7 +3002,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--url {{ .labels.info_url }} "
                                "--token /etc/nagios/globus/oidc",
                     "subscriptions": ["es.upv.grycap.im"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -2966,8 +3027,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -2997,7 +3057,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-w 20:1 -b {{ .labels.bdii_dn }} "
                                "-p 2170",
                     "subscriptions": ["Site-BDII", "Top-BDII"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3015,8 +3082,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
@@ -3026,7 +3092,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "(GLUE2DomainID=$_SERVICESITE_NAME$))\" "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
                     "subscriptions": ["Site-BDII"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3044,8 +3117,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3076,7 +3148,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 "
                                "--endpoint-name {{ .labels.endpoint-name }}",
                     "subscriptions": ["eu.egi.cloud.dyndns"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3094,8 +3173,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3134,7 +3212,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default '' }}",
                     "subscriptions": ["ARC-CE"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3152,8 +3237,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
@@ -3171,7 +3255,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default '' }}",
                     "subscriptions": ["ARC-CE"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3189,8 +3280,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3219,7 +3309,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
                                "{{ .labels.u__rm_path | default '' }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3238,8 +3335,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/"
@@ -3248,7 +3344,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 "
                                "{{ .labels.r__rm_path | default '' }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3270,8 +3373,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3300,7 +3402,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.info_url }}",
                     "subscriptions": ["org.openstack.nova"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3318,8 +3427,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -3327,7 +3435,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--endpoint {{ .labels.info_url }} "
                                "--access-token /etc/nagios/globus/oidc",
                     "subscriptions": ["org.openstack.swift"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3345,8 +3460,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
@@ -3357,7 +3471,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.region__os_region | default '' }}",
                     "subscriptions": ["org.openstack.nova"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3375,15 +3496,21 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-t 120 -p {{ .labels.os_keystone_port }} "
                                "-H {{ .labels.os_keystone_host }}",
                     "subscriptions": ["org.openstack.nova"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3401,8 +3528,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3434,7 +3560,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--key /etc/nagios/globus/hostkey.pem "
                                "--site {{ .labels.site }}",
                     "subscriptions": ["ARC-CE"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3452,8 +3585,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3485,7 +3617,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default '' }}",
                     "subscriptions": ["SRM"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3503,8 +3642,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3544,7 +3682,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default '' }}",
                     "subscriptions": ["ARC-CE"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3562,8 +3707,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3594,7 +3738,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-n {{ .labels.info_hostdn }} "
                                "-x /etc/nagios/globus/userproxy.pem",
                     "subscriptions": ["QCG.Broker"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3612,8 +3763,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3646,7 +3796,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/globus/hostcert.pem "
                                "-K /etc/nagios/globus/hostkey.pem",
                     "subscriptions": ["argo.mon"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3664,8 +3821,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3696,7 +3852,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "checkhealth -H {{ .labels.hostname }} -v -i "
                                "-u $AGORA_USERNAME -p $AGORA_PASSWORD",
                     "subscriptions": ["eu.eudat.itsm.spmt"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3714,8 +3877,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3748,7 +3910,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token $ARGO_API_TOKEN",
                     "subscriptions": ["argo.api"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3766,8 +3935,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3795,7 +3963,14 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.test"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3813,8 +3988,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_monitor "
@@ -3885,7 +4059,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.port }}",
                     "subscriptions": ["argo.test"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3903,8 +4084,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
@@ -3912,7 +4092,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p {{ .labels.generic_tcp_connect_p | "
                                "default '443' }}",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3930,8 +4117,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -3981,7 +4167,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
                     "subscriptions": ["argo.webui"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -3999,14 +4192,20 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.test"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -4024,8 +4223,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -4076,7 +4274,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token {{ .labels.argo_api_token }}",
                     "subscriptions": ["argo.api"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -4094,8 +4299,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
@@ -4151,7 +4355,14 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": ["argo.test"],
-                    "handlers": ["publisher-handler"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
@@ -4169,8 +4380,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         }
                     },
-                    "round_robin": False,
-                    "pipelines": []
+                    "round_robin": False
                 }
             ]
         )
