@@ -1009,6 +1009,20 @@ mock_filters1 = [
             "(86400 / event.check.interval) == 0"
         ],
         "runtime_assets": None
+    },
+    {
+        "metadata": {
+            "name": "hard-state",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "event.check.occurrences >= "
+            "Number(event.check.annotations.attempts) "
+            "&& event.check.status != 0"
+        ],
+        "runtime_assets": None
     }
 ]
 
@@ -1016,6 +1030,19 @@ mock_filters2 = [
     {
         "metadata": {
             "name": "daily",
+            "namespace": "default",
+            "created_by": "root"
+        },
+        "action": "allow",
+        "expressions": [
+            "event.check.occurrences == 1 || "
+            "event.check.occurrences % (86400 / event.check.interval) == 0"
+        ],
+        "runtime_assets": None
+    },
+    {
+        "metadata": {
+            "name": "hard-state",
             "namespace": "default",
             "created_by": "root"
         },
@@ -3781,6 +3808,18 @@ class SensuFiltersTests(unittest.TestCase):
                 "(86400 / event.check.interval) == 0"
             ]
         }
+        self.hard = {
+            "metadata": {
+                "name": "hard-state",
+                "namespace": "TENANT1"
+            },
+            "action": "allow",
+            "expressions": [
+                "event.check.occurrences >= "
+                "Number(event.check.annotations.attempts) "
+                "&& event.check.status != 0"
+            ]
+        }
 
     @patch("requests.get")
     def test_get_filters(self, mock_get):
@@ -3974,6 +4013,137 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter updated"]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter(self, mock_filters, mock_post):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter created"]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_with_err_with_msg(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard-state filter create error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_with_err_no_msg(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = []
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_hard_state_filter(namespace="TENANT1")
+
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            data=json.dumps(self.hard),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: hard-state filter create error: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_if_exists_and_same(
+            self, mock_filters, mock_post
+    ):
+        mock_filters.return_value = mock_filters1
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.patch")
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_filters")
+    def test_add_hard_state_filter_if_exists_and_different(
+            self, mock_filters, mock_post, mock_patch
+    ):
+        mock_filters.return_value = mock_filters2
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_hard_state_filter(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/filters/hard-state",
+            data=json.dumps({
+                "expressions": [
+                    "event.check.occurrences >= "
+                    "Number(event.check.annotations.attempts) "
+                    "&& event.check.status != 0"
+                ]
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+
+        self.assertEqual(
+            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter updated"]
         )
 
 
