@@ -734,9 +734,9 @@ class Sensu:
 
     def add_hard_state_filter(self, namespace="default"):
         expressions = [
-            "event.check.occurrences >= "
+            "((event.check.status == 0) || (event.check.occurrences >= "
             "Number(event.check.annotations.attempts) "
-            "&& event.check.status != 0"
+            "&& event.check.status != 0))"
         ]
 
         self._add_filter(

@@ -1018,9 +1018,9 @@ mock_filters1 = [
         },
         "action": "allow",
         "expressions": [
-            "event.check.occurrences >= "
+            "((event.check.status == 0) || (event.check.occurrences >= "
             "Number(event.check.annotations.attempts) "
-            "&& event.check.status != 0"
+            "&& event.check.status != 0))"
         ],
         "runtime_assets": None
     }
@@ -3840,9 +3840,9 @@ class SensuFiltersTests(unittest.TestCase):
             },
             "action": "allow",
             "expressions": [
-                "event.check.occurrences >= "
+                "((event.check.status == 0) || (event.check.occurrences >= "
                 "Number(event.check.annotations.attempts) "
-                "&& event.check.status != 0"
+                "&& event.check.status != 0))"
             ]
         }
 
@@ -4156,9 +4156,9 @@ class SensuFiltersTests(unittest.TestCase):
             "mock-urls/api/core/v2/namespaces/TENANT1/filters/hard-state",
             data=json.dumps({
                 "expressions": [
-                    "event.check.occurrences >= "
+                    "((event.check.status == 0) || (event.check.occurrences >= "
                     "Number(event.check.annotations.attempts) "
-                    "&& event.check.status != 0"
+                    "&& event.check.status != 0))"
                 ]
             }),
             headers={
