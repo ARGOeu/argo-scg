@@ -93,6 +93,8 @@ class ConfigurationGenerator:
                 for metric in service["metrics"]:
                     metrics_set.add(metric)
 
+        self.global_attributes = self._read_global_attributes(attributes)
+
         metrics_list = list()
         internal_metrics = list()
         metrics_with_endpoint_url = list()
@@ -113,10 +115,12 @@ class ConfigurationGenerator:
                         internal_metrics.append(key)
 
                     for attribute, attr_val in value["attribute"].items():
-                        if attribute == "URL" or \
-                                (attribute.endswith("_URL") and not
-                                    (attribute.endswith("GOCDB_SERVICE_URL") or
-                                        attribute == "OS_KEYSTONE_URL")):
+                        if attribute == "URL" or (
+                                attribute.endswith("_URL") and not (
+                                attribute.endswith("GOCDB_SERVICE_URL") or
+                                attribute == "OS_KEYSTONE_URL" or
+                                attribute in self.global_attributes)
+                        ):
                             metrics_with_endpoint_url.append(key)
 
         self.metrics = metrics_list
@@ -124,7 +128,6 @@ class ConfigurationGenerator:
         self.topology = topology
         self.secrets = secrets_file
 
-        self.global_attributes = self._read_global_attributes(attributes)
         self.metric_parameter_overrides = self._read_metric_parameter_overrides(
             attributes
         )
@@ -132,7 +135,6 @@ class ConfigurationGenerator:
         self.host_attribute_overrides = self._read_host_attribute_overrides(
             attributes
         )
-
         self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
         self.metrics4servicetypes = self._get_metrics4servicetypes()

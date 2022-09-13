@@ -799,6 +799,40 @@ mock_metrics = [
         }
     },
     {
+        "grnet.rciam.oidc-login-edugain": {
+            "tags": [
+                "aai",
+                "harmonized",
+                "rciam"
+            ],
+            "probe": "checklogin",
+            "config": {
+                "maxCheckAttempts": "2",
+                "timeout": "10",
+                "path": "/usr/libexec/argo-monitoring/probes/rciam_probes",
+                "interval": "15",
+                "retryInterval": "2"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "EDUGAIN_USER": "-u",
+                "EDUGAIN_PASSWORD": "-a",
+                "ARGO_OIDC_SP_URL": "-s"
+            },
+            "parameter": {
+                "-i": "https://idp.admin.grnet.gr/idp/shibboleth",
+                "-C": "",
+                "-e": "https://mon-dev.rciam.grnet.gr/probes/results"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/rciam/rciam_probes/blob/master/"
+                      "README.md"
+        }
+    },
+    {
         "org.bdii.Entries": {
             "tags": [],
             "probe": "check_bdii_entries",
@@ -2220,6 +2254,20 @@ mock_metric_profiles = [
                 "metrics": [
                     "argo.AMSPublisher-Check",
                     "generic.tcp.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-09-13",
+        "name": "ARGO_TEST28",
+        "description": "Profile with metrics with attributes ending in _URL",
+        "services": [
+            {
+                "service": "argo.oidc.login",
+                "metrics": [
+                    "grnet.rciam.oidc-login-edugain"
                 ]
             }
         ]
@@ -4386,6 +4434,87 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_if_attribute_ending_in_url_not_servicetype_url(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "ARGO_OIDC_SP_URL",
+                        "value":
+                            "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/"
+                            "auth.php"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        topology = [
+            {
+                "group": "ARGO",
+                "service": "argo.oidc.login",
+                "hostname": "aai.argo.eu",
+                "tags": {}
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST28"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=attributes,
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "source /path/to/secrets ; "
+                    "export $(cut -d= -f1 /path/to/secrets) ; "
+                    "/usr/libexec/argo-monitoring/probes/rciam_probes/"
+                    "checklogin -H {{ .labels.hostname }} -t 10 "
+                    "-i https://idp.admin.grnet.gr/idp/shibboleth -C "
+                    "-e https://mon-dev.rciam.grnet.gr/probes/results "
+                    "-u $EDUGAIN_USER -a $EDUGAIN_PASSWORD -s "
+                    "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/auth.php",
+                "subscriptions": ["argo.oidc.login"],
+                "handlers": [],
+                "interval": 900,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "grnet.rciam.oidc-login-edugain",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.grnet_rciam_oidc_login_edugain == "
+                        "'grnet.rciam.oidc-login-edugain'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -5607,6 +5736,64 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_attribute_ending_in_url_not_servicetype_url(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "ARGO_OIDC_SP_URL",
+                        "value":
+                            "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/"
+                            "auth.php"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        topology = [
+            {
+                "group": "ARGO",
+                "service": "argo.oidc.login",
+                "hostname": "aai.argo.eu",
+                "tags": {}
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST28"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities, [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.oidc.login__aai.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "grnet_rciam_oidc_login_edugain":
+                                "grnet.rciam.oidc-login-edugain",
+                            "hostname": "aai.argo.eu",
+                            "service": "argo.oidc.login",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["argo.oidc.login"]
                 }
             ]
         )
