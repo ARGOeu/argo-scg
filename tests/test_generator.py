@@ -799,6 +799,40 @@ mock_metrics = [
         }
     },
     {
+        "grnet.rciam.oidc-login-edugain": {
+            "tags": [
+                "aai",
+                "harmonized",
+                "rciam"
+            ],
+            "probe": "checklogin",
+            "config": {
+                "maxCheckAttempts": "2",
+                "timeout": "10",
+                "path": "/usr/libexec/argo-monitoring/probes/rciam_probes",
+                "interval": "15",
+                "retryInterval": "2"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "EDUGAIN_USER": "-u",
+                "EDUGAIN_PASSWORD": "-a",
+                "ARGO_OIDC_SP_URL": "-s"
+            },
+            "parameter": {
+                "-i": "https://idp.admin.grnet.gr/idp/shibboleth",
+                "-C": "",
+                "-e": "https://mon-dev.rciam.grnet.gr/probes/results"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/rciam/rciam_probes/blob/master/"
+                      "README.md"
+        }
+    },
+    {
         "org.bdii.Entries": {
             "tags": [],
             "probe": "check_bdii_entries",
@@ -2223,6 +2257,35 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-09-13",
+        "name": "ARGO_TEST28",
+        "description": "Profile with metrics with attributes ending in _URL",
+        "services": [
+            {
+                "service": "argo.oidc.login",
+                "metrics": [
+                    "grnet.rciam.oidc-login-edugain"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-09-13",
+        "name": "ARGO_TEST29",
+        "description": "Profile with metrics with attributes ending in _URL "
+                       "in extensions",
+        "services": [
+            {
+                "service": "webdav",
+                "metrics": [
+                    "ch.cern.WebDAV"
+                ]
+            }
+        ]
     }
 ]
 
@@ -2932,7 +2995,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls "
-                               "-u {{ .labels.info_service_endpoint_url }} "
+                               "-u {{ .labels.webdav_url }} "
                                "-E /etc/nagios/globus/userproxy.pem",
                     "subscriptions": ["webdav"],
                     "handlers": [],
@@ -3400,7 +3463,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "cloudinfo.py -t 300 "
-                               "--endpoint {{ .labels.info_url }}",
+                               "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": ["org.openstack.nova"],
                     "handlers": [],
                     "pipelines": [
@@ -3432,7 +3495,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "swiftprobe.py -t 300 "
-                               "--endpoint {{ .labels.info_url }} "
+                               "--endpoint {{ .labels.os_keystone_url }} "
                                "--access-token /etc/nagios/globus/oidc",
                     "subscriptions": ["org.openstack.swift"],
                     "handlers": [],
@@ -3467,7 +3530,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "novaprobe.py -t 300 -v "
                                "--access-token /etc/nagios/globus/oidc "
                                "--appdb-image xxxx "
-                               "--endpoint {{ .labels.info_url }} "
+                               "--endpoint {{ .labels.os_keystone_url }} "
                                "--cert /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.region__os_region | default '' }}",
                     "subscriptions": ["org.openstack.nova"],
@@ -4386,6 +4449,170 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_if_attribute_ending_in_url_not_servicetype_url(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "ARGO_OIDC_SP_URL",
+                        "value":
+                            "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/"
+                            "auth.php"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        topology = [
+            {
+                "group": "ARGO",
+                "service": "argo.oidc.login",
+                "hostname": "aai.argo.eu",
+                "tags": {}
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST28"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=attributes,
+            secrets_file="/path/to/secrets",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "source /path/to/secrets ; "
+                    "export $(cut -d= -f1 /path/to/secrets) ; "
+                    "/usr/libexec/argo-monitoring/probes/rciam_probes/"
+                    "checklogin -H {{ .labels.hostname }} -t 10 "
+                    "-i https://idp.admin.grnet.gr/idp/shibboleth -C "
+                    "-e https://mon-dev.rciam.grnet.gr/probes/results "
+                    "-u $EDUGAIN_USER -a $EDUGAIN_PASSWORD -s "
+                    "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/auth.php",
+                "subscriptions": ["argo.oidc.login"],
+                "handlers": [],
+                "interval": 900,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "grnet.rciam.oidc-login-edugain",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.grnet_rciam_oidc_login_edugain == "
+                        "'grnet.rciam.oidc-login-edugain'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_if_attribute_ending_in_url_in_extension(self):
+        topology = [
+            {
+                "date": "2022-03-25",
+                "group": "CERN-PROD",
+                "type": "SITES",
+                "service": "webdav",
+                "hostname": "hostname.cern.ch",
+                "tags": {
+                    "info_ID": "xxxxxxx",
+                    "info_URL": "https://hostname.cern.ch/atlas/opstest",
+                    "monitored": "1",
+                    "production": "1",
+                    "scope": "EGI"
+                }
+            },
+            {
+                "date": "2022-03-25",
+                "group": "CERN-PROD",
+                "type": "SITES",
+                "service": "webdav",
+                "hostname": "hostname2.cern.ch",
+                "tags": {
+                    "info_ID": "xxxxxxx",
+                    "info_URL": "https://hostname.cern.ch/atlas/opstest",
+                    "info_ext_webdav_URL": "https://meh.cern.ch/atlas/opstest",
+                    "monitored": "1",
+                    "production": "1",
+                    "scope": "EGI"
+                }
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST29"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_webdav "
+                    "-H {{ .labels.hostname }} -t 600 -v -v --no-crls "
+                    "-u {{ .labels.webdav_url }} "
+                    "-E /etc/nagios/globus/userproxy.pem",
+                "subscriptions": ["webdav"],
+                "handlers": [],
+                "interval": 3600,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "ch.cern.WebDAV",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.ch_cern_webdav == 'ch.cern.WebDAV'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -4670,7 +4897,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname.cern.ch",
                             "info_url":
                                 "https://hostname.cern.ch/atlas/opstest",
-                            "info_service_endpoint_url":
+                            "webdav_url":
                                 "https://hostname.cern.ch/atlas/opstest",
                             "service": "webdav",
                             "site": "CERN-PROD"
@@ -4708,6 +4935,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dpm.bla.meh.com",
                             "info_url": "https://dpm.bla.meh.com/dpm/ops/",
                             "info_service_endpoint_url":
+                                "https://mock.url.com/dpm/ops",
+                            "webdav_url":
                                 "https://mock.url.com/dpm/ops",
                             "service": "mock.webdav",
                             "site": "WEBDAV-test",
@@ -5049,8 +5278,10 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "eu.egi.cloud.OpenStack-VM",
                             "org_nagios_keystone_tcp":
                                 "org.nagios.Keystone-TCP",
-                            "info_url": "https://cloud-api-pub.cr.cnaf.infn.it:"
-                                        "5000/v3",
+                            "info_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
                             "os_keystone_port": "5000",
                             "os_keystone_host": "cloud-api-pub.cr.cnaf.infn.it",
                             "hostname": "cloud-api-pub.cr.cnaf.infn.it",
@@ -5074,6 +5305,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_nagios_keystone_tcp":
                                 "org.nagios.Keystone-TCP",
                             "info_url": "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_url":
+                                "https://egi-cloud.pd.infn.it:443/v3",
                             "os_keystone_port": "443",
                             "os_keystone_host": "egi-cloud.pd.infn.it",
                             "hostname": "egi-cloud.pd.infn.it",
@@ -5092,6 +5325,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_openstack_swift":
                                 "eu.egi.cloud.OpenStack-Swift",
                             "info_url": "https://identity.cloud.muni.cz/v3",
+                            "os_keystone_url":
+                                "https://identity.cloud.muni.cz/v3",
                             "os_keystone_host": "identity.cloud.muni.cz",
                             "hostname": "identity.cloud.muni.cz",
                             "service": "org.openstack.swift",
@@ -5607,6 +5842,150 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_attribute_ending_in_url_not_servicetype_url(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "ARGO_OIDC_SP_URL",
+                        "value":
+                            "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/"
+                            "auth.php"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        topology = [
+            {
+                "group": "ARGO",
+                "service": "argo.oidc.login",
+                "hostname": "aai.argo.eu",
+                "tags": {}
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST28"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities, [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.oidc.login__aai.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "grnet_rciam_oidc_login_edugain":
+                                "grnet.rciam.oidc-login-edugain",
+                            "hostname": "aai.argo.eu",
+                            "service": "argo.oidc.login",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["argo.oidc.login"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_attribute_ending_in_url_in_extensions(self):
+        topology = [
+            {
+                "date": "2022-03-25",
+                "group": "CERN-PROD",
+                "type": "SITES",
+                "service": "webdav",
+                "hostname": "hostname.cern.ch",
+                "tags": {
+                    "info_ID": "xxxxxxx",
+                    "info_URL": "https://hostname.cern.ch/atlas/opstest",
+                    "monitored": "1",
+                    "production": "1",
+                    "scope": "EGI"
+                }
+            },
+            {
+                "date": "2022-03-25",
+                "group": "CERN-PROD",
+                "type": "SITES",
+                "service": "webdav",
+                "hostname": "hostname2.cern.ch",
+                "tags": {
+                    "info_ID": "xxxxxxx",
+                    "info_URL": "https://hostname2.cern.ch/atlas/opstest",
+                    "info_ext_webdav_URL": "https://meh.cern.ch/atlas/opstest",
+                    "monitored": "1",
+                    "production": "1",
+                    "scope": "EGI"
+                }
+            }
+        ]
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST29"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "webdav__hostname.cern.ch",
+                        "namespace": "default",
+                        "labels": {
+                            "ch_cern_webdav": "ch.cern.WebDAV",
+                            "info_url":
+                                "https://hostname.cern.ch/atlas/opstest",
+                            "webdav_url":
+                                "https://hostname.cern.ch/atlas/opstest",
+                            "hostname": "hostname.cern.ch",
+                            "service": "webdav",
+                            "site": "CERN-PROD"
+                        }
+                    },
+                    "subscriptions": ["webdav"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "webdav__hostname2.cern.ch",
+                        "namespace": "default",
+                        "labels": {
+                            "ch_cern_webdav": "ch.cern.WebDAV",
+                            "info_url":
+                                "https://hostname2.cern.ch/atlas/opstest",
+                            "webdav_url": "https://meh.cern.ch/atlas/opstest",
+                            "hostname": "hostname2.cern.ch",
+                            "service": "webdav",
+                            "site": "CERN-PROD"
+                        }
+                    },
+                    "subscriptions": ["webdav"]
                 }
             ]
         )
