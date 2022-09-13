@@ -94,12 +94,14 @@ class ConfigurationGenerator:
                     metrics_set.add(metric)
 
         self.global_attributes = self._read_global_attributes(attributes)
+        self.servicetypes = self._get_servicetypes()
 
         metrics_list = list()
         internal_metrics = list()
         metrics_with_endpoint_url = list()
         metrics_with_ports = list()
         metrics_with_ssl = list()
+        metrics_with_url = dict()
         for metric in metrics:
             for key, value in metric.items():
                 if key in metrics_set:
@@ -115,13 +117,13 @@ class ConfigurationGenerator:
                         internal_metrics.append(key)
 
                     for attribute, attr_val in value["attribute"].items():
-                        if attribute == "URL" or (
-                                attribute.endswith("_URL") and not (
-                                attribute.endswith("GOCDB_SERVICE_URL") or
-                                attribute == "OS_KEYSTONE_URL" or
-                                attribute in self.global_attributes)
-                        ):
+                        if attribute == "URL":
                             metrics_with_endpoint_url.append(key)
+
+                        if attribute.endswith("_URL") and not (
+                                attribute.endswith("GOCDB_SERVICE_URL")
+                        ):
+                            metrics_with_url.update({key: attribute})
 
         self.metrics = metrics_list
         self.internal_metrics = internal_metrics
@@ -135,7 +137,6 @@ class ConfigurationGenerator:
         self.host_attribute_overrides = self._read_host_attribute_overrides(
             attributes
         )
-        self.servicetypes = self._get_servicetypes()
         self.servicetypes4metrics = self._get_servicetypes4metrics()
         self.metrics4servicetypes = self._get_metrics4servicetypes()
         self.extensions = self._get_extensions()
@@ -158,6 +159,18 @@ class ConfigurationGenerator:
             self.servicetypes_with_SSL.extend(
                 self.servicetypes4metrics[metric]
             )
+
+        self.servicetypes_with_url = dict()
+        for metric, attribute in metrics_with_url.items():
+            sts = self.servicetypes4metrics[metric]
+            for st in sts:
+                if st in self.servicetypes_with_url:
+                    att = self.servicetypes_with_url[st]
+                    att.append(attribute)
+                    self.servicetypes_with_url.update({st: list(set(att))})
+
+                else:
+                    self.servicetypes_with_url.update({st: [attribute]})
 
     @staticmethod
     def _read_global_attributes(input_attrs):
@@ -213,6 +226,13 @@ class ConfigurationGenerator:
     @staticmethod
     def _create_label(item):
         return item.lower().replace(".", "_").replace("-", "_")
+
+    @staticmethod
+    def _get_single_endpoint_url(url):
+        if "," in url:
+            url = url.split(",")[0].strip()
+
+        return url
 
     @staticmethod
     def _create_attribute_env(item):
@@ -353,10 +373,7 @@ class ConfigurationGenerator:
                 elif key.endswith("GOCDB_SERVICE_URL"):
                     key = "{{ .labels.info_url }}"
 
-                elif key == "OS_KEYSTONE_URL":
-                    key = "{{ .labels.info_url }}"
-
-                elif key == "URL" or key.endswith("_URL"):
+                elif key == "URL":
                     key = "{{ .labels.info_service_endpoint_url }}"
 
                 elif key == "SITENAME":
@@ -366,7 +383,7 @@ class ConfigurationGenerator:
                     if self._is_extension_present_in_all_endpoints(
                         services=self.servicetypes4metrics[metric],
                         extension=f"info_ext_{key}"
-                    ):
+                    ) or key.endswith("_URL"):
                         key = "{{ .labels.%s }}" % key.lower()
 
                     else:
@@ -559,13 +576,17 @@ class ConfigurationGenerator:
                             labels.update({"os_keystone_port": str(port)})
 
                         labels.update({"os_keystone_host": o.hostname})
+                        labels.update({
+                            "os_keystone_url": item["tags"]["info_URL"]
+                        })
 
                 if "info_service_endpoint_URL" in item["tags"]:
-                    url = item["tags"]["info_service_endpoint_URL"]
-                    if "," in item["tags"]["info_service_endpoint_URL"]:
-                        url = url.split(",")[0].strip()
-
-                    labels.update({"info_service_endpoint_url": url})
+                    labels.update({
+                        "info_service_endpoint_url":
+                            self._get_single_endpoint_url(
+                                item["tags"]["info_service_endpoint_URL"]
+                            )
+                    })
 
                 else:
                     if item["service"] in self.servicetypes_with_endpointURL:
@@ -573,6 +594,27 @@ class ConfigurationGenerator:
                             "info_service_endpoint_url":
                                 item["tags"]["info_URL"]
                         })
+
+                if item["service"] in self.servicetypes_with_url:
+                    for attr in self.servicetypes_with_url[item["service"]]:
+                        if "info_service_endpoint_URL" in item["tags"]:
+                            labels.update({
+                                self._create_label(attr):
+                                    self._get_single_endpoint_url(
+                                        item["tags"][
+                                            "info_service_endpoint_URL"
+                                        ]
+                                    )
+                            })
+
+                        elif "info_URL" in item["tags"]:
+                            labels.update({
+                                self._create_label(attr):
+                                    item["tags"]["info_URL"]
+                            })
+
+                        else:
+                            pass
 
                 if item["service"] == "Top-BDII":
                     labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
@@ -644,7 +686,7 @@ class ConfigurationGenerator:
                         else:
                             if self._is_extension_present_in_all_endpoints(
                                 services=[item["service"]], extension=tag
-                            ):
+                            ) or tag.endswith("_URL"):
                                 labels.update({tag[9:].lower(): value})
                             else:
                                 metrics = list()
