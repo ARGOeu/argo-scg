@@ -284,74 +284,15 @@ class ConfigurationGenerator:
         overridden_attributes = [
             item["attribute"] for item in self.host_attribute_overrides
         ]
-        special_keys = ["VO_FQAN", "SITE_BDII", "info_hostdn"]
         for key, value in attrs.items():
             if key in self.global_attributes:
                 key = self.global_attributes[key]
 
-            elif key == "NAGIOS_HOST_CERT":
-                if "ROBOT_CERT" in self.global_attributes:
-                    key = self.global_attributes["ROBOT_CERT"]
-                else:
-                    key = hardcoded_attributes[key]
-
-            elif key == "NAGIOS_HOST_KEY":
-                if "ROBOT_KEY" in self.global_attributes:
-                    key = self.global_attributes["ROBOT_KEY"]
-
-                else:
-                    key = hardcoded_attributes[key]
-
-            elif key in ["KEYSTORE", "TRUSTSTORE"]:
-                key = hardcoded_attributes[key]
-
-            elif key == "TOP_BDII":
-                if "BDII_HOST" in self.global_attributes:
-                    key = self.global_attributes["BDII_HOST"]
-                else:
-                    key = ""
-
-            elif key in default_ports:
-                key = default_ports[key]
-
-            elif key == "SSL":
-                key = "{{ .labels.ssl }}"
-                value = ""
-
-            elif key == "PATH":
-                key = "{{ .labels.path | default '/' }}"
-
-            elif key == "PORT":
-                key = "{{ .labels.port }}"
-
-            elif key.endswith("GOCDB_SERVICE_URL"):
-                key = "{{ .labels.info_url }}"
-
-            elif key == "URL":
-                key = "{{ .labels.info_service_endpoint_url }}"
-
-            elif key == "SITENAME":
-                key = "{{ .labels.site }}"
-
-            elif key in self.extensions:
-                if self._is_extension_present_in_all_endpoints(
-                    services=self.servicetypes4metrics[metric],
-                    extension=f"info_ext_{key}"
-                ) or key.endswith("_URL"):
-                    key = "{{ .labels.%s }}" % key.lower()
-
-                else:
-                    key = "{{ .labels.%s__%s | default '' }}" % (
-                        value.lstrip("-").lstrip("-").replace("-", "_"),
-                        key.lower()
-                    )
-                    value = ""
-
-            elif key.startswith("OS_KEYSTONE") or key.endswith("_URL") or \
-                    key.endswith("BDII_DN") or key in special_keys:
-                key = "{{ .labels.%s }}" % self._create_label(key)
-
-            else:
+            elif key.endswith("_TOKEN") or key.endswith("_LOGIN") or \
+                    key.endswith("_SALT") or key.endswith("_ID") or \
+                    key.endswith("_PASSWORD") or key.endswith("_USER") or \
+                    key.endswith("_SECRET") or key.endswith("_USERNAME") or \
+                    key.endswith("_CREDENTIALS"):
                 if key in overridden_attributes:
                     key = "{{ .labels.%s }}" % self._create_label(key)
 
@@ -362,6 +303,68 @@ class ConfigurationGenerator:
                     key = f"${key}"
 
                 issecret = True
+
+            else:
+                if key == "NAGIOS_HOST_CERT":
+                    if "ROBOT_CERT" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_CERT"]
+                    else:
+                        key = hardcoded_attributes[key]
+
+                elif key == "NAGIOS_HOST_KEY":
+                    if "ROBOT_KEY" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_KEY"]
+
+                    else:
+                        key = hardcoded_attributes[key]
+
+                elif key in ["KEYSTORE", "TRUSTSTORE"]:
+                    key = hardcoded_attributes[key]
+
+                elif key == "TOP_BDII":
+                    if "BDII_HOST" in self.global_attributes:
+                        key = self.global_attributes["BDII_HOST"]
+                    else:
+                        key = ""
+
+                elif key in default_ports:
+                    key = default_ports[key]
+
+                elif key == "SSL":
+                    key = "{{ .labels.ssl }}"
+                    value = ""
+
+                elif key == "PATH":
+                    key = "{{ .labels.path | default '/' }}"
+
+                elif key == "PORT":
+                    key = "{{ .labels.port }}"
+
+                elif key.endswith("GOCDB_SERVICE_URL"):
+                    key = "{{ .labels.info_url }}"
+
+                elif key == "URL":
+                    key = "{{ .labels.info_service_endpoint_url }}"
+
+                elif key == "SITENAME":
+                    key = "{{ .labels.site }}"
+
+                elif key in self.extensions:
+                    if self._is_extension_present_in_all_endpoints(
+                        services=self.servicetypes4metrics[metric],
+                        extension=f"info_ext_{key}"
+                    ) or key.endswith("_URL"):
+                        key = "{{ .labels.%s }}" % key.lower()
+
+                    else:
+                        key = "{{ .labels.%s__%s | default '' }}" % (
+                            value.lstrip("-").lstrip("-").replace("-", "_"),
+                            key.lower()
+                        )
+                        value = ""
+
+                else:
+                    key = "{{ .labels.%s }}" % key.lower()
 
             attr = f"{value} {key}".strip()
 
