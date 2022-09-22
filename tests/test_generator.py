@@ -2286,6 +2286,20 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-09-22",
+        "name": "ARGO_TEST30",
+        "description": "Profile for topology that has hostname in tags",
+        "services": [
+            {
+                "service": "eu.eosc.portal.services.url",
+                "metrics": [
+                    "generic.http.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -2327,6 +2341,48 @@ faulty_local_topology = [
         "service": "argo.api",
         "hostname": "api.argo.grnet.gr",
         "tags": {}
+    }
+]
+
+mock_topology_with_hostname_in_tag = [
+    {
+        "date": "2022-09-22",
+        "group": "test1",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.portal.services.url",
+        "hostname": "hostname1.argo.com_hostname1_id",
+        "tags": {
+            "hostname": "hostname1.argo.com",
+            "info_ID": "hostname1_id",
+            "info_URL": "https://hostname1.argo.com/path",
+            "service_tags": "applications, batch systems"
+        }
+    },
+    {
+        "date": "2022-09-22",
+        "group": "test2.test",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.portal.services.url",
+        "hostname": "hostname2.argo.eu_second.id",
+        "tags": {
+            "hostname": "hostname2.argo.eu",
+            "info_ID": "second.id",
+            "info_URL": "https://hostname2.argo.eu",
+            "service_tags": "FAIR, bioinformatics, bash, HPC, kubernetes, "
+                            "docker, workflows, workflow-management-system"
+        }
+    },
+    {
+        "date": "2022-09-22",
+        "group": "group3",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.portal.services.url",
+        "hostname": "hostname3.argo.eu_test.id",
+        "tags": {
+            "hostname": "hostname3.argo.eu",
+            "info_ID": "test.id",
+            "info_URL": "http://hostname3.argo.eu/"
+        }
     }
 ]
 
@@ -4613,6 +4669,59 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_if_hostname_in_tags(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_http "
+                    "-H {{ .labels.hostname }} -t 60 --link "
+                    "--onredirect follow {{ .labels.ssl }} "
+                    "-p {{ .labels.port }} -u {{ .labels.path | default '/' }}",
+                "subscriptions": ["eu.eosc.portal.services.url"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -5986,6 +6095,84 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["webdav"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_hostname_in_tags(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname1.argo.com_hostname1_id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "path": "/path",
+                            "port": "443",
+                            "ssl": "-S --sni",
+                            "info_url":
+                                "https://hostname1.argo.com/path",
+                            "hostname": "hostname1.argo.com",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test1"
+                        }
+                    },
+                    "subscriptions": ["eu.eosc.portal.services.url"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname2.argo.eu_second.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "https://hostname2.argo.eu",
+                            "hostname": "hostname2.argo.eu",
+                            "path": "/",
+                            "port": "443",
+                            "ssl": "-S --sni",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test2.test"
+                        }
+                    },
+                    "subscriptions": ["eu.eosc.portal.services.url"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname3.argo.eu_test.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "http://hostname3.argo.eu/",
+                            "hostname": "hostname3.argo.eu",
+                            "path": "/",
+                            "port": "80",
+                            "ssl": "",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "group3"
+                        }
+                    },
+                    "subscriptions": ["eu.eosc.portal.services.url"]
                 }
             ]
         )

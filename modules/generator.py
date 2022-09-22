@@ -505,7 +505,14 @@ class ConfigurationGenerator:
             ]
             for item in topo_entities:
                 types = list()
-                labels = {"hostname": item["hostname"]}
+
+                if "hostname" in item["tags"]:
+                    hostname = item["tags"]["hostname"]
+
+                else:
+                    hostname = item["hostname"]
+
+                labels = {"hostname": hostname}
 
                 if "info_URL" in item["tags"]:
                     labels.update({"info_url": item["tags"]["info_URL"]})
