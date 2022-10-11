@@ -42,7 +42,7 @@ def get_logger():
 
 def main():
     parser = argparse.ArgumentParser(
-        "Sync data from POEM and Web-api with Sensu"
+        "Sync data from POEM and Web-API with Sensu"
     )
     parser.add_argument(
         "-c", "--conf", dest="conf", help="configuration file", default=CONFFILE
@@ -103,6 +103,7 @@ def main():
                     topology=topology,
                     attributes=poem.get_metric_overrides(),
                     secrets_file=secrets[namespace],
+                    default_ports=poem.get_default_ports(),
                     tenant=tenant
                 )
 
