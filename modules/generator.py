@@ -11,42 +11,11 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/nagios/globus/truststore.ts"
 }
 
-default_ports = {
-    "SITE_BDII_PORT": "2170",
-    "BDII_PORT": "2170",
-    "MDS_PORT": "2135",
-    "GRIDFTP_PORT": "2811",
-    "GRAM_PORT": "2119",
-    "RB_PORT": "7772",
-    "WMS_PORT": "7772",
-    "MYPROXY_PORT": "7512",
-    "RGMA_PORT": "8443",
-    "TOMCAT_PORT": "8443",
-    "LL_PORT": "9002",
-    "LB_PORT": "9000",
-    "WMPROXY_PORT": "7443",
-    "SRM1_PORT": "8443",
-    "SRM2_PORT": "8443",
-    "GSISSH_PORT": "1975",
-    "FTS_PORT": "8446",
-    "VOMS_PORT": "8443",
-    "GRIDICE_PORT": "2136",
-    "CREAM_PORT": "8443",
-    "QCG-COMPUTING_PORT": "19000",
-    "QCG-NOTIFICATION_PORT": "19001",
-    "QCG-BROKER_PORT": "8443",
-    "STOMP_PORT": "6163",
-    "STOMP_SSL_PORT": "6162",
-    "OPENWIRE_PORT": "6166",
-    "OPENWIRE_SSL_PORT": "6167",
-    "HTCondorCE_PORT": "9619"
-}
-
 
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, tenant
+            attributes, secrets_file, default_ports, tenant
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -95,6 +64,7 @@ class ConfigurationGenerator:
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
+        self.default_ports = default_ports
 
         self.metric_parameter_overrides = self._read_metric_parameter_overrides(
             attributes
@@ -327,8 +297,8 @@ class ConfigurationGenerator:
                     else:
                         key = ""
 
-                elif key in default_ports:
-                    key = default_ports[key]
+                elif key in self.default_ports:
+                    key = self.default_ports[key]
 
                 elif key == "SSL":
                     key = "{{ .labels.ssl }}"

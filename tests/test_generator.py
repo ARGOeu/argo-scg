@@ -2436,6 +2436,37 @@ mock_attributes_with_robot = {
     }
 }
 
+mock_default_ports = {
+    "SITE_BDII_PORT": "2170",
+    "BDII_PORT": "2170",
+    "MDS_PORT": "2135",
+    "GRIDFTP_PORT": "2811",
+    "GRAM_PORT": "2119",
+    "RB_PORT": "7772",
+    "WMS_PORT": "7772",
+    "MYPROXY_PORT": "7512",
+    "RGMA_PORT": "8443",
+    "TOMCAT_PORT": "8443",
+    "LL_PORT": "9002",
+    "LB_PORT": "9000",
+    "WMPROXY_PORT": "7443",
+    "SRM1_PORT": "8443",
+    "SRM2_PORT": "8443",
+    "GSISSH_PORT": "1975",
+    "FTS_PORT": "8446",
+    "VOMS_PORT": "8443",
+    "GRIDICE_PORT": "2136",
+    "CREAM_PORT": "8443",
+    "QCG-COMPUTING_PORT": "19000",
+    "QCG-NOTIFICATION_PORT": "19001",
+    "QCG-BROKER_PORT": "8443",
+    "STOMP_PORT": "6163",
+    "STOMP_SSL_PORT": "6162",
+    "OPENWIRE_PORT": "6166",
+    "OPENWIRE_SSL_PORT": "6167",
+    "HTCondorCE_PORT": "9619"
+}
+
 LOGNAME = "argo-scg.generator"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
 DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
@@ -2454,6 +2485,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2542,6 +2574,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2599,6 +2632,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="default"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2673,6 +2707,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2761,6 +2796,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2886,6 +2922,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes_with_robot,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -2980,6 +3017,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3037,6 +3075,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3160,6 +3199,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3250,6 +3290,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3306,6 +3347,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3413,6 +3455,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3506,6 +3549,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3661,6 +3705,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3718,6 +3763,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3775,6 +3821,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3840,6 +3887,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3896,6 +3944,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -3954,6 +4003,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4010,6 +4060,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_local_topology,
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4068,6 +4119,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4163,6 +4215,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4266,6 +4319,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4374,6 +4428,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_local_topology,
             attributes=attributes,
             secrets_file="/path/to/secrets",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4432,6 +4487,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4537,6 +4593,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=topology,
             attributes=attributes,
             secrets_file="/path/to/secrets",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4625,6 +4682,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4677,6 +4735,7 @@ class CheckConfigurationTests(unittest.TestCase):
             topology=mock_topology_with_hostname_in_tag,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4732,6 +4791,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4790,6 +4850,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4898,6 +4959,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -4954,6 +5016,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5026,6 +5089,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5066,6 +5130,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5167,6 +5232,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5235,6 +5301,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5304,6 +5371,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5366,6 +5434,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5456,6 +5525,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5512,6 +5582,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5567,6 +5638,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5619,6 +5691,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_local_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5669,6 +5742,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=faulty_local_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertRaises(GeneratorException) as context:
@@ -5707,6 +5781,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5790,6 +5865,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5877,6 +5953,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=attributes,
             secrets_file="/path/to/secrets",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5929,6 +6006,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -5988,6 +6066,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=topology,
             attributes=attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -6053,6 +6132,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -6108,6 +6188,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology_with_hostname_in_tag,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
@@ -6186,6 +6267,7 @@ class EntityConfigurationTests(unittest.TestCase):
             topology=mock_topology,
             attributes=mock_attributes,
             secrets_file="",
+            default_ports=mock_default_ports,
             tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
