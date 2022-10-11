@@ -235,7 +235,6 @@ mock_metrics = [
     }
 ]
 
-
 mock_metrics_with_config_error = [
     mock_metrics[0],
     {
@@ -297,7 +296,6 @@ mock_metrics_with_config_error = [
     }
 ]
 
-
 mock_metric_overrides = {
     "local": {
         "global_attributes": [
@@ -333,6 +331,37 @@ mock_metric_overrides = {
     }
 }
 
+mock_default_ports = {
+    "SITE_BDII_PORT": "2170",
+    "BDII_PORT": "2170",
+    "MDS_PORT": "2135",
+    "GRIDFTP_PORT": "2811",
+    "GRAM_PORT": "2119",
+    "RB_PORT": "7772",
+    "WMS_PORT": "7772",
+    "MYPROXY_PORT": "7512",
+    "RGMA_PORT": "8443",
+    "TOMCAT_PORT": "8443",
+    "LL_PORT": "9002",
+    "LB_PORT": "9000",
+    "WMPROXY_PORT": "7443",
+    "SRM1_PORT": "8443",
+    "SRM2_PORT": "8443",
+    "GSISSH_PORT": "1975",
+    "FTS_PORT": "8446",
+    "VOMS_PORT": "8443",
+    "GRIDICE_PORT": "2136",
+    "CREAM_PORT": "8443",
+    "QCG-COMPUTING_PORT": "19000",
+    "QCG-NOTIFICATION_PORT": "19001",
+    "QCG-BROKER_PORT": "8443",
+    "STOMP_PORT": "6163",
+    "STOMP_SSL_PORT": "6162",
+    "OPENWIRE_PORT": "6166",
+    "OPENWIRE_SSL_PORT": "6167",
+    "HTCondorCE_PORT": "9619"
+}
+
 
 def mock_poem_metrics_request(*args, **kwargs):
     return MockResponse(mock_metrics, status_code=200)
@@ -344,6 +373,10 @@ def mock_poem_metrics_request_error_param(*args, **kwargs):
 
 def mock_poem_metric_overrides_request(*args, **kwargs):
     return MockResponse(mock_metric_overrides, status_code=200)
+
+
+def mock_poem_default_ports_request(*args, **kwargs):
+    return MockResponse(mock_default_ports, status_code=200)
 
 
 def mock_poem_request_with_error_with_msg(*args, **kwargs):
@@ -512,5 +545,64 @@ class PoemTests(unittest.TestCase):
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
                 f"Metric overrides fetch error: 400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_default_ports(self, mock_request):
+        mock_request.side_effect = mock_poem_default_ports_request
+        with self.assertLogs(self.logname) as log:
+            ports = self.poem.get_default_ports()
+        mock_request.assert_called_once()
+        mock_request.assert_called_with(
+            "https://mock.poem.url/api/v2/default_ports",
+            headers={'x-api-key': 'P03mt0k3n'}
+        )
+        self.assertEqual(ports, mock_default_ports)
+        self.assertEqual(
+            log.output, [
+                f"INFO:{self.logname}:MOCK_TENANT: Default ports fetched "
+                f"successfully"
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_default_ports_with_error_with_msg(self, mock_request):
+        mock_request.side_effect = mock_poem_request_with_error_with_msg
+        with self.assertLogs(self.logname) as log:
+            ports = self.poem.get_default_ports()
+
+        mock_request.assert_called_once_with(
+            "https://mock.poem.url/api/v2/default_ports",
+            headers={'x-api-key': 'P03mt0k3n'}
+        )
+
+        self.assertEqual(ports, dict())
+
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{self.logname}:MOCK_TENANT: "
+                f"Default ports fetch error: 400 BAD REQUEST: "
+                f"Something went wrong."
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_default_ports_with_error_without_msg(self, mock_request):
+        mock_request.side_effect = mock_poem_request_with_error_without_msg
+        with self.assertLogs(self.logname) as log:
+            ports = self.poem.get_default_ports()
+
+        mock_request.assert_called_once_with(
+            "https://mock.poem.url/api/v2/default_ports",
+            headers={'x-api-key': 'P03mt0k3n'}
+        )
+
+        self.assertEqual(ports, dict())
+
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{self.logname}:MOCK_TENANT: "
+                f"Default ports fetch error: 400 BAD REQUEST"
             ]
         )

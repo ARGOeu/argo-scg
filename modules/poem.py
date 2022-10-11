@@ -79,3 +79,28 @@ class Poem:
                     )
 
         return metric_confs
+
+    def get_default_ports(self):
+        response = requests.get(
+            f"{self.url}/api/v2/default_ports",
+            headers={"x-api-key": self.token}
+        )
+
+        if not response.ok:
+            msg = f"{self.tenant}: Default ports fetch error: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['detail']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            self.logger.warning(msg)
+            return  dict()
+
+        else:
+            self.logger.info(
+                f"{self.tenant}: Default ports fetched successfully"
+            )
+            return response.json()
