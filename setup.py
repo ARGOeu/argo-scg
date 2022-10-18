@@ -24,5 +24,7 @@ setup(
     package_dir={'argo_scg': 'modules'},
     packages=['argo_scg'],
     data_files=[('/etc/argo-scg/', ['config/scg.conf'])],
-    scripts=['exec/scg-reload.py', 'exec/sensu2publisher.py']
+    scripts=[
+        'exec/scg-reload.py', 'exec/sensu2publisher.py', 'exec/scg-ad-hoc.py'
+    ]
 )
