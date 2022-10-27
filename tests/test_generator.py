@@ -2300,6 +2300,26 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-10-26",
+        "name": "ARGO_TEST31",
+        "description": "Profile for missing metrics",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "mock.generic.check"
+                ]
+            }
+        ]
     }
 ]
 
@@ -4780,6 +4800,64 @@ class CheckConfigurationTests(unittest.TestCase):
             }]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_warning_if_metric_is_missing(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST31"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        # self.assertEqual(
+        #     log.output, [
+        #         f"WARNING:{LOGNAME}:mockspace: Missing metric configuration "
+        #         f"for mock.generic.check... Skipping check generation"
+        #     ]
+        # )
 
 
 class EntityConfigurationTests(unittest.TestCase):
