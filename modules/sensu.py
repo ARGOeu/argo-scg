@@ -236,8 +236,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Entity fetch error: " \
-                  f"{response.status_code} {response.reason}"
+            msg = f"{response.status_code} {response.reason}"
 
             try:
                 msg = f"{msg}: {response.json()['message']}"
@@ -245,17 +244,37 @@ class Sensu:
             except (ValueError, KeyError, TypeError):
                 pass
 
-            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
             return response.json()
 
     def _get_proxy_entities(self, namespace):
-        data = self._get_entities(namespace=namespace)
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching proxy entities: " \
+                  f"{str(e).strip('Sensu error: ')}"
+            self.logger.error(msg)
+            raise SensuException(msg)
 
         return [
             entity for entity in data if entity["entity_class"] == "proxy"
+        ]
+
+    def _get_agents(self, namespace):
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching agents: " \
+                  f"{str(e).strip('Sensu error: ')}"
+            self.logger.error(msg)
+            raise SensuException(msg)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "agent"
         ]
 
     def _delete_entities(self, entities, namespace):

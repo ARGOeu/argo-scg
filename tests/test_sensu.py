@@ -2757,12 +2757,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST: "
-            "Something went wrong."
+            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2784,11 +2784,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3086,6 +3087,77 @@ class SensuEntityTests(unittest.TestCase):
 class SensuAgentsTests(unittest.TestCase):
     def setUp(self):
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
+
+    @patch("requests.get")
+    def test_get_agents(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            agents = self.sensu._get_agents(namespace="TENANT1")
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            agents, [mock_entities[3], mock_entities[4]]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.get")
+    def test_get_agents_with_error_with_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu._get_agents(namespace="TENANT1")
+
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_agents_with_error_without_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu._get_agents(namespace="TENANT1")
+
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"400 BAD REQUEST"
+            ]
+        )
 
     @patch("requests.get")
     @patch("requests.patch")
