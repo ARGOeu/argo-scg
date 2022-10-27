@@ -4933,12 +4933,12 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
-        # self.assertEqual(
-        #     log.output, [
-        #         f"WARNING:{LOGNAME}:mockspace: Missing metric configuration "
-        #         f"for mock.generic.check... Skipping check generation"
-        #     ]
-        # )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:MOCK_TENANT: Missing metric configuration "
+                f"for mock.generic.check... Skipping check generation"
+            ]
+        )
 
 
 class EntityConfigurationTests(unittest.TestCase):
