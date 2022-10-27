@@ -226,9 +226,9 @@ class Sensu:
 
         return equal
 
-    def _get_proxy_entities(self, namespace):
+    def _get_entities(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/entities".format(self.url, namespace),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/entities",
             headers={
                 "Authorization": "Key {}".format(self.token),
                 "Content-Type": "application/json"
@@ -249,10 +249,14 @@ class Sensu:
             raise SensuException(msg)
 
         else:
-            data = response.json()
-            return [
-                entity for entity in data if entity["entity_class"] == "proxy"
-            ]
+            return response.json()
+
+    def _get_proxy_entities(self, namespace):
+        data = self._get_entities(namespace=namespace)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "proxy"
+        ]
 
     def _delete_entities(self, entities, namespace):
         for entity in entities:
