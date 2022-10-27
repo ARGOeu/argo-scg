@@ -22,11 +22,11 @@ class ConfigurationGenerator:
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
-        metrics_set = set()
+        metrics_in_profiles_set = set()
         for profile in self.metric_profiles:
             for service in profile["services"]:
                 for metric in service["metrics"]:
-                    metrics_set.add(metric)
+                    metrics_in_profiles_set.add(metric)
 
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
@@ -37,9 +37,11 @@ class ConfigurationGenerator:
         metrics_with_ports = list()
         metrics_with_ssl = list()
         metrics_with_url = dict()
+        metrics_names_set = set()
         for metric in metrics:
             for key, value in metric.items():
-                if key in metrics_set:
+                metrics_names_set.add(key)
+                if key in metrics_in_profiles_set:
                     metrics_list.append(metric)
 
                     if "PORT" in value["attribute"]:
@@ -61,6 +63,9 @@ class ConfigurationGenerator:
                             metrics_with_url.update({key: attribute})
 
         self.metrics = metrics_list
+        self.metrics_without_configuration = metrics_in_profiles_set.difference(
+            metrics_names_set
+        )
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
@@ -455,6 +460,12 @@ class ConfigurationGenerator:
                         f"Missing key {str(e)}"
                     )
                     continue
+
+        for metric in self.metrics_without_configuration:
+            self.logger.warning(
+                f"{self.tenant}: Missing metric configuration for {metric}... "
+                f"Skipping check generation"
+            )
 
         return checks
 
