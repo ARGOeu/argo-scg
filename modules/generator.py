@@ -165,6 +165,12 @@ class ConfigurationGenerator:
 
         return host_attribute_overrides
 
+    def get_metric_parameter_overrides(self):
+        return self.metric_parameter_overrides
+
+    def get_host_attribute_overrides(self):
+        return self.host_attribute_overrides
+
     @staticmethod
     def _create_label(item):
         return item.lower().replace(".", "_").replace("-", "_")

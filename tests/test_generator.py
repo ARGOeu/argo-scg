@@ -6435,3 +6435,94 @@ class EntityConfigurationTests(unittest.TestCase):
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(sorted(subscriptions), ["argo.test", "argo.webui"])
         self.assertEqual(log.output, DUMMY_LOG)
+
+
+class OverridesTests(unittest.TestCase):
+    def test_get_metric_parameter_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "argo.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "80"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST25"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            overrides = generator.get_metric_parameter_overrides()
+
+        self.assertEqual(
+            overrides, {
+                "generic.tcp.connect": {
+                    "hostname": "argo.ni4os.eu",
+                    "label": "generic_tcp_connect_p",
+                    "value": "80"
+                }
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_get_host_attribute_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            overrides = generator.get_host_attribute_overrides()
+
+        self.assertEqual(
+            sorted(overrides, key=lambda m: m["attribute"]),
+            [
+                {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "label": "nagios_freshness_password",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                },
+                {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "label": "nagios_freshness_username",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
