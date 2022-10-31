@@ -16,6 +16,22 @@ def create_attribute_env(item):
     return item.upper().replace(".", "_").replace("-", "_")
 
 
+def create_label(item):
+    return item.lower().replace(".", "_").replace("-", "_")
+
+
+def is_attribute_secret(item):
+    if item.endswith("_TOKEN") or item.endswith("_LOGIN") or \
+            item.endswith("_SALT") or item.endswith("_ID") or \
+            item.endswith("_PASSWORD") or item.endswith("_USER") or \
+            item.endswith("_SECRET") or item.endswith("_USERNAME") or \
+            item.endswith("_CREDENTIALS"):
+        return True
+
+    else:
+        return False
+
+
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
@@ -153,7 +169,7 @@ class ConfigurationGenerator:
                 host_attribute_overrides.append({
                     "hostname": item["hostname"],
                     "attribute": item["attribute"],
-                    "label": self._create_label(item["attribute"]),
+                    "label": create_label(item["attribute"]),
                     "value": item["value"].strip("$")
                 })
                 for metric in self._get_metrics4attribute(item["attribute"]):
@@ -176,10 +192,6 @@ class ConfigurationGenerator:
         return self.host_attribute_overrides
 
     @staticmethod
-    def _create_label(item):
-        return item.lower().replace(".", "_").replace("-", "_")
-
-    @staticmethod
     def _get_single_endpoint_url(url):
         if "," in url:
             url = url.split(",")[0].strip()
@@ -195,8 +207,9 @@ class ConfigurationGenerator:
 
         return metrics_with_attribute
 
-    def _create_metric_parameter_label(self, metric, parameter):
-        return f"{self._create_label(metric)}_" \
+    @staticmethod
+    def _create_metric_parameter_label(metric, parameter):
+        return f"{create_label(metric)}_" \
                f"{parameter.strip('-').strip('-').replace('-', '_')}"
 
     def _is_extension_present_in_all_endpoints(self, services, extension):
@@ -271,13 +284,9 @@ class ConfigurationGenerator:
             if key in self.global_attributes:
                 key = self.global_attributes[key]
 
-            elif key.endswith("_TOKEN") or key.endswith("_LOGIN") or \
-                    key.endswith("_SALT") or key.endswith("_ID") or \
-                    key.endswith("_PASSWORD") or key.endswith("_USER") or \
-                    key.endswith("_SECRET") or key.endswith("_USERNAME") or \
-                    key.endswith("_CREDENTIALS"):
+            elif is_attribute_secret(key):
                 if key in overridden_attributes:
-                    key = "{{ .labels.%s }}" % self._create_label(key)
+                    key = "{{ .labels.%s }}" % create_label(key)
 
                 else:
                     if "." in key:
@@ -567,7 +576,7 @@ class ConfigurationGenerator:
                     for attr in self.servicetypes_with_url[item["service"]]:
                         if "info_service_endpoint_URL" in item["tags"]:
                             labels.update({
-                                self._create_label(attr):
+                                create_label(attr):
                                     self._get_single_endpoint_url(
                                         item["tags"][
                                             "info_service_endpoint_URL"
@@ -577,7 +586,7 @@ class ConfigurationGenerator:
 
                         elif "info_URL" in item["tags"]:
                             labels.update({
-                                self._create_label(attr):
+                                create_label(attr):
                                     item["tags"]["info_URL"]
                             })
 
@@ -608,7 +617,7 @@ class ConfigurationGenerator:
                 types.append(item["service"])
                 for metric in self.metrics4servicetypes[item["service"]]:
                     if metric not in self.internal_metrics:
-                        key = self._create_label(metric)
+                        key = create_label(metric)
 
                         if key not in labels:
                             labels.update({key: metric})
@@ -640,7 +649,7 @@ class ConfigurationGenerator:
                                 label = \
                                     f"${create_attribute_env(attribute)}"
                                 labels.update({
-                                    self._create_label(attribute): label
+                                    create_label(attribute): label
                                 })
 
                     if metric == "generic.ssh.connect" and "port" not in labels:
