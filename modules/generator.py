@@ -12,6 +12,10 @@ hardcoded_attributes = {
 }
 
 
+def create_attribute_env(item):
+    return item.upper().replace(".", "_").replace("-", "_")
+
+
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
@@ -181,10 +185,6 @@ class ConfigurationGenerator:
             url = url.split(",")[0].strip()
 
         return url
-
-    @staticmethod
-    def _create_attribute_env(item):
-        return item.upper().replace(".", "_").replace("-", "_")
 
     def _get_metrics4attribute(self, attribute):
         metrics_with_attribute = list()
@@ -628,7 +628,7 @@ class ConfigurationGenerator:
                         ]
                         if len(overrides) > 0:
                             for override in overrides:
-                                override_value = self._create_attribute_env(
+                                override_value = create_attribute_env(
                                     override["value"]
                                 )
                                 labels.update({
@@ -638,7 +638,7 @@ class ConfigurationGenerator:
                         else:
                             for attribute in self.metrics_attr_override[metric]:
                                 label = \
-                                    f"${self._create_attribute_env(attribute)}"
+                                    f"${create_attribute_env(attribute)}"
                                 labels.update({
                                     self._create_label(attribute): label
                                 })
