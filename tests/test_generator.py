@@ -3091,7 +3091,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--onredirect follow "
                                "{{ .labels.ssl }} "
                                "-p {{ .labels.port }} "
-                               "-u {{ .labels.path | default '/' }}",
+                               "-u {{ .labels.path | default \"/\" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "proxy_requests": {
@@ -3428,7 +3428,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -3471,7 +3471,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -3526,7 +3526,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_http "
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
-                               "{{ .labels.u__rm_path | default '' }}",
+                               "{{ .labels.u__rm_path | default \"\" }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
                     "handlers": [],
                     "pipelines": [
@@ -3561,7 +3561,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "sdc-replication-manager/"
                                "replication_manager_check.py "
                                "-H {{ .labels.hostname }} -t 30 "
-                               "{{ .labels.r__rm_path | default '' }}",
+                               "{{ .labels.r__rm_path | default \"\" }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
                     "handlers": [],
                     "pipelines": [
@@ -3689,7 +3689,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--appdb-image xxxx "
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--cert /etc/nagios/globus/userproxy.pem "
-                               "{{ .labels.region__os_region | default '' }}",
+                               "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": ["org.openstack.nova"],
                     "handlers": [],
                     "pipelines": [
@@ -3837,7 +3837,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p eu.egi.SRM --se-timeout 260 --voname test "
                                "-X /etc/nagios/globus/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
-                               "{{ .labels.endpoint__surl | default '' }}",
+                               "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": ["SRM"],
                     "handlers": [],
                     "pipelines": [
@@ -3903,7 +3903,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -4298,7 +4298,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u /rss/$_SERVICESITE_NAME$_Pub.html "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
-                               "| default 'OK' }} --case-sensitive",
+                               "| default \"OK\" }} --case-sensitive",
                     "subscriptions": ["argo.test"],
                     "handlers": [],
                     "pipelines": [
@@ -4363,7 +4363,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 "
                                "-p {{ .labels.generic_tcp_connect_p | "
-                               "default '443' }}",
+                               "default \"443\" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "pipelines": [
@@ -4850,7 +4850,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
                     "--onredirect follow {{ .labels.ssl }} "
-                    "-p {{ .labels.port }} -u {{ .labels.path | default '/' }}",
+                    "-p {{ .labels.port }} -u "
+                    "{{ .labels.path | default \"/\" }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
                 "interval": 300,

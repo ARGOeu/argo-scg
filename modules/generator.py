@@ -327,7 +327,7 @@ class ConfigurationGenerator:
                     value = ""
 
                 elif key == "PATH":
-                    key = "{{ .labels.path | default '/' }}"
+                    key = "{{ .labels.path | default \"/\" }}"
 
                 elif key == "PORT":
                     key = "{{ .labels.port }}"
@@ -349,7 +349,7 @@ class ConfigurationGenerator:
                         key = "{{ .labels.%s }}" % key.lower()
 
                     else:
-                        key = "{{ .labels.%s__%s | default '' }}" % (
+                        key = "{{ .labels.%s__%s | default \"\" }}" % (
                             value.lstrip("-").lstrip("-").replace("-", "_"),
                             key.lower()
                         )
@@ -390,7 +390,7 @@ class ConfigurationGenerator:
                         if name in self.metric_parameter_overrides and \
                                 key == self.metric_parameter_overrides[name][
                                 "parameter"]:
-                            value = "{{ .labels.%s | default '%s' }}" % (
+                            value = "{{ .labels.%s | default \"%s\" }}" % (
                                 self.metric_parameter_overrides[name]["label"],
                                 value
                             )
