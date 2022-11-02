@@ -3,6 +3,8 @@ import logging
 
 import requests
 from argo_scg.exceptions import SensuException
+from argo_scg.generator import create_attribute_env, create_label, \
+    is_attribute_secret
 
 
 class Sensu:
@@ -226,9 +228,9 @@ class Sensu:
 
         return equal
 
-    def _get_proxy_entities(self, namespace):
+    def _get_entities(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/entities".format(self.url, namespace),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/entities",
             headers={
                 "Authorization": "Key {}".format(self.token),
                 "Content-Type": "application/json"
@@ -236,8 +238,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Entity fetch error: " \
-                  f"{response.status_code} {response.reason}"
+            msg = f"{response.status_code} {response.reason}"
 
             try:
                 msg = f"{msg}: {response.json()['message']}"
@@ -245,14 +246,38 @@ class Sensu:
             except (ValueError, KeyError, TypeError):
                 pass
 
-            self.logger.error(msg)
             raise SensuException(msg)
 
         else:
-            data = response.json()
-            return [
-                entity for entity in data if entity["entity_class"] == "proxy"
-            ]
+            return response.json()
+
+    def _get_proxy_entities(self, namespace):
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching proxy entities: " \
+                  f"{str(e).strip('Sensu error: ')}"
+            self.logger.error(msg)
+            raise SensuException(msg)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "proxy"
+        ]
+
+    def _get_agents(self, namespace):
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching agents: " \
+                  f"{str(e).strip('Sensu error: ')}"
+            self.logger.error(msg)
+            raise SensuException(msg)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "agent"
+        ]
 
     def _delete_entities(self, entities, namespace):
         for entity in entities:
@@ -438,48 +463,61 @@ class Sensu:
                 entities=entities_tobedeleted, namespace=namespace
             )
 
-    def add_subscriptions_to_agents(self, subscriptions, namespace="default"):
-        response = requests.get(
-            "{}/api/core/v2/namespaces/{}/entities".format(self.url, namespace),
-            headers={
-                "Authorization": "Key {}".format(self.token),
-                "Content-Type": "application/json"
-            }
-        )
+    def handle_agents(
+            self, metric_parameters_overrides, host_attributes_overrides,
+            subscriptions, namespace="default"
+    ):
+        def _get_labels(hostname):
+            host_labels = {"hostname": hostname}
 
-        if not response.ok:
-            msg = f"{namespace}: Entity fetch error: " \
-                  f"{response.status_code} {response.reason}"
-            try:
-                msg = f"{msg}: {response.json()['message']}"
+            for key, value in metric_parameters_overrides.items():
+                if value["hostname"] == hostname:
+                    host_labels.update({
+                        value["label"]: value["value"],
+                    })
 
-            except (ValueError, TypeError, KeyError):
-                pass
+            for item in host_attributes_overrides:
+                if item["hostname"] == hostname:
+                    attr_val = create_attribute_env(item["value"])
+                    if is_attribute_secret(item["attribute"]) and not \
+                            attr_val.startswith("$"):
+                        attr_val = f"${attr_val}"
 
-            self.logger.error(msg)
-            self.logger.warning(
-                f"{namespace}: Agents' subscriptions not updated"
-            )
+                    host_labels.update({
+                        create_label(item["attribute"]): attr_val
+                    })
 
-        else:
-            entities = response.json()
-            agents = [
-                entity for entity in entities
-                if entity["entity_class"] == "agent"
-            ]
+            return host_labels
+
+        try:
+            agents = self._get_agents(namespace=namespace)
 
             for agent in agents:
+                send_data = dict()
                 new_subscriptions = agent["subscriptions"].copy()
                 for subscription in subscriptions:
                     if subscription not in agent["subscriptions"]:
                         new_subscriptions.append(subscription)
 
                 if not set(new_subscriptions) == set(agent["subscriptions"]):
+                    send_data.update({"subscriptions": new_subscriptions})
+
+                labels = _get_labels(agent["metadata"]["name"])
+                if (
+                        "labels" in agent["metadata"] and
+                        labels != agent["metadata"]["labels"]
+                ) or "labels" not in agent["metadata"]:
+                    send_data.update({
+                        "metadata": {
+                            "labels": labels
+                        }
+                    })
+
+                if send_data:
                     response = requests.patch(
-                        "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                            self.url, namespace, agent["metadata"]["name"]
-                        ),
-                        data=json.dumps({"subscriptions": new_subscriptions}),
+                        f"{self.url}/api/core/v2/namespaces/{namespace}/"
+                        f"entities/{agent['metadata']['name']}",
+                        data=json.dumps(send_data),
                         headers={
                             "Authorization": "Key {}".format(self.token),
                             "Content-Type": "application/merge-patch+json"
@@ -488,7 +526,7 @@ class Sensu:
 
                     if not response.ok:
                         msg = f"{namespace}: {agent['metadata']['name']} " \
-                              f"subscriptions not updated: " \
+                              f"not updated: " \
                               f"{response.status_code} {response.reason}"
                         try:
                             msg = f"{msg}: {response.json()['message']}"
@@ -499,10 +537,20 @@ class Sensu:
                         self.logger.error(msg)
 
                     else:
-                        self.logger.info(
-                            f"{namespace}: {agent['metadata']['name']} "
-                            f"subscriptions updated"
-                        )
+                        if "subscriptions" in send_data:
+                            self.logger.info(
+                                f"{namespace}: {agent['metadata']['name']} "
+                                f"subscriptions updated"
+                            )
+
+                        if "metadata" in send_data:
+                            self.logger.info(
+                                f"{namespace}: {agent['metadata']['name']} "
+                                f"labels updated"
+                            )
+
+        except SensuException:
+            self.logger.warning(f"{namespace}: Agents not handled...")
 
     def _get_handlers(self, namespace):
         response = requests.get(

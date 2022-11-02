@@ -3091,7 +3091,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--onredirect follow "
                                "{{ .labels.ssl }} "
                                "-p {{ .labels.port }} "
-                               "-u {{ .labels.path | default '/' }}",
+                               "-u {{ .labels.path | default \"/\" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "proxy_requests": {
@@ -3428,7 +3428,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -3471,7 +3471,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -3526,7 +3526,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_http "
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
-                               "{{ .labels.u__rm_path | default '' }}",
+                               "{{ .labels.u__rm_path | default \"\" }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
                     "handlers": [],
                     "pipelines": [
@@ -3561,7 +3561,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "sdc-replication-manager/"
                                "replication_manager_check.py "
                                "-H {{ .labels.hostname }} -t 30 "
-                               "{{ .labels.r__rm_path | default '' }}",
+                               "{{ .labels.r__rm_path | default \"\" }}",
                     "subscriptions": ["eu.seadatanet.org.replicationmanager"],
                     "handlers": [],
                     "pipelines": [
@@ -3689,7 +3689,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--appdb-image xxxx "
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--cert /etc/nagios/globus/userproxy.pem "
-                               "{{ .labels.region__os_region | default '' }}",
+                               "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": ["org.openstack.nova"],
                     "handlers": [],
                     "pipelines": [
@@ -3837,7 +3837,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p eu.egi.SRM --se-timeout 260 --voname test "
                                "-X /etc/nagios/globus/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
-                               "{{ .labels.endpoint__surl | default '' }}",
+                               "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": ["SRM"],
                     "handlers": [],
                     "pipelines": [
@@ -3903,7 +3903,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
-                               "| default '' }}",
+                               "| default \"\" }}",
                     "subscriptions": ["ARC-CE"],
                     "handlers": [],
                     "pipelines": [
@@ -4298,7 +4298,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u /rss/$_SERVICESITE_NAME$_Pub.html "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
-                               "| default 'OK' }} --case-sensitive",
+                               "| default \"OK\" }} --case-sensitive",
                     "subscriptions": ["argo.test"],
                     "handlers": [],
                     "pipelines": [
@@ -4363,7 +4363,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 "
                                "-p {{ .labels.generic_tcp_connect_p | "
-                               "default '443' }}",
+                               "default \"443\" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "pipelines": [
@@ -4850,7 +4850,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
                     "--onredirect follow {{ .labels.ssl }} "
-                    "-p {{ .labels.port }} -u {{ .labels.path | default '/' }}",
+                    "-p {{ .labels.port }} -u "
+                    "{{ .labels.path | default \"/\" }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
                 "interval": 300,
@@ -4933,12 +4934,12 @@ class CheckConfigurationTests(unittest.TestCase):
                 }
             ]
         )
-        # self.assertEqual(
-        #     log.output, [
-        #         f"WARNING:{LOGNAME}:mockspace: Missing metric configuration "
-        #         f"for mock.generic.check... Skipping check generation"
-        #     ]
-        # )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:MOCK_TENANT: Missing metric configuration "
+                f"for mock.generic.check... Skipping check generation"
+            ]
+        )
 
 
 class EntityConfigurationTests(unittest.TestCase):
@@ -6434,4 +6435,96 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(sorted(subscriptions), ["argo.test", "argo.webui"])
+        self.assertEqual(log.output, DUMMY_LOG)
+
+
+class OverridesTests(unittest.TestCase):
+    def test_get_metric_parameter_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "argo.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "80"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST25"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            overrides = generator.get_metric_parameter_overrides()
+
+        self.assertEqual(
+            overrides, {
+                "generic.tcp.connect": {
+                    "hostname": "argo.ni4os.eu",
+                    "parameter": "-p",
+                    "label": "generic_tcp_connect_p",
+                    "value": "80"
+                }
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_get_host_attribute_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            overrides = generator.get_host_attribute_overrides()
+
+        self.assertEqual(
+            sorted(overrides, key=lambda m: m["attribute"]),
+            [
+                {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "label": "nagios_freshness_password",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                },
+                {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "label": "nagios_freshness_username",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }
+            ]
+        )
         self.assertEqual(log.output, DUMMY_LOG)

@@ -107,7 +107,9 @@ def main():
                         namespace=namespace
                     )
 
-                sensu.add_subscriptions_to_agents(
+                sensu.handle_agents(
+                    metric_parameters_overrides=generator.get_metric_parameter_overrides(),
+                    host_attributes_overrides=generator.get_host_attribute_overrides(),
                     subscriptions=generator.generate_subscriptions(),
                     namespace=namespace
                 )

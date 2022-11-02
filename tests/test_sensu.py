@@ -140,7 +140,10 @@ mock_entities = [
         ],
         "metadata": {
             "name": "sensu-agent1",
-            "namespace": "TENANT1"
+            "namespace": "TENANT1",
+            "labels": {
+                "hostname": "sensu-agent1"
+            }
         },
         "sensu_agent_version": "6.6.3"
     },
@@ -2757,12 +2760,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST: "
-            "Something went wrong."
+            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -2784,11 +2787,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Entity fetch error: 400 BAD REQUEST"
+            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3088,22 +3092,89 @@ class SensuAgentsTests(unittest.TestCase):
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
 
     @patch("requests.get")
-    @patch("requests.patch")
-    def test_add_subscriptions_to_agents(self, mock_patch, mock_get):
-        mock_patch.side_effect = mock_post_response
+    def test_get_agents(self, mock_get):
         mock_get.side_effect = mock_sensu_request
-
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_subscriptions_to_agents(
-                ["argo.webui", "argo.test"], namespace="TENANT1"
-            )
-
-        mock_get.assert_called_with(
+            _log_dummy()
+            agents = self.sensu._get_agents(namespace="TENANT1")
+        mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/entities",
             headers={
-                "Authorization": "Key t0k3n", "Content-Type": "application/json"
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
             }
         )
+        self.assertEqual(
+            agents, [mock_entities[3], mock_entities[4]]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.get")
+    def test_get_agents_with_error_with_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu._get_agents(namespace="TENANT1")
+
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_agents_with_error_without_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu._get_agents(namespace="TENANT1")
+
+        mock_get.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_only_subscriptions(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                metric_parameters_overrides=dict(),
+                host_attributes_overrides=list(),
+                subscriptions=["argo.webui", "argo.test"],
+                namespace="TENANT1"
+            )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
@@ -3132,7 +3203,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3144,91 +3220,29 @@ class SensuAgentsTests(unittest.TestCase):
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
             }
         )
 
-    @patch("requests.get")
     @patch("requests.patch")
-    def test_add_subscriptions_to_agents_with_error_in_fetching_with_msg(
-            self, mock_patch, mock_get
-    ):
-        mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
-
-        with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_subscriptions_to_agents(
-                ["argo.webui", "argo.test"], namespace="TENANT1"
-            )
-
-        mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
-            headers={
-                "Authorization": "Key t0k3n",
-                "Content-Type": "application/json"
-            }
-        )
-        self.assertFalse(mock_patch.called)
-
-        self.assertEqual(
-            log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
-                f"400 BAD REQUEST: Something went wrong.",
-                f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
-            ]
-        )
-
-    @patch("requests.get")
-    @patch("requests.patch")
-    def test_add_subscriptions_to_agents_with_error_in_fetching_without_msg(
-            self, mock_patch, mock_get
-    ):
-        mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
-
-        with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_subscriptions_to_agents(
-                ["argo.webui", "argo.test"], namespace="TENANT1"
-            )
-
-        mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
-            headers={
-                "Authorization": "Key t0k3n",
-                "Content-Type": "application/json"
-            }
-        )
-        self.assertFalse(mock_patch.called)
-
-        self.assertEqual(
-            log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Entity fetch error: "
-                f"400 BAD REQUEST",
-                f"WARNING:{LOGNAME}:TENANT1: Agents' subscriptions not updated"
-            ]
-        )
-
-    @patch("requests.get")
-    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
     def test_add_subscriptions_to_agents_with_error_in_patch_with_msg(
-            self, mock_patch, mock_get
+            self, mock_get, mock_patch
     ):
-        mock_get.side_effect = mock_sensu_request
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
         mock_patch.side_effect = [
             MockResponse(None, status_code=200),
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_subscriptions_to_agents(
-                ["argo.webui", "argo.test"], namespace="TENANT1"
+            self.sensu.handle_agents(
+                metric_parameters_overrides=dict(),
+                host_attributes_overrides=list(),
+                subscriptions=["argo.webui", "argo.test"],
+                namespace="TENANT1"
             )
-
-        mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
-            headers={
-                "Authorization": "Key t0k3n",
-                "Content-Type": "application/json"
-            }
-        )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
@@ -3257,7 +3271,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3269,34 +3288,29 @@ class SensuAgentsTests(unittest.TestCase):
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 subscriptions not "
-                f"updated: 400 BAD REQUEST: Something went wrong."
+                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 not updated: "
+                f"400 BAD REQUEST: Something went wrong."
             }
         )
 
-    @patch("requests.get")
     @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
     def test_add_subscriptions_to_agents_with_error_in_patch_without_msg(
-            self, mock_patch, mock_get
+            self, mock_get, mock_patch
     ):
-        mock_get.side_effect = mock_sensu_request
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
         mock_patch.side_effect = [
             MockResponse(None, status_code=200),
             MockResponse(None, status_code=400)
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_subscriptions_to_agents(
-                ["argo.webui", "argo.test"], namespace="TENANT1"
+            self.sensu.handle_agents(
+                metric_parameters_overrides=dict(),
+                host_attributes_overrides=list(),
+                subscriptions=["argo.webui", "argo.test"],
+                namespace="TENANT1"
             )
-
-        mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
-            headers={
-                "Authorization": "Key t0k3n",
-                "Content-Type": "application/json"
-            }
-        )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
@@ -3325,7 +3339,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3337,8 +3356,168 @@ class SensuAgentsTests(unittest.TestCase):
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 subscriptions not "
-                f"updated: 400 BAD REQUEST"
+                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 not updated: "
+                f"400 BAD REQUEST"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_metric_parameter_overrides(
+            self, mock_get, mock_patch
+    ):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                metric_parameters_overrides={
+                    "generic.tcp.connect": {
+                        "hostname": "sensu-agent1",
+                        "label": "generic_tcp_connect_p",
+                        "value": "80"
+                    }
+                },
+                host_attributes_overrides=list(),
+                subscriptions=["argo.webui", "argo.test"],
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+        mock_patch.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
+                "agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "entity:sensu-agent1",
+                        "argo.webui",
+                        "eu.ni4os.ops.gocdb",
+                        "argo.test"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent1",
+                            "generic_tcp_connect_p": "80"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
+                "agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo.webui",
+                        "entity:sensu-agent2",
+                        "eu.ni4os.ops.gocdb",
+                        "argo.test"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_host_attributes(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                metric_parameters_overrides=dict(),
+                host_attributes_overrides=[{
+                    "hostname": "sensu-agent1",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "sensu-agent1",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                subscriptions=["argo.webui", "argo.test"],
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+
+        mock_patch.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
+                "agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "entity:sensu-agent1",
+                        "argo.webui",
+                        "eu.ni4os.ops.gocdb",
+                        "argo.test"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent1",
+                            "nagios_freshness_username":
+                                "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
+                "agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo.webui",
+                        "entity:sensu-agent2",
+                        "eu.ni4os.ops.gocdb",
+                        "argo.test"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
             }
         )
 
