@@ -131,6 +131,7 @@ class ConfigurationGenerator:
                 metric_parameter_overrides.update({
                     item["metric"]: {
                         "hostname": item["hostname"],
+                        "parameter": item["parameter"],
                         "label": self._create_metric_parameter_label(
                             item["metric"], item["parameter"]
                         ),
@@ -189,7 +190,8 @@ class ConfigurationGenerator:
         return metrics_with_attribute
 
     def _create_metric_parameter_label(self, metric, parameter):
-        return f"{self._create_label(metric)}_{parameter.strip('-').strip('-')}"
+        return f"{self._create_label(metric)}_" \
+               f"{parameter.strip('-').strip('-').replace('-', '_')}"
 
     def _is_extension_present_in_all_endpoints(self, services, extension):
         is_present = True
@@ -370,7 +372,9 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if name in self.metric_parameter_overrides:
+                        if name in self.metric_parameter_overrides and \
+                                key == self.metric_parameter_overrides[name][
+                                "parameter"]:
                             value = "{{ .labels.%s | default '%s' }}" % (
                                 self.metric_parameter_overrides[name]["label"],
                                 value
