@@ -43,6 +43,42 @@ mock_metrics = [
         }
     },
     {
+        "argo.APEL-Pub": {
+            "tags": [
+                "accounting",
+                "apel",
+                "htc"
+            ],
+            "probe": "check_http_parser",
+            "config": {
+                "timeout": "120",
+                "retryInterval": "15",
+                "path": "/usr/libexec/argo/probes/http_parser",
+                "maxCheckAttempts": "2",
+                "interval": "720"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {
+                "-H": "goc-accounting.grid-support.ac.uk",
+                "-u": "/rss/$_SERVICESITE_NAME$_Pub.html",
+                "--warning-search": "WARN",
+                "--critical-search": "ERROR",
+                "--ok-search": "OK",
+                "--case-sensitive": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/"
+                      "argo-probe-http-parser/blob/main/README.md"
+        }
+    },
+    {
         "argo.API-Check": {
             "tags": [
                 "api",
@@ -2218,7 +2254,8 @@ mock_metric_profiles = [
             {
                 "service": "argo.test",
                 "metrics": [
-                    "generic.ssh.connect"
+                    "generic.ssh.connect",
+                    "argo.APEL-Pub"
                 ]
             }
         ]
@@ -4220,12 +4257,20 @@ class CheckConfigurationTests(unittest.TestCase):
                 "global_attributes":
                     mock_attributes["local"]["global_attributes"],
                 "host_attributes": [],
-                "metric_parameters": [{
-                    "hostname": "argo.ni4os.eu",
-                    "metric": "generic.tcp.connect",
-                    "parameter": "-p",
-                    "value": "80"
-                }]
+                "metric_parameters": [
+                    {
+                        "hostname": "argo.ni4os.eu",
+                        "metric": "generic.tcp.connect",
+                        "parameter": "-p",
+                        "value": "80"
+                    },
+                    {
+                        "hostname": "argo.ni4os.eu",
+                        "metric": "argo.APEL-Pub",
+                        "parameter": "--ok-search",
+                        "value": "yes"
+                    }
+                ]
             }
         }
         generator = ConfigurationGenerator(
@@ -4246,6 +4291,42 @@ class CheckConfigurationTests(unittest.TestCase):
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u /rss/$_SERVICESITE_NAME$_Pub.html "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search {{ .labels.argo_apel_pub_ok_search "
+                               "| default 'OK' }} --case-sensitive",
+                    "subscriptions": ["argo.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+
+                },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
@@ -5875,6 +5956,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_ssh_connect": "generic.ssh.connect",
+                            "argo_apel_pub": "argo.APEL-Pub",
                             "port": "443",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
