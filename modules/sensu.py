@@ -503,7 +503,10 @@ class Sensu:
                     send_data.update({"subscriptions": new_subscriptions})
 
                 labels = _get_labels(agent["metadata"]["name"])
-                if labels != agent["metadata"]["labels"]:
+                if (
+                        "labels" in agent["metadata"] and
+                        labels != agent["metadata"]["labels"]
+                ) or "labels" not in agent["metadata"]:
                     send_data.update({
                         "metadata": {
                             "labels": labels

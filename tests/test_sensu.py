@@ -197,10 +197,7 @@ mock_entities = [
         ],
         "metadata": {
             "name": "sensu-agent2",
-            "namespace": "TENANT1",
-            "labels": {
-                "hostname": "sensu-agent2"
-            }
+            "namespace": "TENANT1"
         },
         "sensu_agent_version": "6.6.5"
     }
@@ -3206,7 +3203,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3218,7 +3220,8 @@ class SensuAgentsTests(unittest.TestCase):
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
             }
         )
 
@@ -3268,7 +3271,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3331,7 +3339,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3403,7 +3416,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3416,7 +3434,8 @@ class SensuAgentsTests(unittest.TestCase):
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
             }
         )
 
@@ -3479,7 +3498,12 @@ class SensuAgentsTests(unittest.TestCase):
                         "entity:sensu-agent2",
                         "eu.ni4os.ops.gocdb",
                         "argo.test"
-                    ]
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2"
+                        }
+                    }
                 }),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3492,7 +3516,8 @@ class SensuAgentsTests(unittest.TestCase):
             set(log.output), {
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
                 f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated"
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
             }
         )
 
