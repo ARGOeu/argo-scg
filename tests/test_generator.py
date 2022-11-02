@@ -6470,6 +6470,7 @@ class OverridesTests(unittest.TestCase):
             overrides, {
                 "generic.tcp.connect": {
                     "hostname": "argo.ni4os.eu",
+                    "parameter": "-p",
                     "label": "generic_tcp_connect_p",
                     "value": "80"
                 }
