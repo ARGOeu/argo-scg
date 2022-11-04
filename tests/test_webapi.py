@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from argo_scg.exceptions import WebApiException
 from argo_scg.webapi import WebApi
@@ -156,6 +156,53 @@ mock_topology_endpoints = [
     }
 ]
 
+mock_topology_groups = [
+    {
+        "date": "2022-02-16",
+        "group": "GROUPNAME1",
+        "type": "NGI",
+        "subgroup": "GRNET",
+        "tags": {
+            "certification": "Certified",
+            "infrastructure": "Production",
+            "scope": "NI4OS"
+        }
+    },
+    {
+        "date": "2022-02-16",
+        "group": "GROUPNAME1",
+        "type": "NGI",
+        "subgroup": "UKIM",
+        "tags": {
+            "certification": "Candidate",
+            "infrastructure": "Production",
+            "scope": "NI4OS"
+        }
+    },
+    {
+        "date": "2022-03-09",
+        "group": "GROUPNAME1",
+        "type": "NGI",
+        "subgroup": "GROUP3",
+        "tags": {
+            "certification": "Candidate",
+            "infrastructure": "Production",
+            "scope": "NI4OS"
+        }
+    },
+    {
+        "date": "2022-03-09",
+        "group": "GROUPNAME1",
+        "type": "NGI",
+        "subgroup": "GROUP4",
+        "tags": {
+            "certification": "Certified",
+            "infrastructure": "Production",
+            "scope": "NI4OS"
+        }
+    }
+]
+
 
 def mock_webapi_requests(*args, **kwargs):
     if args[0].endswith("metric_profiles"):
@@ -178,6 +225,30 @@ def mock_webapi_requests(*args, **kwargs):
                     "code": "200"
                 },
                 "data": mock_topology_endpoints
+            },
+            status_code=200
+        )
+
+    elif args[0].endswith("groups"):
+        return MockResponse(
+            {
+                "status": {
+                    "message": "Success",
+                    "code": "200"
+                },
+                "data": mock_topology_groups
+            },
+            status_code=200
+        )
+
+    elif args[0].endswith("Certified"):
+        return MockResponse(
+            {
+                "status": {
+                    "message": "Success",
+                    "code": "200"
+                },
+                "data": [mock_topology_groups[0], mock_topology_groups[3]]
             },
             status_code=200
         )
@@ -283,6 +354,10 @@ class WebApiTests(unittest.TestCase):
     def setUp(self):
         self.webapi = WebApi(
             url="https://web-api.com", token="W3b4p1t0k3n", tenant="MOCK_TENANT"
+        )
+        self.webapi_filtered = WebApi(
+            url="https://web-api.com", token="W3b4p1t0k3n",
+            tenant="MOCK_TENANT", topo_filter="tags=certification:Certified"
         )
         self.logname = "argo-scg.webapi"
 
@@ -392,5 +467,49 @@ class WebApiTests(unittest.TestCase):
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
                 f"Topology endpoints fetch error: 400 BAD REQUEST"
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_topology_with_filter(self, mock_get):
+        mock_get.side_effect = mock_webapi_requests
+        with self.assertLogs(self.logname) as log:
+            topology = self.webapi_filtered.get_topology()
+
+        self.assertEqual(mock_get.call_count, 2)
+
+        mock_get.assert_has_calls([
+            call(
+                "https://web-api.com/api/v2/topology/groups?tags=certification"
+                ":Certified", headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            ),
+            call(
+                "https://web-api.com/api/v2/topology/endpoints",
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            topology, [
+                mock_topology_endpoints[0], mock_topology_endpoints[1],
+                mock_topology_endpoints[3], mock_topology_endpoints[4],
+                mock_topology_endpoints[6]
+            ]
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
+                f"successfully",
+                f"INFO:{self.logname}:MOCK_TENANT: Topology groups fetched "
+                f"successfully"
             ]
         )
