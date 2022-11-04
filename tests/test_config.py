@@ -14,6 +14,7 @@ webapi_url = https://web-api.mock.url/\n
 poem_url = https://tenant1.poem.mock.url/\n
 poem_token = p03mtok3n\n
 webapi_token = w3b4p1t0k3n\n
+topology_filter = type=NGI&tags=certification:Certified
 attributes = /path/to/attributes1\n
 metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
 topology = /path/to/topology1\n
@@ -286,6 +287,15 @@ class ConfigTests(unittest.TestCase):
             context.exception.__str__(),
             "Configuration file error: "
             "No option 'webapi_token' in section: 'TENANT1'"
+        )
+
+    def test_get_topology_filter(self):
+        self.assertEqual(
+            self.config.get_topology_filter(),
+            {
+                "TENANT1": "type=NGI&tags=certification:Certified",
+                "TENANT2": ""
+            }
         )
 
     def test_get_metricprofiles(self):

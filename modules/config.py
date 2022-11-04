@@ -107,6 +107,23 @@ class Config:
         except configparser.NoOptionError as err:
             raise ConfigException(err)
 
+    def get_topology_filter(self):
+        try:
+            topology_filter = dict()
+            for tenant in self.tenants:
+                try:
+                    filter_value = self.conf.get(tenant, "topology_filter")
+
+                except configparser.NoOptionError:
+                    filter_value = ""
+
+                topology_filter.update({tenant: filter_value})
+
+            return topology_filter
+
+        except configparser.NoOptionError as err:
+            raise ConfigException(err)
+
     def get_metricprofiles(self):
         try:
             profiles = dict()

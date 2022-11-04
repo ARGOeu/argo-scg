@@ -32,6 +32,7 @@ def main():
         sensu_token = config.get_sensu_token()
         webapi_url = config.get_webapi_url()
         webapi_tokens = config.get_webapi_tokens()
+        topo_filters = config.get_topology_filter()
         poem_urls = config.get_poem_urls()
         poem_tokens = config.get_poem_tokens()
         metricprofiles = config.get_metricprofiles()
@@ -54,7 +55,9 @@ def main():
                 webapi = WebApi(
                     url=webapi_url,
                     token=webapi_tokens[tenant],
-                    tenant=tenant
+                    tenant=tenant,
+                    topo_filter=topo_filters[tenant] if topo_filters[tenant]
+                    else None
                 )
 
                 poem = Poem(
@@ -108,8 +111,10 @@ def main():
                     )
 
                 sensu.handle_agents(
-                    metric_parameters_overrides=generator.get_metric_parameter_overrides(),
-                    host_attributes_overrides=generator.get_host_attribute_overrides(),
+                    metric_parameters_overrides=generator.
+                    get_metric_parameter_overrides(),
+                    host_attributes_overrides=generator.
+                    get_host_attribute_overrides(),
                     subscriptions=generator.generate_subscriptions(),
                     namespace=namespace
                 )
