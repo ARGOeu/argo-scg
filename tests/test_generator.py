@@ -708,6 +708,34 @@ mock_metrics = [
         }
     },
     {
+        "generic.http.json": {
+            "tags": [
+                "http",
+                "json"
+            ],
+            "probe": "check_http_json.py",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "30",
+                "path": "/usr/lib64/nagios/plugins",
+                "interval": "30",
+                "retryInterval": "5"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "PATH": "-p"
+            },
+            "parameter": {
+                "-s": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/nagios-http-json"
+        }
+    },
+    {
         "generic.ssh.connect": {
             "tags": [
                 "harmonized"
@@ -1828,6 +1856,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2022-12-13",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "argo.json",
+        "hostname": "test-json.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://test-json.argo.grnet.gr/some/path",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -2354,6 +2396,20 @@ mock_metric_profiles = [
                 "service": "argo.test",
                 "metrics": [
                     "mock.generic.check"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-12-13",
+        "name": "ARGO_TEST32",
+        "description": "Profile for metrics with PATH attribute",
+        "services": [
+            {
+                "service": "argo.json",
+                "metrics": [
+                    "generic.http.json"
                 ]
             }
         ]
@@ -6419,6 +6475,43 @@ class EntityConfigurationTests(unittest.TestCase):
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_for_check_with_path_attribute(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST32"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities, [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.json__test-json.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_json": "generic.http.json",
+                            "path": "/some/path",
+                            "info_url":
+                                "https://test-json.argo.grnet.gr/some/path",
+                            "hostname": "test-json.argo.grnet.gr",
+                            "service": "argo.json",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["argo.json"]
+                },
+            ]
+        )
+
 
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(

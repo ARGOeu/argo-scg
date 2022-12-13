@@ -55,6 +55,7 @@ class ConfigurationGenerator:
         internal_metrics = list()
         metrics_with_endpoint_url = list()
         metrics_with_ports = list()
+        metrics_with_path = list()
         metrics_with_ssl = list()
         metrics_with_url = dict()
         metrics_names_set = set()
@@ -66,6 +67,9 @@ class ConfigurationGenerator:
 
                     if "PORT" in value["attribute"]:
                         metrics_with_ports.append(key)
+
+                    if "PATH" in value["attribute"]:
+                        metrics_with_path.append(key)
 
                     if "SSL" in value["attribute"]:
                         metrics_with_ssl.append(key)
@@ -112,6 +116,12 @@ class ConfigurationGenerator:
         self.servicetypes_with_port = list()
         for metric in metrics_with_ports:
             self.servicetypes_with_port.extend(
+                self.servicetypes4metrics[metric]
+            )
+
+        self.servicetypes_with_path = list()
+        for metric in metrics_with_path:
+            self.servicetypes_with_path.extend(
                 self.servicetypes4metrics[metric]
             )
 
@@ -527,6 +537,7 @@ class ConfigurationGenerator:
 
                         labels.update({"ssl": ssl})
 
+                    if item["service"] in self.servicetypes_with_path:
                         path = o.path
                         if not o.path:
                             path = "/"
