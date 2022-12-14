@@ -209,6 +209,30 @@ mock_metrics = [
         }
     },
     {
+        "eosc.test.api": {
+            "tags": [],
+            "probe": "check_api.py",
+            "config": {
+                "maxCheckAttempts": "2",
+                "timeout": "30",
+                "path": "/usr/libexec/argo/probes/test",
+                "interval": "720",
+                "retryInterval": "20"
+            },
+            "flags": {
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "URL": "-u"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": ""
+        }
+    },
+    {
         "eu.egi.AAI-OIDC-Login": {
             "tags": [
                 "rciam"
@@ -1870,6 +1894,34 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2022-12-13",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "probe.test",
+        "hostname": "test.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://test.argo.grnet.gr/some/extra/path",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2022-12-13",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "probe.test",
+        "hostname": "test2.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://test2.argo.grnet.gr/some/extra2/path",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -2410,6 +2462,20 @@ mock_metric_profiles = [
                 "service": "argo.json",
                 "metrics": [
                     "generic.http.json"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2022-12-13",
+        "name": "ARGO_TEST33",
+        "description": "Profile for metrics which override default parameters",
+        "services": [
+            {
+                "service": "probe.test",
+                "metrics": [
+                    "eosc.test.api"
                 ]
             }
         ]
@@ -4381,7 +4447,6 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False
-
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
@@ -4996,6 +5061,76 @@ class CheckConfigurationTests(unittest.TestCase):
                 f"for mock.generic.check... Skipping check generation"
             ]
         )
+
+    def test_generate_check_configuration_with_override_default_param(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "test.argo.grnet.gr",
+                        "metric": "eosc.test.api",
+                        "parameter": "-l",
+                        "value": "/var/log/sensu/test.log"
+                    }
+                ]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST33"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/test/check_api.py "
+                               "-t 30 "
+                               "{{ .labels.eosc_test_api_l }} "
+                               "-u {{ .labels.info_service_endpoint_url }}",
+                    "subscriptions": ["probe.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eosc_test_api == 'eosc.test.api'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eosc.test.api",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
 
 class EntityConfigurationTests(unittest.TestCase):
@@ -6511,7 +6646,81 @@ class EntityConfigurationTests(unittest.TestCase):
                 },
             ]
         )
+        self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entity_for_check_with_overridden_default_param(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "test.argo.grnet.gr",
+                        "metric": "eosc.test.api",
+                        "parameter": "-l",
+                        "value": "/var/log/sensu/test.log"
+                    }
+                ]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST33"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "-l /var/log/sensu/test.log",
+                            "info_url":
+                                "https://test.argo.grnet.gr/some/extra/path",
+                            "info_service_endpoint_url":
+                                "https://test.argo.grnet.gr/some/extra/path",
+                            "hostname": "test.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test2.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "",
+                            "info_url":
+                                "https://test2.argo.grnet.gr/some/extra2/path",
+                            "info_service_endpoint_url":
+                                "https://test2.argo.grnet.gr/some/extra2/path",
+                            "hostname": "test2.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(

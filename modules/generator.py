@@ -236,6 +236,19 @@ class ConfigurationGenerator:
 
         return is_present
 
+    def _is_parameter_default(self, metric_name, parameter):
+        is_default = False
+
+        for metric in self.metrics:
+            for name, configuration in metric.items():
+                if name == metric_name:
+                    if parameter not in configuration["parameter"]:
+                        is_default = True
+
+                    break
+
+        return is_default
+
     def _get_servicetypes4metrics(self):
         service_types = dict()
         for mp in self.metric_profiles:
@@ -407,6 +420,19 @@ class ConfigurationGenerator:
 
                         param = f"{key} {value}".strip()
                         parameters = f"{parameters} {param}".strip()
+
+                    if name in self.metric_parameter_overrides and \
+                            self._is_parameter_default(
+                                name,
+                                self.metric_parameter_overrides[name][
+                                    "parameter"
+                                ]
+                            ):
+                        param = \
+                            "{{ .labels.%s }}" % \
+                            self.metric_parameter_overrides[name]["label"]
+                        parameters = f"{parameters} {param}"
+
 
                     attributes, issecret = self._handle_attributes(
                         metric=name,
@@ -633,13 +659,45 @@ class ConfigurationGenerator:
                         if key not in labels:
                             labels.update({key: metric})
 
-                    if metric in self.metric_parameter_overrides and \
-                            item["hostname"] in \
-                            self.metric_parameter_overrides[metric]["hostname"]:
-                        labels.update({
-                            self.metric_parameter_overrides[metric]["label"]:
-                                self.metric_parameter_overrides[metric]["value"]
-                        })
+                    if metric in self.metric_parameter_overrides:
+                        if self._is_parameter_default(
+                            metric,
+                            self.metric_parameter_overrides[metric]["parameter"]
+                        ):
+                            label = self.metric_parameter_overrides[metric][
+                                "label"
+                            ]
+                            if item["hostname"] in \
+                                self.metric_parameter_overrides[metric][
+                                    "hostname"
+                                ]:
+                                val = "%s %s" % (
+                                    self.metric_parameter_overrides[metric][
+                                        "parameter"
+                                    ],
+                                    self.metric_parameter_overrides[metric][
+                                        "value"
+                                    ]
+                                )
+
+                            else:
+                                val = ""
+
+                            labels.update({label: val})
+
+                        else:
+                            if item["hostname"] in \
+                                    self.metric_parameter_overrides[metric][
+                                        "hostname"
+                                    ]:
+                                labels.update({
+                                    self.metric_parameter_overrides[metric][
+                                        "label"
+                                    ]:
+                                        self.metric_parameter_overrides[metric][
+                                            "value"
+                                        ]
+                                })
 
                     if metric in self.metrics_attr_override:
                         overrides = [
