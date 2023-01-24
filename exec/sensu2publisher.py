@@ -81,7 +81,8 @@ def main():
                 "--queue", publisher_queue, "--service", output.get_service(),
                 "--hostname", output.get_hostname(),
                 "--metric", output.get_metric_name(),
-                "--status", output.get_status()
+                "--status", output.get_status(),
+                "--summary", output.get_summary()
             ]
         )
 
