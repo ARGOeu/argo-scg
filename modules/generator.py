@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from urllib.parse import urlparse
 
 from argo_scg.exceptions import GeneratorException
@@ -433,7 +434,6 @@ class ConfigurationGenerator:
                             self.metric_parameter_overrides[name]["label"]
                         parameters = f"{parameters} {param}"
 
-
                     attributes, issecret = self._handle_attributes(
                         metric=name,
                         attrs=configuration["attribute"]
@@ -539,8 +539,15 @@ class ConfigurationGenerator:
                 item for item in self.topology if
                 item["service"] in self.servicetypes
             ]
+
+            skipped_entities = list()
             for item in topo_entities:
                 types = list()
+                entity_name = f"{item['service']}__{item['hostname']}"
+
+                if not re.match("^[\w.-]*$", entity_name):
+                    skipped_entities.append(entity_name)
+                    continue
 
                 if "hostname" in item["tags"]:
                     hostname = item["tags"]["hostname"]
@@ -670,7 +677,7 @@ class ConfigurationGenerator:
                             if item["hostname"] in \
                                 self.metric_parameter_overrides[metric][
                                     "hostname"
-                                ]:
+                                    ]:
                                 val = "%s %s" % (
                                     self.metric_parameter_overrides[metric][
                                         "parameter"
@@ -777,8 +784,6 @@ class ConfigurationGenerator:
                         "site_bdii": site_bdii_entries[0]["hostname"]
                     })
 
-                entity_name = f"{item['service']}__{item['hostname']}"
-
                 entities.append({
                     "entity_class": "proxy",
                     "metadata": {
@@ -788,6 +793,12 @@ class ConfigurationGenerator:
                     },
                     "subscriptions": types
                 })
+
+            if len(skipped_entities) > 0:
+                self.logger.info(
+                    f"{self.tenant}: Skipped entities generation for entities: "
+                    f"{', '.join(skipped_entities)}: invalid characters"
+                )
 
             return entities
 
