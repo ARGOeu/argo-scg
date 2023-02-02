@@ -914,7 +914,9 @@ class MetricOutput:
         return self.data["entity"]["metadata"]["labels"]["service"]
 
     def get_hostname(self):
-        return self.data["entity"]["metadata"]["labels"]["hostname"]
+        return self.data["entity"]["metadata"]["name"][
+            len(self.data["entity"]["metadata"]["labels"]["service"]) + 2:
+        ]
 
     def get_metric_name(self):
         return self.data["check"]["metadata"]["name"]

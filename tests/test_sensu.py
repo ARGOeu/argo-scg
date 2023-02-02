@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch, call
 
 from argo_scg.exceptions import SensuException
-from argo_scg.sensu import Sensu
+from argo_scg.sensu import Sensu, MetricOutput
 
 from utils import MockResponse
 
@@ -4652,3 +4652,157 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
+
+
+class MetricOutputTests(unittest.TestCase):
+    def setUp(self) -> None:
+        sample_output = {
+            "check": {
+                "command": "/usr/lib64/nagios/plugins/check_http -H "
+                           "hostname.example.eu -t 60 --link "
+                           "--onredirect follow -S --sni -p 443 -u "
+                           "/index.php/services",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 300,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["eu.eosc.portal.services.url"],
+                "proxy_entity_name": "eu.eosc.portal.services.url__hostname."
+                                     "example.eu_site-name",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 900,
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ],
+                    "splay": False,
+                    "splay_coverage": 0
+                },
+                "round_robin": False,
+                "duration": 8.267622018,
+                "executed": 1675328305,
+                "history": [
+                    {"status": 0, "executed": 1675322306},
+                    {"status": 0, "executed": 1675322607},
+                    {"status": 0, "executed": 1675322906},
+                    {"status": 0, "executed": 1675323207},
+                    {"status": 0, "executed": 1675323506},
+                    {"status": 0, "executed": 1675323806},
+                ],
+                "issued": 1675328305,
+                "output": "\u003cA HREF=\"https://hostname.example.eu:443/"
+                          "index.php/services\" target=\"_blank\"\u003e"
+                          "HTTP OK: HTTP/1.1 200 OK - 66130 bytes in 6.140 "
+                          "second response time"
+                          " \u003c/A\u003e|time=6.139921s;;;0.000000 "
+                          "size=66130B;;;0\n",
+                "state": "passing",
+                "status": 0,
+                "total_state_change": 0,
+                "last_ok": 1675328305,
+                "occurrences": 1770,
+                "occurrences_watermark": 1770,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "TENANT",
+                    "annotations": {"attempts": "3"}
+                },
+                "secrets": None,
+                "is_silenced": False,
+                "scheduler": "",
+                "processed_by": "sensu-agent.example.com",
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
+            },
+            "entity": {
+                "entity_class": "proxy",
+                "system": {
+                    "network": {"interfaces": None},
+                    "libc_type": "",
+                    "vm_system": "",
+                    "vm_role": "",
+                    "cloud_provider": "",
+                    "processes": None
+                },
+                "subscriptions": ["eu.eosc.portal.services.url"],
+                "last_seen": 0,
+                "deregister": False,
+                "deregistration": {},
+                "metadata": {
+                    "name": "eu.eosc.portal.services.url__hostname.example.eu_"
+                            "site-name",
+                    "namespace": "TENANT",
+                    "labels": {
+                        "generic_http_connect": "generic.http.connect",
+                        "hostname": "hostname.example.eu",
+                        "info_url":
+                            "https://hostname.example.eu/index.php/services",
+                        "path": "/index.php/services",
+                        "port": "443",
+                        "service": "eu.eosc.portal.services.url",
+                        "site": "site-name",
+                        "ssl": "-S --sni"
+                    }
+                },
+                "sensu_agent_version": ""
+            },
+            "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "metadata": {"namespace": "TENANT"},
+            "pipelines": [{
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }],
+            "sequence": 7371,
+            "timestamp": 1675328313
+        }
+        self.output = MetricOutput(data=sample_output)
+
+    def test_get_service(self):
+        self.assertEqual(
+            self.output.get_service(), "eu.eosc.portal.services.url"
+        )
+
+    def test_get_hostname(self):
+        self.assertEqual(
+            self.output.get_hostname(), "hostname.example.eu_site-name"
+        )
+
+    def test_get_metric_name(self):
+        self.assertEqual(self.output.get_metric_name(), "generic.http.connect")
+
+    def test_get_status(self):
+        self.assertEqual(self.output.get_status(), "OK")
+
+    def test_get_summary(self):
+        self.assertEqual(
+            self.output.get_summary(),
+            "\u003cA HREF=\"https://hostname.example.eu:443/index.php/services"
+            "\" target=\"_blank\"\u003eHTTP OK: HTTP/1.1 200 OK - "
+            "66130 bytes in 6.140 second response time \u003c/A\u003e"
+        )
+
+    def test_get_perfdata(self):
+        self.assertEqual(
+            self.output.get_perfdata(),
+            "time=6.139921s;;;0.000000 size=66130B;;;0"
+        )
+
+    def test_get_site(self):
+        self.assertEqual(self.output.get_site(), "site-name")
+
+    def test_get_namespace(self):
+        self.assertEqual(self.output.get_namespace(), "TENANT")
