@@ -28,23 +28,12 @@ class timeout:
 
 
 def main():
-    logger = logging.getLogger("argo-scg")
+    logger = logging.getLogger("ams-metric-to-queue")
     logger.setLevel(logging.INFO)
 
     stdout = logging.StreamHandler()
-    stdout.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
+    stdout.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(stdout)
-
-    # setting up logging to syslog
-    syslog = logging.handlers.SysLogHandler(address="/dev/log")
-    syslog.setLevel(logging.INFO)
-    syslog.setFormatter(
-        logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-    )
-
-    logger.addHandler(syslog)
 
     try:
         with timeout(seconds=10, error_message="Timeout when reading stdin"):
@@ -75,15 +64,24 @@ def main():
         sys.exit(1)
 
     try:
+        service = output.get_service()
+        hostname = output.get_hostname()
+        metric_name = output.get_metric_name()
+        status = output.get_status()
+        summary = output.get_summary()
         subprocess.call(
             [
                 "ams-metric-to-queue", "--servicestatetype", "HARD",
-                "--queue", publisher_queue, "--service", output.get_service(),
-                "--hostname", output.get_hostname(),
-                "--metric", output.get_metric_name(),
-                "--status", output.get_status(),
-                "--summary", output.get_summary()
+                "--queue", publisher_queue, "--service", service,
+                "--hostname", hostname, "--metric", metric_name,
+                "--status", status, "--summary", summary
             ]
+        )
+        logger.info(
+            f"Command 'ams-metric-to-queue --servicestatetype HARD --queue "
+            f"{publisher_queue} --service {service} --hostname {hostname} "
+            f"--metric {metric_name} --status {status} --summary {summary}' "
+            f"called successfully"
         )
 
     except subprocess.CalledProcessError as err:
