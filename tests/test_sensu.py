@@ -4697,12 +4697,9 @@ class MetricOutputTests(unittest.TestCase):
                     {"status": 0, "executed": 1675323806},
                 ],
                 "issued": 1675328305,
-                "output": "\u003cA HREF=\"https://hostname.example.eu:443/"
-                          "index.php/services\" target=\"_blank\"\u003e"
-                          "HTTP OK: HTTP/1.1 200 OK - 66130 bytes in 6.140 "
-                          "second response time"
-                          " \u003c/A\u003e|time=6.139921s;;;0.000000 "
-                          "size=66130B;;;0\n",
+                "output": "TEXT OUTPUT|OPTIONAL PERFDATA\nLONG TEXT LINE 1\n"
+                          "LONG TEXT LINE 2\nLONG TEXT LINE 3|PERFDATA LINE 2\n"
+                          "PERFDATA LINE 3",
                 "state": "passing",
                 "status": 0,
                 "total_state_change": 0,
@@ -4787,18 +4784,19 @@ class MetricOutputTests(unittest.TestCase):
     def test_get_status(self):
         self.assertEqual(self.output.get_status(), "OK")
 
-    def test_get_summary(self):
+    def test_get_output(self):
         self.assertEqual(
-            self.output.get_summary(),
-            "\u003cA HREF=\"https://hostname.example.eu:443/index.php/services"
-            "\" target=\"_blank\"\u003eHTTP OK: HTTP/1.1 200 OK - "
-            "66130 bytes in 6.140 second response time \u003c/A\u003e"
+            self.output.get_output(),
+            "TEXT OUTPUT\nLONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
         )
+
+    def test_get_summary(self):
+        self.assertEqual(self.output.get_summary(), "TEXT OUTPUT")
 
     def test_get_perfdata(self):
         self.assertEqual(
             self.output.get_perfdata(),
-            "time=6.139921s;;;0.000000 size=66130B;;;0"
+            "OPTIONAL PERFDATA PERFDATA LINE 2 PERFDATA LINE 3"
         )
 
     def test_get_site(self):

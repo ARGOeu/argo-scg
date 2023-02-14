@@ -949,6 +949,22 @@ class MetricOutput:
     def _get_output_firstline_split(self):
         return self._get_output_firstline().split("|")
 
+    def get_output(self):
+        firstline = self._get_output_firstline_split()
+        output = ""
+        if len(firstline) > 1:
+            output = firstline[0].strip()
+
+        all_lines = self._get_output_lines()
+
+        if len(all_lines) > 1:
+            other_lines = "\n".join(all_lines[1:]).split("|")
+            if len(other_lines) > 1:
+                other_lines = other_lines[0].strip()
+                output = f"{output}\n{other_lines}"
+
+        return output
+
     def get_summary(self):
         return self._get_output_firstline_split()[0].strip()
 

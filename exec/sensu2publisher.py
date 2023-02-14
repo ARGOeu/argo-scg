@@ -68,7 +68,7 @@ def main():
         hostname = output.get_hostname()
         metric_name = output.get_metric_name()
         status = output.get_status()
-        summary = output.get_summary()
+        summary = output.get_output()
         subprocess.call(
             [
                 "ams-metric-to-queue", "--servicestatetype", "HARD",
