@@ -959,9 +959,8 @@ class MetricOutput:
 
         if len(all_lines) > 1:
             other_lines = "\n".join(all_lines[1:]).split("|")
-            if len(other_lines) > 1:
-                other_lines = other_lines[0].strip()
-                output = f"{output}\n{other_lines}"
+            other_lines = other_lines[0].strip()
+            output = f"{output}\n{other_lines}"
 
         return output
 
