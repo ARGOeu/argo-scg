@@ -75,7 +75,8 @@ def main():
                 "ams-metric-to-queue", "--servicestatetype", "HARD",
                 "--queue", publisher_queue, "--service", service,
                 "--hostname", hostname, "--metric", metric_name,
-                "--status", status, "--summary", summary, "--message", message
+                "--status", status, "--summary", summary, "--message",
+                repr(message)
             ]
         )
         logger.info(
