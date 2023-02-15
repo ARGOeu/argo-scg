@@ -949,18 +949,15 @@ class MetricOutput:
     def _get_output_firstline_split(self):
         return self._get_output_firstline().split("|")
 
-    def get_output(self):
-        firstline = self._get_output_firstline_split()
+    def get_message(self):
         output = ""
-        if len(firstline) > 1:
-            output = firstline[0].strip()
 
         all_lines = self._get_output_lines()
 
         if len(all_lines) > 1:
             other_lines = "\n".join(all_lines[1:]).split("|")
             other_lines = other_lines[0].strip()
-            output = f"{output}\n{other_lines}"
+            output = other_lines.strip()
 
         return output
 

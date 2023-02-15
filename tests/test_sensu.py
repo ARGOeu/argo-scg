@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import unittest
@@ -4766,7 +4767,22 @@ class MetricOutputTests(unittest.TestCase):
             "sequence": 7371,
             "timestamp": 1675328313
         }
+        sample_output_one_line = copy.deepcopy(sample_output)
+        sample_output_one_line_with_perfdata = copy.deepcopy(sample_output)
+        sample_output_multiline_no_perfdata = copy.deepcopy(sample_output)
+        sample_output_one_line["check"]["output"] = "TEXT OUTPUT"
+        sample_output_one_line_with_perfdata["check"]["output"] = \
+            "TEXT OUTPUT|OPTIONAL PERFDATA"
+        sample_output_multiline_no_perfdata["check"]["output"] = \
+            "TEXT OUTPUT\nLONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
         self.output = MetricOutput(data=sample_output)
+        self.output_oneline = MetricOutput(data=sample_output_one_line)
+        self.output_oneline_perfdata = MetricOutput(
+            data=sample_output_one_line_with_perfdata
+        )
+        self.output_multiline_no_perfdata = MetricOutput(
+            data=sample_output_multiline_no_perfdata
+        )
 
     def test_get_service(self):
         self.assertEqual(
@@ -4784,20 +4800,40 @@ class MetricOutputTests(unittest.TestCase):
     def test_get_status(self):
         self.assertEqual(self.output.get_status(), "OK")
 
-    def test_get_output(self):
+    def test_get_message(self):
         self.assertEqual(
-            self.output.get_output(),
-            "TEXT OUTPUT\nLONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
+            self.output.get_message(),
+            "LONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
+        )
+        self.assertEqual(self.output_oneline.get_message(), "")
+        self.assertEqual(
+            self.output_oneline_perfdata.get_message(), ""
+        )
+        self.assertEqual(
+            self.output_multiline_no_perfdata.get_message(),
+            "LONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
         )
 
     def test_get_summary(self):
         self.assertEqual(self.output.get_summary(), "TEXT OUTPUT")
+        self.assertEqual(self.output_oneline.get_summary(), "TEXT OUTPUT")
+        self.assertEqual(
+            self.output_oneline_perfdata.get_summary(), "TEXT OUTPUT"
+        )
+        self.assertEqual(
+            self.output_multiline_no_perfdata.get_summary(), "TEXT OUTPUT"
+        )
 
     def test_get_perfdata(self):
         self.assertEqual(
             self.output.get_perfdata(),
             "OPTIONAL PERFDATA PERFDATA LINE 2 PERFDATA LINE 3"
         )
+        self.assertEqual(self.output_oneline.get_perfdata(), "")
+        self.assertEqual(
+            self.output_oneline_perfdata.get_perfdata(), "OPTIONAL PERFDATA"
+        )
+        self.assertEqual(self.output_multiline_no_perfdata.get_perfdata(), "")
 
     def test_get_site(self):
         self.assertEqual(self.output.get_site(), "site-name")

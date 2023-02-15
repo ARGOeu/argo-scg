@@ -68,20 +68,22 @@ def main():
         hostname = output.get_hostname()
         metric_name = output.get_metric_name()
         status = output.get_status()
-        summary = output.get_output()
+        summary = output.get_summary()
+        message = output.get_message()
         subprocess.call(
             [
                 "ams-metric-to-queue", "--servicestatetype", "HARD",
                 "--queue", publisher_queue, "--service", service,
                 "--hostname", hostname, "--metric", metric_name,
-                "--status", status, "--summary", summary
+                "--status", status, "--summary", summary, "--message",
+                repr(message)
             ]
         )
         logger.info(
             f"Command 'ams-metric-to-queue --servicestatetype HARD --queue "
             f"{publisher_queue} --service {service} --hostname {hostname} "
-            f"--metric {metric_name} --status {status} --summary {summary}' "
-            f"called successfully"
+            f"--metric {metric_name} --status {status} --summary {summary} "
+            f"--message {message}' called successfully"
         )
 
     except subprocess.CalledProcessError as err:
