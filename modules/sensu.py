@@ -1,5 +1,6 @@
 import json
 import logging
+import subprocess
 
 import requests
 from argo_scg.exceptions import SensuException
@@ -14,6 +15,7 @@ class Sensu:
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
+        exceptions = ["sensu-system"]
         response = requests.get(
             f"{self.url}/api/core/v2/namespaces",
             headers={
@@ -37,13 +39,17 @@ class Sensu:
             raise SensuException(msg)
 
         else:
-            return [namespace["name"] for namespace in response.json()]
+            return [
+                namespace["name"] for namespace in response.json() if
+                namespace["name"] not in exceptions
+            ]
 
     def handle_namespaces(self, tenants):
+        namespaces = self._get_namespaces()
         for tenant in tenants:
             namespace = tenant
 
-            if namespace not in self._get_namespaces():
+            if namespace not in namespaces:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}",
                     headers={
@@ -69,6 +75,37 @@ class Sensu:
 
                 else:
                     self.logger.info(f"Namespace {namespace} created")
+
+        for tenant in set(namespaces).difference(set(tenants)):
+            try:
+                subprocess.check_output(
+                    f"sensuctl dump "
+                    f"entities,events,assets,checks,filters,handlers "
+                    f"--namespace {tenant} | sensuctl delete", shell=True
+                )
+                self.logger.info(f"Namespace {tenant} emptied")
+                response = requests.delete(
+                    f"{self.url}/api/core/v2/namespaces/{tenant}",
+                    headers={"Authorization": f"Key {self.token}"}
+                )
+
+                if response.ok:
+                    self.logger.info(f"Namespace {tenant} deleted")
+
+                else:
+                    msg = f"{response.status_code} {response.reason}"
+                    try:
+                        msg = f"{msg}: {response.json()['message']}"
+
+                    except (ValueError, KeyError, TypeError):
+                        pass
+
+                    self.logger.error(f"Error deleting {tenant}: {msg}")
+
+            except subprocess.CalledProcessError as err:
+                self.logger.error(
+                    f"Error cleaning namespace {tenant}: {err.output}"
+                )
 
     def _get_checks(self, namespace):
         response = requests.get(
