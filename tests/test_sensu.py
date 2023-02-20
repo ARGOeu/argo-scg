@@ -1,6 +1,7 @@
 import copy
 import json
 import logging
+import subprocess
 import unittest
 from unittest.mock import patch, call
 
@@ -724,6 +725,9 @@ mock_namespaces = [
     },
     {
         "name": "TENANT2"
+    },
+    {
+        "name": "sensu-system"
     }
 ]
 
@@ -1506,6 +1510,212 @@ class SensuNamespaceTests(unittest.TestCase):
                 f"400 BAD REQUEST",
                 f"WARNING:{LOGNAME}:Unable to proceed"
             ]
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_namespaces")
+    @patch("subprocess.check_output")
+    @patch("requests.delete")
+    @patch("requests.put")
+    def test_handle_namespaces_with_deletion(
+            self, mock_put, mock_delete, mock_subprocess, mock_namespace
+    ):
+        mock_put.side_effect = mock_post_response
+        mock_delete.side_effect = mock_delete_response
+        mock_subprocess.side_effect = mock_function
+        mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_namespaces(
+                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+            )
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                data=json.dumps({"name": "TeNAnT3"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/tenant4",
+                data=json.dumps({"name": "tenant4"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+        mock_subprocess.assert_called_once_with(
+            "sensuctl dump entities,events,assets,checks,filters,handlers "
+            "--namespace Tenant5 | sensuctl delete", shell=True
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/Tenant5",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:Namespace TeNAnT3 created",
+                f"INFO:{LOGNAME}:Namespace tenant4 created",
+                f"INFO:{LOGNAME}:Namespace Tenant5 emptied",
+                f"INFO:{LOGNAME}:Namespace Tenant5 deleted"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_namespaces")
+    @patch("argo_scg.sensu.subprocess.check_output")
+    @patch("requests.delete")
+    @patch("requests.put")
+    def test_handle_namespaces_with_deletion_subprocess_error(
+            self, mock_put, mock_delete, mock_subprocess, mock_namespace
+    ):
+        mock_put.side_effect = mock_delete_response
+        mock_delete.side_effect = mock_post_response
+        mock_subprocess.side_effect = subprocess.CalledProcessError(
+            returncode=2, cmd=["error"], output="There has been an error"
+        )
+        mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_namespaces(
+                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+            )
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                data=json.dumps({"name": "TeNAnT3"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/tenant4",
+                data=json.dumps({"name": "tenant4"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+        mock_subprocess.assert_called_once_with(
+            "sensuctl dump entities,events,assets,checks,filters,handlers "
+            "--namespace Tenant5 | sensuctl delete", shell=True
+        )
+        self.assertEqual(mock_delete.call_count, 0)
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:Namespace TeNAnT3 created",
+                f"INFO:{LOGNAME}:Namespace tenant4 created",
+                f"ERROR:{LOGNAME}:Error cleaning namespace Tenant5: "
+                f"There has been an error"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_namespaces")
+    @patch("subprocess.check_output")
+    @patch("requests.delete")
+    @patch("requests.put")
+    def test_handle_namespaces_with_deletion_error_delete_api_with_msg(
+            self, mock_put, mock_delete, mock_subprocess, mock_namespace
+    ):
+        mock_put.side_effect = mock_post_response
+        mock_delete.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        mock_subprocess.side_effect = mock_function
+        mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_namespaces(
+                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+            )
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                data=json.dumps({"name": "TeNAnT3"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/tenant4",
+                data=json.dumps({"name": "tenant4"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+        mock_subprocess.assert_called_once_with(
+            "sensuctl dump entities,events,assets,checks,filters,handlers "
+            "--namespace Tenant5 | sensuctl delete", shell=True
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/Tenant5",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:Namespace TeNAnT3 created",
+                f"INFO:{LOGNAME}:Namespace tenant4 created",
+                f"INFO:{LOGNAME}:Namespace Tenant5 emptied",
+                f"ERROR:{LOGNAME}:Error deleting Tenant5: 400 BAD REQUEST: "
+                f"Something went wrong"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_namespaces")
+    @patch("subprocess.check_output")
+    @patch("requests.delete")
+    @patch("requests.put")
+    def test_handle_namespaces_with_deletion_error_delete_api_without_msg(
+            self, mock_put, mock_delete, mock_subprocess, mock_namespace
+    ):
+        mock_put.side_effect = mock_post_response
+        mock_delete.return_value = MockResponse(None, status_code=400)
+        mock_subprocess.side_effect = mock_function
+        mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_namespaces(
+                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+            )
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                data=json.dumps({"name": "TeNAnT3"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "mock-urls/api/core/v2/namespaces/tenant4",
+                data=json.dumps({"name": "tenant4"}),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+        mock_subprocess.assert_called_once_with(
+            "sensuctl dump entities,events,assets,checks,filters,handlers "
+            "--namespace Tenant5 | sensuctl delete", shell=True
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/Tenant5",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:Namespace TeNAnT3 created",
+                f"INFO:{LOGNAME}:Namespace tenant4 created",
+                f"INFO:{LOGNAME}:Namespace Tenant5 emptied",
+                f"ERROR:{LOGNAME}:Error deleting Tenant5: 400 BAD REQUEST"
+            }
         )
 
 
