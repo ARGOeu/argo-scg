@@ -942,6 +942,53 @@ class Sensu:
             name="hard_state", workflows=workflows, namespace=namespace
         )
 
+    def get_check_run(self, entity, check, namespace="default"):
+        check_configuration = [
+            c for c in self._get_checks(namespace=namespace) if
+            c["metadata"]["name"] == check
+        ][0]
+        entity_configuration = [
+            e for e in self._get_entities(namespace=namespace) if
+            e["metadata"]["name"] == entity
+        ][0]
+        list_command = []
+        tmp = ""
+        for c in check_configuration["command"]:
+            if c == "{" or c == "}":
+                list_command.append(tmp)
+                tmp = ""
+
+            else:
+                tmp += c
+        if tmp:
+            list_command.append(tmp.strip())
+
+        list_command = [element.strip() for element in list_command]
+
+        while "" in list_command:
+            list_command.remove("")
+
+        command = []
+        for element in list_command:
+            if element.startswith(".labels"):
+                key = element[8:]
+                if "|" in key:
+                    def_val = key.split("|")[1].split("default")[1].strip()\
+                        .replace("\"", "")
+                    key = key.split("|")[0].strip()
+                    try:
+                        value = entity_configuration["metadata"]["labels"][key]
+                    except KeyError:
+                        value = def_val
+                else:
+                    value = entity_configuration["metadata"]["labels"][key]
+                command.append(value)
+
+            else:
+                command.append(element)
+
+        return " ".join(command)
+
 
 class MetricOutput:
     def __init__(self, data):
