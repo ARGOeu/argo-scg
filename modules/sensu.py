@@ -961,6 +961,13 @@ class Sensu:
         except IndexError:
             raise SensuException(f"No entity {entity} in namespace {namespace}")
 
+        if create_label(check) not in \
+                entity_configuration["metadata"]["labels"]:
+            raise SensuException(
+                f"No event with entity {entity} and check {check} in "
+                f"namespace {namespace}"
+            )
+
         list_command = []
         tmp = ""
         for c in check_configuration["command"]:

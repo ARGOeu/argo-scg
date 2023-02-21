@@ -5187,7 +5187,6 @@ class SensuCheckCallTests(unittest.TestCase):
                         "ssl": "-S --sni",
                         "port": "443",
                         "path": "/some/path",
-                        "generic_tcp_connect": "generic.tcp.connect",
                         "generic_http_connect": "generic.http.connect"
                     }
                 },
@@ -5287,4 +5286,22 @@ class SensuCheckCallTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: No entity argo.egi.eu in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_event(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo2.ni4os.eu", check="generic.tcp.connect"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No event with entity argo2.ni4os.eu and check "
+            "generic.tcp.connect in namespace default"
         )
