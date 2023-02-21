@@ -5229,7 +5229,6 @@ class SensuCheckCallTests(unittest.TestCase):
     def test_get_check_run_if_labels_with_defaults(
             self, return_checks, return_entities
     ):
-        self.maxDiff = None
         checks = self.checks.copy()
         checks[0]["command"] = "/usr/lib64/nagios/plugins/check_http "\
                                "-H {{ .labels.hostname }} -t 60 --link "\
@@ -5253,4 +5252,22 @@ class SensuCheckCallTests(unittest.TestCase):
             run2,
             "/usr/lib64/nagios/plugins/check_http -H argo2.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443 -u /some/path"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_check(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo.ni4os.eu", check="generic.certificate.validity"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No check generic.certificate.validity in namespace "
+            "default"
         )

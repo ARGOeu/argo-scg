@@ -943,10 +943,15 @@ class Sensu:
         )
 
     def get_check_run(self, entity, check, namespace="default"):
-        check_configuration = [
-            c for c in self._get_checks(namespace=namespace) if
-            c["metadata"]["name"] == check
-        ][0]
+        try:
+            check_configuration = [
+                c for c in self._get_checks(namespace=namespace) if
+                c["metadata"]["name"] == check
+            ][0]
+
+        except IndexError:
+            raise SensuException(f"No check {check} in namespace {namespace}")
+
         entity_configuration = [
             e for e in self._get_entities(namespace=namespace) if
             e["metadata"]["name"] == entity
