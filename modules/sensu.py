@@ -952,10 +952,15 @@ class Sensu:
         except IndexError:
             raise SensuException(f"No check {check} in namespace {namespace}")
 
-        entity_configuration = [
-            e for e in self._get_entities(namespace=namespace) if
-            e["metadata"]["name"] == entity
-        ][0]
+        try:
+            entity_configuration = [
+                e for e in self._get_entities(namespace=namespace) if
+                e["metadata"]["name"] == entity
+            ][0]
+
+        except IndexError:
+            raise SensuException(f"No entity {entity} in namespace {namespace}")
+
         list_command = []
         tmp = ""
         for c in check_configuration["command"]:

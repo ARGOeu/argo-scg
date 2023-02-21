@@ -5271,3 +5271,20 @@ class SensuCheckCallTests(unittest.TestCase):
             "Sensu error: No check generic.certificate.validity in namespace "
             "default"
         )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_entity(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo.egi.eu", check="generic.http.connect"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No entity argo.egi.eu in namespace default"
+        )
