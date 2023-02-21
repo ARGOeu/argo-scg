@@ -10,7 +10,7 @@ CONFFILE = "/etc/argo-scg/scg.conf"
 
 def main():
     parser = argparse.ArgumentParser(
-        "Check how the probe is envoked for a given entity"
+        "Check how the probe is invoked for a given entity"
     )
     parser.add_argument(
         "-e", "--entity", dest="entity", type=str, required=True, help="entity"
