@@ -194,14 +194,33 @@ class Sensu:
         else:
             return response.json()
 
+    def _delete_check(self, check, namespace):
+        response = requests.delete(
+            "{}/api/core/v2/namespaces/{}/checks/{}".format(
+                self.url, namespace, check
+            ),
+            headers={"Authorization": "Key {}".format(self.token)}
+        )
+        return response
+
+    def delete_check(self, check, namespace="default"):
+        response = self._delete_check(check=check, namespace=namespace)
+
+        if not response.ok:
+            msg = f"{namespace}: Check {check} not removed: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise SensuException(msg)
+
     def _delete_checks(self, checks, namespace):
         for check in checks:
-            response = requests.delete(
-                "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                    self.url, namespace, check
-                ),
-                headers={"Authorization": "Key {}".format(self.token)}
-            )
+            response = self._delete_check(check=check, namespace=namespace)
 
             if not response.ok:
                 msg = f"{namespace}: Check {check} not removed: " \
