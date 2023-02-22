@@ -142,6 +142,41 @@ class Sensu:
                 "Content-Type": "application/json"
             }
         )
+        return response
+
+    def get_event_output(self, entity, check, namespace="default"):
+        response = self._get_events(namespace=namespace)
+
+        if not response.ok:
+            msg = f"{namespace}: Events fetch error: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            events = response.json()
+
+            try:
+                return [
+                    event["check"]["output"] for event in events if
+                    event["entity"]["metadata"]["name"] == entity and
+                    event["check"]["metadata"]["name"] == check
+                ][0]
+
+            except IndexError:
+                raise SensuException(
+                    f"{namespace}: No event for entity {entity} and check "
+                    f"{check}"
+                )
+
+    def _fetch_events(self, namespace):
+        response = self._get_events(namespace=namespace)
 
         if not response.ok:
             msg = f"{namespace}: Events fetch error: " \
@@ -159,14 +194,33 @@ class Sensu:
         else:
             return response.json()
 
+    def _delete_check(self, check, namespace):
+        response = requests.delete(
+            "{}/api/core/v2/namespaces/{}/checks/{}".format(
+                self.url, namespace, check
+            ),
+            headers={"Authorization": "Key {}".format(self.token)}
+        )
+        return response
+
+    def delete_check(self, check, namespace="default"):
+        response = self._delete_check(check=check, namespace=namespace)
+
+        if not response.ok:
+            msg = f"{namespace}: Check {check} not removed: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise SensuException(msg)
+
     def _delete_checks(self, checks, namespace):
         for check in checks:
-            response = requests.delete(
-                "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                    self.url, namespace, check
-                ),
-                headers={"Authorization": "Key {}".format(self.token)}
-            )
+            response = self._delete_check(check=check, namespace=namespace)
 
             if not response.ok:
                 msg = f"{namespace}: Check {check} not removed: " \
@@ -184,16 +238,38 @@ class Sensu:
             else:
                 self.logger.info(f"{namespace}: Check {check} removed")
 
+    def _delete_event(self, entity, check, namespace):
+        response = requests.delete(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/events/"
+            f"{entity}/{check}",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+        return response
+
+    def delete_event(self, entity, check, namespace="default"):
+        response = self._delete_event(
+            entity=entity, check=check, namespace=namespace
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Event {entity}/{check} not removed: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise SensuException(msg)
+
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
             for check in checks:
-                response = requests.delete(
-                    f"{self.url}/api/core/v2/namespaces/{namespace}/events/"
-                    f"{entity}/{check}",
-                    headers={
-                        "Authorization": f"Key {self.token}"
-                    }
-
+                response = self._delete_event(
+                    entity=entity, check=check, namespace=namespace
                 )
 
                 if not response.ok:
@@ -316,6 +392,19 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
+    def get_agents(self, namespace="default"):
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching agents: " \
+                  f"{str(e).strip('Sensu error: ')}"
+            raise SensuException(msg)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "agent"
+        ]
+
     def _delete_entities(self, entities, namespace):
         for entity in entities:
             response = requests.delete(
@@ -361,6 +450,34 @@ class Sensu:
 
         return equal
 
+    def _put_check(self, check, namespace):
+        response = requests.put(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
+            f"{check['metadata']['name']}",
+            headers={
+                "Authorization": "Key {}".format(self.token),
+                "Content-Type": "application/json"
+            },
+            data=json.dumps(check)
+        )
+
+        return response
+
+    def put_check(self, check, namespace="default"):
+        response = self._put_check(check=check, namespace=namespace)
+
+        if not response.ok:
+            msg = f"{namespace}: " \
+                  f"Check {check['metadata']['name']} not created: " \
+                  f"{response.status_code} {response.reason}"
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise SensuException(msg)
+
     def handle_checks(self, checks, namespace="default"):
         existing_checks = self._get_checks(namespace=namespace)
 
@@ -378,16 +495,7 @@ class Sensu:
 
             if len(existing_check) == 0 or \
                     not self._compare_checks(check, existing_check[0]):
-                response = requests.put(
-                    "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                        self.url, namespace, check["metadata"]["name"]
-                    ),
-                    headers={
-                        "Authorization": "Key {}".format(self.token),
-                        "Content-Type": "application/json"
-                    },
-                    data=json.dumps(check)
-                )
+                response = self._put_check(check=check, namespace=namespace)
 
                 if not response.ok:
                     msg = f"{namespace}: " \
@@ -422,7 +530,7 @@ class Sensu:
                 )
             ]
             try:
-                existing_events = self._get_events(namespace=namespace)
+                existing_events = self._fetch_events(namespace=namespace)
                 events_tobedeleted = dict()
                 for event in existing_events:
                     check = event["check"]["metadata"]["name"]
@@ -942,15 +1050,18 @@ class Sensu:
             name="hard_state", workflows=workflows, namespace=namespace
         )
 
-    def get_check_run(self, entity, check, namespace="default"):
+    def _get_check(self, check, namespace):
         try:
-            check_configuration = [
+            return [
                 c for c in self._get_checks(namespace=namespace) if
                 c["metadata"]["name"] == check
             ][0]
 
         except IndexError:
             raise SensuException(f"No check {check} in namespace {namespace}")
+
+    def get_check_run(self, entity, check, namespace="default"):
+        check_configuration = self._get_check(check=check, namespace=namespace)
 
         try:
             entity_configuration = [
@@ -1005,6 +1116,11 @@ class Sensu:
                 command.append(element)
 
         return " ".join(command)
+
+    def get_check_subscriptions(self, check, namespace="default"):
+        return self._get_check(check=check, namespace=namespace)[
+            "subscriptions"
+        ]
 
 
 class MetricOutput:

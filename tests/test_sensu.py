@@ -2013,10 +2013,68 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
+    @patch("requests.delete")
+    def test_delete_single_check(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response
+        self.sensu.delete_check(
+            check="generic.tcp.connect", namespace="TENANT1"
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+
+    @patch("requests.delete")
+    def test_delete_single_check_with_error_with_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_check(
+                check="generic.tcp.connect", namespace="TENANT1"
+            )
+
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check generic.tcp.connect not removed: "
+            "400 BAD REQUEST: Something went wrong"
+        )
+
+    @patch("requests.delete")
+    def test_delete_single_check_with_error_without_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(None, status_code=400)
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_check(
+                check="generic.tcp.connect", namespace="TENANT1"
+            )
+
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check generic.tcp.connect not removed: "
+            "400 BAD REQUEST"
+        )
+
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2082,7 +2140,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check_with_changing_handler(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2137,7 +2195,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check_with_hardcoded_attributes(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2268,7 +2326,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check_with_file_defined_attributes(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2396,7 +2454,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check_with_removing_proxy_requests(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2478,7 +2536,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_check_with_changing_handler(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2533,7 +2591,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_checks_with_error_in_put_check_with_msg(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2603,7 +2661,7 @@ class SensuCheckTests(unittest.TestCase):
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")
-    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_checks_with_error_in_put_check_without_msg(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
@@ -2670,27 +2728,129 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
+    @patch("requests.put")
+    def test_put_check(self, mock_put):
+        mock_put.side_effect = mock_post_response
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        self.sensu.put_check(check=check, namespace="TENANT1")
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    def test_put_check_with_error_with_message(self, mock_put):
+        mock_put.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu.put_check(check=check, namespace="TENANT1")
+
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "400 BAD REQUEST: Something went wrong"
+        )
+
+    @patch("requests.put")
+    def test_put_check_with_error_without_message(self, mock_put):
+        mock_put.return_value = MockResponse(None, status_code=400)
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu.put_check(check=check, namespace="TENANT1")
+
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "400 BAD REQUEST"
+        )
+
 
 class SensuEventsTests(unittest.TestCase):
     def setUp(self):
         self.sensu = Sensu(url="mock-urls", token="t0k3n")
 
     @patch("requests.get")
-    def test_get_events(self, mock_get):
+    def test_fetch_events(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._get_events(namespace="TENANT1")
+            checks = self.sensu._fetch_events(namespace="TENANT1")
         self.assertEqual(checks, mock_events)
         self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
-    def test_get_events_with_error_with_messsage(self, mock_get):
+    def test_fetch_events_with_error_with_messsage(self, mock_get):
         mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_events(namespace="TENANT1")
+                self.sensu._fetch_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/events",
@@ -2713,12 +2873,12 @@ class SensuEventsTests(unittest.TestCase):
         )
 
     @patch("requests.get")
-    def test_get_events_with_error_without_messsage(self, mock_get):
+    def test_fetch_events_with_error_without_messsage(self, mock_get):
         mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_events(namespace="TENANT1")
+                self.sensu._fetch_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
             "mock-urls/api/core/v2/namespaces/TENANT1/events",
@@ -2878,6 +3038,122 @@ class SensuEventsTests(unittest.TestCase):
                 f"argo.ni4os.eu/generic.http.connect not removed: "
                 f"400 BAD REQUEST"
             }
+        )
+
+    @patch("requests.delete")
+    def test_delete_event(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response
+        self.sensu.delete_event(
+            entity="argo.ni4os.eu", check="generic.tcp.connect",
+            namespace="TENANT1"
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+
+    @patch("requests.delete")
+    def test_delete_event_with_error_with_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_event(
+                entity="argo.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "removed: 400 BAD REQUEST: Something went wrong"
+        )
+
+    @patch("requests.delete")
+    def test_delete_event_with_error_without_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(None, status_code=400)
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_event(
+                entity="argo.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "removed: 400 BAD REQUEST"
+        )
+
+    @patch("requests.get")
+    def test_get_event_output(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        output = self.sensu.get_event_output(
+            entity="gocdb.ni4os.eu", check="generic.tcp.connect",
+            namespace="TENANT1"
+        )
+        self.assertEqual(
+            output,
+            "TCP OK - 0.045 second response time on gocdb.ni4os.eu port 443|"
+            "time=0.044729s;;;0.000000;120.000000\n"
+        )
+
+    @patch("requests.get")
+    def test_get_event_output_with_error_with_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_event_output(
+                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST: "
+            "Something went wrong."
+        )
+
+    @patch("requests.get")
+    def test_get_event_output_with_error_without_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_event_output(
+                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST"
+        )
+
+    @patch("requests.get")
+    def test_get_event_output_if_nonexisting_entity_or_check(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_event_output(
+                entity="mock.entity.com", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: No event for entity mock.entity.com and "
+            "check generic.tcp.connect"
         )
 
 
@@ -5099,7 +5375,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["argo.webui"],
+                "subscriptions": ["argo.tcp"],
                 "proxy_entity_name": "",
                 "check_hooks": None,
                 "stdin": False,
@@ -5304,4 +5580,16 @@ class SensuCheckCallTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: No event with entity argo2.ni4os.eu and check "
             "generic.tcp.connect in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_subscriptions(self, return_checks):
+        return_checks.return_value = self.checks
+        self.assertEqual(
+            self.sensu.get_check_subscriptions(check="generic.http.connect"),
+            ["argo.webui"]
+        )
+        self.assertEqual(
+            self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
+            ["argo.tcp"]
         )
