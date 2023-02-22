@@ -219,16 +219,38 @@ class Sensu:
             else:
                 self.logger.info(f"{namespace}: Check {check} removed")
 
+    def _delete_event(self, entity, check, namespace):
+        response = requests.delete(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/events/"
+            f"{entity}/{check}",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+        return response
+
+    def delete_event(self, entity, check, namespace="default"):
+        response = self._delete_event(
+            entity=entity, check=check, namespace=namespace
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Event {entity}/{check} not removed: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, TypeError, KeyError):
+                pass
+
+            raise SensuException(msg)
+
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
             for check in checks:
-                response = requests.delete(
-                    f"{self.url}/api/core/v2/namespaces/{namespace}/events/"
-                    f"{entity}/{check}",
-                    headers={
-                        "Authorization": f"Key {self.token}"
-                    }
-
+                response = self._delete_event(
+                    entity=entity, check=check, namespace=namespace
                 )
 
                 if not response.ok:
@@ -345,6 +367,19 @@ class Sensu:
             msg = f"{namespace}: Error fetching agents: " \
                   f"{str(e).strip('Sensu error: ')}"
             self.logger.error(msg)
+            raise SensuException(msg)
+
+        return [
+            entity for entity in data if entity["entity_class"] == "agent"
+        ]
+
+    def get_agents(self, namespace="default"):
+        try:
+            data = self._get_entities(namespace=namespace)
+
+        except SensuException as e:
+            msg = f"{namespace}: Error fetching agents: " \
+                  f"{str(e).strip('Sensu error: ')}"
             raise SensuException(msg)
 
         return [

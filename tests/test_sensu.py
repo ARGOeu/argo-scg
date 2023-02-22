@@ -2982,6 +2982,65 @@ class SensuEventsTests(unittest.TestCase):
             }
         )
 
+    @patch("requests.delete")
+    def test_delete_event(self, mock_delete):
+        mock_delete.side_effect = mock_delete_response
+        self.sensu.delete_event(
+            entity="argo.ni4os.eu", check="generic.tcp.connect",
+            namespace="TENANT1"
+        )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+
+    @patch("requests.delete")
+    def test_delete_event_with_error_with_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_event(
+                entity="argo.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "removed: 400 BAD REQUEST: Something went wrong"
+        )
+
+    @patch("requests.delete")
+    def test_delete_event_with_error_without_message(self, mock_delete):
+        mock_delete.return_value = MockResponse(None, status_code=400)
+        with self.assertRaises(SensuException) as context:
+            self.sensu.delete_event(
+                entity="argo.ni4os.eu", check="generic.tcp.connect",
+                namespace="TENANT1"
+            )
+        mock_delete.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "removed: 400 BAD REQUEST"
+        )
+
     @patch("requests.get")
     def test_get_event_output(self, mock_get):
         mock_get.side_effect = mock_sensu_request
