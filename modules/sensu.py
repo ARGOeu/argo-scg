@@ -142,6 +142,41 @@ class Sensu:
                 "Content-Type": "application/json"
             }
         )
+        return response
+
+    def get_event_output(self, entity, check, namespace="default"):
+        response = self._get_events(namespace=namespace)
+
+        if not response.ok:
+            msg = f"{namespace}: Events fetch error: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            events = response.json()
+
+            try:
+                return [
+                    event["check"]["output"] for event in events if
+                    event["entity"]["metadata"]["name"] == entity and
+                    event["check"]["metadata"]["name"] == check
+                ][0]
+
+            except IndexError:
+                raise SensuException(
+                    f"{namespace}: No event for entity {entity} and check "
+                    f"{check}"
+                )
+
+    def _fetch_events(self, namespace):
+        response = self._get_events(namespace=namespace)
 
         if not response.ok:
             msg = f"{namespace}: Events fetch error: " \
@@ -441,7 +476,7 @@ class Sensu:
                 )
             ]
             try:
-                existing_events = self._get_events(namespace=namespace)
+                existing_events = self._fetch_events(namespace=namespace)
                 events_tobedeleted = dict()
                 for event in existing_events:
                     check = event["check"]["metadata"]["name"]
