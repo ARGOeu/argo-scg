@@ -2670,6 +2670,108 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
+    @patch("requests.put")
+    def test_put_check(self, mock_put):
+        mock_put.side_effect = mock_post_response
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        self.sensu.put_check(check=check, namespace="TENANT1")
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("requests.put")
+    def test_put_check_with_error_with_message(self, mock_put):
+        mock_put.return_value = MockResponse(
+            {"message": "Something went wrong"}, status_code=400
+        )
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu.put_check(check=check, namespace="TENANT1")
+
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "400 BAD REQUEST: Something went wrong"
+        )
+
+    @patch("requests.put")
+    def test_put_check_with_error_without_message(self, mock_put):
+        mock_put.return_value = MockResponse(None, status_code=400)
+        check = {
+            "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
+                       "-t 120 -p 443",
+            "subscriptions": ["argo-test"],
+            "handlers": [],
+            "interval": 86400,
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "adhoc-check",
+                "namespace": "TENANT1"
+            },
+            "round_robin": False
+        }
+
+        with self.assertRaises(SensuException) as context:
+            self.sensu.put_check(check=check, namespace="TENANT1")
+
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            data=json.dumps(check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "400 BAD REQUEST"
+        )
+
 
 class SensuEventsTests(unittest.TestCase):
     def setUp(self):
@@ -5099,7 +5201,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["argo.webui"],
+                "subscriptions": ["argo.tcp"],
                 "proxy_entity_name": "",
                 "check_hooks": None,
                 "stdin": False,
@@ -5304,4 +5406,16 @@ class SensuCheckCallTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: No event with entity argo2.ni4os.eu and check "
             "generic.tcp.connect in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_subscriptions(self, return_checks):
+        return_checks.return_value = self.checks
+        self.assertEqual(
+            self.sensu.get_check_subscriptions(check="generic.http.connect"),
+            ["argo.webui"]
+        )
+        self.assertEqual(
+            self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
+            ["argo.tcp"]
         )
