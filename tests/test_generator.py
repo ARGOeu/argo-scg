@@ -2,7 +2,7 @@ import logging
 import unittest
 
 from argo_scg.exceptions import GeneratorException
-from argo_scg.generator import ConfigurationGenerator
+from argo_scg.generator import ConfigurationGenerator, generate_adhoc_check
 
 mock_metrics = [
     {
@@ -6916,3 +6916,30 @@ class OverridesTests(unittest.TestCase):
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+
+class AdHocCheckTests(unittest.TestCase):
+    def test_generate_adhoc_check(self):
+        command = \
+            "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
+
+        check = generate_adhoc_check(
+            command=command, subscriptions=["argo-test"], namespace="TENANT1"
+        )
+
+        self.assertEqual(
+            check, {
+                "command": "/usr/lib64/nagios/plugins/check_tcp -H "
+                           "argo.ni4os.eu -t 120 -p 443",
+                "subscriptions": ["argo-test"],
+                "handlers": [],
+                "interval": 86400,
+                "timeout": 900,
+                "publish": False,
+                "metadata": {
+                    "name": "adhoc-check",
+                    "namespace": "TENANT1"
+                },
+                "round_robin": False
+            }
+        )

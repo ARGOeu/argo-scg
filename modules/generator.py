@@ -33,6 +33,22 @@ def is_attribute_secret(item):
         return False
 
 
+def generate_adhoc_check(command, subscriptions, namespace="default"):
+    return {
+        "command": command,
+        "subscriptions": subscriptions,
+        "handlers": [],
+        "interval": 86400,
+        "timeout": 900,
+        "publish": False,
+        "metadata": {
+            "name": "adhoc-check",
+            "namespace": namespace
+        },
+        "round_robin": False
+    }
+
+
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
