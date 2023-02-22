@@ -5050,3 +5050,258 @@ class MetricOutputTests(unittest.TestCase):
 
     def test_get_namespace(self):
         self.assertEqual(self.output.get_namespace(), "TENANT")
+
+
+class SensuCheckCallTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+        self.checks = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 60 --link "
+                           "--onredirect follow "
+                           "{{ .labels.ssl }} "
+                           "-p {{ .labels.port }} ",
+                "subscriptions": ["argo.webui"],
+                "handlers": [],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "default",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ]
+            },
+            {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 300,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["argo.webui"],
+                "proxy_entity_name": "",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 120,
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ],
+                    "splay": False,
+                    "splay_coverage": 0
+                },
+                "round_robin": True,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "default",
+                    "created_by": "root",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "secrets": None,
+                "pipelines": []
+            }
+        ]
+        self.entities = [
+            {
+                "entity_class": "proxy",
+                "system": {
+                    "network": {
+                        "interfaces": None
+                    },
+                    "libc_type": "",
+                    "vm_system": "",
+                    "vm_role": "",
+                    "cloud_provider": "",
+                    "processes": None
+                },
+                "subscriptions": ["argo.webui"],
+                "last_seen": 0,
+                "deregister": False,
+                "deregistration": {},
+                "metadata": {
+                    "name": "argo.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "sensu.io/managed_by": "sensuctl",
+                        "hostname": "argo.ni4os.eu",
+                        "ssl": "-S --sni",
+                        "port": "443",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "generic_http_connect": "generic.http.connect"
+                    }
+                },
+                "sensu_agent_version": ""
+            },
+            {
+                "entity_class": "proxy",
+                "system": {
+                    "network": {
+                        "interfaces": None
+                    },
+                    "libc_type": "",
+                    "vm_system": "",
+                    "vm_role": "",
+                    "cloud_provider": "",
+                    "processes": None
+                },
+                "subscriptions": ["argo.webui"],
+                "last_seen": 0,
+                "deregister": False,
+                "deregistration": {},
+                "metadata": {
+                    "name": "argo2.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "sensu.io/managed_by": "sensuctl",
+                        "hostname": "argo2.ni4os.eu",
+                        "ssl": "-S --sni",
+                        "port": "443",
+                        "path": "/some/path",
+                        "generic_http_connect": "generic.http.connect"
+                    }
+                },
+                "sensu_agent_version": ""
+            }
+        ]
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run(self, return_checks, return_entities):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        run = self.sensu.get_check_run(
+            entity="argo.ni4os.eu", check="generic.tcp.connect"
+        )
+        self.assertEqual(
+            run,
+            "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_multiple_labels(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        run = self.sensu.get_check_run(
+            entity="argo.ni4os.eu", check="generic.http.connect"
+        )
+        self.assertEqual(
+            run,
+            "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
+            "-t 60 --link --onredirect follow -S --sni -p 443"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_labels_with_defaults(
+            self, return_checks, return_entities
+    ):
+        checks = self.checks.copy()
+        checks[0]["command"] = "/usr/lib64/nagios/plugins/check_http "\
+                               "-H {{ .labels.hostname }} -t 60 --link "\
+                               "--onredirect follow {{ .labels.ssl }} "\
+                               "-p {{ .labels.port }} " \
+                               "-u {{ .labels.path | default \"/\" }}"
+        return_checks.return_value = checks
+        return_entities.return_value = self.entities
+        run1 = self.sensu.get_check_run(
+            entity="argo.ni4os.eu", check="generic.http.connect"
+        )
+        run2 = self.sensu.get_check_run(
+            entity="argo2.ni4os.eu", check="generic.http.connect"
+        )
+        self.assertEqual(
+            run1,
+            "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
+            "-t 60 --link --onredirect follow -S --sni -p 443 -u /"
+        )
+        self.assertEqual(
+            run2,
+            "/usr/lib64/nagios/plugins/check_http -H argo2.ni4os.eu "
+            "-t 60 --link --onredirect follow -S --sni -p 443 -u /some/path"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_check(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo.ni4os.eu", check="generic.certificate.validity"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No check generic.certificate.validity in namespace "
+            "default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_entity(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo.egi.eu", check="generic.http.connect"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No entity argo.egi.eu in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_nonexisting_event(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="argo2.ni4os.eu", check="generic.tcp.connect"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No event with entity argo2.ni4os.eu and check "
+            "generic.tcp.connect in namespace default"
+        )
