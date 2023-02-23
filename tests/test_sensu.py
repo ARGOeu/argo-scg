@@ -1081,6 +1081,11 @@ mock_pipelines1 = [
                         'api_version': 'core/v2'
                     },
                     {
+                        "name": "not_silenced",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    },
+                    {
                         'name': 'daily',
                         'type': 'EventFilter',
                         'api_version': 'core/v2'
@@ -4852,6 +4857,11 @@ class SensuPipelinesTests(unittest.TestCase):
                     "filters": [
                         {
                             "name": "is_incident",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "not_silenced",
                             "type": "EventFilter",
                             "api_version": "core/v2"
                         },

@@ -1012,6 +1012,11 @@ class Sensu:
                         "api_version": "core/v2"
                     },
                     {
+                        "name": "not_silenced",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    },
+                    {
                         "name": "daily",
                         "type": "EventFilter",
                         "api_version": "core/v2"
