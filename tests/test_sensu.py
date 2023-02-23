@@ -5593,3 +5593,133 @@ class SensuCheckCallTests(unittest.TestCase):
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
             ["argo.tcp"]
         )
+
+
+class SensuSilencingEntryTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("requests.post")
+    def test_create_silencing_entry(self, mock_post, mock_get_events):
+        mock_post.side_effect = mock_post_response
+        mock_get_events.return_value = MockResponse(
+            mock_events, status_code=200
+        )
+        self.sensu.create_silencing_entry(
+            check="generic.tcp.connect", entity="gocdb.ni4os.eu",
+            namespace="TENANT1"
+        )
+        mock_post.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            data=json.dumps({
+                "metadata": {
+                    "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
+                    "namespace": "TENANT1"
+                },
+                "expire_on_resolve": True,
+                "check": "generic.tcp.connect",
+                "subscription": "entity:gocdb.ni4os.eu"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("requests.post")
+    def test_create_silencing_entry_with_error_with_message(
+            self, mock_post, mock_get_events
+    ):
+        mock_post.return_value = MockResponse(
+            {"message": "There has been an error"}, status_code=400
+        )
+        mock_get_events.return_value = MockResponse(
+            mock_events, status_code=200
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.create_silencing_entry(
+                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
+                namespace="TENANT1"
+            )
+        mock_post.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            data=json.dumps({
+                "metadata": {
+                    "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
+                    "namespace": "TENANT1"
+                },
+                "expire_on_resolve": True,
+                "check": "generic.tcp.connect",
+                "subscription": "entity:gocdb.ni4os.eu"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Silencing entry gocdb.ni4os.eu/"
+            "generic.tcp.connect create error: 400 BAD REQUEST: "
+            "There has been an error"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("requests.post")
+    def test_create_silencing_entry_with_error_without_message(
+            self, mock_post, mock_get_events
+    ):
+        mock_post.return_value = MockResponse(None, status_code=400)
+        mock_get_events.return_value = MockResponse(
+            mock_events, status_code=200
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.create_silencing_entry(
+                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
+                namespace="TENANT1"
+            )
+        mock_post.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            data=json.dumps({
+                "metadata": {
+                    "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
+                    "namespace": "TENANT1"
+                },
+                "expire_on_resolve": True,
+                "check": "generic.tcp.connect",
+                "subscription": "entity:gocdb.ni4os.eu"
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Silencing entry gocdb.ni4os.eu/"
+            "generic.tcp.connect create error: 400 BAD REQUEST"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_events")
+    @patch("requests.post")
+    def test_create_silencing_entry_if_nonexisting_event(
+            self, mock_post, mock_get_events
+    ):
+        mock_post.side_effect = mock_post_response
+        mock_get_events.return_value = MockResponse(
+            mock_events, status_code=200
+        )
+        with self.assertRaises(SensuException) as context:
+            self.sensu.create_silencing_entry(
+                check="generic.http.connect", entity="argo.ni4os.eu",
+                namespace="TENANT1"
+            )
+        self.assertEqual(mock_post.call_count, 0)
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: No event for entity argo.ni4os.eu and check "
+            "generic.http.connect: Silencing entry not created"
+        )
