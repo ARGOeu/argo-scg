@@ -511,14 +511,19 @@ class PoemTests(unittest.TestCase):
     def test_get_metric_overrides_with_error_with_msg(self, mock_request):
         mock_request.side_effect = mock_poem_request_with_error_with_msg
         with self.assertLogs(self.logname) as log:
-            overrides = self.poem.get_metric_overrides()
+            with self.assertRaises(PoemException) as context:
+                self.poem.get_metric_overrides()
 
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metricoverrides",
             headers={'x-api-key': 'P03mt0k3n'}
         )
 
-        self.assertEqual(overrides, dict())
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: MOCK_TENANT: Metric overrides fetch error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
 
         self.assertEqual(
             log.output, [
@@ -532,14 +537,19 @@ class PoemTests(unittest.TestCase):
     def test_get_metric_overrides_with_error_without_msg(self, mock_request):
         mock_request.side_effect = mock_poem_request_with_error_without_msg
         with self.assertLogs(self.logname) as log:
-            overrides = self.poem.get_metric_overrides()
+            with self.assertRaises(PoemException) as context:
+                self.poem.get_metric_overrides()
 
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metricoverrides",
             headers={'x-api-key': 'P03mt0k3n'}
         )
 
-        self.assertEqual(overrides, dict())
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: MOCK_TENANT: Metric overrides fetch error: "
+            "400 BAD REQUEST"
+        )
 
         self.assertEqual(
             log.output, [
@@ -570,14 +580,19 @@ class PoemTests(unittest.TestCase):
     def test_get_default_ports_with_error_with_msg(self, mock_request):
         mock_request.side_effect = mock_poem_request_with_error_with_msg
         with self.assertLogs(self.logname) as log:
-            ports = self.poem.get_default_ports()
+            with self.assertRaises(PoemException) as context:
+                self.poem.get_default_ports()
 
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/default_ports",
             headers={'x-api-key': 'P03mt0k3n'}
         )
 
-        self.assertEqual(ports, dict())
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: MOCK_TENANT: Default ports fetch error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
 
         self.assertEqual(
             log.output, [
@@ -591,14 +606,19 @@ class PoemTests(unittest.TestCase):
     def test_get_default_ports_with_error_without_msg(self, mock_request):
         mock_request.side_effect = mock_poem_request_with_error_without_msg
         with self.assertLogs(self.logname) as log:
-            ports = self.poem.get_default_ports()
+            with self.assertRaises(PoemException) as context:
+                self.poem.get_default_ports()
 
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/default_ports",
             headers={'x-api-key': 'P03mt0k3n'}
         )
 
-        self.assertEqual(ports, dict())
+        self.assertEqual(
+            context.exception.__str__(),
+            "Poem error: MOCK_TENANT: Default ports fetch error: "
+            "400 BAD REQUEST"
+        )
 
         self.assertEqual(
             log.output, [

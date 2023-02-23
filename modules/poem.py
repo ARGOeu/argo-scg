@@ -51,7 +51,7 @@ class Poem:
                 pass
 
             self.logger.warning(msg)
-            return dict()
+            raise PoemException(msg)
 
         else:
             self.logger.info(
@@ -97,7 +97,7 @@ class Poem:
                 pass
 
             self.logger.warning(msg)
-            return  dict()
+            raise PoemException(msg)
 
         else:
             self.logger.info(
