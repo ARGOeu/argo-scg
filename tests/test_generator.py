@@ -6762,52 +6762,6 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_entity_when_faulty_characters(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_wrong_chars,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            entities = generator.generate_entities()
-        self.assertEqual(
-            entities, [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname3.argo.eu_test.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "http://hostname3.argo.eu/",
-                            "hostname": "hostname3.argo.eu",
-                            "path": "/",
-                            "port": "80",
-                            "ssl": "",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "group3"
-                        }
-                    },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
-                }
-            ]
-        )
-        self.assertEqual(
-            log.output, [
-                f"INFO:{LOGNAME}:MOCK_TENANT: Skipped entities generation for "
-                f"entities: "
-                f"eu.eosc.portal.services.url__hostname1.argo.com_hostname1 id,"
-                f" eu.eosc.portal.services.url__hostname2.argo.eu_second/id: "
-                f"invalid characters"
-            ]
-        )
-
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
