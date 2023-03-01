@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 from urllib.parse import urlparse
 
 from argo_scg.exceptions import GeneratorException
@@ -560,10 +559,6 @@ class ConfigurationGenerator:
             for item in topo_entities:
                 types = list()
                 entity_name = f"{item['service']}__{item['hostname']}"
-
-                if not re.match("^[\w.-]*$", entity_name):
-                    skipped_entities.append(entity_name)
-                    continue
 
                 if "hostname" in item["tags"]:
                     hostname = item["tags"]["hostname"]
