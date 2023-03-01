@@ -144,7 +144,7 @@ class Sensu:
         )
         return response
 
-    def get_event_output(self, entity, check, namespace="default"):
+    def _get_event(self, entity, check, namespace):
         response = self._get_events(namespace=namespace)
 
         if not response.ok:
@@ -160,11 +160,9 @@ class Sensu:
             raise SensuException(msg)
 
         else:
-            events = response.json()
-
             try:
                 return [
-                    event["check"]["output"] for event in events if
+                    event for event in response.json() if
                     event["entity"]["metadata"]["name"] == entity and
                     event["check"]["metadata"]["name"] == check
                 ][0]
@@ -174,6 +172,10 @@ class Sensu:
                     f"{namespace}: No event for entity {entity} and check "
                     f"{check}"
                 )
+
+    def get_event_output(self, entity, check, namespace="default"):
+        event = self._get_event(entity=entity, check=check, namespace=namespace)
+        return event["check"]["output"]
 
     def _fetch_events(self, namespace):
         response = self._get_events(namespace=namespace)
@@ -1010,6 +1012,11 @@ class Sensu:
                         "api_version": "core/v2"
                     },
                     {
+                        "name": "not_silenced",
+                        "type": "EventFilter",
+                        "api_version": "core/v2"
+                    },
+                    {
                         "name": "daily",
                         "type": "EventFilter",
                         "api_version": "core/v2"
@@ -1121,6 +1128,46 @@ class Sensu:
         return self._get_check(check=check, namespace=namespace)[
             "subscriptions"
         ]
+
+    def create_silencing_entry(self, check, entity, namespace="default"):
+        try:
+            self._get_event(entity=entity, check=check, namespace=namespace)
+
+        except SensuException as err:
+            raise SensuException(
+                f"{str(err).lstrip('Sensu error: ')}: "
+                f"Silencing entry not created"
+            )
+
+        else:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
+                data=json.dumps({
+                    "metadata": {
+                        "name": f"entity:{entity}:{check}",
+                        "namespace": namespace
+                    },
+                    "expire_on_resolve": True,
+                    "check": check,
+                    "subscription": f"entity:{entity}"
+                }),
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                }
+            )
+
+            if not response.ok:
+                msg = f"{namespace}: Silencing entry {entity}/{check} create " \
+                      f"error: {response.status_code} {response.reason}"
+
+                try:
+                    msg = f"{msg}: {response.json()['message']}"
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                raise SensuException(msg)
 
 
 class MetricOutput:
