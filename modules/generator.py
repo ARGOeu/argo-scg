@@ -114,6 +114,9 @@ class ConfigurationGenerator:
         self.metric_parameter_overrides = self._read_metric_parameter_overrides(
             attributes
         )
+        self.metrics_with_parameter_overrides = [
+            metric["metric"] for metric in self.metric_parameter_overrides
+        ]
         self.metrics_attr_override = dict()
         self.host_attribute_overrides = self._read_host_attribute_overrides(
             attributes
@@ -170,19 +173,18 @@ class ConfigurationGenerator:
         return attrs
 
     def _read_metric_parameter_overrides(self, input_attrs):
-        metric_parameter_overrides = dict()
+        metric_parameter_overrides = list()
 
         for file, keys in input_attrs.items():
             for item in keys["metric_parameters"]:
-                metric_parameter_overrides.update({
-                    item["metric"]: {
-                        "hostname": item["hostname"],
-                        "parameter": item["parameter"],
-                        "label": self._create_metric_parameter_label(
-                            item["metric"], item["parameter"]
-                        ),
-                        "value": item["value"]
-                    }
+                metric_parameter_overrides.append({
+                    "metric": item["metric"],
+                    "hostname": item["hostname"],
+                    "parameter": item["parameter"],
+                    "label": self._create_metric_parameter_label(
+                        item["metric"], item["parameter"]
+                    ),
+                    "value": item["value"]
                 })
 
         return metric_parameter_overrides
@@ -408,6 +410,10 @@ class ConfigurationGenerator:
 
         for metric in self.metrics:
             for name, configuration in metric.items():
+                parameter_overrides = [
+                    item for item in self.metric_parameter_overrides
+                    if item["metric"] == name
+                ]
                 try:
                     path = configuration["config"]["path"]
                     if path.endswith("/"):
@@ -426,28 +432,29 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if name in self.metric_parameter_overrides and \
-                                key == self.metric_parameter_overrides[name][
-                                "parameter"]:
+                        p = [
+                            item for item in parameter_overrides
+                            if item["parameter"] == key
+                        ]
+                        if len(p) > 0:
                             value = "{{ .labels.%s | default \"%s\" }}" % (
-                                self.metric_parameter_overrides[name]["label"],
-                                value
+                                p[0]["label"], value
                             )
 
                         param = f"{key} {value}".strip()
                         parameters = f"{parameters} {param}".strip()
 
-                    if name in self.metric_parameter_overrides and \
-                            self._is_parameter_default(
-                                name,
-                                self.metric_parameter_overrides[name][
-                                    "parameter"
-                                ]
+                    used_default_params = list()
+                    if len(parameter_overrides) > 0:
+                        for o in parameter_overrides:
+                            if (
+                                    self._is_parameter_default(
+                                        name, o["parameter"]
+                                    ) and o["label"] not in used_default_params
                             ):
-                        param = \
-                            "{{ .labels.%s }}" % \
-                            self.metric_parameter_overrides[name]["label"]
-                        parameters = f"{parameters} {param}"
+                                param = "{{ .labels.%s }}" % o["label"]
+                                used_default_params.append(o["label"])
+                                parameters = f"{parameters} {param}"
 
                     attributes, issecret = self._handle_attributes(
                         metric=name,
@@ -671,51 +678,37 @@ class ConfigurationGenerator:
 
                 types.append(item["service"])
                 for metric in self.metrics4servicetypes[item["service"]]:
+                    metric_parameter_overrides = [
+                        o for o in self.metric_parameter_overrides
+                        if o["metric"] == metric
+                    ]
                     if metric not in self.internal_metrics:
                         key = create_label(metric)
 
                         if key not in labels:
                             labels.update({key: metric})
 
-                    if metric in self.metric_parameter_overrides:
-                        if self._is_parameter_default(
-                            metric,
-                            self.metric_parameter_overrides[metric]["parameter"]
-                        ):
-                            label = self.metric_parameter_overrides[metric][
-                                "label"
-                            ]
-                            if item["hostname"] in \
-                                self.metric_parameter_overrides[metric][
-                                    "hostname"
-                                    ]:
-                                val = "%s %s" % (
-                                    self.metric_parameter_overrides[metric][
-                                        "parameter"
-                                    ],
-                                    self.metric_parameter_overrides[metric][
-                                        "value"
-                                    ]
-                                )
+                    hostname_metric_parameter_overrides = [
+                        o for o in metric_parameter_overrides
+                        if o["hostname"] == item["hostname"]
+                    ]
+                    for o in metric_parameter_overrides:
+                        if self._is_parameter_default(metric, o["parameter"]):
+                            label = o["label"]
+                            if item["hostname"] == o["hostname"]:
+                                labels.update({
+                                    label: "%s %s" % (
+                                        o["parameter"], o["value"]
+                                    )
+                                })
+                                break
 
                             else:
-                                val = ""
-
-                            labels.update({label: val})
+                                labels.update({label: ""})
 
                         else:
-                            if item["hostname"] in \
-                                    self.metric_parameter_overrides[metric][
-                                        "hostname"
-                                    ]:
-                                labels.update({
-                                    self.metric_parameter_overrides[metric][
-                                        "label"
-                                    ]:
-                                        self.metric_parameter_overrides[metric][
-                                            "value"
-                                        ]
-                                })
+                            if item["hostname"] == o["hostname"]:
+                                labels.update({o["label"]: o["value"]})
 
                     if metric in self.metrics_attr_override:
                         overrides = [

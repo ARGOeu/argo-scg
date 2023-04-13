@@ -1922,6 +1922,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-04-13",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "probe.test",
+        "hostname": "test3.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://test3.argo.grnet.gr/some/extra3/path",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -4429,6 +4443,12 @@ class CheckConfigurationTests(unittest.TestCase):
                         "value": "80"
                     },
                     {
+                        "hostname": "argo-devel.ni4os.eu",
+                        "metric": "generic.tcp.connect",
+                        "parameter": "-p",
+                        "value": "90"
+                    },
+                    {
                         "hostname": "argo.ni4os.eu",
                         "metric": "argo.APEL-Pub",
                         "parameter": "--ok-search",
@@ -5115,6 +5135,11 @@ class CheckConfigurationTests(unittest.TestCase):
                         "metric": "eosc.test.api",
                         "parameter": "-l",
                         "value": "/var/log/sensu/test.log"
+                    }, {
+                        "hostname": "test3.argo.grnet.gr",
+                        "metric": "eosc.test.api",
+                        "parameter": "-l",
+                        "value": "/var/log/meh/test.log"
                     }]
             }
         }
@@ -6162,6 +6187,11 @@ class EntityConfigurationTests(unittest.TestCase):
                     "metric": "generic.tcp.connect",
                     "parameter": "-p",
                     "value": "80"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "90"
                 }]
             }
         }
@@ -6205,6 +6235,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_tcp_connect_p": "90",
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
@@ -6694,14 +6725,17 @@ class EntityConfigurationTests(unittest.TestCase):
                 "global_attributes":
                     mock_attributes["local"]["global_attributes"],
                 "host_attributes": [],
-                "metric_parameters": [
-                    {
-                        "hostname": "test.argo.grnet.gr",
-                        "metric": "eosc.test.api",
-                        "parameter": "-l",
-                        "value": "/var/log/sensu/test.log"
-                    }
-                ]
+                "metric_parameters": [{
+                    "hostname": "test.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/sensu/test.log"
+                }, {
+                    "hostname": "test3.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/meh/test.log"
+                }]
             }
         }
         generator = ConfigurationGenerator(
@@ -6757,7 +6791,26 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["probe.test"]
-                }
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test3.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "-l /var/log/meh/test.log",
+                            "info_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "info_service_endpoint_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "hostname": "test3.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -6792,6 +6845,11 @@ class OverridesTests(unittest.TestCase):
                     "metric": "generic.tcp.connect",
                     "parameter": "-p",
                     "value": "80"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "90"
                 }]
             }
         }
@@ -6810,14 +6868,19 @@ class OverridesTests(unittest.TestCase):
             overrides = generator.get_metric_parameter_overrides()
 
         self.assertEqual(
-            overrides, {
-                "generic.tcp.connect": {
-                    "hostname": "argo.ni4os.eu",
-                    "parameter": "-p",
-                    "label": "generic_tcp_connect_p",
-                    "value": "80"
-                }
-            }
+            overrides, [{
+                "metric": "generic.tcp.connect",
+                "hostname": "argo.ni4os.eu",
+                "parameter": "-p",
+                "label": "generic_tcp_connect_p",
+                "value": "80"
+            }, {
+                "metric": "generic.tcp.connect",
+                "hostname": "argo-devel.ni4os.eu",
+                "parameter": "-p",
+                "label": "generic_tcp_connect_p",
+                "value": "90"
+            }]
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
