@@ -4591,6 +4591,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
                 }],
                 "metric_parameters": []
             }
@@ -6277,6 +6281,10 @@ class EntityConfigurationTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
                 }],
                 "metric_parameters": []
             }
@@ -6323,7 +6331,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "nagios_freshness_username":
                                 "$NAGIOS_FRESHNESS_USERNAME",
                             "nagios_freshness_password":
-                                "$NAGIOS_FRESHNESS_PASSWORD",
+                                "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD",
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
@@ -6922,13 +6930,15 @@ class OverridesTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "label": "nagios_freshness_password",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                    "metrics": ["argo.nagios.freshness-simple-login"]
                 },
                 {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
                     "label": "nagios_freshness_username",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                    "metrics": ["argo.nagios.freshness-simple-login"]
                 }
             ]
         )
