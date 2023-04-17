@@ -691,7 +691,7 @@ class ConfigurationGenerator:
                     for o in metric_parameter_overrides:
                         if self._is_parameter_default(metric, o["parameter"]):
                             label = o["label"]
-                            if item["hostname"] == o["hostname"]:
+                            if o["hostname"] in [item["hostname"], entity_name]:
                                 labels.update({
                                     label: "%s %s" % (
                                         o["parameter"], o["value"]
@@ -703,7 +703,7 @@ class ConfigurationGenerator:
                                 labels.update({label: ""})
 
                         else:
-                            if item["hostname"] == o["hostname"]:
+                            if o["hostname"] in [item["hostname"], entity_name]:
                                 labels.update({o["label"]: o["value"]})
 
                     if metric == "generic.ssh.connect" and "port" not in labels:
@@ -712,7 +712,7 @@ class ConfigurationGenerator:
                 if len(attribute_overrides) > 0:
                     host_attribute_overrides = [
                         o for o in attribute_overrides
-                        if o["hostname"] == item["hostname"]
+                        if o["hostname"] in [item["hostname"], entity_name]
                     ]
                     overriding_attributes = set(
                         [o["attribute"] for o in attribute_overrides]
