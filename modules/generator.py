@@ -114,7 +114,9 @@ class ConfigurationGenerator:
         self.metric_parameter_overrides = self._read_metric_parameter_overrides(
             attributes
         )
-        self.metrics_attr_override = dict()
+        self.metrics_with_parameter_overrides = [
+            metric["metric"] for metric in self.metric_parameter_overrides
+        ]
         self.host_attribute_overrides = self._read_host_attribute_overrides(
             attributes
         )
@@ -170,19 +172,18 @@ class ConfigurationGenerator:
         return attrs
 
     def _read_metric_parameter_overrides(self, input_attrs):
-        metric_parameter_overrides = dict()
+        metric_parameter_overrides = list()
 
         for file, keys in input_attrs.items():
             for item in keys["metric_parameters"]:
-                metric_parameter_overrides.update({
-                    item["metric"]: {
-                        "hostname": item["hostname"],
-                        "parameter": item["parameter"],
-                        "label": self._create_metric_parameter_label(
-                            item["metric"], item["parameter"]
-                        ),
-                        "value": item["value"]
-                    }
+                metric_parameter_overrides.append({
+                    "metric": item["metric"],
+                    "hostname": item["hostname"],
+                    "parameter": item["parameter"],
+                    "label": self._create_metric_parameter_label(
+                        item["metric"], item["parameter"]
+                    ),
+                    "value": item["value"]
                 })
 
         return metric_parameter_overrides
@@ -196,18 +197,9 @@ class ConfigurationGenerator:
                     "hostname": item["hostname"],
                     "attribute": item["attribute"],
                     "label": create_label(item["attribute"]),
-                    "value": item["value"].strip("$")
+                    "value": item["value"].strip("$"),
+                    "metrics": self._get_metrics4attribute(item["attribute"])
                 })
-                for metric in self._get_metrics4attribute(item["attribute"]):
-                    if metric in self.metrics_attr_override:
-                        attrs = self.metrics_attr_override[metric]
-                        attrs.add(item["attribute"])
-                        self.metrics_attr_override.update({metric: attrs})
-
-                    else:
-                        self.metrics_attr_override.update({
-                            metric: {item["attribute"]}
-                        })
 
         return host_attribute_overrides
 
@@ -408,6 +400,10 @@ class ConfigurationGenerator:
 
         for metric in self.metrics:
             for name, configuration in metric.items():
+                parameter_overrides = [
+                    item for item in self.metric_parameter_overrides
+                    if item["metric"] == name
+                ]
                 try:
                     path = configuration["config"]["path"]
                     if path.endswith("/"):
@@ -426,28 +422,29 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if name in self.metric_parameter_overrides and \
-                                key == self.metric_parameter_overrides[name][
-                                "parameter"]:
+                        p = [
+                            item for item in parameter_overrides
+                            if item["parameter"] == key
+                        ]
+                        if len(p) > 0:
                             value = "{{ .labels.%s | default \"%s\" }}" % (
-                                self.metric_parameter_overrides[name]["label"],
-                                value
+                                p[0]["label"], value
                             )
 
                         param = f"{key} {value}".strip()
                         parameters = f"{parameters} {param}".strip()
 
-                    if name in self.metric_parameter_overrides and \
-                            self._is_parameter_default(
-                                name,
-                                self.metric_parameter_overrides[name][
-                                    "parameter"
-                                ]
+                    used_default_params = list()
+                    if len(parameter_overrides) > 0:
+                        for o in parameter_overrides:
+                            if (
+                                    self._is_parameter_default(
+                                        name, o["parameter"]
+                                    ) and o["label"] not in used_default_params
                             ):
-                        param = \
-                            "{{ .labels.%s }}" % \
-                            self.metric_parameter_overrides[name]["label"]
-                        parameters = f"{parameters} {param}"
+                                param = "{{ .labels.%s }}" % o["label"]
+                                used_default_params.append(o["label"])
+                                parameters = f"{parameters} {param}"
 
                     attributes, issecret = self._handle_attributes(
                         metric=name,
@@ -670,77 +667,69 @@ class ConfigurationGenerator:
                     labels.update({"info_hostdn": item["tags"]["info_HOSTDN"]})
 
                 types.append(item["service"])
-                for metric in self.metrics4servicetypes[item["service"]]:
+
+                metrics4servicetype = self.metrics4servicetypes[item["service"]]
+
+                attribute_overrides = [
+                    o for o in self.host_attribute_overrides
+                    if len(
+                        set(o["metrics"]).intersection(set(metrics4servicetype))
+                    ) > 0
+                ]
+
+                for metric in metrics4servicetype:
+                    metric_parameter_overrides = [
+                        o for o in self.metric_parameter_overrides
+                        if o["metric"] == metric
+                    ]
                     if metric not in self.internal_metrics:
                         key = create_label(metric)
 
                         if key not in labels:
                             labels.update({key: metric})
 
-                    if metric in self.metric_parameter_overrides:
-                        if self._is_parameter_default(
-                            metric,
-                            self.metric_parameter_overrides[metric]["parameter"]
-                        ):
-                            label = self.metric_parameter_overrides[metric][
-                                "label"
-                            ]
-                            if item["hostname"] in \
-                                self.metric_parameter_overrides[metric][
-                                    "hostname"
-                                    ]:
-                                val = "%s %s" % (
-                                    self.metric_parameter_overrides[metric][
-                                        "parameter"
-                                    ],
-                                    self.metric_parameter_overrides[metric][
-                                        "value"
-                                    ]
-                                )
+                    for o in metric_parameter_overrides:
+                        if self._is_parameter_default(metric, o["parameter"]):
+                            label = o["label"]
+                            if o["hostname"] in [item["hostname"], entity_name]:
+                                labels.update({
+                                    label: "%s %s" % (
+                                        o["parameter"], o["value"]
+                                    )
+                                })
+                                break
 
                             else:
-                                val = ""
-
-                            labels.update({label: val})
+                                labels.update({label: ""})
 
                         else:
-                            if item["hostname"] in \
-                                    self.metric_parameter_overrides[metric][
-                                        "hostname"
-                                    ]:
-                                labels.update({
-                                    self.metric_parameter_overrides[metric][
-                                        "label"
-                                    ]:
-                                        self.metric_parameter_overrides[metric][
-                                            "value"
-                                        ]
-                                })
-
-                    if metric in self.metrics_attr_override:
-                        overrides = [
-                            entry for entry in self.host_attribute_overrides if
-                            entry["hostname"] == item["hostname"]
-                        ]
-                        if len(overrides) > 0:
-                            for override in overrides:
-                                override_value = create_attribute_env(
-                                    override["value"]
-                                )
-                                labels.update({
-                                    override["label"]: f"${override_value}"
-                                })
-
-                        else:
-                            for attribute in self.metrics_attr_override[metric]:
-                                label = \
-                                    f"${create_attribute_env(attribute)}"
-                                labels.update({
-                                    create_label(attribute): label
-                                })
+                            if o["hostname"] in [item["hostname"], entity_name]:
+                                labels.update({o["label"]: o["value"]})
 
                     if metric == "generic.ssh.connect" and "port" not in labels:
                         labels.update({"port": "22"})
+
+                if len(attribute_overrides) > 0:
+                    host_attribute_overrides = [
+                        o for o in attribute_overrides
+                        if o["hostname"] in [item["hostname"], entity_name]
+                    ]
+                    overriding_attributes = set(
+                        [o["attribute"] for o in attribute_overrides]
+                    ).difference(
+                        set([o["attribute"] for o in host_attribute_overrides])
+                    )
+                    for o in host_attribute_overrides:
+                        override_value = create_attribute_env(
+                            o["value"]
+                        )
+                        labels.update({
+                            o["label"]: f"${override_value}"
+                        })
+
+                    for attr in overriding_attributes:
+                        label = f"${create_attribute_env(attr)}"
+                        labels.update({create_label(attr): label})
 
                 for tag, value in item["tags"].items():
                     if tag.startswith("info_ext_"):

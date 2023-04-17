@@ -3662,7 +3662,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3730,7 +3730,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3798,7 +3798,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3863,13 +3863,14 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides={
-                    "generic.tcp.connect": {
+                metric_parameters_overrides=[
+                    {
+                        "metric": "generic.tcp.connect",
                         "hostname": "sensu-agent1",
                         "label": "generic_tcp_connect_p",
                         "value": "80"
                     }
-                },
+                ],
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"

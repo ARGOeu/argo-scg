@@ -617,10 +617,10 @@ class Sensu:
         def _get_labels(hostname):
             host_labels = {"hostname": hostname}
 
-            for key, value in metric_parameters_overrides.items():
-                if value["hostname"] == hostname:
+            for item in metric_parameters_overrides:
+                if item["hostname"] == hostname:
                     host_labels.update({
-                        value["label"]: value["value"],
+                        item["label"]: item["value"],
                     })
 
             for item in host_attributes_overrides:
