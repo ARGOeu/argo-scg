@@ -1259,13 +1259,17 @@ class SensuCtl:
     def __init__(self, namespace):
         self.namespace = namespace
 
-    def get_events(self):
+    def _get_events(self):
         output = subprocess.check_output([
             "sensuctl", "event", "list", "--format", "json", "--namespace",
             self.namespace
         ]).decode("utf-8")
         data = json.loads(output)
 
+        return data
+
+    @staticmethod
+    def _format_events(data):
         hostnames = [
             item["entity"]["metadata"]["name"][
                 len(f"{item['entity']['metadata']['labels']['service']}__"):
@@ -1316,3 +1320,16 @@ class SensuCtl:
             )
 
         return output_list
+
+    def get_events(self):
+        data = self._get_events()
+        return self._format_events(data)
+
+    def filter_events(self, status):
+        events = self._get_events()
+
+        filtered_events = [
+            item for item in events if item["check"]["status"] == status
+        ]
+
+        return self._format_events(filtered_events)

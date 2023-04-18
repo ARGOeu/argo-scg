@@ -6286,3 +6286,25 @@ class SensuCtlTests(unittest.TestCase):
                 "(was valid until Jul 10 07:29:06 2022 GMT)"
             ]
         )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(status=0)
+        self.assertEqual(
+            events, [
+                "Host                     Metric                          "
+                "Status    Executed             Output",
+                "_________________________________________________________"
+                "________________________________________",
+                "argo-mon-devel.ni4os.eu  generic.certificate.validity    "
+                "OK        2023-03-01 10:23:13  SSL_CERT OK - x509 certificate "
+                "'*.ni4os.eu' (argo-mon-devel.ni4os.eu) from "
+                "'GEANT OV RSA CA 4' valid until Apr 14 23:59:59 2023 GMT "
+                "(expires in 44 days)",
+                "argo-mon-devel.ni4os.eu  generic.http.connect-nagios-ui  "
+                "OK        2023-03-01 10:28:16  HTTP OK: HTTP/1.1 200 OK - "
+                "121268 bytes in 0.051 second response time"
+            ]
+        )
