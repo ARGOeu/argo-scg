@@ -964,13 +964,13 @@ class Sensu:
             return response.json()
 
     def _add_pipeline(self, name, workflows, namespace="default"):
-        pipelines = [
-            f["metadata"]["name"] for f in self._get_pipelines(
-                namespace=namespace
-            )
-        ]
+        pipelines = self._get_pipelines(namespace=namespace)
+        pipelines_names = [p["metadata"]["name"] for p in pipelines]
 
-        if name not in pipelines:
+        response = None
+        added = False
+        if name not in pipelines_names:
+            added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
                 headers={
@@ -986,8 +986,29 @@ class Sensu:
                 })
             )
 
+        else:
+            the_pipeline = [
+                p for p in pipelines if p["metadata"]["name"] == name
+            ][0]
+            if the_pipeline["workflows"] != workflows:
+                response = requests.patch(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines/"
+                    f"{name}",
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/merge-patch+json"
+                    },
+                    data=json.dumps({"workflows": workflows})
+                )
+
+        if response:
             if not response.ok:
-                msg = f"{namespace}: {name} pipeline create error: " \
+                if added:
+                    intra_msg = f"{name} pipeline create error"
+                else:
+                    intra_msg = f"{name} pipeline not updated"
+
+                msg = f"{namespace}: {intra_msg}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -996,11 +1017,20 @@ class Sensu:
                 except (ValueError, KeyError, TypeError):
                     pass
 
-                self.logger.error(msg)
-                raise SensuException(msg)
+                if added:
+                    self.logger.error(msg)
+                    raise SensuException(msg)
+
+                else:
+                    self.logger.warning(msg)
 
             else:
-                self.logger.info(f"{namespace}: {name} pipeline created")
+                if added:
+                    operation = "created"
+                else:
+                    operation = "updated"
+
+                self.logger.info(f"{namespace}: {name} pipeline {operation}")
 
     def add_reduce_alerts_pipeline(self, namespace="default"):
         workflows = [

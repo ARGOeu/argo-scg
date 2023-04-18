@@ -1126,6 +1126,64 @@ mock_pipelines1 = [
     }
 ]
 
+mock_pipelines2 = [
+    {
+        'metadata': {
+            'name': 'reduce_alerts',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'slack_alerts',
+                'filters': [
+                    {
+                        'name': 'is_incident',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    },
+                    {
+                        'name': 'daily',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'slack',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    },
+    {
+        'metadata': {
+            'name': 'hard_state',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'mimic_hard_state',
+                'filters': [
+                    {
+                        'name': 'hard-state',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'publisher-handler',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    }
+]
+
 mock_events_ctl = [
     {
         "check": {
@@ -5571,7 +5629,7 @@ class SensuPipelinesTests(unittest.TestCase):
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_pipelines")
-    def test_add_alert_pipe_if_exists(self, mock_pipeline, mock_post):
+    def test_add_alert_pipe_if_exists_and_same(self, mock_pipeline, mock_post):
         mock_pipeline.return_value = mock_pipelines1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5579,6 +5637,56 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.patch")
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_if_exists_and_different(
+            self, mock_pipeline, mock_post, mock_patch
+    ):
+        mock_pipeline.return_value = mock_pipelines2
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines/reduce_alerts",
+            data=json.dumps({
+                "workflows": [{
+                    "name": "slack_alerts",
+                    "filters": [
+                        {
+                            "name": "is_incident",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "not_silenced",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "daily",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "handler": {
+                        "name": "slack",
+                        "type": "Handler",
+                        "api_version": "core/v2"
+                    }
+                }]
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: reduce_alerts pipeline updated"]
+        )
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_pipelines")
