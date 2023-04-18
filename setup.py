@@ -26,6 +26,6 @@ setup(
     data_files=[('/etc/argo-scg/', ['config/scg.conf'])],
     scripts=[
         'exec/scg-reload.py', 'exec/sensu2publisher.py', 'exec/scg-ad-hoc.py',
-        'exec/scg-run-check.py', 'exec/scg-ack.py'
+        'exec/scg-run-check.py', 'exec/scg-ack.py', 'exec/sensu-events'
     ]
 )
