@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import subprocess
@@ -1252,3 +1253,66 @@ class MetricOutput:
 
     def get_namespace(self):
         return self.data["check"]["metadata"]["namespace"]
+
+
+class SensuCtl:
+    def __init__(self, namespace):
+        self.namespace = namespace
+
+    def get_events(self):
+        output = subprocess.check_output([
+            "sensuctl", "event", "list", "--format", "json", "--namespace",
+            self.namespace
+        ]).decode("utf-8")
+        data = json.loads(output)
+
+        hostnames = [
+            item["entity"]["metadata"]["name"][
+                len(f"{item['entity']['metadata']['labels']['service']}__"):
+            ] if "service" in item["entity"]["metadata"]["labels"] else
+            item["entity"]["metadata"]["name"] for item in data
+        ]
+        hostname_len = len(max(hostnames, key=len)) + 2
+        metrics = [
+            item["check"]["metadata"]["name"] for item in data
+        ]
+        metric_len = len(max(metrics, key=len)) + 2
+
+        output_list = list()
+        output_list.append(
+            f"{'Host'.ljust(hostname_len)}{'Metric'.ljust(metric_len)}"
+            f"{'Status'.ljust(10)}{'Executed'.ljust(21)}Output"
+        )
+        output_list.append("_" * (hostname_len + metric_len + 40))
+        for item in data:
+            hostname = \
+                item["entity"]["metadata"]["name"][
+                    len(f"{item['entity']['metadata']['labels']['service']}__"):
+                ] if "service" in item["entity"]["metadata"]["labels"] else \
+                item["entity"]["metadata"]["name"]
+            metric = item["check"]["metadata"]["name"]
+            status = item["check"]["status"]
+            if status == 0:
+                status = "OK"
+
+            elif status == 1:
+                status = "WARNING"
+
+            elif status == 2:
+                status = "CRITICAL"
+
+            else:
+                status = "UNKNOWN"
+
+            executed = datetime.datetime.fromtimestamp(
+                item["check"]["executed"]
+            )
+            metric_output = item["check"]["output"].split("|")[0].strip()
+
+            output_list.append(
+                f"{hostname.ljust(hostname_len)}{metric.ljust(metric_len)}"
+                f"{status.ljust(10)}{executed.strftime('%Y-%m-%d %H:%M:%S')}  "
+                f"{metric_output}"
+            )
+
+        return output_list

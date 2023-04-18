@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch, call
 
 from argo_scg.exceptions import SensuException
-from argo_scg.sensu import Sensu, MetricOutput
+from argo_scg.sensu import Sensu, MetricOutput, SensuCtl
 
 from utils import MockResponse
 
@@ -1123,6 +1123,527 @@ mock_pipelines1 = [
                 }
             }
         ]
+    }
+]
+
+mock_events_ctl = [
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_ssl_cert -H "
+                "argo-mon-devel.ni4os.eu -t 90 -w 30 -c 0 -N --altnames "
+                "--rootcert-dir /etc/grid-security/certificates "
+                "--rootcert-file /etc/pki/tls/certs/ca-bundle.crt "
+                "-C /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_certificate_validity == "
+                    "'generic.certificate.validity'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 12.389719077,
+            "executed": 1677666193,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 0,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 0,
+                    "executed": 1677594191
+                },
+                {
+                    "status": 0,
+                    "executed": 1677608592
+                },
+                {
+                    "status": 0,
+                    "executed": 1677622992
+                },
+                {
+                    "status": 0,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 0,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 0,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 0,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666193
+                }
+            ],
+            "issued": 1677666193,
+            "output":
+                "SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)|"
+                "days=44;30;0;;\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1677666193,
+            "occurrences": 10,
+            "occurrences_watermark": 10,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.certificate.validity",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect_nagios_ui":
+                        "generic.http.connect-nagios-ui",
+                    "hostname": "argo-mon-devel.ni4os.eu",
+                    "info_url": "https://argo-mon-devel.ni4os.eu",
+                    "service": "argo.mon",
+                    "site": "SRCE"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 751,
+        "timestamp": 1677666206
+    },
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_http -H "
+                "argo-mon-devel.ni4os.eu -t 30 --ssl -s \"Status Details\" "
+                "-u \"/nagios/cgi-bin/status.cgi?hostgroup=all&style="
+                "hostdetail\" -J /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_http_connect_nagios_ui == "
+                    "'generic.http.connect-nagios-ui'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 0.055498604,
+            "executed": 1677666496,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1677660496
+                },
+                {
+                    "status": 0,
+                    "executed": 1677660796
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661096
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661396
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661696
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661996
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662296
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662596
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662896
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663196
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663496
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663796
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664096
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664396
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664696
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664996
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665296
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665596
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665896
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666196
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666496
+                }
+            ],
+            "issued": 1677666496,
+            "output":
+                "HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time |time=0.050596s;;;0.000000 size=121268B;;;0\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1677666496,
+            "occurrences": 311,
+            "occurrences_watermark": 311,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.http.connect-nagios-ui",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "3"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect_nagios_ui":
+                        "generic.http.connect-nagios-ui",
+                    "hostname": "argo-mon-devel.ni4os.eu",
+                    "info_url": "https://argo-mon-devel.ni4os.eu",
+                    "service": "argo.mon",
+                    "site": "SRCE"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 931,
+        "timestamp": 1677666496
+    },
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_ssl_cert -H videolectures.net "
+                "-t 90 -w 30 -c 0 -N --altnames "
+                "--rootcert-dir /etc/grid-security/certificates "
+                "--rootcert-file /etc/pki/tls/certs/ca-bundle.crt "
+                "-C /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon",
+                "eu.ni4os.app.web"
+            ],
+            "proxy_entity_name": "eu.ni4os.repo.publication__videolectures.net",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_certificate_validity == "
+                    "'generic.certificate.validity'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 17.61893143,
+            "executed": 1677666193,
+            "history": [
+                {
+                    "status": 2,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 2,
+                    "executed": 1677594191
+                },
+                {
+                    "status": 2,
+                    "executed": 1677608592
+                },
+                {
+                    "status": 2,
+                    "executed": 1677622992
+                },
+                {
+                    "status": 2,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677666193
+                }
+            ],
+            "issued": 1677666193,
+            "output":
+                "SSL_CERT CRITICAL videolectures.net: x509 certificate is "
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)|"
+                "days=-234;30;0;;\n",
+            "state": "failing",
+            "status": 2,
+            "total_state_change": 0,
+            "last_ok": 0,
+            "occurrences": 9,
+            "occurrences_watermark": 9,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.certificate.validity",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "eu.ni4os.repo.publication"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "eu.ni4os.repo.publication__videolectures.net",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "hostname": "videolectures.net",
+                    "info_url": "http://videolectures.net/",
+                    "path": "/",
+                    "port": "80",
+                    "service": "eu.ni4os.repo.publication",
+                    "site": "JSI",
+                    "ssl": ""
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 871,
+        "timestamp": 1677666211
     }
 ]
 
@@ -5733,4 +6254,35 @@ class SensuSilencingEntryTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: TENANT1: No event for entity argo.ni4os.eu and check "
             "generic.http.connect: Silencing entry not created"
+        )
+
+
+class SensuCtlTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensuctl = SensuCtl(namespace="default")
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Host                     Metric                          "
+                "Status    Executed             Output",
+                "_________________________________________________________"
+                "________________________________________",
+                "argo-mon-devel.ni4os.eu  generic.certificate.validity    "
+                "OK        2023-03-01 10:23:13  SSL_CERT OK - x509 certificate "
+                "'*.ni4os.eu' (argo-mon-devel.ni4os.eu) from "
+                "'GEANT OV RSA CA 4' valid until Apr 14 23:59:59 2023 GMT "
+                "(expires in 44 days)",
+                "argo-mon-devel.ni4os.eu  generic.http.connect-nagios-ui  "
+                "OK        2023-03-01 10:28:16  HTTP OK: HTTP/1.1 200 OK - "
+                "121268 bytes in 0.051 second response time",
+                "videolectures.net        generic.certificate.validity    "
+                "CRITICAL  2023-03-01 10:23:13  SSL_CERT CRITICAL "
+                "videolectures.net: x509 certificate is expired "
+                "(was valid until Jul 10 07:29:06 2022 GMT)"
+            ]
         )
