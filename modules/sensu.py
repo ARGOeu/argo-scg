@@ -1270,24 +1270,30 @@ class SensuCtl:
 
     @staticmethod
     def _format_events(data):
+        output_list = list()
         hostnames = [
             item["entity"]["metadata"]["name"][
                 len(f"{item['entity']['metadata']['labels']['service']}__"):
             ] if "service" in item["entity"]["metadata"]["labels"] else
             item["entity"]["metadata"]["name"] for item in data
         ]
-        hostname_len = len(max(hostnames, key=len)) + 2
-        metrics = [
-            item["check"]["metadata"]["name"] for item in data
-        ]
-        metric_len = len(max(metrics, key=len)) + 2
+        if len(hostnames) > 0:
+            hostname_len = len(max(hostnames, key=len)) + 2
+            metrics = [
+                item["check"]["metadata"]["name"] for item in data
+            ]
+            metric_len = len(max(metrics, key=len)) + 2
 
-        output_list = list()
+        else:
+            hostname_len = 10
+            metric_len = 10
+
         output_list.append(
             f"{'Host'.ljust(hostname_len)}{'Metric'.ljust(metric_len)}"
             f"{'Status'.ljust(10)}{'Executed'.ljust(21)}Output"
         )
         output_list.append("_" * (hostname_len + metric_len + 40))
+
         for item in data:
             hostname = \
                 item["entity"]["metadata"]["name"][

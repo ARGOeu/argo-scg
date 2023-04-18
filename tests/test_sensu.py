@@ -6308,3 +6308,15 @@ class SensuCtlTests(unittest.TestCase):
                 "121268 bytes in 0.051 second response time"
             ]
         )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events_if_empty_list(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(status=1)
+        self.assertEqual(
+            events, [
+                "Host      Metric    Status    Executed             Output",
+                "____________________________________________________________"
+            ]
+        )
