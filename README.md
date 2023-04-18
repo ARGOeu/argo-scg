@@ -56,6 +56,7 @@ ARGO SCG consists of several tools:
 
 * `scg-reload.py` configures Sensu for use with ARGO monitoring; details of configuration are described in section [Sensu configuration](#sensu-configuration)
 * `scg-ack.py` for acknowledgement of errors
+* `sensu-events` for display of events
 * `sensu2publisher.py` prepares Sensu event output data for ARGO AMS Publisher
 
 ### `scg-reload.py`
@@ -90,6 +91,38 @@ Example:
 ```
 scg-ack.py -c argo.POEM-CERT-MON -e argo.poem__poem.argo.grnet.gr -n internal
 ```
+
+### `sensu-events`
+
+This tool is used to display events that have been run. It takes two optional arguments: `--namespace`, to denote for which namespace you wish events displayed (`default` namespace by default) and `--status` which is used for view filtering. If `--status` is not used, all the events are shown.
+
+Example:
+
+```
+# sensu-events 
+Host                    Metric                                   Status    Executed             Output
+_________________________________________________________________________________________________________
+sensu-devel.cro-ngi.hr  argo.AMSPublisher-Check                  OK        2023-04-18 11:21:06  OK - Worker metricsni4os published 5190 (threshold 10 in 180 minutes) / Worker metricseoscprobe published 17600 (threshold 10 in 180 minutes) / Worker metricseosccore published 1089 (threshold 10 in 180 minutes) / Worker metricseosc published 9100 (threshold 10 in 180 minutes)
+
+
+sensu-devel.cro-ngi.hr  argo.poem-tools.check                    OK        2023-04-18 11:55:23  OK - The run finished successfully.
+
+
+sensu-devel.cro-ngi.hr  argo.scg.check                           OK        2023-04-18 11:51:42  OK - Done
+
+
+sensu-devel.cro-ngi.hr  keepalive                                OK        2023-04-18 13:32:41  Keepalive last sent from sensu-devel.cro-ngi.hr at 2023-04-18 13:32:41 +0200 CEST
+
+
+sensu-devel.cro-ngi.hr  org.nagios.AmsDirSize                    OK        2023-04-18 13:03:26  OK - /var/spool/ams-publisher size: 680 KB
+
+
+sensu-devel.cro-ngi.hr  org.nagios.DiskCheck-Local               OK        2023-04-18 13:11:57  DISK OK - free space: /dev 3900 MiB (100.00% inode=100%); /dev/shm 3909 MiB (99.98% inode=100%); /run 3543 MiB (90.61% inode=100%); /sys/fs/cgroup 3910 MiB (100.00% inode=100%); / 83534 MiB (81.61% inode=100%); /run/user/35838 782 MiB (100.00% inode=100%);
+
+
+sensu-devel.cro-ngi.hr  srce.certificate.validity-sensu-backend  OK        2023-04-18 12:21:39  CERT LIFETIME OK - Certificate will expire in 341.06 days (Mar 24 11:51:28 2024 GMT)
+```
+
 ### `sensu2publisher.py`
 
 `sensu2publisher.py` is not meant to be run by a user, it is run by Sensu as a handler. It takes Sensu check output as input, and then prepares data to be sent to the publisher.
