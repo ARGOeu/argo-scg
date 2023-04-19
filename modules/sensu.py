@@ -1110,8 +1110,14 @@ class Sensu:
         except IndexError:
             raise SensuException(f"No entity {entity} in namespace {namespace}")
 
-        if create_label(check) not in \
-                entity_configuration["metadata"]["labels"]:
+        is_check_run = \
+            entity_configuration["entity_class"] == "agent" and \
+            len(set(check_configuration["subscriptions"]).intersection(
+                set(entity_configuration["subscriptions"])
+            )) > 0 and "proxy_requests" not in check_configuration or \
+            create_label(check) in entity_configuration["metadata"]["labels"]
+
+        if not is_check_run:
             raise SensuException(
                 f"No event with entity {entity} and check {check} in "
                 f"namespace {namespace}"

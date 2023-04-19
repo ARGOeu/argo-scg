@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 import time
 
 import requests
@@ -36,9 +37,14 @@ def main():
     args = parser.parse_args()
 
     try:
-        config = Config(config_file=args.config)
-        url = config.get_sensu_url()
-        token = config.get_sensu_token()
+        try:
+            config = Config(config_file=args.config)
+            url = config.get_sensu_url()
+            token = config.get_sensu_token()
+
+        except ConfigException as e:
+            print(e)
+            sys.exit(2)
 
         sensu = Sensu(url=url, token=token)
         command = sensu.get_check_run(
@@ -92,9 +98,6 @@ def main():
 
         else:
             print(f"Executing command:\n{command}")
-
-    except ConfigException as e:
-        print(e)
 
     except SensuException as e:
         print(e)
