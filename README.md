@@ -56,6 +56,7 @@ ARGO SCG consists of several tools:
 
 * `scg-reload.py` configures Sensu for use with ARGO monitoring; details of configuration are described in section [Sensu configuration](#sensu-configuration)
 * `scg-ack.py` for acknowledgement of errors
+* `scg-run-check` print how the checks are called for entities
 * `sensu-events` for display of events
 * `sensu2publisher.py` prepares Sensu event output data for ARGO AMS Publisher
 
@@ -80,7 +81,7 @@ INFO - Done
 
 The tool also writes to a logfile, located in `/var/log/argo-scg/argo-scg.log`.
 
-### `sensu-ack.py`
+### `scg-ack.py`
 
 This tool is used to acknowledge an event, so it does not send any more notifications. The event will be silenced until it is resolved, after that it will send notifications normally without any user input. 
 
@@ -90,6 +91,26 @@ Example:
 
 ```
 scg-ack.py -c argo.POEM-CERT-MON -e argo.poem__poem.argo.grnet.gr -n internal
+```
+
+### `scg-run-check`
+
+This tool is used to check how the given check is called for given entity. You should supply entity name, check name and namespace as input arguments, and the tool will return how exactly the check is run for the given entity:
+
+```
+# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -n internal
+Executing command:
+/usr/lib64/nagios/plugins/check_ssl_cert -H neanias.ui.argo.grnet.gr -t 60 -w 30 -c 0 -N --altnames --rootcert-dir /etc/grid-security/certificates --rootcert-file /etc/pki/tls/certs/ca-bundle.crt -C /etc/sensu/certs/hostcert.pem -K /etc/sensu/certs/hostkey.pem
+```
+
+It is also possible to include `--execute` flag, in which case the check will be run, and the result will be printed to terminal:
+
+```
+# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -n internal --execute
+Executing command:
+/usr/lib64/nagios/plugins/check_ssl_cert -H neanias.ui.argo.grnet.gr -t 60 -w 30 -c 0 -N --altnames --rootcert-dir /etc/grid-security/certificates --rootcert-file /etc/pki/tls/certs/ca-bundle.crt -C /etc/sensu/certs/hostcert.pem -K /etc/sensu/certs/hostkey.pem
+
+SSL_CERT OK - x509 certificate '*.devel.argo.grnet.gr' (neanias.ui.argo.grnet.gr) from 'GEANT OV RSA CA 4' valid until May 26 23:59:59 2023 GMT (expires in 37 days)|days=37;30;0;;
 ```
 
 ### `sensu-events`

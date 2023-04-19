@@ -408,6 +408,22 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
+    def is_entity_agent(self, entity, namespace="default"):
+        try:
+            entity_configuration = [
+                e for e in self._get_entities(namespace=namespace)
+                if e["metadata"]["name"] == entity
+            ][0]
+
+        except IndexError:
+            raise SensuException(f"No entity {entity} in namespace {namespace}")
+
+        if entity_configuration["entity_class"] == "agent":
+            return True
+
+        else:
+            return False
+
     def _delete_entities(self, entities, namespace):
         for entity in entities:
             response = requests.delete(
@@ -1110,8 +1126,14 @@ class Sensu:
         except IndexError:
             raise SensuException(f"No entity {entity} in namespace {namespace}")
 
-        if create_label(check) not in \
-                entity_configuration["metadata"]["labels"]:
+        is_check_run = \
+            entity_configuration["entity_class"] == "agent" and \
+            len(set(check_configuration["subscriptions"]).intersection(
+                set(entity_configuration["subscriptions"])
+            )) > 0 and "proxy_requests" not in check_configuration or \
+            create_label(check) in entity_configuration["metadata"]["labels"]
+
+        if not is_check_run:
             raise SensuException(
                 f"No event with entity {entity} and check {check} in "
                 f"namespace {namespace}"

@@ -6045,6 +6045,42 @@ class SensuCheckCallTests(unittest.TestCase):
                 },
                 "secrets": None,
                 "pipelines": []
+            },
+            {
+                "command": "/usr/libexec/argo/probes/cert/CertLifetime-probe "
+                           "-t 60 -f /etc/sensu/certs/robotcert.pem",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 14400,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["argo.mon"],
+                "proxy_entity_name": "",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 900,
+                "round_robin": False,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "srce.certificate.validity-robot",
+                    "namespace": "default",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "secrets": None,
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ]
             }
         ]
         self.entities = [
@@ -6107,6 +6143,63 @@ class SensuCheckCallTests(unittest.TestCase):
                     }
                 },
                 "sensu_agent_version": ""
+            },
+            {
+                "entity_class": "agent",
+                "system": {
+                    "hostname": "sensu-agent1",
+                    "os": "linux",
+                    "platform": "centos",
+                    "platform_family": "rhel",
+                    "platform_version": "7.8.2003",
+                    "network": {
+                        "interfaces": [
+                            {
+                                "name": "lo",
+                                "addresses": ["xxx.x.x.x/x"]
+                            },
+                            {
+                                "name": "eth0",
+                                "mac": "xx:xx:xx:xx:xx:xx",
+                                "addresses": ["xx.x.xxx.xxx/xx"]
+                            }
+                        ]
+                    },
+                    "arch": "amd64",
+                    "libc_type": "glibc",
+                    "vm_system": "",
+                    "vm_role": "guest",
+                    "cloud_provider": "",
+                    "processes": None
+                },
+                "subscriptions": [
+                    "entity:sensu-agent1",
+                    "argo.webui",
+                    "argo.mon"
+                ],
+                "last_seen": 1645005291,
+                "deregister": False,
+                "deregistration": {},
+                "user": "agent",
+                "redact": [
+                    "password",
+                    "passwd",
+                    "pass",
+                    "api_key",
+                    "api_token",
+                    "access_key",
+                    "secret_key",
+                    "private_key",
+                    "secret"
+                ],
+                "metadata": {
+                    "name": "sensu-agent1",
+                    "namespace": "default",
+                    "labels": {
+                        "hostname": "sensu-agent1"
+                    }
+                },
+                "sensu_agent_version": "6.6.3"
             }
         ]
 
@@ -6206,6 +6299,39 @@ class SensuCheckCallTests(unittest.TestCase):
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_entity_is_agent(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        run = self.sensu.get_check_run(
+            entity="sensu-agent1", check="srce.certificate.validity-robot"
+        )
+        self.assertEqual(
+            run,
+            "/usr/libexec/argo/probes/cert/CertLifetime-probe -t 60 -f "
+            "/etc/sensu/certs/robotcert.pem"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_entity_is_agent_and_nonexisting_event(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="sensu-agent1", check="generic.http.connect"
+            )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No event with entity sensu-agent1 and check "
+            "generic.http.connect in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_get_check_run_if_nonexisting_event(
             self, return_checks, return_entities
     ):
@@ -6232,6 +6358,33 @@ class SensuCheckCallTests(unittest.TestCase):
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
             ["argo.tcp"]
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent(self, return_entities):
+        return_entities.return_value = self.entities
+        self.assertTrue(
+            self.sensu.is_entity_agent(
+                entity="sensu-agent1", namespace="default"
+            )
+        )
+        self.assertFalse(
+            self.sensu.is_entity_agent(
+                entity="argo2.ni4os.eu", namespace="default"
+            )
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent_if_nonexisting_entity(self, return_entities):
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.is_entity_agent(
+                entity="nonexisting-entity", namespace="default"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No entity nonexisting-entity in namespace default"
         )
 
 
