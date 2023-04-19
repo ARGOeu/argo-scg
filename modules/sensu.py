@@ -408,6 +408,22 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
+    def is_entity_agent(self, entity, namespace="default"):
+        try:
+            entity_configuration = [
+                e for e in self._get_entities(namespace=namespace)
+                if e["metadata"]["name"] == entity
+            ][0]
+
+        except IndexError:
+            raise SensuException(f"No entity {entity} in namespace {namespace}")
+
+        if entity_configuration["entity_class"] == "agent":
+            return True
+
+        else:
+            return False
+
     def _delete_entities(self, entities, namespace):
         for entity in entities:
             response = requests.delete(

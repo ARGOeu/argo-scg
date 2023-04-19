@@ -52,23 +52,30 @@ def main():
         )
 
         if args.execute:
-            subscriptions = sensu.get_check_subscriptions(
-                check=args.check, namespace=args.namespace
-            )
-            check = generate_adhoc_check(
-                command=command, subscriptions=subscriptions,
-                namespace=args.namespace
-            )
-            sensu.put_check(check=check, namespace=args.namespace)
+            if sensu.is_entity_agent(
+                    entity=args.entity, namespace=args.namespace
+            ):
+                check_name = args.check
+
+            else:
+                subscriptions = sensu.get_check_subscriptions(
+                    check=args.check, namespace=args.namespace
+                )
+                check = generate_adhoc_check(
+                    command=command, subscriptions=subscriptions,
+                    namespace=args.namespace
+                )
+                sensu.put_check(check=check, namespace=args.namespace)
+                check_name = check["metadata"]["name"]
 
             response = requests.post(
                 f"{url}/api/core/v2/namespaces/{args.namespace}/checks/"
-                f"{check['metadata']['name']}/execute",
+                f"{check_name}/execute",
                 headers={
                     "Authorization": f"Key {token}",
                     "Content-Type": "application/json"
                 },
-                data=json.dumps({"check": check["metadata"]["name"]})
+                data=json.dumps({"check": check_name})
             )
 
             time.sleep(5)
@@ -79,19 +86,22 @@ def main():
                 print(
                     sensu.get_event_output(
                         entity=agent["metadata"]["name"],
-                        check=check["metadata"]["name"],
+                        check=check_name,
                         namespace=args.namespace
                     )
                 )
-                sensu.delete_event(
-                    entity=agent["metadata"]["name"],
-                    check=check["metadata"]["name"],
-                    namespace=args.namespace
-                )
-                sensu.delete_check(
-                    check=check["metadata"]["name"],
-                    namespace=args.namespace
-                )
+                if not sensu.is_entity_agent(
+                        entity=args.entity, namespace=args.namespace
+                ):
+                    sensu.delete_event(
+                        entity=agent["metadata"]["name"],
+                        check=check_name,
+                        namespace=args.namespace
+                    )
+                    sensu.delete_check(
+                        check=check_name,
+                        namespace=args.namespace
+                    )
 
             else:
                 print(f"{args.namespace}: Error executing ad-hoc check")

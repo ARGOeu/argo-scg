@@ -6360,6 +6360,33 @@ class SensuCheckCallTests(unittest.TestCase):
             ["argo.tcp"]
         )
 
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent(self, return_entities):
+        return_entities.return_value = self.entities
+        self.assertTrue(
+            self.sensu.is_entity_agent(
+                entity="sensu-agent1", namespace="default"
+            )
+        )
+        self.assertFalse(
+            self.sensu.is_entity_agent(
+                entity="argo2.ni4os.eu", namespace="default"
+            )
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent_if_nonexisting_entity(self, return_entities):
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.is_entity_agent(
+                entity="nonexisting-entity", namespace="default"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No entity nonexisting-entity in namespace default"
+        )
+
 
 class SensuSilencingEntryTests(unittest.TestCase):
     def setUp(self) -> None:
