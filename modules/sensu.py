@@ -1323,35 +1323,28 @@ class SensuCtl:
     @staticmethod
     def _format_events(data):
         output_list = list()
-        hostnames = [
-            item["entity"]["metadata"]["name"][
-                len(f"{item['entity']['metadata']['labels']['service']}__"):
-            ] if "service" in item["entity"]["metadata"]["labels"] else
+        entities = [
             item["entity"]["metadata"]["name"] for item in data
         ]
-        if len(hostnames) > 0:
-            hostname_len = len(max(hostnames, key=len)) + 2
+        if len(entities) > 0:
+            entities_len = len(max(entities, key=len)) + 2
             metrics = [
                 item["check"]["metadata"]["name"] for item in data
             ]
             metric_len = len(max(metrics, key=len)) + 2
 
         else:
-            hostname_len = 10
+            entities_len = 10
             metric_len = 10
 
         output_list.append(
-            f"{'Host'.ljust(hostname_len)}{'Metric'.ljust(metric_len)}"
+            f"{'Entity'.ljust(entities_len)}{'Metric'.ljust(metric_len)}"
             f"{'Status'.ljust(10)}{'Executed'.ljust(21)}Output"
         )
-        output_list.append("_" * (hostname_len + metric_len + 40))
+        output_list.append("_" * (entities_len + metric_len + 40))
 
         for item in data:
-            hostname = \
-                item["entity"]["metadata"]["name"][
-                    len(f"{item['entity']['metadata']['labels']['service']}__"):
-                ] if "service" in item["entity"]["metadata"]["labels"] else \
-                item["entity"]["metadata"]["name"]
+            entity = item["entity"]["metadata"]["name"]
             metric = item["check"]["metadata"]["name"]
             status = item["check"]["status"]
             if status == 0:
@@ -1372,7 +1365,7 @@ class SensuCtl:
             metric_output = item["check"]["output"].split("|")[0].strip()
 
             output_list.append(
-                f"{hostname.ljust(hostname_len)}{metric.ljust(metric_len)}"
+                f"{entity.ljust(entities_len)}{metric.ljust(metric_len)}"
                 f"{status.ljust(10)}{executed.strftime('%Y-%m-%d %H:%M:%S')}  "
                 f"{metric_output}"
             )
