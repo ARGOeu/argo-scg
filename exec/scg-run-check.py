@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import time
 
 import requests
 from argo_scg.config import Config
@@ -63,6 +64,8 @@ def main():
                 },
                 data=json.dumps({"check": check["metadata"]["name"]})
             )
+
+            time.sleep(5)
 
             if response.ok:
                 agent = sensu.get_agents(namespace=args.namespace)[0]
