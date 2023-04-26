@@ -47,7 +47,7 @@ def main():
             sys.exit(2)
 
         sensu = Sensu(url=url, token=token)
-        command = sensu.get_check_run(
+        command, timeout = sensu.get_check_run(
             entity=args.entity, check=args.check, namespace=args.namespace
         )
 
@@ -82,14 +82,26 @@ def main():
 
             if response.ok:
                 agent = sensu.get_agents(namespace=args.namespace)[0]
+                start_time = time.time()
+                tt = 0
+                event_output = ""
+                while tt < timeout:
+                    try:
+                        event_output = sensu.get_event_output(
+                            entity=agent["metadata"]["name"],
+                            check=check_name,
+                            namespace=args.namespace
+                        )
+                        break
+
+                    except SensuException as e:
+                        event_output = str(e)
+                        tt = time.time() - start_time
+                        continue
+
                 print(f"Executing command:\n{command}\n")
-                print(
-                    sensu.get_event_output(
-                        entity=agent["metadata"]["name"],
-                        check=check_name,
-                        namespace=args.namespace
-                    )
-                )
+                print(event_output)
+
                 if not sensu.is_entity_agent(
                         entity=args.entity, namespace=args.namespace
                 ):

@@ -1175,7 +1175,16 @@ class Sensu:
             else:
                 command.append(element)
 
-        return " ".join(command)
+        output_command = " ".join(command)
+        command_elements = output_command.split(" ")
+        command_elements = [element.strip() for element in command_elements]
+        try:
+            timeout = int(command_elements[command_elements.index("-t") + 1])
+
+        except ValueError:
+            timeout = 900
+
+        return output_command, timeout
 
     def get_check_subscriptions(self, check, namespace="default"):
         return self._get_check(check=check, namespace=namespace)[
