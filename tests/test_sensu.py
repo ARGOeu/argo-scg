@@ -6048,7 +6048,7 @@ class SensuCheckCallTests(unittest.TestCase):
             },
             {
                 "command": "/usr/libexec/argo/probes/cert/CertLifetime-probe "
-                           "-t 60 -f /etc/sensu/certs/robotcert.pem",
+                           "-f /etc/sensu/certs/robotcert.pem",
                 "handlers": [],
                 "high_flap_threshold": 0,
                 "interval": 14400,
@@ -6208,13 +6208,14 @@ class SensuCheckCallTests(unittest.TestCase):
     def test_get_check_run(self, return_checks, return_entities):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
-        run = self.sensu.get_check_run(
+        run, timeout = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.tcp.connect"
         )
         self.assertEqual(
             run,
             "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
         )
+        self.assertEqual(timeout, 120)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -6223,7 +6224,7 @@ class SensuCheckCallTests(unittest.TestCase):
     ):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
-        run = self.sensu.get_check_run(
+        run, timeout = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.http.connect"
         )
         self.assertEqual(
@@ -6231,6 +6232,7 @@ class SensuCheckCallTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443"
         )
+        self.assertEqual(timeout, 60)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -6245,10 +6247,10 @@ class SensuCheckCallTests(unittest.TestCase):
                                "-u {{ .labels.path | default \"/\" }}"
         return_checks.return_value = checks
         return_entities.return_value = self.entities
-        run1 = self.sensu.get_check_run(
+        run1, timeout1 = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.http.connect"
         )
-        run2 = self.sensu.get_check_run(
+        run2, timeout2 = self.sensu.get_check_run(
             entity="argo2.ni4os.eu", check="generic.http.connect"
         )
         self.assertEqual(
@@ -6256,11 +6258,13 @@ class SensuCheckCallTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443 -u /"
         )
+        self.assertEqual(timeout1, 60)
         self.assertEqual(
             run2,
             "/usr/lib64/nagios/plugins/check_http -H argo2.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443 -u /some/path"
         )
+        self.assertEqual(timeout2, 60)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -6304,14 +6308,15 @@ class SensuCheckCallTests(unittest.TestCase):
     ):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
-        run = self.sensu.get_check_run(
+        run, timeout = self.sensu.get_check_run(
             entity="sensu-agent1", check="srce.certificate.validity-robot"
         )
         self.assertEqual(
             run,
-            "/usr/libexec/argo/probes/cert/CertLifetime-probe -t 60 -f "
+            "/usr/libexec/argo/probes/cert/CertLifetime-probe -f "
             "/etc/sensu/certs/robotcert.pem"
         )
+        self.assertEqual(timeout, 900)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
