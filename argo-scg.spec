@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.1.1
+Version:       0.2.1
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -47,6 +47,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
 %changelog
+* Thu May 4 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.1-1%{?dist}
+- ARGO-4272 Handle checks with timeout
+- ARGO-4270 Filtering OK events not working
+- ARGO-4269 Refactor sensu-events tool to display entity names instead of hostnames
+- ARGO-4254 scg-run-check.py not working as expected
+- ARGO-4238 Possibility to change slack pipeline
+- ARGO-4234 Create custom display of events
+- ARGO-4231 Handle overrides for the same metric, but different hostnames
 * Thu Mar 2 2023 Katarina Zailac <kzailac@srce.hr> - 0.1.1-1%{?dist}
 - ARGO-4235 Remove regex validation of entity names
 - ARGO-4228 Create tool to acknowledge alerts
