@@ -1922,6 +1922,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-04-13",
+        "group": "ARGO",
+        "type": "SITES",
+        "service": "probe.test",
+        "hostname": "test3.argo.grnet.gr",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://test3.argo.grnet.gr/some/extra3/path",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -4429,6 +4443,12 @@ class CheckConfigurationTests(unittest.TestCase):
                         "value": "80"
                     },
                     {
+                        "hostname": "argo-devel.ni4os.eu",
+                        "metric": "generic.tcp.connect",
+                        "parameter": "-p",
+                        "value": "90"
+                    },
+                    {
                         "hostname": "argo.ni4os.eu",
                         "metric": "argo.APEL-Pub",
                         "parameter": "--ok-search",
@@ -4571,6 +4591,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
                 }],
                 "metric_parameters": []
             }
@@ -5115,6 +5139,11 @@ class CheckConfigurationTests(unittest.TestCase):
                         "metric": "eosc.test.api",
                         "parameter": "-l",
                         "value": "/var/log/sensu/test.log"
+                    }, {
+                        "hostname": "test3.argo.grnet.gr",
+                        "metric": "eosc.test.api",
+                        "parameter": "-l",
+                        "value": "/var/log/meh/test.log"
                     }]
             }
         }
@@ -6162,6 +6191,11 @@ class EntityConfigurationTests(unittest.TestCase):
                     "metric": "generic.tcp.connect",
                     "parameter": "-p",
                     "value": "80"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "90"
                 }]
             }
         }
@@ -6205,6 +6239,97 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_tcp_connect_p": "90",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_tcp_connect_p": "80",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_metric_parameter_overrides_entity_name(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "argo.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "80"
+                }, {
+                    "hostname": "argo.webui__argo-devel.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "90"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST25"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "port": "443",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_tcp_connect_p": "90",
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
@@ -6246,6 +6371,10 @@ class EntityConfigurationTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
                 }],
                 "metric_parameters": []
             }
@@ -6292,7 +6421,103 @@ class EntityConfigurationTests(unittest.TestCase):
                             "nagios_freshness_username":
                                 "$NAGIOS_FRESHNESS_USERNAME",
                             "nagios_freshness_password":
-                                "$NAGIOS_FRESHNESS_PASSWORD",
+                                "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_host_attribute_overrides_entity_name(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.webui__argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD",
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
@@ -6694,14 +6919,17 @@ class EntityConfigurationTests(unittest.TestCase):
                 "global_attributes":
                     mock_attributes["local"]["global_attributes"],
                 "host_attributes": [],
-                "metric_parameters": [
-                    {
-                        "hostname": "test.argo.grnet.gr",
-                        "metric": "eosc.test.api",
-                        "parameter": "-l",
-                        "value": "/var/log/sensu/test.log"
-                    }
-                ]
+                "metric_parameters": [{
+                    "hostname": "test.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/sensu/test.log"
+                }, {
+                    "hostname": "test3.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/meh/test.log"
+                }]
             }
         }
         generator = ConfigurationGenerator(
@@ -6757,7 +6985,124 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["probe.test"]
-                }
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test3.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "-l /var/log/meh/test.log",
+                            "info_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "info_service_endpoint_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "hostname": "test3.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_for_check_with_overridden_deflt_param_entity_name(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": "probe.test__test.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/sensu/test.log"
+                }, {
+                    "hostname": "probe.test__test3.argo.grnet.gr",
+                    "metric": "eosc.test.api",
+                    "parameter": "-l",
+                    "value": "/var/log/meh/test.log"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST33"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "-l /var/log/sensu/test.log",
+                            "info_url":
+                                "https://test.argo.grnet.gr/some/extra/path",
+                            "info_service_endpoint_url":
+                                "https://test.argo.grnet.gr/some/extra/path",
+                            "hostname": "test.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test2.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "",
+                            "info_url":
+                                "https://test2.argo.grnet.gr/some/extra2/path",
+                            "info_service_endpoint_url":
+                                "https://test2.argo.grnet.gr/some/extra2/path",
+                            "hostname": "test2.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "probe.test__test3.argo.grnet.gr",
+                        "namespace": "default",
+                        "labels": {
+                            "eosc_test_api": "eosc.test.api",
+                            "eosc_test_api_l": "-l /var/log/meh/test.log",
+                            "info_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "info_service_endpoint_url":
+                                "https://test3.argo.grnet.gr/some/extra3/path",
+                            "hostname": "test3.argo.grnet.gr",
+                            "service": "probe.test",
+                            "site": "ARGO"
+                        }
+                    },
+                    "subscriptions": ["probe.test"]
+                },
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -6792,6 +7137,11 @@ class OverridesTests(unittest.TestCase):
                     "metric": "generic.tcp.connect",
                     "parameter": "-p",
                     "value": "80"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "metric": "generic.tcp.connect",
+                    "parameter": "-p",
+                    "value": "90"
                 }]
             }
         }
@@ -6810,14 +7160,19 @@ class OverridesTests(unittest.TestCase):
             overrides = generator.get_metric_parameter_overrides()
 
         self.assertEqual(
-            overrides, {
-                "generic.tcp.connect": {
-                    "hostname": "argo.ni4os.eu",
-                    "parameter": "-p",
-                    "label": "generic_tcp_connect_p",
-                    "value": "80"
-                }
-            }
+            overrides, [{
+                "metric": "generic.tcp.connect",
+                "hostname": "argo.ni4os.eu",
+                "parameter": "-p",
+                "label": "generic_tcp_connect_p",
+                "value": "80"
+            }, {
+                "metric": "generic.tcp.connect",
+                "hostname": "argo-devel.ni4os.eu",
+                "parameter": "-p",
+                "label": "generic_tcp_connect_p",
+                "value": "90"
+            }]
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -6859,13 +7214,15 @@ class OverridesTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "label": "nagios_freshness_password",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                    "metrics": ["argo.nagios.freshness-simple-login"]
                 },
                 {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
                     "label": "nagios_freshness_username",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                    "metrics": ["argo.nagios.freshness-simple-login"]
                 }
             ]
         )

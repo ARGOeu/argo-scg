@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import subprocess
@@ -407,6 +408,22 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
+    def is_entity_agent(self, entity, namespace="default"):
+        try:
+            entity_configuration = [
+                e for e in self._get_entities(namespace=namespace)
+                if e["metadata"]["name"] == entity
+            ][0]
+
+        except IndexError:
+            raise SensuException(f"No entity {entity} in namespace {namespace}")
+
+        if entity_configuration["entity_class"] == "agent":
+            return True
+
+        else:
+            return False
+
     def _delete_entities(self, entities, namespace):
         for entity in entities:
             response = requests.delete(
@@ -617,10 +634,10 @@ class Sensu:
         def _get_labels(hostname):
             host_labels = {"hostname": hostname}
 
-            for key, value in metric_parameters_overrides.items():
-                if value["hostname"] == hostname:
+            for item in metric_parameters_overrides:
+                if item["hostname"] == hostname:
                     host_labels.update({
-                        value["label"]: value["value"],
+                        item["label"]: item["value"],
                     })
 
             for item in host_attributes_overrides:
@@ -963,13 +980,13 @@ class Sensu:
             return response.json()
 
     def _add_pipeline(self, name, workflows, namespace="default"):
-        pipelines = [
-            f["metadata"]["name"] for f in self._get_pipelines(
-                namespace=namespace
-            )
-        ]
+        pipelines = self._get_pipelines(namespace=namespace)
+        pipelines_names = [p["metadata"]["name"] for p in pipelines]
 
-        if name not in pipelines:
+        response = None
+        added = False
+        if name not in pipelines_names:
+            added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines",
                 headers={
@@ -985,8 +1002,29 @@ class Sensu:
                 })
             )
 
+        else:
+            the_pipeline = [
+                p for p in pipelines if p["metadata"]["name"] == name
+            ][0]
+            if the_pipeline["workflows"] != workflows:
+                response = requests.patch(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/pipelines/"
+                    f"{name}",
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/merge-patch+json"
+                    },
+                    data=json.dumps({"workflows": workflows})
+                )
+
+        if response:
             if not response.ok:
-                msg = f"{namespace}: {name} pipeline create error: " \
+                if added:
+                    intra_msg = f"{name} pipeline create error"
+                else:
+                    intra_msg = f"{name} pipeline not updated"
+
+                msg = f"{namespace}: {intra_msg}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -995,11 +1033,20 @@ class Sensu:
                 except (ValueError, KeyError, TypeError):
                     pass
 
-                self.logger.error(msg)
-                raise SensuException(msg)
+                if added:
+                    self.logger.error(msg)
+                    raise SensuException(msg)
+
+                else:
+                    self.logger.warning(msg)
 
             else:
-                self.logger.info(f"{namespace}: {name} pipeline created")
+                if added:
+                    operation = "created"
+                else:
+                    operation = "updated"
+
+                self.logger.info(f"{namespace}: {name} pipeline {operation}")
 
     def add_reduce_alerts_pipeline(self, namespace="default"):
         workflows = [
@@ -1079,8 +1126,14 @@ class Sensu:
         except IndexError:
             raise SensuException(f"No entity {entity} in namespace {namespace}")
 
-        if create_label(check) not in \
-                entity_configuration["metadata"]["labels"]:
+        is_check_run = \
+            entity_configuration["entity_class"] == "agent" and \
+            len(set(check_configuration["subscriptions"]).intersection(
+                set(entity_configuration["subscriptions"])
+            )) > 0 and "proxy_requests" not in check_configuration or \
+            create_label(check) in entity_configuration["metadata"]["labels"]
+
+        if not is_check_run:
             raise SensuException(
                 f"No event with entity {entity} and check {check} in "
                 f"namespace {namespace}"
@@ -1122,7 +1175,16 @@ class Sensu:
             else:
                 command.append(element)
 
-        return " ".join(command)
+        output_command = " ".join(command)
+        command_elements = output_command.split(" ")
+        command_elements = [element.strip() for element in command_elements]
+        try:
+            timeout = int(command_elements[command_elements.index("-t") + 1])
+
+        except ValueError:
+            timeout = 900
+
+        return output_command, timeout
 
     def get_check_subscriptions(self, check, namespace="default"):
         return self._get_check(check=check, namespace=namespace)[
@@ -1252,3 +1314,82 @@ class MetricOutput:
 
     def get_namespace(self):
         return self.data["check"]["metadata"]["namespace"]
+
+
+class SensuCtl:
+    def __init__(self, namespace):
+        self.namespace = namespace
+
+    def _get_events(self):
+        output = subprocess.check_output([
+            "sensuctl", "event", "list", "--format", "json", "--namespace",
+            self.namespace
+        ]).decode("utf-8")
+        data = json.loads(output)
+
+        return data
+
+    @staticmethod
+    def _format_events(data):
+        output_list = list()
+        entities = [
+            item["entity"]["metadata"]["name"] for item in data
+        ]
+        if len(entities) > 0:
+            entities_len = len(max(entities, key=len)) + 2
+            metrics = [
+                item["check"]["metadata"]["name"] for item in data
+            ]
+            metric_len = len(max(metrics, key=len)) + 2
+
+        else:
+            entities_len = 10
+            metric_len = 10
+
+        output_list.append(
+            f"{'Entity'.ljust(entities_len)}{'Metric'.ljust(metric_len)}"
+            f"{'Status'.ljust(10)}{'Executed'.ljust(21)}Output"
+        )
+        output_list.append("_" * (entities_len + metric_len + 40))
+
+        for item in data:
+            entity = item["entity"]["metadata"]["name"]
+            metric = item["check"]["metadata"]["name"]
+            status = item["check"]["status"]
+            if status == 0:
+                status = "OK"
+
+            elif status == 1:
+                status = "WARNING"
+
+            elif status == 2:
+                status = "CRITICAL"
+
+            else:
+                status = "UNKNOWN"
+
+            executed = datetime.datetime.fromtimestamp(
+                item["check"]["executed"]
+            )
+            metric_output = item["check"]["output"].split("|")[0].strip()
+
+            output_list.append(
+                f"{entity.ljust(entities_len)}{metric.ljust(metric_len)}"
+                f"{status.ljust(10)}{executed.strftime('%Y-%m-%d %H:%M:%S')}  "
+                f"{metric_output}"
+            )
+
+        return output_list
+
+    def get_events(self):
+        data = self._get_events()
+        return self._format_events(data)
+
+    def filter_events(self, status):
+        events = self._get_events()
+
+        filtered_events = [
+            item for item in events if item["check"]["status"] == status
+        ]
+
+        return self._format_events(filtered_events)

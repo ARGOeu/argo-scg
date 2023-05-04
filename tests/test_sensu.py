@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch, call
 
 from argo_scg.exceptions import SensuException
-from argo_scg.sensu import Sensu, MetricOutput
+from argo_scg.sensu import Sensu, MetricOutput, SensuCtl
 
 from utils import MockResponse
 
@@ -1123,6 +1123,585 @@ mock_pipelines1 = [
                 }
             }
         ]
+    }
+]
+
+mock_pipelines2 = [
+    {
+        'metadata': {
+            'name': 'reduce_alerts',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'slack_alerts',
+                'filters': [
+                    {
+                        'name': 'is_incident',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    },
+                    {
+                        'name': 'daily',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'slack',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    },
+    {
+        'metadata': {
+            'name': 'hard_state',
+            'namespace': 'default',
+            'labels': {'sensu.io/managed_by': 'sensuctl'},
+            'created_by': 'root'
+        },
+        'workflows': [
+            {
+                'name': 'mimic_hard_state',
+                'filters': [
+                    {
+                        'name': 'hard-state',
+                        'type': 'EventFilter',
+                        'api_version': 'core/v2'
+                    }
+                ],
+                'handler': {
+                    'name': 'publisher-handler',
+                    'type': 'Handler',
+                    'api_version': 'core/v2'
+                }
+            }
+        ]
+    }
+]
+
+mock_events_ctl = [
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_ssl_cert -H "
+                "argo-mon-devel.ni4os.eu -t 90 -w 30 -c 0 -N --altnames "
+                "--rootcert-dir /etc/grid-security/certificates "
+                "--rootcert-file /etc/pki/tls/certs/ca-bundle.crt "
+                "-C /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_certificate_validity == "
+                    "'generic.certificate.validity'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 12.389719077,
+            "executed": 1677666193,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 0,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 0,
+                    "executed": 1677594191
+                },
+                {
+                    "status": 0,
+                    "executed": 1677608592
+                },
+                {
+                    "status": 0,
+                    "executed": 1677622992
+                },
+                {
+                    "status": 0,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 0,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 0,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 0,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666193
+                }
+            ],
+            "issued": 1677666193,
+            "output":
+                "SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)|"
+                "days=44;30;0;;\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1677666193,
+            "occurrences": 10,
+            "occurrences_watermark": 10,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.certificate.validity",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect_nagios_ui":
+                        "generic.http.connect-nagios-ui",
+                    "hostname": "argo-mon-devel.ni4os.eu",
+                    "info_url": "https://argo-mon-devel.ni4os.eu",
+                    "service": "argo.mon",
+                    "site": "SRCE"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 751,
+        "timestamp": 1677666206
+    },
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_http -H "
+                "argo-mon-devel.ni4os.eu -t 30 --ssl -s \"Status Details\" "
+                "-u \"/nagios/cgi-bin/status.cgi?hostgroup=all&style="
+                "hostdetail\" -J /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_http_connect_nagios_ui == "
+                    "'generic.http.connect-nagios-ui'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 0.055498604,
+            "executed": 1677666496,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1677660496
+                },
+                {
+                    "status": 0,
+                    "executed": 1677660796
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661096
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661396
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661696
+                },
+                {
+                    "status": 0,
+                    "executed": 1677661996
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662296
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662596
+                },
+                {
+                    "status": 0,
+                    "executed": 1677662896
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663196
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663496
+                },
+                {
+                    "status": 0,
+                    "executed": 1677663796
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664096
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664396
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664696
+                },
+                {
+                    "status": 0,
+                    "executed": 1677664996
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665296
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665596
+                },
+                {
+                    "status": 0,
+                    "executed": 1677665896
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666196
+                },
+                {
+                    "status": 0,
+                    "executed": 1677666496
+                }
+            ],
+            "issued": 1677666496,
+            "output":
+                "HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time |time=0.050596s;;;0.000000 size=121268B;;;0\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1677666496,
+            "occurrences": 311,
+            "occurrences_watermark": 311,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.http.connect-nagios-ui",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "3"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect_nagios_ui":
+                        "generic.http.connect-nagios-ui",
+                    "hostname": "argo-mon-devel.ni4os.eu",
+                    "info_url": "https://argo-mon-devel.ni4os.eu",
+                    "service": "argo.mon",
+                    "site": "SRCE"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 931,
+        "timestamp": 1677666496
+    },
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_ssl_cert -H videolectures.net "
+                "-t 90 -w 30 -c 0 -N --altnames "
+                "--rootcert-dir /etc/grid-security/certificates "
+                "--rootcert-file /etc/pki/tls/certs/ca-bundle.crt "
+                "-C /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon",
+                "eu.ni4os.app.web"
+            ],
+            "proxy_entity_name": "eu.ni4os.repo.publication__videolectures.net",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_certificate_validity == "
+                    "'generic.certificate.validity'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 17.61893143,
+            "executed": 1677666193,
+            "history": [
+                {
+                    "status": 2,
+                    "executed": 1677579792
+                },
+                {
+                    "status": 2,
+                    "executed": 1677594191
+                },
+                {
+                    "status": 2,
+                    "executed": 1677608592
+                },
+                {
+                    "status": 2,
+                    "executed": 1677622992
+                },
+                {
+                    "status": 2,
+                    "executed": 1677637392
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677651793
+                },
+                {
+                    "status": 2,
+                    "executed": 1677666193
+                }
+            ],
+            "issued": 1677666193,
+            "output":
+                "SSL_CERT CRITICAL videolectures.net: x509 certificate is "
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)|"
+                "days=-234;30;0;;\n",
+            "state": "failing",
+            "status": 2,
+            "total_state_change": 0,
+            "last_ok": 0,
+            "occurrences": 9,
+            "occurrences_watermark": 9,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.certificate.validity",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "eu.ni4os.repo.publication"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "eu.ni4os.repo.publication__videolectures.net",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "hostname": "videolectures.net",
+                    "info_url": "http://videolectures.net/",
+                    "path": "/",
+                    "port": "80",
+                    "service": "eu.ni4os.repo.publication",
+                    "site": "JSI",
+                    "ssl": ""
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 871,
+        "timestamp": 1677666211
     }
 ]
 
@@ -3662,7 +4241,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3730,7 +4309,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3798,7 +4377,7 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
+                metric_parameters_overrides=list(),
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -3863,13 +4442,14 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides={
-                    "generic.tcp.connect": {
+                metric_parameters_overrides=[
+                    {
+                        "metric": "generic.tcp.connect",
                         "hostname": "sensu-agent1",
                         "label": "generic_tcp_connect_p",
                         "value": "80"
                     }
-                },
+                ],
                 host_attributes_overrides=list(),
                 subscriptions=["argo.webui", "argo.test"],
                 namespace="TENANT1"
@@ -5049,7 +5629,7 @@ class SensuPipelinesTests(unittest.TestCase):
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_pipelines")
-    def test_add_alert_pipe_if_exists(self, mock_pipeline, mock_post):
+    def test_add_alert_pipe_if_exists_and_same(self, mock_pipeline, mock_post):
         mock_pipeline.return_value = mock_pipelines1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5057,6 +5637,56 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.patch")
+    @patch("requests.post")
+    @patch("argo_scg.sensu.Sensu._get_pipelines")
+    def test_add_alert_pipe_if_exists_and_different(
+            self, mock_pipeline, mock_post, mock_patch
+    ):
+        mock_pipeline.return_value = mock_pipelines2
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
+        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_patch.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines/reduce_alerts",
+            data=json.dumps({
+                "workflows": [{
+                    "name": "slack_alerts",
+                    "filters": [
+                        {
+                            "name": "is_incident",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "not_silenced",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        },
+                        {
+                            "name": "daily",
+                            "type": "EventFilter",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "handler": {
+                        "name": "slack",
+                        "type": "Handler",
+                        "api_version": "core/v2"
+                    }
+                }]
+            }),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/merge-patch+json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: reduce_alerts pipeline updated"]
+        )
 
     @patch("requests.post")
     @patch("argo_scg.sensu.Sensu._get_pipelines")
@@ -5415,6 +6045,42 @@ class SensuCheckCallTests(unittest.TestCase):
                 },
                 "secrets": None,
                 "pipelines": []
+            },
+            {
+                "command": "/usr/libexec/argo/probes/cert/CertLifetime-probe "
+                           "-f /etc/sensu/certs/robotcert.pem",
+                "handlers": [],
+                "high_flap_threshold": 0,
+                "interval": 14400,
+                "low_flap_threshold": 0,
+                "publish": True,
+                "runtime_assets": None,
+                "subscriptions": ["argo.mon"],
+                "proxy_entity_name": "",
+                "check_hooks": None,
+                "stdin": False,
+                "subdue": None,
+                "ttl": 0,
+                "timeout": 900,
+                "round_robin": False,
+                "output_metric_format": "",
+                "output_metric_handlers": None,
+                "env_vars": None,
+                "metadata": {
+                    "name": "srce.certificate.validity-robot",
+                    "namespace": "default",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "secrets": None,
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ]
             }
         ]
         self.entities = [
@@ -5477,6 +6143,63 @@ class SensuCheckCallTests(unittest.TestCase):
                     }
                 },
                 "sensu_agent_version": ""
+            },
+            {
+                "entity_class": "agent",
+                "system": {
+                    "hostname": "sensu-agent1",
+                    "os": "linux",
+                    "platform": "centos",
+                    "platform_family": "rhel",
+                    "platform_version": "7.8.2003",
+                    "network": {
+                        "interfaces": [
+                            {
+                                "name": "lo",
+                                "addresses": ["xxx.x.x.x/x"]
+                            },
+                            {
+                                "name": "eth0",
+                                "mac": "xx:xx:xx:xx:xx:xx",
+                                "addresses": ["xx.x.xxx.xxx/xx"]
+                            }
+                        ]
+                    },
+                    "arch": "amd64",
+                    "libc_type": "glibc",
+                    "vm_system": "",
+                    "vm_role": "guest",
+                    "cloud_provider": "",
+                    "processes": None
+                },
+                "subscriptions": [
+                    "entity:sensu-agent1",
+                    "argo.webui",
+                    "argo.mon"
+                ],
+                "last_seen": 1645005291,
+                "deregister": False,
+                "deregistration": {},
+                "user": "agent",
+                "redact": [
+                    "password",
+                    "passwd",
+                    "pass",
+                    "api_key",
+                    "api_token",
+                    "access_key",
+                    "secret_key",
+                    "private_key",
+                    "secret"
+                ],
+                "metadata": {
+                    "name": "sensu-agent1",
+                    "namespace": "default",
+                    "labels": {
+                        "hostname": "sensu-agent1"
+                    }
+                },
+                "sensu_agent_version": "6.6.3"
             }
         ]
 
@@ -5485,13 +6208,14 @@ class SensuCheckCallTests(unittest.TestCase):
     def test_get_check_run(self, return_checks, return_entities):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
-        run = self.sensu.get_check_run(
+        run, timeout = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.tcp.connect"
         )
         self.assertEqual(
             run,
             "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
         )
+        self.assertEqual(timeout, 120)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -5500,7 +6224,7 @@ class SensuCheckCallTests(unittest.TestCase):
     ):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
-        run = self.sensu.get_check_run(
+        run, timeout = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.http.connect"
         )
         self.assertEqual(
@@ -5508,6 +6232,7 @@ class SensuCheckCallTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443"
         )
+        self.assertEqual(timeout, 60)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -5522,10 +6247,10 @@ class SensuCheckCallTests(unittest.TestCase):
                                "-u {{ .labels.path | default \"/\" }}"
         return_checks.return_value = checks
         return_entities.return_value = self.entities
-        run1 = self.sensu.get_check_run(
+        run1, timeout1 = self.sensu.get_check_run(
             entity="argo.ni4os.eu", check="generic.http.connect"
         )
-        run2 = self.sensu.get_check_run(
+        run2, timeout2 = self.sensu.get_check_run(
             entity="argo2.ni4os.eu", check="generic.http.connect"
         )
         self.assertEqual(
@@ -5533,11 +6258,13 @@ class SensuCheckCallTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_http -H argo.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443 -u /"
         )
+        self.assertEqual(timeout1, 60)
         self.assertEqual(
             run2,
             "/usr/lib64/nagios/plugins/check_http -H argo2.ni4os.eu "
             "-t 60 --link --onredirect follow -S --sni -p 443 -u /some/path"
         )
+        self.assertEqual(timeout2, 60)
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -5576,6 +6303,40 @@ class SensuCheckCallTests(unittest.TestCase):
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_entity_is_agent(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        run, timeout = self.sensu.get_check_run(
+            entity="sensu-agent1", check="srce.certificate.validity-robot"
+        )
+        self.assertEqual(
+            run,
+            "/usr/libexec/argo/probes/cert/CertLifetime-probe -f "
+            "/etc/sensu/certs/robotcert.pem"
+        )
+        self.assertEqual(timeout, 900)
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_if_entity_is_agent_and_nonexisting_event(
+            self, return_checks, return_entities
+    ):
+        return_checks.return_value = self.checks
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_check_run(
+                entity="sensu-agent1", check="generic.http.connect"
+            )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No event with entity sensu-agent1 and check "
+            "generic.http.connect in namespace default"
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_get_check_run_if_nonexisting_event(
             self, return_checks, return_entities
     ):
@@ -5602,6 +6363,33 @@ class SensuCheckCallTests(unittest.TestCase):
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
             ["argo.tcp"]
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent(self, return_entities):
+        return_entities.return_value = self.entities
+        self.assertTrue(
+            self.sensu.is_entity_agent(
+                entity="sensu-agent1", namespace="default"
+            )
+        )
+        self.assertFalse(
+            self.sensu.is_entity_agent(
+                entity="argo2.ni4os.eu", namespace="default"
+            )
+        )
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    def test_is_entity_agent_if_nonexisting_entity(self, return_entities):
+        return_entities.return_value = self.entities
+        with self.assertRaises(SensuException) as context:
+            self.sensu.is_entity_agent(
+                entity="nonexisting-entity", namespace="default"
+            )
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: No entity nonexisting-entity in namespace default"
         )
 
 
@@ -5732,4 +6520,75 @@ class SensuSilencingEntryTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: TENANT1: No event for entity argo.ni4os.eu and check "
             "generic.http.connect: Silencing entry not created"
+        )
+
+
+class SensuCtlTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sensuctl = SensuCtl(namespace="default")
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Entity                                        "
+                "Metric                          Status    Executed           "
+                "  Output",
+                "______________________________________________"
+                "_____________________________________________________________"
+                "___________",
+                "argo.mon__argo-mon-devel.ni4os.eu             "
+                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
+                "argo.mon__argo-mon-devel.ni4os.eu             "
+                "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
+                "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time",
+                "eu.ni4os.repo.publication__videolectures.net  "
+                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:13"
+                "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(status=0)
+        self.assertEqual(
+            events, [
+                "Entity                             "
+                "Metric                          Status    Executed           "
+                "  Output",
+                "___________________________________"
+                "_____________________________________________________________"
+                "___________",
+                "argo.mon__argo-mon-devel.ni4os.eu  "
+                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
+                "argo.mon__argo-mon-devel.ni4os.eu  "
+                "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
+                "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events_if_empty_list(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(status=1)
+        self.assertEqual(
+            events, [
+                "Entity    Metric    Status    Executed             Output",
+                "____________________________________________________________"
+            ]
         )

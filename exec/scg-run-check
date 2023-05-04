@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import sys
+import time
+
+import requests
+from argo_scg.config import Config
+from argo_scg.exceptions import SensuException, ConfigException
+from argo_scg.generator import generate_adhoc_check
+from argo_scg.sensu import Sensu
+
+CONFFILE = "/etc/argo-scg/scg.conf"
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        "Check how the probe is invoked for a given entity"
+    )
+    parser.add_argument(
+        "-e", "--entity", dest="entity", type=str, required=True, help="entity"
+    )
+    parser.add_argument(
+        "-c", "--check", dest="check", type=str, required=True, help="check"
+    )
+    parser.add_argument(
+        "-n", "--namespace", dest="namespace", type=str, default="default",
+        help="namespace"
+    )
+    parser.add_argument(
+        "--config", type=str, dest="config", help="configuration file",
+        default=CONFFILE
+    )
+    parser.add_argument(
+        "--execute", dest="execute", action="store_true", help="run the command"
+    )
+    args = parser.parse_args()
+
+    adhoc_generated = False
+    event_executed = False
+    try:
+        config = Config(config_file=args.config)
+        url = config.get_sensu_url()
+        token = config.get_sensu_token()
+
+    except ConfigException as err:
+        print(err)
+        sys.exit(2)
+
+    try:
+        sensu = Sensu(url=url, token=token)
+        command, timeout = sensu.get_check_run(
+            entity=args.entity, check=args.check, namespace=args.namespace
+        )
+
+    except SensuException as err:
+        print(err)
+        sys.exit(2)
+
+    else:
+        if args.execute:
+            try:
+                agent = sensu.get_agents(namespace=args.namespace)[0]
+                if sensu.is_entity_agent(
+                        entity=args.entity, namespace=args.namespace
+                ):
+                    check_name = args.check
+
+                else:
+                    subscriptions = sensu.get_check_subscriptions(
+                        check=args.check, namespace=args.namespace
+                    )
+                    check = generate_adhoc_check(
+                        command=command, subscriptions=subscriptions,
+                        namespace=args.namespace
+                    )
+                    sensu.put_check(check=check, namespace=args.namespace)
+                    adhoc_generated = True
+                    check_name = check["metadata"]["name"]
+
+            except SensuException as err:
+                print(err)
+                sys.exit(2)
+
+            response = requests.post(
+                f"{url}/api/core/v2/namespaces/{args.namespace}/checks/"
+                f"{check_name}/execute",
+                headers={
+                    "Authorization": f"Key {token}",
+                    "Content-Type": "application/json"
+                },
+                data=json.dumps({"check": check_name})
+            )
+
+            time.sleep(5)
+
+            if response.ok:
+                event_executed = True
+                start_time = time.time()
+                tt = 0
+                event_output = ""
+                while tt < timeout:
+                    try:
+                        event_output = sensu.get_event_output(
+                            entity=agent["metadata"]["name"],
+                            check=check_name,
+                            namespace=args.namespace
+                        )
+                        break
+
+                    except SensuException as e:
+                        event_output = str(e)
+                        tt = time.time() - start_time
+                        continue
+
+                print(f"Executing command:\n{command}\n")
+                print(event_output)
+
+            else:
+                print(f"{args.namespace}: Error executing ad-hoc check")
+
+            if not sensu.is_entity_agent(
+                    entity=args.entity, namespace=args.namespace
+            ):
+                try:
+                    if event_executed:
+                        sensu.delete_event(
+                            entity=agent["metadata"]["name"],
+                            check=check_name,
+                            namespace=args.namespace
+                        )
+
+                    if adhoc_generated:
+                        sensu.delete_check(
+                            check=check_name,
+                            namespace=args.namespace
+                        )
+
+                except SensuException as err:
+                    print(err)
+
+        else:
+            print(f"Executing command:\n{command}")
+
+
+if __name__ == "__main__":
+    main()

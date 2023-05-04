@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+
+from argo_scg.sensu import SensuCtl
+
+
+def main():
+    parser = argparse.ArgumentParser("Get event data")
+    parser.add_argument(
+        "--namespace", dest="namespace", default="default", help="namespace",
+        type=str
+    )
+    parser.add_argument(
+        "--status", dest="status", type=int,
+        help="status to filter; must be integer code 0, 1, 2 or 3"
+    )
+    args = parser.parse_args()
+
+    sensuctl = SensuCtl(namespace=args.namespace)
+
+    if args.status is not None and args.status not in [0, 1, 2, 3]:
+        parser.error("Status must be one of integer codes 0, 1, 2 or 3")
+        sys.exit(2)
+
+    if args.status is None:
+        lines = sensuctl.get_events()
+
+    else:
+        lines = sensuctl.filter_events(status=args.status)
+
+    for i in range(len(lines)):
+        print(lines[i])
+        if i > 1:
+            print("\n")
+
+
+main()
