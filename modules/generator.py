@@ -75,6 +75,7 @@ class ConfigurationGenerator:
         metrics_with_ssl = list()
         metrics_with_url = dict()
         metrics_names_set = set()
+        metrics_with_hostalias = list()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -102,10 +103,22 @@ class ConfigurationGenerator:
                         ):
                             metrics_with_url.update({key: attribute})
 
+                    for param, param_value in value["parameter"].items():
+                        if "$HOSTALIAS$" in param_value:
+                            metrics_with_hostalias.append({
+                                "metric": key,
+                                "parameter": param,
+                                "label": self._create_metric_parameter_label(
+                                    key, param
+                                ),
+                                "value": param_value
+                            })
+
         self.metrics = metrics_list
         self.metrics_without_configuration = metrics_in_profiles_set.difference(
             metrics_names_set
         )
+        self.metrics_with_hostalias = metrics_with_hostalias
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
@@ -422,14 +435,20 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        p = [
-                            item for item in parameter_overrides
-                            if item["parameter"] == key
-                        ]
-                        if len(p) > 0:
-                            value = "{{ .labels.%s | default \"%s\" }}" % (
-                                p[0]["label"], value
+                        if "$HOSTALIAS$" in value:
+                            value = "{{ .labels.%s }}" % (
+                                self._create_metric_parameter_label(name, key)
                             )
+
+                        else:
+                            p = [
+                                item for item in parameter_overrides
+                                if item["parameter"] == key
+                            ]
+                            if len(p) > 0:
+                                value = "{{ .labels.%s | default \"%s\" }}" % (
+                                    p[0]["label"], value
+                                )
 
                         param = f"{key} {value}".strip()
                         parameters = f"{parameters} {param}".strip()
@@ -682,6 +701,10 @@ class ConfigurationGenerator:
                         o for o in self.metric_parameter_overrides
                         if o["metric"] == metric
                     ]
+                    hostaliases = [
+                        ha for ha in self.metrics_with_hostalias
+                        if ha["metric"] == metric
+                    ]
                     if metric not in self.internal_metrics:
                         key = create_label(metric)
 
@@ -704,7 +727,20 @@ class ConfigurationGenerator:
 
                         else:
                             if o["hostname"] in [item["hostname"], entity_name]:
-                                labels.update({o["label"]: o["value"]})
+                                if "$HOSTALIAS$" in o["value"]:
+                                    value = o["value"].replace(
+                                        "$HOSTALIAS$", hostname
+                                    )
+                                else:
+                                    value = o["value"]
+
+                                labels.update({o["label"]: value})
+
+                    if len(metric_parameter_overrides) == 0:
+                        for ha in hostaliases:
+                            label = ha["label"]
+                            value = ha["value"].replace("$HOSTALIAS$", hostname)
+                            labels.update({label: value})
 
                     if metric == "generic.ssh.connect" and "port" not in labels:
                         labels.update({"port": "22"})
