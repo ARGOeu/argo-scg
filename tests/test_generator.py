@@ -631,6 +631,41 @@ mock_metrics = [
         }
     },
     {
+        "eudat.b2handle.handle.api-crud": {
+            "tags": [
+                "api",
+                "pids"
+            ],
+            "probe": "check_handle_api.py",
+            "config": {
+                "interval": "15",
+                "maxCheckAttempts": "3",
+                "path": "/usr/libexec/argo/probes/eudat-b2handle/",
+                "retryInterval": "3",
+                "timeout": "15"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1",
+                "NOTIMEOUT": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "B2HANDLE_PREFIX": "--prefix"
+            },
+            "parameter": {
+                "-f": "/etc/nagios/plugins/eudat-b2handle/$HOSTALIAS$/"
+                      "credentials.json"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/ARGOeu-Metrics/argo-probe-eudat-b2handle"
+        }
+    },
+    {
         "generic.certificate.validity": {
             "tags": [
                 "harmonized"
@@ -1936,6 +1971,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-05-24",
+        "group": "B2HANDLE",
+        "type": "SITES",
+        "service": "b2handle",
+        "hostname": "b2handle.test.example.com",
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://b2handle.test.example.com",
+            "monitored": "1",
+            "production": "1",
+            "scope": ""
+        }
     }
 ]
 
@@ -2493,6 +2542,20 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-05-24",
+        "name": "ARGO_TEST34",
+        "description": "Profile for metrics with HOSTALIAS",
+        "services": [
+            {
+                "service": "b2handle",
+                "metrics": [
+                    "eudat.b2handle.handle.api-crud"
+                ]
+            }
+        ]
     }
 ]
 
@@ -2647,6 +2710,10 @@ mock_attributes = {
             {
                 "attribute": "ARC_GOOD_SES",
                 "value": "good_ses_file=/var/lib/gridprobes/ops/GoodSEs"
+            },
+            {
+                "attribute": "B2HANDLE_PREFIX",
+                "value": "234.234"
             }
         ],
         "host_attributes": [],
@@ -5193,6 +5260,62 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_hostalias(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST34"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-b2handle/"
+                               "check_handle_api.py "
+                               "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
+                               "}} --prefix 234.234",
+                    "subscriptions": ["b2handle"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_b2handle_handle_api_crud == "
+                            "'eudat.b2handle.handle.api-crud'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.b2handle.handle.api-crud",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
                         }
                     },
                     "round_robin": False

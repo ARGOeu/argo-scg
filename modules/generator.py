@@ -422,14 +422,20 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        p = [
-                            item for item in parameter_overrides
-                            if item["parameter"] == key
-                        ]
-                        if len(p) > 0:
-                            value = "{{ .labels.%s | default \"%s\" }}" % (
-                                p[0]["label"], value
+                        if "$HOSTALIAS$" in value:
+                            value = "{{ .labels.%s }}" % (
+                                self._create_metric_parameter_label(name, key)
                             )
+
+                        else:
+                            p = [
+                                item for item in parameter_overrides
+                                if item["parameter"] == key
+                            ]
+                            if len(p) > 0:
+                                value = "{{ .labels.%s | default \"%s\" }}" % (
+                                    p[0]["label"], value
+                                )
 
                         param = f"{key} {value}".strip()
                         parameters = f"{parameters} {param}".strip()
