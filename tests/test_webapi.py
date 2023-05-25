@@ -65,7 +65,7 @@ mock_topology_endpoints = [
         "tags": {
             "info_ID": "0000",
             "info_URL": "https://argo.ni4os.eu",
-            "monitored": "1",
+            "monitored": "0",
             "production": "1",
             "scope": "argo.eu"
         }
@@ -253,6 +253,18 @@ def mock_webapi_requests(*args, **kwargs):
             status_code=200
         )
 
+    elif args[0].endswith("1"):
+        return MockResponse(
+            {
+                "status": {
+                    "message": "Success",
+                    "code": "200"
+                },
+                "data": mock_topology_endpoints[1:]
+            },
+            status_code=200
+        )
+
 
 def mock_webapi_metricprofile_error_with_msg(*args, **kwargs):
     if args[0].endswith("metric_profiles"):
@@ -355,9 +367,24 @@ class WebApiTests(unittest.TestCase):
         self.webapi = WebApi(
             url="https://web-api.com", token="W3b4p1t0k3n", tenant="MOCK_TENANT"
         )
-        self.webapi_filtered = WebApi(
-            url="https://web-api.com", token="W3b4p1t0k3n",
-            tenant="MOCK_TENANT", topo_filter="tags=certification:Certified"
+        self.webapi_filtered_groups = WebApi(
+            url="https://web-api.com",
+            token="W3b4p1t0k3n",
+            tenant="MOCK_TENANT",
+            topo_groups_filter="tags=certification:Certified"
+        )
+        self.webapi_filtered_endpoints = WebApi(
+            url="https://web-api.com",
+            token="W3b4p1t0k3n",
+            tenant="MOCK_TENANT",
+            topo_endpoints_filter="tags=monitored:1"
+        )
+        self.webapi_filtered_both = WebApi(
+            url="https://web-api.com",
+            token="W3b4p1t0k3n",
+            tenant="MOCK_TENANT",
+            topo_groups_filter="tags=certification:Certified",
+            topo_endpoints_filter="tags=monitored:1"
         )
         self.logname = "argo-scg.webapi"
 
@@ -471,10 +498,10 @@ class WebApiTests(unittest.TestCase):
         )
 
     @patch("requests.get")
-    def test_get_topology_with_filter(self, mock_get):
+    def test_get_topology_with_groups_filter(self, mock_get):
         mock_get.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
-            topology = self.webapi_filtered.get_topology()
+            topology = self.webapi_filtered_groups.get_topology()
 
         self.assertEqual(mock_get.call_count, 2)
 
@@ -502,6 +529,75 @@ class WebApiTests(unittest.TestCase):
                 mock_topology_endpoints[0], mock_topology_endpoints[1],
                 mock_topology_endpoints[3], mock_topology_endpoints[4],
                 mock_topology_endpoints[6]
+            ]
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
+                f"successfully",
+                f"INFO:{self.logname}:MOCK_TENANT: Topology groups fetched "
+                f"successfully"
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_topology_with_endpoints_filter(self, mock_get):
+        mock_get.side_effect = mock_webapi_requests
+        with self.assertLogs(self.logname) as log:
+            topology = self.webapi_filtered_endpoints.get_topology()
+
+        mock_get.assert_called_once_with(
+            "https://web-api.com/api/v2/topology/endpoints?"
+            "tags=monitored:1",
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "x-api-key": "W3b4p1t0k3n"
+            }
+        )
+
+        self.assertEqual(topology, mock_topology_endpoints[1:])
+
+        self.assertEqual(
+            log.output, [
+                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
+                f"successfully"
+            ]
+        )
+
+    @patch("requests.get")
+    def test_get_topology_with_groups_and_endpoints_filter(self, mock_get):
+        mock_get.side_effect = mock_webapi_requests
+        with self.assertLogs(self.logname) as log:
+            topology = self.webapi_filtered_both.get_topology()
+
+        self.assertEqual(mock_get.call_count, 2)
+
+        mock_get.assert_has_calls([
+            call(
+                "https://web-api.com/api/v2/topology/groups?tags=certification"
+                ":Certified", headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            ),
+            call(
+                "https://web-api.com/api/v2/topology/endpoints?"
+                "tags=monitored:1",
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            topology, [
+                mock_topology_endpoints[1], mock_topology_endpoints[3],
+                mock_topology_endpoints[4], mock_topology_endpoints[6]
             ]
         )
 
