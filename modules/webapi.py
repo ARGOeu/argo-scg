@@ -5,11 +5,15 @@ from argo_scg.exceptions import WebApiException
 
 
 class WebApi:
-    def __init__(self, url, token, tenant, topo_filter=None):
+    def __init__(
+            self, url, token, tenant, topo_groups_filter=None,
+            topo_endpoints_filter=None
+    ):
         self.url = url
         self.token = token
         self.tenant = tenant
-        self.filter = topo_filter
+        self.groups_filter = topo_groups_filter
+        self.endpoints_filter = topo_endpoints_filter
         self.logger = logging.getLogger("argo-scg.webapi")
 
     def get_metric_profiles(self):
@@ -41,8 +45,8 @@ class WebApi:
 
     def _get_topology_groups(self):
         url = f"{self.url}/api/v2/topology/groups"
-        if self.filter:
-            url = f"{url}?{self.filter}"
+        if self.groups_filter:
+            url = f"{url}?{self.groups_filter}"
 
         response = requests.get(
             url,
@@ -75,8 +79,11 @@ class WebApi:
             return groups
 
     def _get_topology_endpoints(self):
+        url = f"{self.url}/api/v2/topology/endpoints"
+        if self.endpoints_filter:
+            url = f"{url}?{self.endpoints_filter}"
         response = requests.get(
-            f"{self.url}/api/v2/topology/endpoints",
+            url,
             headers={
                 "Accept": "application/json",
                 "Content-Type": "application/json",
@@ -108,7 +115,7 @@ class WebApi:
     def get_topology(self):
         endpoints = self._get_topology_endpoints()
 
-        if self.filter:
+        if self.groups_filter:
             groups = self._get_topology_groups()
 
             eligible_sites = [group["subgroup"] for group in groups]
