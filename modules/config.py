@@ -107,12 +107,14 @@ class Config:
         except configparser.NoOptionError as err:
             raise ConfigException(err)
 
-    def get_topology_filter(self):
+    def _get_topology_filter(self, topo_type):
         try:
             topology_filter = dict()
             for tenant in self.tenants:
                 try:
-                    filter_value = self.conf.get(tenant, "topology_filter")
+                    filter_value = self.conf.get(
+                        tenant, f"topology_{topo_type}_filter"
+                    )
 
                 except configparser.NoOptionError:
                     filter_value = ""
@@ -123,6 +125,12 @@ class Config:
 
         except configparser.NoOptionError as err:
             raise ConfigException(err)
+
+    def get_topology_groups_filter(self):
+        return self._get_topology_filter(topo_type="groups")
+
+    def get_topology_endpoints_filter(self):
+        return self._get_topology_filter(topo_type="endpoints")
 
     def get_metricprofiles(self):
         try:

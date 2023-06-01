@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.2.1
+Version:       0.2.2
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
 %changelog
+* Thu Jun 1 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.2-1%{?dist}
+- ARGO-4325 Have separate filters for groups and endpoints
+- ARGO-4324 Handle parameters with $HOSTALIAS$
+- ARGO-4323 Send performance data to AMS
 * Thu May 4 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.1-1%{?dist}
 - ARGO-4272 Handle checks with timeout
 - ARGO-4270 Filtering OK events not working

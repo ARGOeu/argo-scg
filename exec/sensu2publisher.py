@@ -68,23 +68,22 @@ def main():
         hostname = output.get_hostname()
         metric_name = output.get_metric_name()
         status = output.get_status()
+        perfdata = output.get_perfdata()
         summary = output.get_summary()
         message = output.get_message()
-        subprocess.call(
-            [
-                "ams-metric-to-queue", "--servicestatetype", "HARD",
-                "--queue", publisher_queue, "--service", service,
-                "--hostname", hostname, "--metric", metric_name,
-                "--status", status, "--summary", summary, "--message",
-                repr(message)
-            ]
-        )
-        logger.info(
-            f"Command 'ams-metric-to-queue --servicestatetype HARD --queue "
-            f"{publisher_queue} --service {service} --hostname {hostname} "
-            f"--metric {metric_name} --status {status} --summary {summary} "
-            f"--message {message}' called successfully"
-        )
+
+        ams_m2q_call = [
+            "ams-metric-to-queue", "--servicestatetype", "HARD",
+            "--queue", publisher_queue, "--service", service,
+            "--hostname", hostname, "--metric", metric_name,
+            "--status", status, "--summary", summary, "--message", repr(message)
+        ]
+        if perfdata:
+            ams_m2q_call.extend(["--actual_data", perfdata])
+
+        subprocess.call(ams_m2q_call)
+
+        logger.info(f"Command '{' '.join(ams_m2q_call)}' called successfully")
 
     except subprocess.CalledProcessError as err:
         logger.error(f"Error executing command: {err}")

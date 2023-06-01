@@ -32,7 +32,8 @@ def main():
         sensu_token = config.get_sensu_token()
         webapi_url = config.get_webapi_url()
         webapi_tokens = config.get_webapi_tokens()
-        topo_filters = config.get_topology_filter()
+        topo_groups_filter = config.get_topology_groups_filter()
+        topo_endpoints_filter = config.get_topology_endpoints_filter()
         poem_urls = config.get_poem_urls()
         poem_tokens = config.get_poem_tokens()
         metricprofiles = config.get_metricprofiles()
@@ -56,8 +57,10 @@ def main():
                     url=webapi_url,
                     token=webapi_tokens[tenant],
                     tenant=tenant,
-                    topo_filter=topo_filters[tenant] if topo_filters[tenant]
-                    else None
+                    topo_groups_filter=topo_groups_filter[tenant] if
+                    topo_groups_filter[tenant] else None,
+                    topo_endpoints_filter=topo_endpoints_filter[tenant] if
+                    topo_endpoints_filter[tenant] else None
                 )
 
                 poem = Poem(
