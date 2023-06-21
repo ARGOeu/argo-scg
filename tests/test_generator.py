@@ -1985,6 +1985,32 @@ mock_topology = [
             "production": "1",
             "scope": ""
         }
+    },
+    {
+        "date": "2023-06-09",
+        "group": "ARCHIVE-B2HANDLE",
+        "type": "SERVICEGROUPS",
+        "service": "b2handle.handle.api",
+        "hostname": "b2handle3.test.com",
+        "tags": {
+            "info_ID": "xxxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-09",
+        "group": "B2HANDLE TEST",
+        "type": "SERVICEGROUPS",
+        "service": "b2handle.handle.api",
+        "hostname": "b2handle3.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
     }
 ]
 
@@ -2551,6 +2577,20 @@ mock_metric_profiles = [
         "services": [
             {
                 "service": "b2handle",
+                "metrics": [
+                    "eudat.b2handle.handle.api-crud"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-06-09",
+        "name": "ARGO_TEST35",
+        "description": "Profile endpoints with duplicate sites",
+        "services": [
+            {
+                "service": "b2handle.handle.api",
                 "metrics": [
                     "eudat.b2handle.handle.api-crud"
                 ]
@@ -7391,6 +7431,45 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["b2handle"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_duplicate_sites(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST35"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.api__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle3.test.com/credentials.json",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.handle.api",
+                            "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.api"]
                 }
             ]
         )
