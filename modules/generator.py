@@ -210,7 +210,7 @@ class ConfigurationGenerator:
                     "hostname": item["hostname"],
                     "attribute": item["attribute"],
                     "label": create_label(item["attribute"]),
-                    "value": item["value"].strip("$"),
+                    "value": item["value"],
                     "metrics": self._get_metrics4attribute(item["attribute"])
                 })
 
@@ -781,7 +781,7 @@ class ConfigurationGenerator:
                                 o["value"]
                             )
                             labels.update({
-                                o["label"]: f"${override_value}"
+                                o["label"]: override_value
                             })
 
                         for attr in overriding_attributes:
