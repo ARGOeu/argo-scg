@@ -717,10 +717,12 @@ class ConfigurationGenerator:
                             o for o in self.metric_parameter_overrides
                             if o["metric"] == metric
                         ]
+
                         hostaliases = [
                             ha for ha in self.metrics_with_hostalias
                             if ha["metric"] == metric
                         ]
+
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
@@ -758,7 +760,14 @@ class ConfigurationGenerator:
 
                                     labels.update({o["label"]: value})
 
-                        if len(metric_parameter_overrides) == 0:
+                        host_metric_parameter_overrides = [
+                            o for o in metric_parameter_overrides if
+                            o["hostname"] in [
+                                item["hostname"], entity_name
+                            ]
+                        ]
+
+                        if len(host_metric_parameter_overrides) == 0:
                             for ha in hostaliases:
                                 label = ha["label"]
                                 value = ha["value"].replace(
