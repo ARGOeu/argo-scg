@@ -8013,6 +8013,79 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entity_host_attr_override_if_value_with_dots(
+            self
+    ):
+        self.maxDiff = None
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123.456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST36"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle.test.com/credentials.json",
+                            "hostname": "b2handle.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle3.test.com/credentials.json",
+                            "b2handle_prefix": "123.456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "ARCHIVE-B2HANDLE"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,

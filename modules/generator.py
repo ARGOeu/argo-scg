@@ -793,11 +793,8 @@ class ConfigurationGenerator:
                         )
 
                         for o in host_attribute_overrides:
-                            override_value = create_attribute_env(
-                                o["value"]
-                            )
                             labels.update({
-                                o["label"]: override_value
+                                o["label"]: o["value"]
                             })
 
                         for attr in overriding_attributes:
