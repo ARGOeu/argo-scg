@@ -782,6 +782,7 @@ class ConfigurationGenerator:
                                 o["attribute"] for o in host_attribute_overrides
                             ])
                         )
+
                         for o in host_attribute_overrides:
                             override_value = create_attribute_env(
                                 o["value"]
@@ -791,8 +792,9 @@ class ConfigurationGenerator:
                             })
 
                         for attr in overriding_attributes:
-                            label = f"${create_attribute_env(attr)}"
-                            labels.update({create_label(attr): label})
+                            if attr not in self.global_attributes:
+                                label = f"${create_attribute_env(attr)}"
+                                labels.update({create_label(attr): label})
 
                     for tag, value in item["tags"].items():
                         if tag.startswith("info_ext_"):
