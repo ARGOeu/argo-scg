@@ -326,7 +326,13 @@ class ConfigurationGenerator:
         ]
         for key, value in attrs.items():
             if key in self.global_attributes:
-                key = self.global_attributes[key]
+                if key in overridden_attributes:
+                    key = "{{ .labels.%s | default \"%s\" }}" % (
+                        key.lower(), self.global_attributes[key]
+                    )
+
+                else:
+                    key = self.global_attributes[key]
 
             elif is_attribute_secret(key):
                 if key in overridden_attributes:

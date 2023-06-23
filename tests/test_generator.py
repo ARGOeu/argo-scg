@@ -4883,6 +4883,157 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_with_host_attribute_override_global(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "source  ; export $(cut -d= -f1 ) ; "
+                               "/usr/libexec/argo/probes/nagios/check_nagios "
+                               "-H {{ .labels.hostname }} -t 60 "
+                               "--nagios-service org.nagios.NagiosCmdFile "
+                               "--username "
+                               "{{ .labels.nagios_freshness_username }} "
+                               "--password "
+                               "{{ .labels.nagios_freshness_password }}",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_nagios_freshness_simple_login "
+                            "== 'argo.nagios.freshness-simple-login'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.nagios.freshness-simple-login",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-b2handle/"
+                               "check_handle_resolution.pl -t 10 "
+                               "--prefix {{ .labels.b2handle_prefix | "
+                               "default \"234.234\" }}",
+                    "subscriptions": ["b2handle.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels."
+                            "eudat_b2handle_handle_api_healthcheck_resolve "
+                            "== 'eudat.b2handle.handle.api-healthcheck-resolve'"
+                        ]
+                    },
+                    "interval": 600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.b2handle.handle.api-healthcheck-resolve",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_check_configuration_with_overridden_secrets_with_dots(
             self
     ):
@@ -6680,6 +6831,121 @@ class EntityConfigurationTests(unittest.TestCase):
         self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entities_with_host_attribute_overrides(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "argo.webui__argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_nagios_freshness_simple_login":
+                                "argo.nagios.freshness-simple-login",
+                            "nagios_freshness_username":
+                                "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                            "nagios_freshness_password":
+                                "$NI4OS_NAGIOS_FRESHNESS_PASSWORD",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_healthcheck_resolve":
+                                "eudat.b2handle.handle.api-healthcheck-resolve",
+                            "b2handle_prefix": "123456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_host_attribute_overrides_if_global(self):
         attributes = {
             "local": {
                 "global_attributes":
