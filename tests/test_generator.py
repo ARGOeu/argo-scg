@@ -666,6 +666,38 @@ mock_metrics = [
         }
     },
     {
+        "eudat.b2handle.handle.api-healthcheck-resolve": {
+            "tags": [
+                "api",
+                "harmonized",
+                "pids",
+                "resolution"
+            ],
+            "probe": "check_handle_resolution.pl",
+            "config": {
+                "interval": "10",
+                "maxCheckAttempts": "3",
+                "path": "/usr/libexec/argo/probes/eudat-b2handle/",
+                "retryInterval": "3",
+                "timeout": "10"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "B2HANDLE_PREFIX": "--prefix"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/ARGOeu-Metrics/argo-probe-eudat-b2handle"
+        }
+    },
+    {
         "generic.certificate.validity": {
             "tags": [
                 "harmonized"
@@ -2011,6 +2043,45 @@ mock_topology = [
             "production": "0",
             "scope": ""
         }
+    },
+    {
+        "date": "2023-06-23",
+        "group": "B2HANDLE-TEST",
+        "type": "SERVICEGROUPS",
+        "service": "b2handle.test",
+        "hostname": "b2handle3.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-23",
+        "group": "ARCHIVE-B2HANDLE",
+        "type": "SERVICEGROUPS",
+        "service": "b2handle.handle.test",
+        "hostname": "b2handle3.test.com",
+        "tags": {
+            "info_ID": "xxxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-23",
+        "group": "B2HANDLE-TEST",
+        "type": "SERVICEGROUPS",
+        "service": "b2handle.handle.test",
+        "hostname": "b2handle.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
     }
 ]
 
@@ -2460,6 +2531,12 @@ mock_metric_profiles = [
                 "metrics": [
                     "generic.tcp.connect"
                 ]
+            },
+            {
+                "service": "b2handle.test",
+                "metrics": [
+                    "eudat.b2handle.handle.api-healthcheck-resolve"
+                ]
             }
         ]
     },
@@ -2591,6 +2668,22 @@ mock_metric_profiles = [
         "services": [
             {
                 "service": "b2handle.handle.api",
+                "metrics": [
+                    "eudat.b2handle.handle.api-crud"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-06-23",
+        "name": "ARGO_TEST36",
+        "description":
+            "Profile endpoints with attributes with overrides and default "
+            "value",
+        "services": [
+            {
+                "service": "b2handle.handle.test",
                 "metrics": [
                     "eudat.b2handle.handle.api-crud"
                 ]
@@ -4688,20 +4781,23 @@ class CheckConfigurationTests(unittest.TestCase):
     def test_generate_check_configuration_with_host_attribute_override(self):
         attributes = {
             "local": {
-                "global_attributes":
-                    mock_attributes["local"]["global_attributes"],
+                "global_attributes": [],
                 "host_attributes": [{
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
                 }, {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }, {
                     "hostname": "argo-devel.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
                 }],
                 "metric_parameters": []
             }
@@ -4757,6 +4853,190 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-b2handle/"
+                               "check_handle_resolution.pl -t 10 "
+                               "--prefix {{ .labels.b2handle_prefix }}",
+                    "subscriptions": ["b2handle.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels."
+                            "eudat_b2handle_handle_api_healthcheck_resolve "
+                            "== 'eudat.b2handle.handle.api-healthcheck-resolve'"
+                        ]
+                    },
+                    "interval": 600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.b2handle.handle.api-healthcheck-resolve",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["argo.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_host_attribute_override_global(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                }, {
+                    "hostname": "argo.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "NAGIOS_FRESHNESS_PASSWORD",
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST26"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "source  ; export $(cut -d= -f1 ) ; "
+                               "/usr/libexec/argo/probes/nagios/check_nagios "
+                               "-H {{ .labels.hostname }} -t 60 "
+                               "--nagios-service org.nagios.NagiosCmdFile "
+                               "--username "
+                               "{{ .labels.nagios_freshness_username }} "
+                               "--password "
+                               "{{ .labels.nagios_freshness_password }}",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_nagios_freshness_simple_login "
+                            "== 'argo.nagios.freshness-simple-login'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.nagios.freshness-simple-login",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-b2handle/"
+                               "check_handle_resolution.pl -t 10 "
+                               "--prefix {{ .labels.b2handle_prefix | "
+                               "default \"234.234\" }}",
+                    "subscriptions": ["b2handle.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels."
+                            "eudat_b2handle_handle_api_healthcheck_resolve "
+                            "== 'eudat.b2handle.handle.api-healthcheck-resolve'"
+                        ]
+                    },
+                    "interval": 600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.b2handle.handle.api-healthcheck-resolve",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
                         }
                     },
                     "round_robin": False
@@ -5417,6 +5697,77 @@ class CheckConfigurationTests(unittest.TestCase):
                             "entity.entity_class == 'proxy'",
                             "entity.labels.eudat_b2handle_handle_api_crud == "
                             "'eudat.b2handle.handle.api-crud'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.b2handle.handle.api-crud",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_host_attr_override_default_some(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST36"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-b2handle/"
+                               "check_handle_api.py -f "
+                               "{{ .labels.eudat_b2handle_handle_api_crud_f }}"
+                               " --prefix {{ .labels.b2handle_prefix | "
+                               "default \"234.234\" }}",
+                    "subscriptions": ["b2handle.handle.test"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_b2handle_handle_api_crud "
+                            "== 'eudat.b2handle.handle.api-crud'"
                         ]
                     },
                     "interval": 900,
@@ -6595,20 +6946,23 @@ class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entities_with_host_attribute_overrides(self):
         attributes = {
             "local": {
-                "global_attributes":
-                    mock_attributes["local"]["global_attributes"],
+                "global_attributes": [],
                 "host_attributes": [{
-                    "hostname": "argo.ni4os.eu",
+                    "hostname": "argo.webui__argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
                     "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
                 }, {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }, {
                     "hostname": "argo-devel.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
                 }],
                 "metric_parameters": []
             }
@@ -6683,12 +7037,28 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_healthcheck_resolve":
+                                "eudat.b2handle.handle.api-healthcheck-resolve",
+                            "b2handle_prefix": "123456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.test"]
                 }
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_entities_with_host_attribute_overrides_entity_name(self):
+    def test_generate_entities_with_host_attribute_overrides_if_global(self):
         attributes = {
             "local": {
                 "global_attributes":
@@ -6700,11 +7070,15 @@ class EntityConfigurationTests(unittest.TestCase):
                 }, {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }, {
                     "hostname": "argo-devel.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
-                    "value": "NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                    "value": "$NI4OS_DEVEL_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
                 }],
                 "metric_parameters": []
             }
@@ -6779,6 +7153,22 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_healthcheck_resolve":
+                                "eudat.b2handle.handle.api-healthcheck-resolve",
+                            "b2handle_prefix": "123456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.test"]
                 }
             ]
         )
@@ -6792,7 +7182,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 "host_attributes": [{
                     "hostname": "api.devel.argo.grnet.gr",
                     "attribute": "argo.api_TOKEN",
-                    "value": "DEVEL_API_TOKEN"
+                    "value": "$DEVEL_API_TOKEN"
                 }],
                 "metric_parameters": []
             }
@@ -7475,6 +7865,227 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entity_host_override_with_default_for_some(self):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST36"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle.test.com/credentials.json",
+                            "hostname": "b2handle.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle3.test.com/credentials.json",
+                            "b2handle_prefix": "123456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "ARCHIVE-B2HANDLE"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_host_override_with_hostalias_param_override(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123456"
+                }],
+                "metric_parameters": [{
+                    "hostname": "b2handle3.test.com",
+                    "metric": "eudat.b2handle.handle.api-crud",
+                    "parameter": "-f",
+                    "value": "/etc/nagios/plugins/eudat-b2handle/test/"
+                             "credentials.json"
+                }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST36"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle.test.com/credentials.json",
+                            "hostname": "b2handle.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "test/credentials.json",
+                            "b2handle_prefix": "123456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "ARCHIVE-B2HANDLE"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_host_attr_override_if_value_with_dots(
+            self
+    ):
+        self.maxDiff = None
+        attributes = {
+            "local": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [{
+                    "hostname": "b2handle3.test.com",
+                    "attribute": "B2HANDLE_PREFIX",
+                    "value": "123.456"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST36"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle.test.com/credentials.json",
+                            "hostname": "b2handle.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "B2HANDLE-TEST"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "b2handle.handle.test__b2handle3.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_b2handle_handle_api_crud":
+                                "eudat.b2handle.handle.api-crud",
+                            "eudat_b2handle_handle_api_crud_f":
+                                "/etc/nagios/plugins/eudat-b2handle/"
+                                "b2handle3.test.com/credentials.json",
+                            "b2handle_prefix": "123.456",
+                            "hostname": "b2handle3.test.com",
+                            "service": "b2handle.handle.test",
+                            "site": "ARCHIVE-B2HANDLE"
+                        }
+                    },
+                    "subscriptions": ["b2handle.handle.test"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -7497,8 +8108,7 @@ class OverridesTests(unittest.TestCase):
     def test_get_metric_parameter_overrides(self):
         attributes = {
             "local": {
-                "global_attributes":
-                    mock_attributes["local"]["global_attributes"],
+                "global_attributes": [],
                 "host_attributes": [],
                 "metric_parameters": [{
                     "hostname": "argo.ni4os.eu",
@@ -7552,7 +8162,7 @@ class OverridesTests(unittest.TestCase):
                 "host_attributes": [{
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME"
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME"
                 }, {
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
@@ -7589,7 +8199,7 @@ class OverridesTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
                     "label": "nagios_freshness_username",
-                    "value": "NI4OS_NAGIOS_FRESHNESS_USERNAME",
+                    "value": "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
                     "metrics": ["argo.nagios.freshness-simple-login"]
                 }
             ]

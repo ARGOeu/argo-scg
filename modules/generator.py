@@ -210,7 +210,7 @@ class ConfigurationGenerator:
                     "hostname": item["hostname"],
                     "attribute": item["attribute"],
                     "label": create_label(item["attribute"]),
-                    "value": item["value"].strip("$"),
+                    "value": item["value"],
                     "metrics": self._get_metrics4attribute(item["attribute"])
                 })
 
@@ -326,7 +326,13 @@ class ConfigurationGenerator:
         ]
         for key, value in attrs.items():
             if key in self.global_attributes:
-                key = self.global_attributes[key]
+                if key in overridden_attributes:
+                    key = "{{ .labels.%s | default \"%s\" }}" % (
+                        key.lower(), self.global_attributes[key]
+                    )
+
+                else:
+                    key = self.global_attributes[key]
 
             elif is_attribute_secret(key):
                 if key in overridden_attributes:
@@ -711,10 +717,12 @@ class ConfigurationGenerator:
                             o for o in self.metric_parameter_overrides
                             if o["metric"] == metric
                         ]
+
                         hostaliases = [
                             ha for ha in self.metrics_with_hostalias
                             if ha["metric"] == metric
                         ]
+
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
@@ -752,7 +760,14 @@ class ConfigurationGenerator:
 
                                     labels.update({o["label"]: value})
 
-                        if len(metric_parameter_overrides) == 0:
+                        host_metric_parameter_overrides = [
+                            o for o in metric_parameter_overrides if
+                            o["hostname"] in [
+                                item["hostname"], entity_name
+                            ]
+                        ]
+
+                        if len(host_metric_parameter_overrides) == 0:
                             for ha in hostaliases:
                                 label = ha["label"]
                                 value = ha["value"].replace(
@@ -776,17 +791,16 @@ class ConfigurationGenerator:
                                 o["attribute"] for o in host_attribute_overrides
                             ])
                         )
+
                         for o in host_attribute_overrides:
-                            override_value = create_attribute_env(
-                                o["value"]
-                            )
                             labels.update({
-                                o["label"]: f"${override_value}"
+                                o["label"]: o["value"]
                             })
 
                         for attr in overriding_attributes:
-                            label = f"${create_attribute_env(attr)}"
-                            labels.update({create_label(attr): label})
+                            if attr not in self.global_attributes:
+                                label = f"${create_attribute_env(attr)}"
+                                labels.update({create_label(attr): label})
 
                     for tag, value in item["tags"].items():
                         if tag.startswith("info_ext_"):
