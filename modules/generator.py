@@ -119,6 +119,7 @@ class ConfigurationGenerator:
             metrics_names_set
         )
         self.metrics_with_hostalias = metrics_with_hostalias
+        self.metrics_with_endpoint_url = metrics_with_endpoint_url
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
@@ -386,7 +387,7 @@ class ConfigurationGenerator:
                     key = "{{ .labels.info_url }}"
 
                 elif key == "URL":
-                    key = "{{ .labels.info_service_endpoint_url }}"
+                    key = "{{ .labels.endpoint_url }}"
 
                 elif key == "SITENAME":
                     key = "{{ .labels.site }}"
@@ -637,9 +638,10 @@ class ConfigurationGenerator:
                                 "os_keystone_url": item["tags"]["info_URL"]
                             })
 
+                    missing_metrics_endpoint_url = list()
                     if "info_service_endpoint_URL" in item["tags"]:
                         labels.update({
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 self._get_single_endpoint_url(
                                     item["tags"]["info_service_endpoint_URL"]
                                 )
@@ -648,10 +650,27 @@ class ConfigurationGenerator:
                     else:
                         if item["service"] in \
                                 self.servicetypes_with_endpointURL:
-                            labels.update({
-                                "info_service_endpoint_url":
-                                    item["tags"]["info_URL"]
-                            })
+                            if "info_URL" not in item["tags"]:
+                                self.logger.warning(
+                                    f"{self.tenant}: Entity {entity_name} "
+                                    f"missing URL"
+                                )
+                                missing_metrics_endpoint_url.extend(
+                                    list(
+                                        set(
+                                            self.metrics4servicetypes[
+                                                item["service"]
+                                            ]
+                                        ).intersection(
+                                            set(self.metrics_with_endpoint_url)
+                                        )
+                                    )
+                                )
+
+                            else:
+                                labels.update({
+                                    "endpoint_url": item["tags"]["info_URL"]
+                                })
 
                     if item["service"] in self.servicetypes_with_url:
                         for attr in self.servicetypes_with_url[item["service"]]:
@@ -726,7 +745,8 @@ class ConfigurationGenerator:
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
-                            if key not in labels:
+                            if key not in labels and \
+                                    metric not in missing_metrics_endpoint_url:
                                 labels.update({key: metric})
 
                         for o in metric_parameter_overrides:
