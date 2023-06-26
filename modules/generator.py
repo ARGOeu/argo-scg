@@ -69,7 +69,8 @@ class ConfigurationGenerator:
 
         metrics_list = list()
         internal_metrics = list()
-        metrics_with_endpoint_url = list()
+        metrics_with_endpoint_url = dict()
+        list_metrics_with_endpoint_url = list()
         metrics_with_ports = list()
         metrics_with_path = list()
         metrics_with_ssl = list()
@@ -96,7 +97,13 @@ class ConfigurationGenerator:
 
                     for attribute, attr_val in value["attribute"].items():
                         if attribute == "URL":
-                            metrics_with_endpoint_url.append(key)
+                            list_metrics_with_endpoint_url.append(key)
+                            metrics_with_endpoint_url.update({
+                                key: {
+                                    "attribute": attribute,
+                                    "value": attr_val
+                                }
+                            })
 
                         if attribute.endswith("_URL") and not (
                                 attribute.endswith("GOCDB_SERVICE_URL")
@@ -140,7 +147,7 @@ class ConfigurationGenerator:
         self.extensions4metrics = self._get_extensions4metrics()
 
         self.servicetypes_with_endpointURL = list()
-        for metric in metrics_with_endpoint_url:
+        for metric in list_metrics_with_endpoint_url:
             self.servicetypes_with_endpointURL.extend(
                 self.servicetypes4metrics[metric]
             )
@@ -325,93 +332,99 @@ class ConfigurationGenerator:
         overridden_attributes = [
             item["attribute"] for item in self.host_attribute_overrides
         ]
+        overridden_parameters = [
+            item["parameter"] for item in self.metric_parameter_overrides
+            if item["metric"] == metric
+        ]
+
         for key, value in attrs.items():
-            if key in self.global_attributes:
-                if key in overridden_attributes:
-                    key = "{{ .labels.%s | default \"%s\" }}" % (
-                        key.lower(), self.global_attributes[key]
-                    )
-
-                else:
-                    key = self.global_attributes[key]
-
-            elif is_attribute_secret(key):
-                if key in overridden_attributes:
-                    key = "{{ .labels.%s }}" % create_label(key)
-
-                else:
-                    if "." in key:
-                        key = key.upper().replace(".", "_")
-
-                    key = f"${key}"
-
-                issecret = True
-
-            else:
-                if key == "NAGIOS_HOST_CERT":
-                    if "ROBOT_CERT" in self.global_attributes:
-                        key = self.global_attributes["ROBOT_CERT"]
-                    else:
-                        key = hardcoded_attributes[key]
-
-                elif key == "NAGIOS_HOST_KEY":
-                    if "ROBOT_KEY" in self.global_attributes:
-                        key = self.global_attributes["ROBOT_KEY"]
-
-                    else:
-                        key = hardcoded_attributes[key]
-
-                elif key in ["KEYSTORE", "TRUSTSTORE"]:
-                    key = hardcoded_attributes[key]
-
-                elif key == "TOP_BDII":
-                    if "BDII_HOST" in self.global_attributes:
-                        key = self.global_attributes["BDII_HOST"]
-                    else:
-                        key = ""
-
-                elif key in self.default_ports:
-                    key = self.default_ports[key]
-
-                elif key == "SSL":
-                    key = "{{ .labels.ssl }}"
-                    value = ""
-
-                elif key == "PATH":
-                    key = "{{ .labels.path | default \"/\" }}"
-
-                elif key == "PORT":
-                    key = "{{ .labels.port }}"
-
-                elif key.endswith("GOCDB_SERVICE_URL"):
-                    key = "{{ .labels.info_url }}"
-
-                elif key == "URL":
-                    key = "{{ .labels.endpoint_url }}"
-
-                elif key == "SITENAME":
-                    key = "{{ .labels.site }}"
-
-                elif key in self.extensions:
-                    if self._is_extension_present_in_all_endpoints(
-                        services=self.servicetypes4metrics[metric],
-                        extension=f"info_ext_{key}"
-                    ) or key.endswith("_URL"):
-                        key = "{{ .labels.%s }}" % key.lower()
-
-                    else:
-                        key = "{{ .labels.%s__%s | default \"\" }}" % (
-                            value.lstrip("-").lstrip("-").replace("-", "_"),
-                            key.lower()
+            if value not in overridden_parameters:
+                if key in self.global_attributes:
+                    if key in overridden_attributes:
+                        key = "{{ .labels.%s | default \"%s\" }}" % (
+                            key.lower(), self.global_attributes[key]
                         )
+
+                    else:
+                        key = self.global_attributes[key]
+
+                elif is_attribute_secret(key):
+                    if key in overridden_attributes:
+                        key = "{{ .labels.%s }}" % create_label(key)
+
+                    else:
+                        if "." in key:
+                            key = key.upper().replace(".", "_")
+
+                        key = f"${key}"
+
+                    issecret = True
+
+                else:
+                    if key == "NAGIOS_HOST_CERT":
+                        if "ROBOT_CERT" in self.global_attributes:
+                            key = self.global_attributes["ROBOT_CERT"]
+                        else:
+                            key = hardcoded_attributes[key]
+
+                    elif key == "NAGIOS_HOST_KEY":
+                        if "ROBOT_KEY" in self.global_attributes:
+                            key = self.global_attributes["ROBOT_KEY"]
+
+                        else:
+                            key = hardcoded_attributes[key]
+
+                    elif key in ["KEYSTORE", "TRUSTSTORE"]:
+                        key = hardcoded_attributes[key]
+
+                    elif key == "TOP_BDII":
+                        if "BDII_HOST" in self.global_attributes:
+                            key = self.global_attributes["BDII_HOST"]
+                        else:
+                            key = ""
+
+                    elif key in self.default_ports:
+                        key = self.default_ports[key]
+
+                    elif key == "SSL":
+                        key = "{{ .labels.ssl }}"
                         value = ""
 
-                else:
-                    key = "{{ .labels.%s }}" % key.lower()
+                    elif key == "PATH":
+                        key = "{{ .labels.path | default \"/\" }}"
 
-            attr = f"{value} {key}".strip()
+                    elif key == "PORT":
+                        key = "{{ .labels.port }}"
 
-            attributes = f"{attributes} {attr}".strip()
+                    elif key.endswith("GOCDB_SERVICE_URL"):
+                        key = "{{ .labels.info_url }}"
+
+                    elif key == "URL":
+                        key = "{{ .labels.endpoint_url }}"
+
+                    elif key == "SITENAME":
+                        key = "{{ .labels.site }}"
+
+                    elif key in self.extensions:
+                        if self._is_extension_present_in_all_endpoints(
+                            services=self.servicetypes4metrics[metric],
+                            extension=f"info_ext_{key}"
+                        ) or key.endswith("_URL"):
+                            key = "{{ .labels.%s }}" % key.lower()
+
+                        else:
+                            key = "{{ .labels.%s__%s | default \"\" }}" % (
+                                value.lstrip("-").lstrip("-").replace("-", "_"),
+                                key.lower()
+                            )
+                            value = ""
+
+                    else:
+                        key = "{{ .labels.%s }}" % key.lower()
+
+                attr = f"{value} {key}".strip()
+
+                attributes = f"{attributes} {attr}".strip()
 
         return attributes, issecret
 
@@ -651,21 +664,39 @@ class ConfigurationGenerator:
                         if item["service"] in \
                                 self.servicetypes_with_endpointURL:
                             if "info_URL" not in item["tags"]:
-                                self.logger.warning(
-                                    f"{self.tenant}: Entity {entity_name} "
-                                    f"missing URL"
-                                )
-                                missing_metrics_endpoint_url.extend(
-                                    list(
-                                        set(
-                                            self.metrics4servicetypes[
-                                                item["service"]
-                                            ]
-                                        ).intersection(
-                                            set(self.metrics_with_endpoint_url)
-                                        )
+                                metrics_with_endpoint_url = \
+                                    self.metrics_with_endpoint_url.keys()
+                                url_metrics = list(
+                                    set(
+                                        self.metrics4servicetypes[
+                                            item["service"]
+                                        ]
+                                    ).intersection(
+                                        set(metrics_with_endpoint_url)
                                     )
                                 )
+
+                                for metric in url_metrics:
+                                    parameter_overrides = [
+                                        o["parameter"] for o in
+                                        self.metric_parameter_overrides if
+                                        o["metric"] == metric and
+                                        o["hostname"] in [
+                                            item["hostname"], entity_name
+                                        ]
+                                    ]
+                                    if self.metrics_with_endpoint_url[
+                                        metric
+                                    ]["value"] not in parameter_overrides:
+                                        missing_metrics_endpoint_url.append(
+                                            metric
+                                        )
+
+                                if len(missing_metrics_endpoint_url) > 0:
+                                    self.logger.warning(
+                                        f"{self.tenant}: Entity {entity_name} "
+                                        f"missing URL"
+                                    )
 
                             else:
                                 labels.update({
