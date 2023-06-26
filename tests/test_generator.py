@@ -698,6 +698,39 @@ mock_metrics = [
         }
     },
     {
+        "eudat.gitlab.liveness": {
+            "tags": [
+                "CI/CD",
+                "collaboration",
+                "development",
+                "harmonized"
+            ],
+            "probe": "check_gitlab_liveness.sh",
+            "config": {
+                "timeout": "10",
+                "retryInterval": "3",
+                "path": "/usr/libexec/argo/probes/eudat-gitlab/",
+                "maxCheckAttempts": "3",
+                "interval": "60"
+            },
+            "flags": {
+                "PNP": "1",
+                "OBSESS": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "URL": "--url"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/ARGOeu-Metrics/argo-probe-eudat-gitlab/"
+        }
+    },
+    {
         "generic.certificate.validity": {
             "tags": [
                 "harmonized"
@@ -2082,6 +2115,59 @@ mock_topology = [
             "production": "0",
             "scope": ""
         }
+    },
+    {
+        "date": "2023-06-23",
+        "group": "GITLAB-TEST",
+        "type": "SERVICEGROUPS",
+        "service": "gitlab",
+        "hostname": "gitlab.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-23",
+        "group": "GITLAB-TEST",
+        "type": "SERVICEGROUPS",
+        "service": "gitlab",
+        "hostname": "gitlab2.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "info_URL": "https://gitlab2.test.com/",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-26",
+        "group": "GITLAB-TEST2",
+        "type": "SERVICEGROUPS",
+        "service": "gitlab2",
+        "hostname": "gitlab2.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
+    {
+        "date": "2023-06-26",
+        "group": "GITLAB-TEST2",
+        "type": "SERVICEGROUPS",
+        "service": "gitlab2",
+        "hostname": "gitlab.test.com",
+        "tags": {
+            "info_ID": "xxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
     }
 ]
 
@@ -2686,6 +2772,39 @@ mock_metric_profiles = [
                 "service": "b2handle.handle.test",
                 "metrics": [
                     "eudat.b2handle.handle.api-crud"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-06-23",
+        "name": "ARGO_TEST37",
+        "description": "Profile with endpoints using metrics which require "
+                       "URL, but there's no URL in the topology",
+        "services": [
+            {
+                "service": "gitlab",
+                "metrics": [
+                    "eudat.gitlab.liveness",
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-06-26",
+        "name": "ARGO_TEST38",
+        "description": "Profile with endpoints using metrics which require "
+                       "URL, but there's no URL in the topology (here "
+                       "with overrides)",
+        "services": [
+            {
+                "service": "gitlab2",
+                "metrics": [
+                    "eudat.gitlab.liveness",
+                    "generic.tcp.connect"
                 ]
             }
         ]
@@ -3559,7 +3678,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_webdav "
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls --dynafed --fixed-content-length "
-                               "-u {{ .labels.info_service_endpoint_url }} "
+                               "-u {{ .labels.endpoint_url }} "
                                "-E /etc/nagios/globus/userproxy.pem",
                     "subscriptions": ["ch.cern.dynafed"],
                     "handlers": [],
@@ -5556,7 +5675,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/test/check_api.py "
                                "-t 30 "
                                "{{ .labels.eosc_test_api_l }} "
-                               "-u {{ .labels.info_service_endpoint_url }}",
+                               "-u {{ .labels.endpoint_url }}",
                     "subscriptions": ["probe.test"],
                     "handlers": [],
                     "pipelines": [
@@ -5775,6 +5894,502 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "eudat.b2handle.handle.api-crud",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_url_no_url(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST37"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-gitlab/"
+                               "check_gitlab_liveness.sh -t 10 "
+                               "--url {{ .labels.endpoint_url }}",
+                    "subscriptions": ["gitlab"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_gitlab_liveness "
+                            "== 'eudat.gitlab.liveness'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.gitlab.liveness",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["gitlab"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect "
+                            "== 'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_url_url_param_overrides_all(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "gitlab.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab.test.com"
+                    },
+                    {
+                        "hostname": "gitlab2.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab2.test.com/"
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-gitlab/"
+                               "check_gitlab_liveness.sh -t 10 "
+                               "{{ .labels.eudat_gitlab_liveness_url }}",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_gitlab_liveness "
+                            "== 'eudat.gitlab.liveness'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.gitlab.liveness",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect "
+                            "== 'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_url_url_param_overrides_some(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "gitlab.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab.test.com"
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-gitlab/"
+                               "check_gitlab_liveness.sh -t 10 "
+                               "{{ .labels.eudat_gitlab_liveness_url }}",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_gitlab_liveness "
+                            "== 'eudat.gitlab.liveness'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.gitlab.liveness",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect "
+                            "== 'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_url_url_attr_overrides_all(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "gitlab.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab.test.com"
+                }, {
+                    "hostname": "gitlab2.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab2.test.com"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-gitlab/"
+                               "check_gitlab_liveness.sh -t 10 "
+                               "--url {{ .labels.endpoint_url }}",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_gitlab_liveness "
+                            "== 'eudat.gitlab.liveness'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.gitlab.liveness",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect "
+                            "== 'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_url_url_attr_overrides_some(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "gitlab.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab.test.com"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo/probes/eudat-gitlab/"
+                               "check_gitlab_liveness.sh -t 10 "
+                               "--url {{ .labels.endpoint_url }}",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eudat_gitlab_liveness "
+                            "== 'eudat.gitlab.liveness'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eudat.gitlab.liveness",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": ["gitlab2"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect "
+                            "== 'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
@@ -6040,7 +6655,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dynafed.hostname.ca",
                             "info_url":
                                 "https://dynafed.hostname.ca:443/dynafed/ops",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://dynafed.hostname.ca:443/dynafed/ops",
                             "service": "ch.cern.dynafed",
                             "site": "CA-UVic-Cloud",
@@ -6112,7 +6727,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ch_cern_webdav": "ch.cern.WebDAV",
                             "hostname": "dpm.bla.meh.com",
                             "info_url": "https://dpm.bla.meh.com/dpm/ops/",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://mock.url.com/dpm/ops",
                             "webdav_url":
                                 "https://mock.url.com/dpm/ops",
@@ -6547,7 +7162,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "eu_egi_aai_oidc_login": "eu.egi.AAI-OIDC-Login",
                             "info_url": "https://aai.eosc-portal.eu/oidc",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://aai.eosc-portal.eu/oidc/.well-known/"
                                 "openid-configuration",
                             "hostname": "aai.eosc-portal.eu",
@@ -6565,7 +7180,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "eu_egi_aai_saml_login": "eu.egi.AAI-SAML-Login",
                             "info_url": "https://aai.eosc-portal.eu/proxy",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://aai.eosc-portal.eu/proxy/saml2/idp/"
                                 "metadata.php",
                             "hostname": "aai.eosc-portal.eu",
@@ -7582,7 +8197,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "-l /var/log/sensu/test.log",
                             "info_url":
                                 "https://test.argo.grnet.gr/some/extra/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test.argo.grnet.gr/some/extra/path",
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
@@ -7601,7 +8216,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "",
                             "info_url":
                                 "https://test2.argo.grnet.gr/some/extra2/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test2.argo.grnet.gr/some/extra2/path",
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
@@ -7620,7 +8235,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "-l /var/log/meh/test.log",
                             "info_url":
                                 "https://test3.argo.grnet.gr/some/extra3/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test3.argo.grnet.gr/some/extra3/path",
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
@@ -7680,7 +8295,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "-l /var/log/sensu/test.log",
                             "info_url":
                                 "https://test.argo.grnet.gr/some/extra/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test.argo.grnet.gr/some/extra/path",
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
@@ -7699,7 +8314,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "",
                             "info_url":
                                 "https://test2.argo.grnet.gr/some/extra2/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test2.argo.grnet.gr/some/extra2/path",
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
@@ -7718,7 +8333,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eosc_test_api_l": "-l /var/log/meh/test.log",
                             "info_url":
                                 "https://test3.argo.grnet.gr/some/extra3/path",
-                            "info_service_endpoint_url":
+                            "endpoint_url":
                                 "https://test3.argo.grnet.gr/some/extra3/path",
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
@@ -8016,7 +8631,6 @@ class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_host_attr_override_if_value_with_dots(
             self
     ):
-        self.maxDiff = None
         attributes = {
             "local": {
                 "global_attributes":
@@ -8085,6 +8699,334 @@ class EntityConfigurationTests(unittest.TestCase):
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_no_url(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST37"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab__gitlab.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "gitlab.test.com",
+                            "service": "gitlab",
+                            "site": "GITLAB-TEST"
+                        }
+                    },
+                    "subscriptions": ["gitlab"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab__gitlab2.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "info_url": "https://gitlab2.test.com/",
+                            "endpoint_url": "https://gitlab2.test.com/",
+                            "hostname": "gitlab2.test.com",
+                            "service": "gitlab",
+                            "site": "GITLAB-TEST"
+                        }
+                    },
+                    "subscriptions": ["gitlab"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Entity gitlab__gitlab.test.com "
+            f"missing URL"
+        ])
+
+    def test_generate_entity_if_no_url_param_override_all(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "gitlab.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab.test.com"
+                    },
+                    {
+                        "hostname": "gitlab2.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab2.test.com/"
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "eudat_gitlab_liveness_url":
+                                "--url https://gitlab.test.com",
+                            "hostname": "gitlab.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab2.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "eudat_gitlab_liveness_url":
+                                "--url https://gitlab2.test.com/",
+                            "hostname": "gitlab2.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_no_url_param_override_some(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "gitlab.test.com",
+                        "metric": "eudat.gitlab.liveness",
+                        "parameter": "--url",
+                        "value": "https://gitlab.test.com"
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "eudat_gitlab_liveness_url":
+                                "--url https://gitlab.test.com",
+                            "hostname": "gitlab.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab2.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "eudat_gitlab_liveness_url": "",
+                            "hostname": "gitlab2.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Entity gitlab2__gitlab2.test.com "
+            f"missing URL"
+        ])
+
+    def test_generate_entity_if_no_url_attr_override_all(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "gitlab.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab.test.com"
+                }, {
+                    "hostname": "gitlab2.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab2.test.com"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "endpoint_url": "https://gitlab.test.com",
+                            "hostname": "gitlab.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab2.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "endpoint_url": "https://gitlab2.test.com",
+                            "hostname": "gitlab2.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_no_url_attr_override_some(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "gitlab.test.com",
+                    "attribute": "URL",
+                    "value": "https://gitlab.test.com"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST38"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "eudat_gitlab_liveness": "eudat.gitlab.liveness",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "endpoint_url": "https://gitlab.test.com",
+                            "hostname": "gitlab.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "gitlab2__gitlab2.test.com",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "gitlab2.test.com",
+                            "service": "gitlab2",
+                            "site": "GITLAB-TEST2"
+                        }
+                    },
+                    "subscriptions": ["gitlab2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Entity gitlab2__gitlab2.test.com "
+            f"missing URL"
+        ])
 
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
