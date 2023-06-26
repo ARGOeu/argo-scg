@@ -685,9 +685,17 @@ class ConfigurationGenerator:
                                             item["hostname"], entity_name
                                         ]
                                     ]
+                                    attr_overrides = [
+                                        o["attribute"] for o in
+                                        self.host_attribute_overrides if
+                                        o["hostname"] in [
+                                            item["hostname"], entity_name
+                                        ]
+                                    ]
                                     if self.metrics_with_endpoint_url[
                                         metric
-                                    ]["value"] not in parameter_overrides:
+                                    ]["value"] not in parameter_overrides and \
+                                            "URL" not in attr_overrides:
                                         missing_metrics_endpoint_url.append(
                                             metric
                                         )
@@ -844,12 +852,19 @@ class ConfigurationGenerator:
                         )
 
                         for o in host_attribute_overrides:
+                            if o["label"] == "url":
+                                label = "endpoint_url"
+
+                            else:
+                                label = o["label"]
+
                             labels.update({
-                                o["label"]: o["value"]
+                                label: o["value"]
                             })
 
                         for attr in overriding_attributes:
-                            if attr not in self.global_attributes:
+                            if attr not in self.global_attributes and \
+                                    is_attribute_secret(attr):
                                 label = f"${create_attribute_env(attr)}"
                                 labels.update({create_label(attr): label})
 
