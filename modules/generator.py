@@ -387,14 +387,22 @@ class ConfigurationGenerator:
                         key = self.default_ports[key]
 
                     elif key == "SSL":
-                        key = "{{ .labels.ssl }}"
+                        if metric == "generic.http.connect":
+                            key = "{{ .labels.ssl | default \" \" }}"
+
+                        else:
+                            key = "{{ .labels.ssl }}"
                         value = ""
 
                     elif key == "PATH":
                         key = "{{ .labels.path | default \"/\" }}"
 
                     elif key == "PORT":
-                        key = "{{ .labels.port }}"
+                        if metric == "generic.http.connect":
+                            key = "{{ .labels.port | default \"80\" }}"
+
+                        else:
+                            key = "{{ .labels.port }}"
 
                     elif key.endswith("GOCDB_SERVICE_URL"):
                         key = "{{ .labels.info_url }}"

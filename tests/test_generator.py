@@ -3586,8 +3586,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_http "
                                "-H {{ .labels.hostname }} -t 60 --link "
                                "--onredirect follow "
-                               "{{ .labels.ssl }} "
-                               "-p {{ .labels.port }} "
+                               "{{ .labels.ssl | default \" \" }} "
+                               "-p {{ .labels.port | default \"80\" }} "
                                "-u {{ .labels.path | default \"/\" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
@@ -5541,8 +5541,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 "command":
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
-                    "--onredirect follow {{ .labels.ssl }} "
-                    "-p {{ .labels.port }} -u "
+                    "--onredirect follow {{ .labels.ssl | default \" \" }} "
+                    "-p {{ .labels.port | default \"80\" }} -u "
                     "{{ .labels.path | default \"/\" }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
