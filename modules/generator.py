@@ -265,6 +265,20 @@ class ConfigurationGenerator:
 
         return is_present
 
+    def _is_extension_present_in_any_endpoint(self, services, extension):
+        is_present = False
+        endpoints = [
+            endpoint for endpoint in self.topology if
+            endpoint["service"] in services
+        ]
+
+        for endpoint in endpoints:
+            if extension in endpoint["tags"]:
+                is_present = True
+                break
+
+        return is_present
+
     def _is_parameter_default(self, metric_name, parameter):
         is_default = False
 
@@ -384,7 +398,16 @@ class ConfigurationGenerator:
                             key = ""
 
                     elif key in self.default_ports:
-                        key = self.default_ports[key]
+                        if self._is_extension_present_in_any_endpoint(
+                                services=self.servicetypes4metrics[metric],
+                                extension=f"info_ext_{key}"
+                        ) or key in overridden_attributes:
+                            key = "{{ .labels.%s | default \"%s\" }}" % (
+                                key.lower(), self.default_ports[key]
+                            )
+
+                        else:
+                            key = self.default_ports[key]
 
                     elif key == "SSL":
                         if metric == "generic.http.connect":
