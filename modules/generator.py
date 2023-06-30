@@ -251,7 +251,7 @@ class ConfigurationGenerator:
         return f"{create_label(metric)}_" \
                f"{parameter.strip('-').strip('-').replace('-', '_')}"
 
-    def _is_extension_present_in_all_endpoints(self, services, extension):
+    def _is_extension_present_all_endpoints(self, services, extension):
         is_present = True
         endpoints = [
             endpoint for endpoint in self.topology
@@ -261,6 +261,20 @@ class ConfigurationGenerator:
         for endpoint in endpoints:
             if extension not in endpoint["tags"]:
                 is_present = False
+                break
+
+        return is_present
+
+    def _is_extension_present_any_endpoint(self, services, extension):
+        is_present = False
+        endpoints = [
+            endpoint for endpoint in self.topology if
+            endpoint["service"] in services
+        ]
+
+        for endpoint in endpoints:
+            if extension in endpoint["tags"]:
+                is_present = True
                 break
 
         return is_present
@@ -384,7 +398,16 @@ class ConfigurationGenerator:
                             key = ""
 
                     elif key in self.default_ports:
-                        key = self.default_ports[key]
+                        if self._is_extension_present_any_endpoint(
+                                services=self.servicetypes4metrics[metric],
+                                extension=f"info_ext_{key}"
+                        ) or key in overridden_attributes:
+                            key = "{{ .labels.%s | default \"%s\" }}" % (
+                                key.lower(), self.default_ports[key]
+                            )
+
+                        else:
+                            key = self.default_ports[key]
 
                     elif key == "SSL":
                         if metric == "generic.http.connect":
@@ -414,7 +437,7 @@ class ConfigurationGenerator:
                         key = "{{ .labels.site }}"
 
                     elif key in self.extensions:
-                        if self._is_extension_present_in_all_endpoints(
+                        if self._is_extension_present_all_endpoints(
                             services=self.servicetypes4metrics[metric],
                             extension=f"info_ext_{key}"
                         ) or key.endswith("_URL"):
@@ -842,10 +865,6 @@ class ConfigurationGenerator:
                                 )
                                 labels.update({label: value})
 
-                        if metric == "generic.ssh.connect" and \
-                                "port" not in labels:
-                            labels.update({"port": "22"})
-
                     if len(attribute_overrides) > 0:
                         host_attribute_overrides = [
                             o for o in attribute_overrides
@@ -882,10 +901,14 @@ class ConfigurationGenerator:
                                 labels.update({"port": value})
 
                             else:
-                                if self._is_extension_present_in_all_endpoints(
+                                if tag[9:] in self.default_ports:
+                                    labels.update({tag[9:].lower(): value})
+
+                                elif self._is_extension_present_all_endpoints(
                                     services=[item["service"]], extension=tag
                                 ) or tag.endswith("_URL"):
                                     labels.update({tag[9:].lower(): value})
+
                                 else:
                                     metrics = list()
                                     for metric in self.metrics:
