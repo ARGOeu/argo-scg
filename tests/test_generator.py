@@ -860,7 +860,7 @@ mock_metrics = [
         }
     },
     {
-        "generic.ssh.connect": {
+        "generic.ssh.test": {
             "tags": [
                 "harmonized"
             ],
@@ -888,7 +888,7 @@ mock_metrics = [
         }
     },
     {
-        "generic.ssh.connect-improved": {
+        "generic.ssh.connect": {
             "tags": [
                 "harmonized"
             ],
@@ -1363,7 +1363,7 @@ faulty_metrics = [
         }
     },
     {
-        "generic.ssh.connect": {
+        "generic.ssh.test": {
             "tags": [
                 "harmonized"
             ],
@@ -2335,7 +2335,7 @@ mock_metric_profiles = [
             {
                 "service": "eu.ni4os.hpc.ui",
                 "metrics": [
-                    "generic.ssh.connect"
+                    "generic.ssh.test"
                 ]
             }
         ]
@@ -2424,7 +2424,7 @@ mock_metric_profiles = [
             {
                 "service": "eu.ni4os.hpc.ui",
                 "metrics": [
-                    "generic.ssh.connect"
+                    "generic.ssh.test"
                 ]
             },
             {
@@ -2650,7 +2650,7 @@ mock_metric_profiles = [
             {
                 "service": "argo.test",
                 "metrics": [
-                    "generic.ssh.connect",
+                    "generic.ssh.test",
                     "argo.APEL-Pub"
                 ]
             }
@@ -2875,7 +2875,7 @@ mock_metric_profiles = [
             {
                 "service": "eu.ni4os.hpc.ui",
                 "metrics": [
-                    "generic.ssh.connect-improved"
+                    "generic.ssh.connect"
                 ]
             }
         ]
@@ -2890,7 +2890,7 @@ mock_metric_profiles = [
             {
                 "service": "eu.ni4os.hpc.ui2",
                 "metrics": [
-                    "generic.ssh.connect-improved"
+                    "generic.ssh.connect"
                 ]
             }
         ]
@@ -4931,15 +4931,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_ssh_connect == "
-                            "'generic.ssh.connect'"
+                            "entity.labels.generic_ssh_test == "
+                            "'generic.ssh.test'"
                         ]
                     },
                     "interval": 900,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "generic.ssh.connect",
+                        "name": "generic.ssh.test",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
@@ -6524,15 +6524,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_ssh_connect_improved == "
-                            "'generic.ssh.connect-improved'"
+                            "entity.labels.generic_ssh_connect == "
+                            "'generic.ssh.connect'"
                         ]
                     },
                     "interval": 900,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "generic.ssh.connect-improved",
+                        "name": "generic.ssh.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
@@ -6579,15 +6579,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_ssh_connect_improved == "
-                            "'generic.ssh.connect-improved'"
+                            "entity.labels.generic_ssh_connect == "
+                            "'generic.ssh.connect'"
                         ]
                     },
                     "interval": 900,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "generic.ssh.connect-improved",
+                        "name": "generic.ssh.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
@@ -6644,15 +6644,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_ssh_connect_improved == "
-                            "'generic.ssh.connect-improved'"
+                            "entity.labels.generic_ssh_connect == "
+                            "'generic.ssh.connect'"
                         ]
                     },
                     "interval": 900,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "generic.ssh.connect-improved",
+                        "name": "generic.ssh.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
@@ -6711,15 +6711,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_ssh_connect_improved == "
-                            "'generic.ssh.connect-improved'"
+                            "entity.labels.generic_ssh_connect == "
+                            "'generic.ssh.connect'"
                         ]
                     },
                     "interval": 900,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "generic.ssh.connect-improved",
+                        "name": "generic.ssh.connect",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
@@ -6815,9 +6815,10 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "eu.ni4os.hpc.ui__hpc.resource.ni4os.eu",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "hostname": "hpc.resource.ni4os.eu",
                             "port": "1022",
+                            "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "IPB"
                         }
@@ -6830,9 +6831,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "eu.ni4os.hpc.ui__teran.srce.hr",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "hostname": "teran.srce.hr",
-                            "port": "22",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "SRCE"
                         }
@@ -7215,9 +7215,10 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "eu.ni4os.hpc.ui__hpc.resource.ni4os.eu",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "hostname": "hpc.resource.ni4os.eu",
                             "port": "1022",
+                            "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "IPB"
                         }
@@ -7230,9 +7231,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "eu.ni4os.hpc.ui__teran.srce.hr",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "hostname": "teran.srce.hr",
-                            "port": "22",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "SRCE"
                         }
@@ -7751,7 +7751,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "argo.test__argo.ni4os.eu",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
                             "port": "443",
                             "hostname": "argo.ni4os.eu",
@@ -7841,7 +7841,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "name": "argo.test__argo.ni4os.eu",
                         "namespace": "default",
                         "labels": {
-                            "generic_ssh_connect": "generic.ssh.connect",
+                            "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
                             "port": "443",
                             "hostname": "argo.ni4os.eu",
@@ -9357,6 +9357,229 @@ class EntityConfigurationTests(unittest.TestCase):
             f"WARNING:{LOGNAME}:MOCK_TENANT: Entity gitlab2__gitlab2.test.com "
             f"missing URL"
         ])
+
+    def test_generate_entity_default_port_override_by_extension_some(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST39"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui__hpc.resource.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "port": "1022",
+                            "ssh_port": "1022",
+                            "hostname": "hpc.resource.ni4os.eu",
+                            "service": "eu.ni4os.hpc.ui",
+                            "site": "IPB"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui__teran.srce.hr",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "hostname": "teran.srce.hr",
+                            "service": "eu.ni4os.hpc.ui",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_default_port_override_by_extension_none(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST40"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__hpc.resource.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "port": "1022",
+                            "hostname": "hpc.resource.ni4os.eu",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "IPB"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__teran.srce.hr",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "hostname": "teran.srce.hr",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_default_port_override_by_global_attribute(self):
+        attributes = {
+            "local": {
+                "global_attributes": [{
+                    "attribute": "SSH_PORT",
+                    "value": "1022"
+                }],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST40"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__hpc.resource.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "port": "1022",
+                            "hostname": "hpc.resource.ni4os.eu",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "IPB"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__teran.srce.hr",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "hostname": "teran.srce.hr",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_default_port_override_by_host_attribute(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "hpc.resource.ni4os.eu",
+                    "attribute": "SSH_PORT",
+                    "value": "1022"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST40"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__hpc.resource.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "port": "1022",
+                            "ssh_port": "1022",
+                            "hostname": "hpc.resource.ni4os.eu",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "IPB"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.ni4os.hpc.ui2__teran.srce.hr",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_ssh_connect": "generic.ssh.connect",
+                            "hostname": "teran.srce.hr",
+                            "service": "eu.ni4os.hpc.ui2",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
