@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.2.2
+Version:       0.2.3
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -47,6 +47,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
 %changelog
+* Thu Jul 2 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.3-1%{?dist}
+- ARGO-4339 Handle overrides of default ports
+- ARGO-4338 Handle generic.http.connect for endpoints without defined info_URL
+- ARGO-4336 Handle endpoints without URL when using metric with URL
+- ARGO-4335 Host attributes overrides not working properly
+- ARGO-4220 Handle hostnames assigned to multiple sites in topology
 * Thu Jun 1 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.2-1%{?dist}
 - ARGO-4325 Have separate filters for groups and endpoints
 - ARGO-4324 Handle parameters with $HOSTALIAS$
