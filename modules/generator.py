@@ -350,6 +350,7 @@ class ConfigurationGenerator:
             item["parameter"] for item in self.metric_parameter_overrides
             if item["metric"] == metric
         ]
+        special_attributes = ["info_hostdn", "BDII_DN", "GLUE2_BDII_DN"]
 
         for key, value in attrs.items():
             if value not in overridden_parameters:
@@ -396,6 +397,9 @@ class ConfigurationGenerator:
                             key = self.global_attributes["BDII_HOST"]
                         else:
                             key = ""
+
+                    elif key == "SITE_BDII":
+                        key = "{{ .labels.site_bdii }}"
 
                     elif key in self.default_ports:
                         if self._is_extension_present_any_endpoint(
@@ -450,10 +454,22 @@ class ConfigurationGenerator:
                             )
                             value = ""
 
-                    else:
+                    elif (
+                            key.startswith("OS_KEYSTONE_") or
+                            key.endswith("_URL") or
+                            key in overridden_attributes or
+                            key in special_attributes
+                    ):
                         key = "{{ .labels.%s }}" % key.lower()
 
-                attr = f"{value} {key}".strip()
+                    else:
+                        key = ""
+
+                if key:
+                    attr = f"{value} {key}".strip()
+
+                else:
+                    attr = ""
 
                 attributes = f"{attributes} {attr}".strip()
 
