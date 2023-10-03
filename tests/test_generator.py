@@ -79,6 +79,42 @@ mock_metrics = [
         }
     },
     {
+        "argo.APEL-Sync": {
+            "tags": [
+                "accounting",
+                "apel",
+                "htc"
+            ],
+            "probe": "check_http_parser",
+            "config": {
+                "timeout": "120",
+                "retryInterval": "15",
+                "path": "/usr/libexec/argo/probes/http_parser",
+                "maxCheckAttempts": "2",
+                "interval": "720"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {
+                "-H": "goc-accounting.grid-support.ac.uk",
+                "-u": "/rss/$_SERVICESITE_NAME$_Sync.html",
+                "--warning-search": "WARN",
+                "--critical-search": "ERROR",
+                "--ok-search": "OK",
+                "--case-sensitive": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-http-parser"
+                      "/blob/main/README.md"
+        }
+    },
+    {
         "argo.API-Check": {
             "tags": [
                 "api",
@@ -2318,6 +2354,36 @@ mock_topology = [
             "monitored": "1",
             "production": "1"
         }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "APEL-Site1",
+        "type": "SITES",
+        "service": "APEL",
+        "hostname": "apel.grid.example.com",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "APEL-Site2",
+        "type": "SITES",
+        "service": "APEL",
+        "hostname": "apel.grid.example.com",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -3001,6 +3067,21 @@ mock_metric_profiles = [
                 "metrics": [
                     "srce.gridproxy.get",
                     "srce.gridproxy.validity"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-03",
+        "name": "ARGO_TEST42",
+        "description": "Profile for APEL metrics",
+        "services": [
+            {
+                "service": "APEL",
+                "metrics": [
+                    "argo.APEL-Pub",
+                    "argo.APEL-Sync"
                 ]
             }
         ]
@@ -3998,8 +4079,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
                                "check_bdii_entries_num "
                                "-H {{ .labels.hostname }} -t 60 -c 1:1 "
-                               "-f \"(&(objectClass=GLUE2Domain)"
-                               "(GLUE2DomainID=$_SERVICESITE_NAME$))\" "
+                               "-f {{ .labels.org_nagios_glue2_check_f }} "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
                     "subscriptions": ["Site-BDII"],
                     "handlers": [],
@@ -4991,7 +5071,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/http_parser/"
                                "check_http_parser -t 120 "
                                "-H goc-accounting.grid-support.ac.uk "
-                               "-u /rss/$_SERVICESITE_NAME$_Pub.html "
+                               "-u {{ .labels.argo_apel_pub_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
                                "| default \"OK\" }} --case-sensitive",
@@ -6938,6 +7018,96 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_servicesite_name(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_pub_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_sync_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_sync == 'argo.APEL-Sync'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Sync",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
                         }
                     },
                     "round_robin": False

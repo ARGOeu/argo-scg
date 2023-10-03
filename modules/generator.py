@@ -502,7 +502,10 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if "$HOSTALIAS$" in value:
+                        if (
+                                "$HOSTALIAS$" in value or
+                                "$_SERVICESITE_NAME$" in value
+                        ):
                             value = "{{ .labels.%s }}" % (
                                 self._create_metric_parameter_label(name, key)
                             )
