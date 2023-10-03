@@ -77,6 +77,7 @@ class ConfigurationGenerator:
         metrics_with_url = dict()
         metrics_names_set = set()
         metrics_with_hostalias = list()
+        metrics_with_servicesite_name = list()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -121,11 +122,22 @@ class ConfigurationGenerator:
                                 "value": param_value
                             })
 
+                        if "$_SERVICESITE_NAME$" in param_value:
+                            metrics_with_servicesite_name.append({
+                                "metric": key,
+                                "parameter": param,
+                                "label": self._create_metric_parameter_label(
+                                    key, param
+                                ),
+                                "value": param_value
+                            })
+
         self.metrics = metrics_list
         self.metrics_without_configuration = metrics_in_profiles_set.difference(
             metrics_names_set
         )
         self.metrics_with_hostalias = metrics_with_hostalias
+        self.metrics_with_servicesite_name = metrics_with_servicesite_name
         self.metrics_with_endpoint_url = metrics_with_endpoint_url
         self.internal_metrics = internal_metrics
         self.topology = topology
@@ -831,6 +843,11 @@ class ConfigurationGenerator:
                             if ha["metric"] == metric
                         ]
 
+                        servicesite_metrics = [
+                            ss for ss in self.metrics_with_servicesite_name
+                            if ss["metric"] == metric
+                        ]
+
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
@@ -881,6 +898,13 @@ class ConfigurationGenerator:
                                 label = ha["label"]
                                 value = ha["value"].replace(
                                     "$HOSTALIAS$", hostname
+                                )
+                                labels.update({label: value})
+
+                            for ss in servicesite_metrics:
+                                label = ss["label"]
+                                value = ss["value"].replace(
+                                    "$_SERVICESITE_NAME$", item["group"]
                                 )
                                 labels.update({label: value})
 

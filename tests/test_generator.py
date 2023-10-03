@@ -2360,7 +2360,7 @@ mock_topology = [
         "group": "APEL-Site1",
         "type": "SITES",
         "service": "APEL",
-        "hostname": "apel.grid.example.com",
+        "hostname": "apel.grid1.example.com",
         "notifications": {
             "enabled": True
         },
@@ -2376,7 +2376,7 @@ mock_topology = [
         "group": "APEL-Site2",
         "type": "SITES",
         "service": "APEL",
-        "hostname": "apel.grid.example.com",
+        "hostname": "apel.grid2.example.com",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxxxx",
@@ -7483,6 +7483,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=DESY-HH))\"",
                             "hostname": "grid-giis1.desy.de",
                             "bdii_dn": "Mds-Vo-Name=DESY-HH,O=Grid",
                             "bdii_type": "bdii_site",
@@ -7505,6 +7508,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=ARNES))\"",
                             "hostname": "kser.arnes.si",
                             "bdii_dn": "Mds-Vo-Name=ARNES,O=Grid",
                             "bdii_type": "bdii_site",
@@ -7527,6 +7533,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=SBDII))\"",
                             "hostname": "sbdii.test.com",
                             "bdii_dn": "Mds-Vo-Name=SBDII,O=Grid",
                             "bdii_type": "bdii_site",
@@ -8138,6 +8147,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_pub_u": "/rss/GRNET_Pub.html",
                             "port": "443",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
@@ -8228,6 +8238,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_pub_u": "/rss/GRNET_Pub.html",
                             "port": "443",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
@@ -9961,6 +9972,61 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["eu.ni4os.hpc.ui2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_servicesite_name(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid1.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site1_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
+                            "hostname": "apel.grid1.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site1"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid2.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site2_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
+                            "hostname": "apel.grid2.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site2"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
                 }
             ]
         )
