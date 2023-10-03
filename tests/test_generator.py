@@ -1326,6 +1326,88 @@ mock_metrics = [
             "parent": "",
             "docurl": "http://www.qoscosgrid.org/trac/qcg-broker"
         }
+    },
+    {
+        "srce.gridproxy.get": {
+            "tags": [
+                "argo",
+                "authentication",
+                "harmonized",
+                "htc",
+                "internal",
+                "monitoring",
+                "proxy certificate"
+            ],
+            "probe": "refresh_proxy",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "120",
+                "path": "/usr/libexec/argo/probes/globus",
+                "interval": "240",
+                "retryInterval": "5"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "VO": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "VONAME": "--vo",
+                "VO_FQAN": "--vo-fqan",
+                "ROBOT_CERT": "--robot-cert",
+                "PROXY_LIFETIME": "--lifetime",
+                "MYPROXY_NAME": "--name",
+                "MYPROXY_SERVER": "-H",
+                "ROBOT_KEY": "--robot-key",
+                "X509_USER_PROXY": "-x"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-globus/"
+                      "blob/master/README.md"
+        }
+    },
+    {
+        "srce.gridproxy.validity": {
+            "tags": [
+                "argo",
+                "authentication",
+                "harmonized",
+                "htc",
+                "internal",
+                "monitoring",
+                "proxy certificate"
+            ],
+            "probe": "GridProxy-probe",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "30",
+                "path": "/usr/libexec/argo/probes/globus",
+                "interval": "15",
+                "retryInterval": "3"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "VO": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {
+                "hr.srce.GridProxy-Get": "0"
+            },
+            "attribute": {
+                "VONAME": "--vo",
+                "X509_USER_PROXY": "-x"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-globus/"
+                      "blob/master/README.md"
+        }
     }
 ]
 
@@ -2224,6 +2306,18 @@ mock_topology = [
             "production": "1",
             "scope": "NI4OS-Europe"
         }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "SRCE",
+        "type": "SITES",
+        "service": "gridproxy",
+        "hostname": "some.host.name",
+        "tags": {
+            "info_ID": "xxxx",
+            "monitored": "1",
+            "production": "1"
+        }
     }
 ]
 
@@ -2891,6 +2985,22 @@ mock_metric_profiles = [
                 "service": "eu.ni4os.hpc.ui2",
                 "metrics": [
                     "generic.ssh.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-03",
+        "name": "ARGO_TEST41",
+        "description": "Profile for metrics with attributes not defined "
+                       "anywhere",
+        "services": [
+            {
+                "service": "gridproxy",
+                "metrics": [
+                    "srce.gridproxy.get",
+                    "srce.gridproxy.validity"
                 ]
             }
         ]
@@ -4009,7 +4119,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios -O good_ses_file="
                                "/var/lib/gridprobes/ops/GoodSEs --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -4052,7 +4161,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-O service_suffix=-$_SERVICEVO_FQAN$ "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -4484,7 +4592,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios "
                                "-O good_ses_file=/var/lib/gridprobes/ops/"
                                "GoodSEs --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -6723,6 +6830,114 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_attributes_not_defined_anywhere(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "OIDC_TOKEN_FILE",
+                        "value": "/etc/nagios/globus/oidc"
+                    },
+                    {
+                        "attribute": "OIDC_ACCESS_TOKEN",
+                        "value": "/etc/nagios/globus/oidc"
+                    },
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/nagios/globus/userproxy.pem"
+                    },
+                    {
+                        "attribute": "VONAME",
+                        "value": "test"
+                    },
+                    {
+                        "attribute": "ROBOT_CERT",
+                        "value": "/etc/nagios/robot/robot.pem"
+                    },
+                    {
+                        "attribute": "ROBOT_KEY",
+                        "value": "/etc/nagios/robot/robot.key"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST41"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/globus/refresh_proxy "
+                               "-t 120 --vo test "
+                               "--robot-cert /etc/nagios/robot/robot.pem "
+                               "--robot-key /etc/nagios/robot/robot.key "
+                               "-x /etc/nagios/globus/userproxy.pem",
+                    "subscriptions": ["gridproxy"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.gridproxy.get",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/globus/"
+                               "GridProxy-probe -t 30 --vo test "
+                               "-x /etc/nagios/globus/userproxy.pem",
+                    "subscriptions": ["gridproxy"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.gridproxy.validity",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
                         }
                     },
                     "round_robin": False
