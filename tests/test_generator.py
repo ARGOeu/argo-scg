@@ -7116,6 +7116,112 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_with_servicesite_name_with_override(
+            self
+    ):
+        attributes = {
+            "apel": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "apel.grid1.example.com",
+                        "metric": "argo.APEL-Pub",
+                        "parameter": "-u",
+                        "value": "/test/$_SERVICESITE_NAME$_Pub.html",
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_pub_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_sync_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_sync == 'argo.APEL-Sync'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Sync",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -10003,6 +10109,76 @@ class EntityConfigurationTests(unittest.TestCase):
                             "argo_apel_pub": "argo.APEL-Pub",
                             "argo_apel_sync": "argo.APEL-Sync",
                             "argo_apel_pub_u": "/rss/APEL-Site1_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
+                            "hostname": "apel.grid1.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site1"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid2.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site2_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
+                            "hostname": "apel.grid2.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site2"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_servicesite_name_with_override(self):
+        self.maxDiff = None
+        attributes = {
+            "apel": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "apel.grid1.example.com",
+                        "metric": "argo.APEL-Pub",
+                        "parameter": "-u",
+                        "value": "/test/$_SERVICESITE_NAME$_Pub.html",
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid1.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/test/APEL-Site1_Pub.html",
                             "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
                             "hostname": "apel.grid1.example.com",
                             "service": "APEL",

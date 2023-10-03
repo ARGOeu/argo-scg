@@ -877,12 +877,16 @@ class ConfigurationGenerator:
                                 if o["hostname"] in [
                                     item["hostname"], entity_name
                                 ]:
+                                    value = o["value"]
                                     if "$HOSTALIAS$" in o["value"]:
                                         value = o["value"].replace(
                                             "$HOSTALIAS$", hostname
                                         )
-                                    else:
-                                        value = o["value"]
+
+                                    if "$_SERVICESITE_NAME$" in o["value"]:
+                                        value = o["value"].replace(
+                                            "$_SERVICESITE_NAME$", item["group"]
+                                        )
 
                                     labels.update({o["label"]: value})
 
