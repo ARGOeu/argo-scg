@@ -67,6 +67,9 @@ class ConfigurationGenerator:
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
 
+        self.hostalias_var = "$HOSTALIAS$"
+        self.servicesite_name_var = "$_SERVICESITE_NAME$"
+
         metrics_list = list()
         internal_metrics = list()
         metrics_with_endpoint_url = dict()
@@ -77,6 +80,7 @@ class ConfigurationGenerator:
         metrics_with_url = dict()
         metrics_names_set = set()
         metrics_with_hostalias = list()
+        metrics_with_servicesite_name = list()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -111,8 +115,18 @@ class ConfigurationGenerator:
                             metrics_with_url.update({key: attribute})
 
                     for param, param_value in value["parameter"].items():
-                        if "$HOSTALIAS$" in param_value:
+                        if self.hostalias_var in param_value:
                             metrics_with_hostalias.append({
+                                "metric": key,
+                                "parameter": param,
+                                "label": self._create_metric_parameter_label(
+                                    key, param
+                                ),
+                                "value": param_value
+                            })
+
+                        if self.servicesite_name_var in param_value:
+                            metrics_with_servicesite_name.append({
                                 "metric": key,
                                 "parameter": param,
                                 "label": self._create_metric_parameter_label(
@@ -126,6 +140,7 @@ class ConfigurationGenerator:
             metrics_names_set
         )
         self.metrics_with_hostalias = metrics_with_hostalias
+        self.metrics_with_servicesite_name = metrics_with_servicesite_name
         self.metrics_with_endpoint_url = metrics_with_endpoint_url
         self.internal_metrics = internal_metrics
         self.topology = topology
@@ -475,6 +490,18 @@ class ConfigurationGenerator:
 
         return attributes, issecret
 
+    def _is_hostalias_present(self, value):
+        return self.hostalias_var in value
+
+    def _is_servicesite_name_present(self, value):
+        return self.servicesite_name_var in value
+
+    def _create_hostalias_value(self, value, hostname):
+        return value.replace(self.hostalias_var, hostname)
+
+    def _create_servicesite_name_value(self, value, site):
+        return value.replace(self.servicesite_name_var, site)
+
     def generate_checks(self, publish, namespace="default"):
         checks = list()
 
@@ -502,7 +529,10 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if "$HOSTALIAS$" in value:
+                        if (
+                            self._is_hostalias_present(value) or
+                                self._is_servicesite_name_present(value)
+                        ):
                             value = "{{ .labels.%s }}" % (
                                 self._create_metric_parameter_label(name, key)
                             )
@@ -828,6 +858,11 @@ class ConfigurationGenerator:
                             if ha["metric"] == metric
                         ]
 
+                        servicesite_metrics = [
+                            ss for ss in self.metrics_with_servicesite_name
+                            if ss["metric"] == metric
+                        ]
+
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
@@ -857,12 +892,19 @@ class ConfigurationGenerator:
                                 if o["hostname"] in [
                                     item["hostname"], entity_name
                                 ]:
-                                    if "$HOSTALIAS$" in o["value"]:
-                                        value = o["value"].replace(
-                                            "$HOSTALIAS$", hostname
+                                    value = o["value"]
+                                    if self._is_hostalias_present(o["value"]):
+                                        value = self._create_hostalias_value(
+                                            o["value"], hostname
                                         )
-                                    else:
-                                        value = o["value"]
+
+                                    if self._is_servicesite_name_present(
+                                            o["value"]
+                                    ):
+                                        value = (
+                                            self._create_servicesite_name_value(
+                                                o["value"], item["group"]
+                                            ))
 
                                     labels.update({o["label"]: value})
 
@@ -876,8 +918,15 @@ class ConfigurationGenerator:
                         if len(host_metric_parameter_overrides) == 0:
                             for ha in hostaliases:
                                 label = ha["label"]
-                                value = ha["value"].replace(
-                                    "$HOSTALIAS$", hostname
+                                value = self._create_hostalias_value(
+                                    ha["value"], hostname
+                                )
+                                labels.update({label: value})
+
+                            for ss in servicesite_metrics:
+                                label = ss["label"]
+                                value = self._create_servicesite_name_value(
+                                    ss["value"], item["group"]
                                 )
                                 labels.update({label: value})
 
