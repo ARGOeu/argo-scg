@@ -1353,7 +1353,7 @@ mock_metrics = [
             },
             "attribute": {
                 "QCG-BROKER_PORT": "-p",
-                "info_hostdn": "-n",
+                "info_HOSTDN": "-n",
                 "X509_USER_PROXY": "-x"
             },
             "parameter": {},
@@ -2384,6 +2384,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-09-12",
+        "group": "APPDB",
+        "type": "SITES",
+        "service": "egi.AppDB",
+        "hostname": "appdb.egi.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -3082,6 +3096,29 @@ mock_metric_profiles = [
                 "metrics": [
                     "argo.APEL-Pub",
                     "argo.APEL-Sync"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-04",
+        "name": "ARGO_TEST43",
+        "description": "Profile for endpoints running generic.http.connect "
+                       "without defined URL",
+        "services": [
+            {
+                "service": "egi.AppDB",
+                "metrics": [
+                    "generic.http.connect",
+                    "generic.certificate.validity"
+                ]
+            },
+            {
+                "service": "web.check",
+                "metrics": [
+                    "generic.http.connect",
+                    "generic.certificate.validity"
                 ]
             }
         ]
@@ -3865,8 +3902,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 --link "
                                "--onredirect follow "
                                "{{ .labels.ssl | default \" \" }} "
-                               "-p {{ .labels.port | default \"80\" }} "
-                               "-u {{ .labels.path | default \"/\" }}",
+                               "{{ .labels.port }} {{ .labels.path }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "proxy_requests": {
@@ -5105,7 +5141,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
-                               "-p {{ .labels.port }}",
+                               "{{ .labels.port }}",
                     "subscriptions": ["argo.test"],
                     "handlers": [],
                     "pipelines": [
@@ -5816,8 +5852,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
                     "--onredirect follow {{ .labels.ssl | default \" \" }} "
-                    "-p {{ .labels.port | default \"80\" }} -u "
-                    "{{ .labels.path | default \"/\" }}",
+                    "{{ .labels.port }} {{ .labels.path }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
                 "interval": 300,
@@ -7222,6 +7257,99 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_http_check_configuration_if_no_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST43"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                               "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 "
+                               "-N --altnames --rootcert-dir "
+                               "/etc/grid-security/certificates "
+                               "--rootcert-file "
+                               "/etc/pki/tls/certs/ca-bundle.crt "
+                               "-C /etc/nagios/globus/hostcert.pem "
+                               "-K /etc/nagios/globus/hostkey.pem",
+                    "subscriptions": ["egi.AppDB", "web.check"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity == "
+                            "'generic.certificate.validity'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 60 --link "
+                               "--onredirect follow "
+                               "{{ .labels.ssl | default \" \" }} "
+                               "{{ .labels.port }} {{ .labels.path }}",
+                    "subscriptions": ["egi.AppDB", "web.check"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -7338,7 +7466,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "bioinformatics.cing.ac.cy",
-                            "port": "443",
                             "path": "/MelGene/",
                             "ssl": "-S --sni",
                             "info_url":
@@ -7357,9 +7484,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "eewrc-las.cyi.ac.cy",
-                            "port": "80",
                             "path": "/las/getUI.do",
-                            "ssl": "",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
@@ -7417,9 +7542,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "argo-devel.ni4os.eu",
-                            "path": "/",
-                            "port": "80",
-                            "ssl": "",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET"
@@ -7435,8 +7557,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "argo.ni4os.eu",
-                            "path": "/",
-                            "port": "443",
                             "ssl": "-S --sni",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
@@ -7702,7 +7822,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://catalogue.ni4os.eu/",
                             "ssl": "-S --sni",
                             "path": "/",
-                            "port": "443",
                             "service": "eu.ni4os.app.web",
                             "site": "IPB"
                         }
@@ -8254,7 +8373,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
                             "argo_apel_pub_u": "/rss/GRNET_Pub.html",
-                            "port": "443",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
@@ -8345,7 +8463,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
                             "argo_apel_pub_u": "/rss/GRNET_Pub.html",
-                            "port": "443",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
@@ -8894,7 +9011,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "path": "/path",
-                            "port": "443",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://hostname1.argo.com/path",
@@ -8915,8 +9031,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "https://hostname2.argo.eu",
                             "hostname": "hostname2.argo.eu",
-                            "path": "/",
-                            "port": "443",
                             "ssl": "-S --sni",
                             "service": "eu.eosc.portal.services.url",
                             "site": "test2.test"
@@ -8933,10 +9047,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "http://hostname3.argo.eu/",
-                            "hostname": "hostname3.argo.eu",
                             "path": "/",
-                            "port": "80",
-                            "ssl": "",
+                            "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
                             "site": "group3"
                         }
@@ -10139,7 +10251,6 @@ class EntityConfigurationTests(unittest.TestCase):
         self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_entity_with_servicesite_name_with_override(self):
-        self.maxDiff = None
         attributes = {
             "apel": {
                 "global_attributes":
@@ -10203,6 +10314,104 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["APEL"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_for_http_check_if_no_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST43"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "egi.AppDB__appdb.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "appdb.egi.eu",
+                            "service": "egi.AppDB",
+                            "site": "APPDB"
+                        }
+                    },
+                    "subscriptions": ["egi.AppDB"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__bioinformatics.cing.ac.cy",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "https://bioinformatics.cing.ac.cy/MelGene/",
+                            "ssl": "-S --sni",
+                            "path": "/MelGene/",
+                            "hostname": "bioinformatics.cing.ac.cy",
+                            "service": "web.check",
+                            "site": "CING"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__eewrc-las.cyi.ac.cy",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "http://eewrc-las.cyi.ac.cy/las/getUI.do",
+                            "path": "/las/getUI.do",
+                            "hostname": "eewrc-las.cyi.ac.cy",
+                            "service": "web.check",
+                            "site": "CYI"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__sampaeos.if.usp.br",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "https://sampaeos.if.usp.br:9000//eos/ops/"
+                                "opstest/",
+                            "ssl": "-S --sni",
+                            "port": "9000",
+                            "path": "//eos/ops/opstest/",
+                            "hostname": "sampaeos.if.usp.br",
+                            "service": "web.check",
+                            "site": "SAMPA"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
                 }
             ]
         )

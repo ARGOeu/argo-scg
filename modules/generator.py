@@ -365,7 +365,7 @@ class ConfigurationGenerator:
             item["parameter"] for item in self.metric_parameter_overrides
             if item["metric"] == metric
         ]
-        special_attributes = ["info_hostdn", "BDII_DN", "GLUE2_BDII_DN"]
+        special_attributes = ["info_HOSTDN", "BDII_DN", "GLUE2_BDII_DN"]
 
         for key, value in attrs.items():
             if value not in overridden_parameters:
@@ -429,22 +429,16 @@ class ConfigurationGenerator:
                             key = self.default_ports[key]
 
                     elif key == "SSL":
-                        if metric == "generic.http.connect":
-                            key = "{{ .labels.ssl | default \" \" }}"
-
-                        else:
-                            key = "{{ .labels.ssl }}"
+                        key = "{{ .labels.ssl | default \" \" }}"
                         value = ""
 
                     elif key == "PATH":
-                        key = "{{ .labels.path | default \"/\" }}"
+                        key = "{{ .labels.path }}"
+                        value = ""
 
                     elif key == "PORT":
-                        if metric == "generic.http.connect":
-                            key = "{{ .labels.port | default \"80\" }}"
-
-                        else:
-                            key = "{{ .labels.port }}"
+                        key = "{{ .labels.port }}"
+                        value = ""
 
                     elif key.endswith("GOCDB_SERVICE_URL"):
                         key = "{{ .labels.info_url }}"
@@ -691,31 +685,15 @@ class ConfigurationGenerator:
 
                         if item["service"] in self.servicetypes_with_SSL:
                             if o.scheme == "https":
-                                ssl = "-S --sni"
-                            else:
-                                ssl = ""
-
-                            labels.update({"ssl": ssl})
+                                labels.update({"ssl": "-S --sni"})
 
                         if item["service"] in self.servicetypes_with_path:
-                            path = o.path
-                            if not o.path:
-                                path = "/"
-
-                            labels.update({"path": path})
+                            if o.path:
+                                labels.update({"path": o.path})
 
                         if item["service"] in self.servicetypes_with_port:
                             if port:
-                                port = str(port)
-
-                            else:
-                                if o.scheme == "https":
-                                    port = "443"
-
-                                else:
-                                    port = "80"
-
-                            labels.update({"port": port})
+                                labels.update({"port": str(port)})
 
                         if item["service"] in [
                             "org.openstack.nova", "org.openstack.swift"
