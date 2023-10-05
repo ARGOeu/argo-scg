@@ -3902,7 +3902,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 --link "
                                "--onredirect follow "
                                "{{ .labels.ssl | default \" \" }} "
-                               "{{ .labels.port }} {{ .labels.path }}",
+                               "{{ .labels.generic_http_connect_port | "
+                               "default \" \" }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default \" \" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "proxy_requests": {
@@ -5141,7 +5144,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
-                               "{{ .labels.port }}",
+                               "{{ .labels.generic_ssh_test_port | "
+                               "default \" \" }}",
                     "subscriptions": ["argo.test"],
                     "handlers": [],
                     "pipelines": [
@@ -5852,7 +5856,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
                     "--onredirect follow {{ .labels.ssl | default \" \" }} "
-                    "{{ .labels.port }} {{ .labels.path }}",
+                    "{{ .labels.generic_http_connect_port | default \" \" }} "
+                    "{{ .labels.generic_http_connect_path | default \" \" }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
                 "interval": 300,
@@ -7313,11 +7318,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "round_robin": False
                 },
                 {
-                    "command": "/usr/lib64/nagios/plugins/check_http "
-                               "-H {{ .labels.hostname }} -t 60 --link "
-                               "--onredirect follow "
-                               "{{ .labels.ssl | default \" \" }} "
-                               "{{ .labels.port }} {{ .labels.path }}",
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_http "
+                        "-H {{ .labels.hostname }} -t 60 --link "
+                        "--onredirect follow "
+                        "{{ .labels.ssl | default \" \" }} "
+                        "{{ .labels.generic_http_connect_port | "
+                        "default \" \" }} "
+                        "{{ .labels.generic_http_connect_path | "
+                        "default \" \" }}",
                     "subscriptions": ["egi.AppDB", "web.check"],
                     "handlers": [],
                     "pipelines": [
@@ -7466,7 +7475,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "bioinformatics.cing.ac.cy",
-                            "path": "/MelGene/",
+                            "generic_http_connect_path": "-u /MelGene/",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://bioinformatics.cing.ac.cy/MelGene/",
@@ -7484,7 +7493,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "eewrc-las.cyi.ac.cy",
-                            "path": "/las/getUI.do",
+                            "generic_http_connect_path": "-u /las/getUI.do",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
@@ -7501,8 +7510,9 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "sampaeos.if.usp.br",
-                            "port": "9000",
-                            "path": "//eos/ops/opstest/",
+                            "generic_http_connect_port": "-p 9000",
+                            "generic_http_connect_path":
+                                "-u //eos/ops/opstest/",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://sampaeos.if.usp.br:9000//eos/ops/"
@@ -7821,7 +7831,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "catalogue.ni4os.eu",
                             "info_url": "https://catalogue.ni4os.eu/",
                             "ssl": "-S --sni",
-                            "path": "/",
+                            "generic_http_connect_path": "-u /",
                             "service": "eu.ni4os.app.web",
                             "site": "IPB"
                         }
@@ -9010,7 +9020,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
-                            "path": "/path",
+                            "generic_http_connect_path": "-u /path",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://hostname1.argo.com/path",
@@ -9047,7 +9057,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "http://hostname3.argo.eu/",
-                            "path": "/",
+                            "generic_http_connect_path": "-u /",
                             "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
                             "site": "group3"
@@ -9082,7 +9092,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_json": "generic.http.json",
-                            "path": "/some/path",
+                            "generic_http_json_path": "-p /some/path",
                             "info_url":
                                 "https://test-json.argo.grnet.gr/some/path",
                             "hostname": "test-json.argo.grnet.gr",
@@ -10364,7 +10374,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url":
                                 "https://bioinformatics.cing.ac.cy/MelGene/",
                             "ssl": "-S --sni",
-                            "path": "/MelGene/",
+                            "generic_http_connect_path": "-u /MelGene/",
                             "hostname": "bioinformatics.cing.ac.cy",
                             "service": "web.check",
                             "site": "CING"
@@ -10383,7 +10393,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
-                            "path": "/las/getUI.do",
+                            "generic_http_connect_path": "-u /las/getUI.do",
                             "hostname": "eewrc-las.cyi.ac.cy",
                             "service": "web.check",
                             "site": "CYI"
@@ -10404,8 +10414,9 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://sampaeos.if.usp.br:9000//eos/ops/"
                                 "opstest/",
                             "ssl": "-S --sni",
-                            "port": "9000",
-                            "path": "//eos/ops/opstest/",
+                            "generic_http_connect_port": "-p 9000",
+                            "generic_http_connect_path":
+                                "-u //eos/ops/opstest/",
                             "hostname": "sampaeos.if.usp.br",
                             "service": "web.check",
                             "site": "SAMPA"

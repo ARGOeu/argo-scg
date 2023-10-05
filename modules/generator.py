@@ -88,10 +88,16 @@ class ConfigurationGenerator:
                     metrics_list.append(metric)
 
                     if "PORT" in value["attribute"]:
-                        metrics_with_ports.append(key)
+                        metrics_with_ports.append({
+                            "metric": key,
+                            "attr_val": value["attribute"]["PORT"]
+                        })
 
                     if "PATH" in value["attribute"]:
-                        metrics_with_path.append(key)
+                        metrics_with_path.append({
+                            "metric": key,
+                            "attr_val": value["attribute"]["PATH"]
+                        })
 
                     if "SSL" in value["attribute"]:
                         metrics_with_ssl.append(key)
@@ -169,15 +175,23 @@ class ConfigurationGenerator:
 
         self.servicetypes_with_port = list()
         for metric in metrics_with_ports:
-            self.servicetypes_with_port.extend(
-                self.servicetypes4metrics[metric]
-            )
+            sts = self.servicetypes4metrics[metric["metric"]]
+            for st in sts:
+                self.servicetypes_with_port.append({
+                    "service": st,
+                    "metric": metric["metric"],
+                    "attr_val": metric["attr_val"]
+                })
 
         self.servicetypes_with_path = list()
         for metric in metrics_with_path:
-            self.servicetypes_with_path.extend(
-                self.servicetypes4metrics[metric]
-            )
+            sts = self.servicetypes4metrics[metric["metric"]]
+            for st in sts:
+                self.servicetypes_with_path.append({
+                    "service": st,
+                    "metric": metric["metric"],
+                    "attr_val": metric["attr_val"]
+                })
 
         self.servicetypes_with_SSL = list()
         for metric in metrics_with_ssl:
@@ -433,11 +447,15 @@ class ConfigurationGenerator:
                         value = ""
 
                     elif key == "PATH":
-                        key = "{{ .labels.path }}"
+                        key = "{{ .labels.%s_path | default \" \" }}" % (
+                            create_label(metric)
+                        )
                         value = ""
 
                     elif key == "PORT":
-                        key = "{{ .labels.port }}"
+                        key = "{{ .labels.%s_port | default \" \" }}" % (
+                            create_label(metric)
+                        )
                         value = ""
 
                     elif key.endswith("GOCDB_SERVICE_URL"):
@@ -679,6 +697,14 @@ class ConfigurationGenerator:
                     labels = {"hostname": hostname}
 
                     if "info_URL" in item["tags"]:
+                        servicetypes_with_path = [
+                            st for st in self.servicetypes_with_path if
+                            item["service"] == st["service"]
+                        ]
+                        servicetypes_with_port = [
+                            st for st in self.servicetypes_with_port if
+                            item["service"] == st["service"]
+                        ]
                         labels.update({"info_url": item["tags"]["info_URL"]})
                         o = urlparse(item["tags"]["info_URL"])
                         port = o.port
@@ -687,13 +713,17 @@ class ConfigurationGenerator:
                             if o.scheme == "https":
                                 labels.update({"ssl": "-S --sni"})
 
-                        if item["service"] in self.servicetypes_with_path:
-                            if o.path:
-                                labels.update({"path": o.path})
+                        if o.path:
+                            for entry in servicetypes_with_path:
+                                lbl = f"{create_label(entry['metric'])}_path"
+                                val = f"{entry['attr_val']} {o.path}"
+                                labels.update({lbl: val})
 
-                        if item["service"] in self.servicetypes_with_port:
-                            if port:
-                                labels.update({"port": str(port)})
+                        if port:
+                            for entry in servicetypes_with_port:
+                                lbl = f"{create_label(entry['metric'])}_port"
+                                val = f"{entry['attr_val']} {str(port)}"
+                                labels.update({lbl: val})
 
                         if item["service"] in [
                             "org.openstack.nova", "org.openstack.swift"
