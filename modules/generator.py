@@ -386,7 +386,8 @@ class ConfigurationGenerator:
                 if key in self.global_attributes:
                     if key in overridden_attributes:
                         key = "{{ .labels.%s | default \"%s\" }}" % (
-                            key.lower(), self.global_attributes[key]
+                            create_label(key.lower()),
+                            self.global_attributes[key]
                         )
 
                     else:
@@ -436,7 +437,8 @@ class ConfigurationGenerator:
                                 extension=f"info_ext_{key}"
                         ) or key in overridden_attributes:
                             key = "{{ .labels.%s | default \"%s\" }}" % (
-                                key.lower(), self.default_ports[key]
+                                create_label(key.lower()),
+                                self.default_ports[key]
                             )
 
                         else:
@@ -472,12 +474,12 @@ class ConfigurationGenerator:
                             services=self.servicetypes4metrics[metric],
                             extension=f"info_ext_{key}"
                         ) or key.endswith("_URL"):
-                            key = "{{ .labels.%s }}" % key.lower()
+                            key = "{{ .labels.%s }}" % create_label(key.lower())
 
                         else:
                             key = "{{ .labels.%s__%s | default \"\" }}" % (
                                 value.lstrip("-").lstrip("-").replace("-", "_"),
-                                key.lower()
+                                create_label(key.lower())
                             )
                             value = ""
 
@@ -487,7 +489,7 @@ class ConfigurationGenerator:
                             key in overridden_attributes or
                             key in special_attributes
                     ):
-                        key = "{{ .labels.%s }}" % key.lower()
+                        key = "{{ .labels.%s }}" % create_label(key.lower())
 
                     else:
                         key = ""
