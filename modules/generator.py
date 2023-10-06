@@ -977,12 +977,16 @@ class ConfigurationGenerator:
 
                             else:
                                 if tag[9:] in self.default_ports:
-                                    labels.update({tag[9:].lower(): value})
+                                    labels.update({
+                                        create_label(tag[9:]): value
+                                    })
 
                                 elif self._is_extension_present_all_endpoints(
                                     services=[item["service"]], extension=tag
                                 ) or tag.endswith("_URL"):
-                                    labels.update({tag[9:].lower(): value})
+                                    labels.update({
+                                        create_label(tag[9:]): value
+                                    })
 
                                 else:
                                     metrics = list()

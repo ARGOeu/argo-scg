@@ -8041,7 +8041,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns1.cloud.test.eu",
                             "info_url": "https://dns1.cloud.test.eu/",
-                            "endpoint-name": "nsupdate",
+                            "endpoint_name": "nsupdate",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -8057,7 +8057,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns2.cloud.test.eu",
-                            "endpoint-name": "secondary",
+                            "endpoint_name": "secondary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -8073,7 +8073,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns3.cloud.test.eu",
-                            "endpoint-name": "primary",
+                            "endpoint_name": "primary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -10565,6 +10565,60 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["web.check"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_attribute_with_dash(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST44"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "ch.cern.cvmfs.stratum.1__cclssts1.in2p3.fr",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "cvmfs_stratum_1_port": "80",
+                            "hostname": "cclssts1.in2p3.fr",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "IN2P3-CC"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name":
+                            "ch.cern.cvmfs.stratum.1__cvmfs-stratum-one.cc.kek."
+                            "jp",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "hostname": "cvmfs-stratum-one.cc.kek.jp",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "JP-KEK-CRC-02"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
                 }
             ]
         )
