@@ -151,6 +151,43 @@ mock_metrics = [
         }
     },
     {
+        "argo.cvmfs-stratum-1.status": {
+            "tags": [
+                "cvmfs",
+                "htc",
+                "http",
+                "network"
+            ],
+            "probe": "check_http_parser",
+            "config": {
+                "timeout": "120",
+                "retryInterval": "3",
+                "path": "/usr/libexec/argo/probes/http_parser",
+                "maxCheckAttempts": "3",
+                "interval": "5"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "CVMFS-Stratum-1_PORT": "-p"
+            },
+            "parameter": {
+                "-u": "\"/cvmfsmon/api/v1.0/all\"",
+                "--unknown-message":
+                    "\"Please check if cvmfs-servermon package is installed\""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/ARGOeu-Metrics/argo-probe-http-parser/blob/"
+                "main/README.md"
+        }
+    },
+    {
         "argo.nagios.freshness-simple-login": {
             "tags": [
                 "argo",
@@ -2398,6 +2435,37 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-10-06",
+        "group": "IN2P3-CC",
+        "type": "SITES",
+        "service": "ch.cern.cvmfs.stratum.1",
+        "hostname": "cclssts1.in2p3.fr",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxx",
+            "info_ext_CVMFS-Stratum-1_PORT": "80",
+            "monitored": "1",
+            "production": "1",
+            "scope": "Local, EGI, wlcg, tier1"
+        }
+    },
+    {
+        "date": "2023-10-06",
+        "group": "JP-KEK-CRC-02",
+        "type": "SITES",
+        "service": "ch.cern.cvmfs.stratum.1",
+        "hostname": "cvmfs-stratum-one.cc.kek.jp",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -3122,6 +3190,20 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-06",
+        "name": "ARGO_TEST44",
+        "description": "Profile for metrics with dashes in attribute names",
+        "services": [
+            {
+                "service": "ch.cern.cvmfs.stratum.1",
+                "metrics": [
+                    "argo.cvmfs-stratum-1.status"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3333,7 +3415,8 @@ mock_default_ports = {
     "STOMP_SSL_PORT": "6162",
     "OPENWIRE_PORT": "6166",
     "OPENWIRE_SSL_PORT": "6167",
-    "HTCondorCE_PORT": "9619"
+    "HTCondorCE_PORT": "9619",
+    "CVMFS-Stratum-1_PORT": "8000"
 }
 
 LOGNAME = "argo-scg.generator"
@@ -4176,7 +4259,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "nagios-plugin-dynamic-dns/"
                                "nagios-plugin-dynamic-dns.sh "
                                "-H {{ .labels.hostname }} -t 120 "
-                               "--endpoint-name {{ .labels.endpoint-name }}",
+                               "--endpoint-name {{ .labels.endpoint_name }}",
                     "subscriptions": ["eu.egi.cloud.dyndns"],
                     "handlers": [],
                     "pipelines": [
@@ -7359,6 +7442,65 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_if_attribute_with_dashes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST44"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -H {{ .labels.hostname }} "
+                               "-t 120 -u \"/cvmfsmon/api/v1.0/all\" "
+                               "--unknown-message "
+                               "\"Please check if cvmfs-servermon package is "
+                               "installed\" -p "
+                               "{{ .labels.cvmfs_stratum_1_port | "
+                               "default \"8000\" }}",
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_cvmfs_stratum_1_status == "
+                            "'argo.cvmfs-stratum-1.status'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.cvmfs-stratum-1.status",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -7899,7 +8041,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns1.cloud.test.eu",
                             "info_url": "https://dns1.cloud.test.eu/",
-                            "endpoint-name": "nsupdate",
+                            "endpoint_name": "nsupdate",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -7915,7 +8057,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns2.cloud.test.eu",
-                            "endpoint-name": "secondary",
+                            "endpoint_name": "secondary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -7931,7 +8073,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns3.cloud.test.eu",
-                            "endpoint-name": "primary",
+                            "endpoint_name": "primary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -10423,6 +10565,60 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["web.check"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_attribute_with_dash(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST44"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "ch.cern.cvmfs.stratum.1__cclssts1.in2p3.fr",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "cvmfs_stratum_1_port": "80",
+                            "hostname": "cclssts1.in2p3.fr",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "IN2P3-CC"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name":
+                            "ch.cern.cvmfs.stratum.1__cvmfs-stratum-one.cc.kek."
+                            "jp",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "hostname": "cvmfs-stratum-one.cc.kek.jp",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "JP-KEK-CRC-02"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
                 }
             ]
         )
