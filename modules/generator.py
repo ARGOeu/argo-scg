@@ -379,7 +379,7 @@ class ConfigurationGenerator:
             item["parameter"] for item in self.metric_parameter_overrides
             if item["metric"] == metric
         ]
-        special_attributes = ["info_HOSTDN", "BDII_DN", "GLUE2_BDII_DN"]
+        special_attributes = ["BDII_DN", "GLUE2_BDII_DN"]
 
         for key, value in attrs.items():
             if value not in overridden_parameters:
@@ -468,6 +468,9 @@ class ConfigurationGenerator:
 
                     elif key == "SITENAME":
                         key = "{{ .labels.site }}"
+
+                    elif key == "HOSTDN":
+                        key = "{{ .labels.info_hostdn }}"
 
                     elif key in self.extensions:
                         if self._is_extension_present_all_endpoints(
