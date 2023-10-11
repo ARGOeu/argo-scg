@@ -1390,7 +1390,7 @@ mock_metrics = [
             },
             "attribute": {
                 "QCG-BROKER_PORT": "-p",
-                "info_HOSTDN": "-n",
+                "HOSTDN": "-n",
                 "X509_USER_PROXY": "-x"
             },
             "parameter": {},
