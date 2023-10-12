@@ -405,6 +405,20 @@ class ConfigurationGenerator:
                         else:
                             key = hardcoded_attributes[key]
 
+                elif key == "NAGIOS_ACTUAL_HOST_CERT":
+                    if "NAGIOS_HOST_CERT" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_CERT"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_CERT"]
+
+                elif key == "NAGIOS_ACTUAL_HOST_KEY":
+                    if "NAGIOS_HOST_KEY" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_KEY"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_KEY"]
+
                 elif key in self.global_attributes:
                     if key in overridden_attributes:
                         key = "{{ .labels.%s | default \"%s\" }}" % (
