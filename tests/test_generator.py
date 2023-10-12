@@ -3383,6 +3383,20 @@ mock_attributes_with_robot = {
         ],
         "host_attributes": [],
         "metric_parameters": []
+    },
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "NAGIOS_HOST_CERT",
+                "value": "/etc/nagios/certs/hostcert.pem"
+            },
+            {
+                "attribute": "NAGIOS_HOST_KEY",
+                "value": "/etc/nagios/certs/hostcert.key"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
     }
 }
 
