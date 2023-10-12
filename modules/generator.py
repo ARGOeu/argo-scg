@@ -383,7 +383,43 @@ class ConfigurationGenerator:
 
         for key, value in attrs.items():
             if value not in overridden_parameters:
-                if key in self.global_attributes:
+                if key == "NAGIOS_HOST_CERT":
+                    if "ROBOT_CERT" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_CERT"]
+
+                    else:
+                        if key in self.global_attributes:
+                            key = self.global_attributes[key]
+
+                        else:
+                            key = hardcoded_attributes[key]
+
+                elif key == "NAGIOS_HOST_KEY":
+                    if "ROBOT_KEY" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_KEY"]
+
+                    else:
+                        if key in self.global_attributes:
+                            key = self.global_attributes[key]
+
+                        else:
+                            key = hardcoded_attributes[key]
+
+                elif key == "NAGIOS_ACTUAL_HOST_CERT":
+                    if "NAGIOS_HOST_CERT" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_CERT"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_CERT"]
+
+                elif key == "NAGIOS_ACTUAL_HOST_KEY":
+                    if "NAGIOS_HOST_KEY" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_KEY"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_KEY"]
+
+                elif key in self.global_attributes:
                     if key in overridden_attributes:
                         key = "{{ .labels.%s | default \"%s\" }}" % (
                             create_label(key.lower()),
@@ -406,20 +442,7 @@ class ConfigurationGenerator:
                     issecret = True
 
                 else:
-                    if key == "NAGIOS_HOST_CERT":
-                        if "ROBOT_CERT" in self.global_attributes:
-                            key = self.global_attributes["ROBOT_CERT"]
-                        else:
-                            key = hardcoded_attributes[key]
-
-                    elif key == "NAGIOS_HOST_KEY":
-                        if "ROBOT_KEY" in self.global_attributes:
-                            key = self.global_attributes["ROBOT_KEY"]
-
-                        else:
-                            key = hardcoded_attributes[key]
-
-                    elif key in ["KEYSTORE", "TRUSTSTORE"]:
+                    if key in ["KEYSTORE", "TRUSTSTORE"]:
                         key = hardcoded_attributes[key]
 
                     elif key == "TOP_BDII":

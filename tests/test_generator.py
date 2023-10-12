@@ -1401,6 +1401,37 @@ mock_metrics = [
         }
     },
     {
+        "srce.certificate.validity-moncert": {
+            "tags": [
+                "certificate",
+                "htc",
+                "internal"
+            ],
+            "probe": "CertLifetime-probe",
+            "config": {
+                "maxCheckAttempts": "2",
+                "timeout": "60",
+                "path": "/usr/libexec/argo/probes/cert",
+                "interval": "240",
+                "retryInterval": "30"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_ACTUAL_HOST_CERT": "-f"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://wiki.egi.eu/wiki/ROC_SAM_Tests#hr.srce."
+                      "CREAMCE-CertLifetime"
+        }
+    },
+    {
         "srce.gridproxy.get": {
             "tags": [
                 "argo",
@@ -2501,7 +2532,8 @@ mock_metric_profiles = [
                 "service": "argo.webui",
                 "metrics": [
                     "generic.certificate.validity",
-                    "eu.egi.GRAM-CertValidity"
+                    "eu.egi.GRAM-CertValidity",
+                    "srce.certificate.validity-moncert"
                 ]
             }
         ]
@@ -3383,6 +3415,20 @@ mock_attributes_with_robot = {
         ],
         "host_attributes": [],
         "metric_parameters": []
+    },
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "NAGIOS_HOST_CERT",
+                "value": "/etc/nagios/certs/hostcert.pem"
+            },
+            {
+                "attribute": "NAGIOS_HOST_KEY",
+                "value": "/etc/nagios/certs/hostcert.key"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
     }
 }
 
@@ -3861,6 +3907,31 @@ class CheckConfigurationTests(unittest.TestCase):
                             "api_version": "core/v2"
                         }
                     ]
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/cert/"
+                               "CertLifetime-probe -t 60 "
+                               "-f /etc/nagios/globus/hostcert.pem",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.certificate.validity-moncert",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -3943,6 +4014,31 @@ class CheckConfigurationTests(unittest.TestCase):
                     "publish": True,
                     "metadata": {
                         "name": "generic.certificate.validity",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/cert/"
+                               "CertLifetime-probe -t 60 "
+                               "-f /etc/nagios/certs/hostcert.pem",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.certificate.validity-moncert",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
