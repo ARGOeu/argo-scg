@@ -7264,6 +7264,31 @@ class SensuCtlTests(unittest.TestCase):
         )
 
     @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_agent_events_by_service_type(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(
+            service_type="argo.mon", agent=True
+        )
+        self.assertEqual(
+            events, [
+                "Entity                           "
+                "Metric                      Status    Executed           "
+                "  Output",
+                "_________________________________"
+                "_________________________________________________________"
+                "___________",
+                "sensu-agent-ni4os-devel.cro-ngi  "
+                "argo.poem-tools.check       OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi  "
+                "hr.srce.CertLifetime-Local  OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
     def test_filter_events_by_status_if_empty_list(self, mock_subprocess):
         mock_subprocess.return_value = \
             json.dumps(mock_events_ctl).encode("utf-8")
