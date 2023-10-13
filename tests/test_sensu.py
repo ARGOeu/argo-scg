@@ -7193,6 +7193,7 @@ class SensuCtlTests(unittest.TestCase):
 
     @patch("argo_scg.sensu.subprocess.check_output")
     def test_filter_events_by_service_type(self, mock_subprocess):
+        self.maxDiff = None
         mock_subprocess.return_value = (
             json.dumps(mock_events_ctl).encode("utf-8"))
         events = self.sensuctl.filter_events(service_type="argo.mon")
@@ -7212,7 +7213,14 @@ class SensuCtlTests(unittest.TestCase):
                 "argo.mon__argo-mon-devel.ni4os.eu  "
                 "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
-                "response time"
+                "response time",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "argo.poem-tools.check           OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
             ]
         )
 
