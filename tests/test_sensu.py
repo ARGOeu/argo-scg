@@ -1549,6 +1549,313 @@ mock_events_ctl = [
     {
         "check": {
             "command":
+                "source /etc/sensu/secret_envs ; export $(cut -d= -f1 "
+                "/etc/sensu/secret_envs) ; "
+                "/usr/libexec/argo/probes/grnet-agora/checkhealth "
+                "-H agora.ni4os.eu -v -i -u $AGORA_USERNAME -p $AGORA_PASSWORD",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 900,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "eu.eudat.itsm.spmt"
+            ],
+            "proxy_entity_name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.grnet_agora_healthcheck == "
+                    "'grnet.agora.healthcheck'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 22.136456263,
+            "executed": 1682322850,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1682304850
+                },
+                {
+                    "status": 0,
+                    "executed": 1682305750
+                },
+                {
+                    "status": 0,
+                    "executed": 1682306650
+                },
+                {
+                    "status": 0,
+                    "executed": 1682307550
+                },
+                {
+                    "status": 0,
+                    "executed": 1682308450
+                },
+                {
+                    "status": 0,
+                    "executed": 1682309350
+                },
+                {
+                    "status": 0,
+                    "executed": 1682310250
+                }
+            ],
+            "issued": 1682322850,
+            "output": "OK - Agora is up.\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1682322850,
+            "occurrences": 4609,
+            "occurrences_watermark": 4609,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "grnet.agora.healthcheck",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "3"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "eu.eudat.itsm.spmt"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
+                "namespace": "NI4OS",
+                "labels": {
+                    "grnet_agora_healthcheck": "grnet.agora.healthcheck",
+                    "hostname": "agora.ni4os.eu",
+                    "info_url": "agora.ni4os.eu",
+                    "service": "eu.eudat.itsm.spmt",
+                    "site": "GRNET"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 1731,
+        "timestamp": 1682322872
+    },
+    {
+        "check": {
+            "command":
+                "/usr/lib64/nagios/plugins/check_ssl_cert "
+                "-H cherry.chem.bg.ac.rs -t 90 -w 30 -c 0 -N --altnames "
+                "--rootcert-dir /etc/grid-security/certificates "
+                "--rootcert-file /etc/pki/tls/certs/ca-bundle.crt "
+                "-C /etc/sensu/certs/hostcert.pem "
+                "-K /etc/sensu/certs/hostkey.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "eu.ni4os.app.api",
+                "eu.ni4os.app.web",
+                "eu.ni4os.repo.publication"
+            ],
+            "proxy_entity_name":
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_certificate_validity == "
+                    "'generic.certificate.validity'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 15.543039693,
+            "executed": 1682317397,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1682101396
+                },
+                {
+                    "status": 0,
+                    "executed": 1682115796
+                },
+                {
+                    "status": 0,
+                    "executed": 1682130196
+                },
+                {
+                    "status": 1,
+                    "executed": 1682144596
+                },
+                {
+                    "status": 1,
+                    "executed": 1682158996
+                },
+                {
+                    "status": 1,
+                    "executed": 1682158996
+                },
+                {
+                    "status": 1,
+                    "executed": 1682158996
+                },
+                {
+                    "status": 1,
+                    "executed": 1682173396
+                },
+                {
+                    "status": 1,
+                    "executed": 1682187796
+                },
+                {
+                    "status": 0,
+                    "executed": 1682202197
+                },
+                {
+                    "status": 0,
+                    "executed": 1682202197
+                }
+            ],
+            "issued": 1682317397,
+            "output":
+                "SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in 88 days)"
+                "|days=88;30;0;;\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 9,
+            "last_ok": 1682317397,
+            "occurrences": 12,
+            "occurrences_watermark": 12,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.certificate.validity",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "system": {
+                "network": {
+                    "interfaces": None
+                },
+                "libc_type": "",
+                "vm_system": "",
+                "vm_role": "",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "eu.ni4os.repo.publication"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
+                "namespace": "NI4OS",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect": "generic.http.connect",
+                    "hostname": "cherry.chem.bg.ac.rs",
+                    "info_url": "https://cherry.chem.bg.ac.rs/",
+                    "path": "/",
+                    "port": "443",
+                    "service": "eu.ni4os.repo.publication",
+                    "site": "RCUB",
+                    "ssl": "-S --sni"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 13474,
+        "timestamp": 1682317412
+    },
+    {
+        "check": {
+            "command":
                 "/usr/lib64/nagios/plugins/check_ssl_cert -H videolectures.net "
                 "-t 90 -w 30 -c 0 -N --altnames "
                 "--rootcert-dir /etc/grid-security/certificates "
@@ -6534,22 +6841,30 @@ class SensuCtlTests(unittest.TestCase):
         events = self.sensuctl.get_events()
         self.assertEqual(
             events, [
-                "Entity                                        "
+                "Entity                                           "
                 "Metric                          Status    Executed           "
                 "  Output",
-                "______________________________________________"
+                "_________________________________________________"
                 "_____________________________________________________________"
                 "___________",
-                "argo.mon__argo-mon-devel.ni4os.eu             "
+                "argo.mon__argo-mon-devel.ni4os.eu                "
                 "generic.certificate.validity    OK        2023-03-01 10:23:13"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
-                "argo.mon__argo-mon-devel.ni4os.eu             "
+                "argo.mon__argo-mon-devel.ni4os.eu                "
                 "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
                 "response time",
-                "eu.ni4os.repo.publication__videolectures.net  "
+                "eu.eudat.itsm.spmt__agora.ni4os.eu               "
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "  OK - Agora is up.",
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
+                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
+                "88 days)",
+                "eu.ni4os.repo.publication__videolectures.net     "
                 "generic.certificate.validity    CRITICAL  2023-03-01 10:23:13"
                 "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
                 "expired (was valid until Jul 10 07:29:06 2022 GMT)"
@@ -6557,10 +6872,43 @@ class SensuCtlTests(unittest.TestCase):
         )
 
     @patch("argo_scg.sensu.subprocess.check_output")
-    def test_filter_events(self, mock_subprocess):
+    def test_filter_events_by_status(self, mock_subprocess):
         mock_subprocess.return_value = \
             json.dumps(mock_events_ctl).encode("utf-8")
         events = self.sensuctl.filter_events(status=0)
+        self.assertEqual(
+            events, [
+                "Entity                                           "
+                "Metric                          Status    Executed           "
+                "  Output",
+                "_________________________________________________"
+                "_____________________________________________________________"
+                "___________",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
+                "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time",
+                "eu.eudat.itsm.spmt__agora.ni4os.eu               "
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "  OK - Agora is up.",
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
+                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
+                "88 days)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events_by_service_type(self, mock_subprocess):
+        mock_subprocess.return_value = (
+            json.dumps(mock_events_ctl).encode("utf-8"))
+        events = self.sensuctl.filter_events(service_type="argo.mon")
         self.assertEqual(
             events, [
                 "Entity                             "
@@ -6582,7 +6930,31 @@ class SensuCtlTests(unittest.TestCase):
         )
 
     @patch("argo_scg.sensu.subprocess.check_output")
-    def test_filter_events_if_empty_list(self, mock_subprocess):
+    def test_filter_events_by_status_and_service_type(self, mock_subprocess):
+        mock_subprocess.return_value = (
+            json.dumps(mock_events_ctl).encode("utf-8"))
+        events = self.sensuctl.filter_events(
+            status=0,
+            service_type="eu.ni4os.repo.publication"
+        )
+        self.assertEqual(
+            events, [
+                "Entity                                           "
+                "Metric                        Status    Executed           "
+                "  Output",
+                "_________________________________________________"
+                "___________________________________________________________"
+                "___________",
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
+                "generic.certificate.validity  OK        2023-04-24 06:23:17"
+                "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
+                "88 days)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events_by_status_if_empty_list(self, mock_subprocess):
         mock_subprocess.return_value = \
             json.dumps(mock_events_ctl).encode("utf-8")
         events = self.sensuctl.filter_events(status=1)
