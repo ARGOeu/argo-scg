@@ -19,6 +19,10 @@ def main():
         "--service", dest="service_type", type=str,
         help="service type to filter"
     )
+    parser.add_argument(
+        "--agent", dest="agent", action="store_true",
+        help="show only agent events"
+    )
     args = parser.parse_args()
 
     sensuctl = SensuCtl(namespace=args.namespace)
@@ -27,12 +31,12 @@ def main():
         parser.error("Status must be one of integer codes 0, 1, 2 or 3")
         sys.exit(2)
 
-    if args.status is None and args.service_type is None:
+    if args.status is None and args.service_type is None and not args.agent:
         lines = sensuctl.get_events()
 
     else:
         lines = sensuctl.filter_events(
-            status=args.status, service_type=args.service_type
+            status=args.status, service_type=args.service_type, agent=args.agent
         )
 
     for i in range(len(lines)):
