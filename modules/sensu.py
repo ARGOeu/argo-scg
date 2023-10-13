@@ -1385,7 +1385,7 @@ class SensuCtl:
         data = self._get_events()
         return self._format_events(data)
 
-    def filter_events(self, status=None, service_type=None):
+    def filter_events(self, status=None, service_type=None, agent=False):
         events = self._get_events()
 
         if status is not None:
@@ -1399,6 +1399,12 @@ class SensuCtl:
                 item["entity"]["metadata"]["name"].startswith(
                     f"{service_type}__"
                 )
+            ]
+
+        if agent:
+            events = [
+                item for item in events
+                if item["entity"]["entity_class"] == "agent"
             ]
 
         return self._format_events(events)

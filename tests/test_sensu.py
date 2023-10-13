@@ -2009,6 +2009,279 @@ mock_events_ctl = [
         ],
         "sequence": 871,
         "timestamp": 1677666211
+    },
+    {
+        "check": {
+            "command":
+                "/usr/libexec/argo/probes/argo_tools/check_log -t 120 --file "
+                "/var/log/argo-poem-tools/argo-poem-tools.log --age 2 --app "
+                "argo-poem-packages",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 7200,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "duration": 0.056187701,
+            "executed": 1682322924,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1682178924
+                },
+                {
+                    "status": 0,
+                    "executed": 1682186124
+                },
+                {
+                    "status": 0,
+                    "executed": 1682193324
+                },
+                {
+                    "status": 0,
+                    "executed": 1682200524
+                },
+                {
+                    "status": 0,
+                    "executed": 1682207724
+                },
+                {
+                    "status": 0,
+                    "executed": 1682214924
+                },
+                {
+                    "status": 0,
+                    "executed": 1682222124
+                },
+                {
+                    "status": 0,
+                    "executed": 1682229324
+                },
+                {
+                    "status": 0,
+                    "executed": 1682236524
+                }
+            ],
+            "issued": 1682322924,
+            "output": "OK - The run finished successfully.\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 11,
+            "last_ok": 1682322924,
+            "occurrences": 2,
+            "occurrences_watermark": 2,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "argo.poem-tools.check",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "4"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "memory",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "agent",
+            "system": {
+                "hostname": "sensu-agent-ni4os-devel.cro-ngi",
+                "os": "linux",
+                "platform": "centos",
+                "platform_family": "rhel",
+                "platform_version": "7.9.2009",
+                "arch": "amd64",
+                "libc_type": "glibc",
+                "vm_system": "",
+                "vm_role": "guest",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "entity:sensu-agent-ni4os-devel.cro-ngi",
+                "argo.mon",
+                "eu.eudat.itsm.spmt",
+                "eu.ni4os.repo.publication"
+            ],
+            "last_seen": 1682322924,
+            "deregister": False,
+            "deregistration": {},
+            "user": "agent",
+            "metadata": {
+                "name": "sensu-agent-ni4os-devel.cro-ngi",
+                "namespace": "NI4OS",
+                "labels": {
+                    "hostname": "sensu-agent-ni4os-devel.cro-ngi"
+                }
+            },
+            "sensu_agent_version": "6.7.1+oss_el7"
+        },
+        "id": "xxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 217,
+        "timestamp": 1682322924
+    },
+    {
+        "check": {
+            "command":
+                "/usr/libexec/argo/probes/cert/CertLifetime-probe -t 60 "
+                "-f /etc/sensu/certs/hostcert.pem",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 14400,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "argo.mon"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "duration": 0.122199784,
+            "executed": 1682319670,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1682031669
+                },
+                {
+                    "status": 0,
+                    "executed": 1682046069
+                },
+                {
+                    "status": 0,
+                    "executed": 1682060469
+                },
+                {
+                    "status": 0,
+                    "executed": 1682074869
+                },
+                {
+                    "status": 0,
+                    "executed": 1682089269
+                },
+                {
+                    "status": 0,
+                    "executed": 1682103670
+                },
+                {
+                    "status": 0,
+                    "executed": 1682118070
+                }
+            ],
+            "issued": 1682319670,
+            "output":
+                "CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)\n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1682319670,
+            "occurrences": 126,
+            "occurrences_watermark": 126,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "hr.srce.CertLifetime-Local",
+                "namespace": "NI4OS",
+                "annotations": {
+                    "attempts": "2"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "memory",
+            "processed_by": "sensu-agent-ni4os-devel.cro-ngi",
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "agent",
+            "system": {
+                "hostname": "sensu-agent-ni4os-devel.cro-ngi",
+                "os": "linux",
+                "platform": "centos",
+                "platform_family": "rhel",
+                "platform_version": "7.9.2009",
+                "arch": "amd64",
+                "libc_type": "glibc",
+                "vm_system": "",
+                "vm_role": "guest",
+                "cloud_provider": "",
+                "processes": None
+            },
+            "subscriptions": [
+                "entity:sensu-agent-ni4os-devel.cro-ngi",
+                "argo.mon",
+                "eu.eudat.itsm.spmt",
+                "eu.ni4os.repo.publication"
+            ],
+            "last_seen": 1682319670,
+            "deregister": False,
+            "deregistration": {},
+            "user": "agent",
+            "metadata": {
+                "name": "sensu-agent-ni4os-devel.cro-ngi",
+                "namespace": "NI4OS",
+                "labels": {
+                    "hostname": "sensu-agent-ni4os-devel.cro-ngi"
+                }
+            },
+            "sensu_agent_version": "6.7.1+oss_el7"
+        },
+        "id": "xxx",
+        "metadata": {
+            "namespace": "NI4OS"
+        },
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 108,
+        "timestamp": 1682319670
     }
 ]
 
@@ -6867,7 +7140,14 @@ class SensuCtlTests(unittest.TestCase):
                 "eu.ni4os.repo.publication__videolectures.net     "
                 "generic.certificate.validity    CRITICAL  2023-03-01 10:23:13"
                 "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
-                "expired (was valid until Jul 10 07:29:06 2022 GMT)"
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "argo.poem-tools.check           OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
             ]
         )
 
@@ -6900,7 +7180,14 @@ class SensuCtlTests(unittest.TestCase):
                 "generic.certificate.validity    OK        2023-04-24 06:23:17"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
-                "88 days)"
+                "88 days)",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "argo.poem-tools.check           OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
             ]
         )
 
@@ -6950,6 +7237,29 @@ class SensuCtlTests(unittest.TestCase):
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_agent_events(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl).encode("utf-8")
+        events = self.sensuctl.filter_events(agent=True)
+        self.assertEqual(
+            events, [
+                "Entity                           "
+                "Metric                      Status    Executed           "
+                "  Output",
+                "_________________________________"
+                "_________________________________________________________"
+                "___________",
+                "sensu-agent-ni4os-devel.cro-ngi  "
+                "argo.poem-tools.check       OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi  "
+                "hr.srce.CertLifetime-Local  OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
             ]
         )
 
