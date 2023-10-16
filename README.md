@@ -62,7 +62,7 @@ ARGO SCG consists of several tools:
 
 ### `scg-reload.py`
 
-`scg-reload.py` is simply invoked without any arguments if we are going to use the default location of the configuration file `/etc/argo-scg/scg.conf`. If you wish to override the configuration file location, it can be done using `-c` parameter with `scg-reload.py` script. 
+`scg-reload.py` is simply invoked without any arguments if we are going to use the default location of the configuration file `/etc/argo-scg/scg.conf` and all the defined tenants. If you wish to override the configuration file location, it can be done using `-c` parameter with `scg-reload.py` script. 
 
 ```
 # scg-reload.py 
@@ -71,6 +71,19 @@ INFO - default: Metrics fetched successfully
 INFO - default: Metric profiles fetched successfully
 INFO - default: Metric overrides fetched successfully
 INFO - default: Default ports fetched successfully
+INFO - TENANT: Topology endpoints fetched successfully
+INFO - TENANT: Metrics fetched successfully
+INFO - TENANT: Metric profiles fetched successfully
+INFO - TENANT: Metric overrides fetched successfully
+INFO - TENANT: Default ports fetched successfully
+INFO - Done
+```
+
+If you wish to run `scg-reload.py` script for a single tenant, you can do it by passing the tenant name using `-t` parameter.
+
+```
+# scg-reload.py -t TENANT
+INFO - Configuration file /etc/argo-scg/scg.conf read successfully
 INFO - TENANT: Topology endpoints fetched successfully
 INFO - TENANT: Metrics fetched successfully
 INFO - TENANT: Metric profiles fetched successfully
@@ -115,9 +128,9 @@ SSL_CERT OK - x509 certificate '*.devel.argo.grnet.gr' (neanias.ui.argo.grnet.gr
 
 ### `sensu-events`
 
-This tool is used to display events that have been run. It takes two optional arguments: `--namespace`, to denote for which namespace you wish events displayed (`default` namespace by default) and `--status` which is used for view filtering. If `--status` is not used, all the events are shown.
+This tool is used to display events that have been run. It takes four optional arguments. The one that has a default value, `--namespace`, to denote for which namespace you wish events displayed (`default` namespace by default). The other three (`--status`, `--service` and `--agent`) are used for view filtering. If none of the arguments used for filtering is used, all the events are shown for the given namespace.
 
-Example:
+Example with all the events:
 
 ```
 # sensu-events 
@@ -143,6 +156,14 @@ sensu-devel.cro-ngi.hr  org.nagios.DiskCheck-Local               OK        2023-
 
 sensu-devel.cro-ngi.hr  srce.certificate.validity-sensu-backend  OK        2023-04-18 12:21:39  CERT LIFETIME OK - Certificate will expire in 341.06 days (Mar 24 11:51:28 2024 GMT)
 ```
+
+The three arguments used for filtering are as follows:
+
+* `--status` - used for filtering events by status. E.g. if you wish to see only events with `CRITICAL` status, you would call the tool as `sensu-events --status 2`
+* `--service` - used for filtering events by service type. E.g. if you wish to see only events run for service type `argo.mon`, you would call the tool as `sensu-events --service argo.mon`.
+* `--agent` - the flag used for filtering events run for Sensu agent. E.g., if you want to display only events run for Sensu agent on the given tenant: `sensu-events --namespace INTERNAL --agent`.
+
+All the arguments used for filtering can also be combined.
 
 ### `sensu2publisher.py`
 
