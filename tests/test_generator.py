@@ -601,6 +601,7 @@ mock_metrics = [
             "parameter": {
                 "-d": "",
                 "-p": "eu.egi.SRM",
+                "-s": "$_SERVICEVO$",
                 "--se-timeout": "260"
             },
             "file_parameter": {},
@@ -4824,7 +4825,79 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
                                "-H {{ .labels.hostname }} -t 300 -d "
-                               "-p eu.egi.SRM --se-timeout 260 --voname test "
+                               "-p eu.egi.SRM -s test --se-timeout 260 "
+                               "--voname test "
+                               "-X /etc/nagios/globus/userproxy.pem "
+                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.endpoint__surl | default \"\" }}",
+                    "subscriptions": ["SRM"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_srm_all == "
+                            "'eu.egi.SRM-All'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.SRM-All",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_servicevo_without_voname(self):
+        self.maxDiff = None
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/nagios/globus/userproxy.pem"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST16"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
+                               "-H {{ .labels.hostname }} -t 300 -d "
+                               "-p eu.egi.SRM --se-timeout 260 "
                                "-X /etc/nagios/globus/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",

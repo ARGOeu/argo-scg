@@ -569,7 +569,14 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if (
+                        if value == "$_SERVICEVO$":
+                            if "VONAME" in self.global_attributes:
+                                value = self.global_attributes["VONAME"]
+
+                            else:
+                                continue
+
+                        elif (
                             self._is_hostalias_present(value) or
                                 self._is_servicesite_name_present(value)
                         ):
