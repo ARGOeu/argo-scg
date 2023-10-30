@@ -612,6 +612,52 @@ mock_metrics = [
         }
     },
     {
+        "eu.egi.SRM-VOGet": {
+            "tags": [
+                "htc",
+                "nonharmonized",
+                "srm",
+                "storage"
+            ],
+            "probe": "",
+            "config": {},
+            "flags": {
+                "PASSIVE": "1",
+                "VO": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "eu.egi.SRM-All",
+            "docurl": ""
+        }
+    },
+    {
+        "eu.egi.SRM-VOLsDir": {
+            "tags": [
+                "htc",
+                "nonharmonized",
+                "srm",
+                "storage"
+            ],
+            "probe": "",
+            "config": {},
+            "flags": {
+                "PASSIVE": "1",
+                "VO": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "eu.egi.SRM-All",
+            "docurl": ""
+        }
+    },
+    {
         "eu.seadatanet.org.replicationmanager-check": {
             "tags": [],
             "probe": "check_http",
@@ -3234,6 +3280,22 @@ mock_metric_profiles = [
                 "service": "ch.cern.cvmfs.stratum.1",
                 "metrics": [
                     "argo.cvmfs-stratum-1.status"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-26",
+        "name": "ARGO_TEST45",
+        "description": "Profile with passive metrics",
+        "services": [
+            {
+                "service": "SRM",
+                "metrics": [
+                    "eu.egi.SRM-All",
+                    "eu.egi.SRM-VOGet",
+                    "eu.egi.SRM-VOLsDir"
                 ]
             }
         ]
@@ -7663,6 +7725,92 @@ class CheckConfigurationTests(unittest.TestCase):
                         "annotations": {
                             "attempts": "3"
                         }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_passive_check_configuration(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST45"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
+                               "-H {{ .labels.hostname }} -t 300 -d "
+                               "-p eu.egi.SRM -s test --se-timeout 260 "
+                               "--voname test "
+                               "-X /etc/nagios/globus/userproxy.pem "
+                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.endpoint__surl | default \"\" }}",
+                    "subscriptions": ["SRM"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_srm_all == "
+                            "'eu.egi.SRM-All'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.SRM-All",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "PASSIVE",
+                    "subscriptions": ["SRM"],
+                    "handlers": [],
+                    "pipelines": [],
+                    "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                    "timeout": 900,
+                    "publish": False,
+                    "metadata": {
+                        "name": "eu.egi.SRM-VOGet",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "PASSIVE",
+                    "subscriptions": ["SRM"],
+                    "handlers": [],
+                    "pipelines": [],
+                    "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                    "timeout": 900,
+                    "publish": False,
+                    "metadata": {
+                        "name": "eu.egi.SRM-VOLsDir",
+                        "namespace": "mockspace"
                     },
                     "round_robin": False
                 }

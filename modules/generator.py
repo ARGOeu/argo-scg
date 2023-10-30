@@ -542,154 +542,185 @@ class ConfigurationGenerator:
     def _create_servicesite_name_value(self, value, site):
         return value.replace(self.servicesite_name_var, site)
 
+    @staticmethod
+    def _is_passive(configuration):
+        return "PASSIVE" in configuration["flags"]
+
+    def _generate_active_check(
+            self, name, configuration, publish, namespace="default"
+    ):
+        parameter_overrides = [
+            item for item in self.metric_parameter_overrides
+            if item["metric"] == name
+        ]
+        try:
+            path = configuration["config"]["path"]
+            if path.endswith("/"):
+                path = path[:-1]
+
+            executable = os.path.join(path, configuration["probe"])
+
+            if "NOTIMEOUT" not in configuration["flags"]:
+                parameters = "-t " + configuration["config"]["timeout"]
+
+            else:
+                parameters = ""
+
+            if "NOHOSTNAME" not in configuration["flags"]:
+                parameters = "-H {{ .labels.hostname }} " + parameters
+                parameters = parameters.strip()
+
+            for key, value in configuration["parameter"].items():
+                if value == "$_SERVICEVO$":
+                    if "VONAME" in self.global_attributes:
+                        value = self.global_attributes["VONAME"]
+
+                    else:
+                        continue
+
+                elif (
+                        self._is_hostalias_present(value) or
+                        self._is_servicesite_name_present(value)
+                ):
+                    value = "{{ .labels.%s }}" % (
+                        self._create_metric_parameter_label(name, key)
+                    )
+
+                else:
+                    p = [
+                        item for item in parameter_overrides
+                        if item["parameter"] == key
+                    ]
+                    if len(p) > 0:
+                        value = "{{ .labels.%s | default \"%s\" }}" % (
+                            p[0]["label"], value
+                        )
+
+                param = f"{key} {value}".strip()
+                parameters = f"{parameters} {param}".strip()
+
+            used_default_params = list()
+            if len(parameter_overrides) > 0:
+                for o in parameter_overrides:
+                    if (
+                            self._is_parameter_default(
+                                name, o["parameter"]
+                            ) and o["label"] not in used_default_params
+                    ):
+                        param = "{{ .labels.%s }}" % o["label"]
+                        used_default_params.append(o["label"])
+                        parameters = f"{parameters} {param}"
+
+            attributes, issecret = self._handle_attributes(
+                metric=name,
+                attrs=configuration["attribute"]
+            )
+
+            command = "{} {} {}".format(
+                executable, parameters.strip(), attributes.lstrip()
+            )
+
+            if issecret:
+                command = f"source {self.secrets} ; " \
+                          f"export $(cut -d= -f1 {self.secrets}) ; " \
+                          f"{command}"
+
+            check = {
+                "command": command.strip(),
+                "subscriptions": self.servicetypes4metrics[name],
+                "handlers": [],
+                "interval": int(configuration["config"]["interval"]) * 60,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": name,
+                    "namespace": namespace,
+                    "annotations": {
+                        "attempts": configuration["config"]["maxCheckAttempts"]
+                    }
+                },
+                "round_robin": False
+            }
+
+            if publish and "NOPUBLISH" not in configuration["flags"]:
+                check.update({
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                })
+
+            elif not publish or "internal" in configuration["tags"]:
+                check.update({
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                })
+
+            else:
+                check.update({"pipelines": []})
+
+            if namespace != "default" and \
+                    "internal" not in configuration["tags"]:
+                check.update({
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.{} == '{}'".format(
+                                name.lower().replace(".", "_").replace(
+                                    "-", "_"
+                                ), name
+                            )
+                        ]
+                    }
+                })
+
+            return check
+
+        except KeyError as e:
+            self.logger.warning(
+                f"{self.tenant}: Skipping check {name}: "
+                f"Missing key {str(e)}"
+            )
+
+            return None
+
     def generate_checks(self, publish, namespace="default"):
         checks = list()
 
         for metric in self.metrics:
             for name, configuration in metric.items():
-                parameter_overrides = [
-                    item for item in self.metric_parameter_overrides
-                    if item["metric"] == name
-                ]
-                try:
-                    path = configuration["config"]["path"]
-                    if path.endswith("/"):
-                        path = path[:-1]
-
-                    executable = os.path.join(path, configuration["probe"])
-
-                    if "NOTIMEOUT" not in configuration["flags"]:
-                        parameters = "-t " + configuration["config"]["timeout"]
-
-                    else:
-                        parameters = ""
-
-                    if "NOHOSTNAME" not in configuration["flags"]:
-                        parameters = "-H {{ .labels.hostname }} " + parameters
-                        parameters = parameters.strip()
-
-                    for key, value in configuration["parameter"].items():
-                        if value == "$_SERVICEVO$":
-                            if "VONAME" in self.global_attributes:
-                                value = self.global_attributes["VONAME"]
-
-                            else:
-                                continue
-
-                        elif (
-                            self._is_hostalias_present(value) or
-                                self._is_servicesite_name_present(value)
-                        ):
-                            value = "{{ .labels.%s }}" % (
-                                self._create_metric_parameter_label(name, key)
-                            )
-
-                        else:
-                            p = [
-                                item for item in parameter_overrides
-                                if item["parameter"] == key
-                            ]
-                            if len(p) > 0:
-                                value = "{{ .labels.%s | default \"%s\" }}" % (
-                                    p[0]["label"], value
-                                )
-
-                        param = f"{key} {value}".strip()
-                        parameters = f"{parameters} {param}".strip()
-
-                    used_default_params = list()
-                    if len(parameter_overrides) > 0:
-                        for o in parameter_overrides:
-                            if (
-                                    self._is_parameter_default(
-                                        name, o["parameter"]
-                                    ) and o["label"] not in used_default_params
-                            ):
-                                param = "{{ .labels.%s }}" % o["label"]
-                                used_default_params.append(o["label"])
-                                parameters = f"{parameters} {param}"
-
-                    attributes, issecret = self._handle_attributes(
-                        metric=name,
-                        attrs=configuration["attribute"]
-                    )
-
-                    command = "{} {} {}".format(
-                        executable, parameters.strip(), attributes.lstrip()
-                    )
-
-                    if issecret:
-                        command = f"source {self.secrets} ; " \
-                                  f"export $(cut -d= -f1 {self.secrets}) ; " \
-                                  f"{command}"
-
+                if self._is_passive(configuration=configuration):
                     check = {
-                        "command": command.strip(),
+                        "command": "PASSIVE",
                         "subscriptions": self.servicetypes4metrics[name],
                         "handlers": [],
-                        "interval":
-                            int(configuration["config"]["interval"]) * 60,
+                        "pipelines": [],
+                        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                         "timeout": 900,
-                        "publish": True,
+                        "publish": False,
                         "metadata": {
                             "name": name,
                             "namespace": namespace,
-                            "annotations": {
-                                "attempts":
-                                    configuration["config"]["maxCheckAttempts"]
-                            }
                         },
                         "round_robin": False
                     }
 
-                    if publish and "NOPUBLISH" not in configuration["flags"]:
-                        check.update({
-                            "pipelines": [
-                                {
-                                    "name": "hard_state",
-                                    "type": "Pipeline",
-                                    "api_version": "core/v2"
-                                }
-                            ]
-                        })
-
-                    elif not publish or "internal" in configuration["tags"]:
-                        check.update({
-                            "pipelines": [
-                                {
-                                    "name": "reduce_alerts",
-                                    "type": "Pipeline",
-                                    "api_version": "core/v2"
-                                }
-                            ]
-                        })
-
-                    else:
-                        check.update({"pipelines": []})
-
-                    if namespace != "default" and \
-                            "internal" not in configuration["tags"]:
-                        check.update({
-                            "proxy_requests": {
-                                "entity_attributes": [
-                                    "entity.entity_class == 'proxy'",
-                                    "entity.labels.{} == '{}'".format(
-                                        name.lower().replace(".", "_").replace(
-                                            "-", "_"
-                                        ), name
-                                    )
-                                ]
-                            }
-                        })
-
-                    checks.append(check)
-
-                except KeyError as e:
-                    self.logger.warning(
-                        f"{self.tenant}: Skipping check {name}: "
-                        f"Missing key {str(e)}"
+                else:
+                    check = self._generate_active_check(
+                        name=name, configuration=configuration,
+                        publish=publish, namespace=namespace
                     )
-                    continue
+
+                if check:
+                    checks.append(check)
 
         for metric in self.metrics_without_configuration:
             self.logger.warning(
