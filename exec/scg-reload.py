@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, ConfigException, \
@@ -20,6 +21,9 @@ def main():
     )
     parser.add_argument(
         "-c", "--conf", dest="conf", help="configuration file", default=CONFFILE
+    )
+    parser.add_argument(
+        "-t", "--tenant", dest="tenant", type=str, help="tenant name"
     )
     args = parser.parse_args()
 
@@ -45,9 +49,18 @@ def main():
 
         logger.info(f"Configuration file {args.conf} read successfully")
 
+        if args.tenant:
+            if args.tenant not in tenants:
+                parser.error(f"Tenant {args.tenant} does not exist")
+                sys.exit(2)
+
+            else:
+                tenants = [args.tenant]
+
         sensu = Sensu(url=sensu_url, token=sensu_token)
 
-        sensu.handle_namespaces(tenants=tenants)
+        if not args.tenant:
+            sensu.handle_namespaces(tenants=tenants)
 
         for tenant in tenants:
             namespace = tenant

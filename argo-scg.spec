@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.2.3
+Version:       0.3.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -47,6 +47,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
 %changelog
+* Thu Nov 2 2023 Katarina Zailac <kzailac@srce.hr> - 0.3.0-1%{?dist}
+- ARGO-4415 Handle $_SERVICEVO$ variable in metric configuration
+- ARGO-4403 Option to run scg-reload for one tenant
+- ARGO-4402 Filter events testing the agent
+- ARGO-4392 Filter events by service type
+- ARGO-4399 Use ROBOT_CERT for authentication if it is defined instead of NAGIOS_HOST_CERT
+- ARGO-4400 Handle HOSTDN attribute properly
+- ARGO-4395 Handle dashes in attribute names
+- ARGO-4393 Handle situations when endpoint URL is not defined
+- ARGO-4391 Handle parameters with $_SERVICESITE_NAME$ variable
+- ARGO-4388 Handle non-existing attributes
 * Thu Jul 2 2023 Katarina Zailac <kzailac@srce.hr> - 0.2.3-1%{?dist}
 - ARGO-4339 Handle overrides of default ports
 - ARGO-4338 Handle generic.http.connect for endpoints without defined info_URL

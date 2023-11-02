@@ -79,6 +79,42 @@ mock_metrics = [
         }
     },
     {
+        "argo.APEL-Sync": {
+            "tags": [
+                "accounting",
+                "apel",
+                "htc"
+            ],
+            "probe": "check_http_parser",
+            "config": {
+                "timeout": "120",
+                "retryInterval": "15",
+                "path": "/usr/libexec/argo/probes/http_parser",
+                "maxCheckAttempts": "2",
+                "interval": "720"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {
+                "-H": "goc-accounting.grid-support.ac.uk",
+                "-u": "/rss/$_SERVICESITE_NAME$_Sync.html",
+                "--warning-search": "WARN",
+                "--critical-search": "ERROR",
+                "--ok-search": "OK",
+                "--case-sensitive": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-http-parser"
+                      "/blob/main/README.md"
+        }
+    },
+    {
         "argo.API-Check": {
             "tags": [
                 "api",
@@ -112,6 +148,43 @@ mock_metrics = [
             "parent": "",
             "docurl": "https://github.com/ARGOeu/nagios-plugins-argo/blob/"
                       "master/README.md"
+        }
+    },
+    {
+        "argo.cvmfs-stratum-1.status": {
+            "tags": [
+                "cvmfs",
+                "htc",
+                "http",
+                "network"
+            ],
+            "probe": "check_http_parser",
+            "config": {
+                "timeout": "120",
+                "retryInterval": "3",
+                "path": "/usr/libexec/argo/probes/http_parser",
+                "maxCheckAttempts": "3",
+                "interval": "5"
+            },
+            "flags": {
+                "OBSESS": "1",
+                "PNP": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "CVMFS-Stratum-1_PORT": "-p"
+            },
+            "parameter": {
+                "-u": "\"/cvmfsmon/api/v1.0/all\"",
+                "--unknown-message":
+                    "\"Please check if cvmfs-servermon package is installed\""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/ARGOeu-Metrics/argo-probe-http-parser/blob/"
+                "main/README.md"
         }
     },
     {
@@ -528,6 +601,7 @@ mock_metrics = [
             "parameter": {
                 "-d": "",
                 "-p": "eu.egi.SRM",
+                "-s": "$_SERVICEVO$",
                 "--se-timeout": "260"
             },
             "file_parameter": {},
@@ -1317,7 +1391,7 @@ mock_metrics = [
             },
             "attribute": {
                 "QCG-BROKER_PORT": "-p",
-                "info_hostdn": "-n",
+                "HOSTDN": "-n",
                 "X509_USER_PROXY": "-x"
             },
             "parameter": {},
@@ -1325,6 +1399,119 @@ mock_metrics = [
             "file_attribute": {},
             "parent": "",
             "docurl": "http://www.qoscosgrid.org/trac/qcg-broker"
+        }
+    },
+    {
+        "srce.certificate.validity-moncert": {
+            "tags": [
+                "certificate",
+                "htc",
+                "internal"
+            ],
+            "probe": "CertLifetime-probe",
+            "config": {
+                "maxCheckAttempts": "2",
+                "timeout": "60",
+                "path": "/usr/libexec/argo/probes/cert",
+                "interval": "240",
+                "retryInterval": "30"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_ACTUAL_HOST_CERT": "-f"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://wiki.egi.eu/wiki/ROC_SAM_Tests#hr.srce."
+                      "CREAMCE-CertLifetime"
+        }
+    },
+    {
+        "srce.gridproxy.get": {
+            "tags": [
+                "argo",
+                "authentication",
+                "harmonized",
+                "htc",
+                "internal",
+                "monitoring",
+                "proxy certificate"
+            ],
+            "probe": "refresh_proxy",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "120",
+                "path": "/usr/libexec/argo/probes/globus",
+                "interval": "240",
+                "retryInterval": "5"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "VO": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "VONAME": "--vo",
+                "VO_FQAN": "--vo-fqan",
+                "ROBOT_CERT": "--robot-cert",
+                "PROXY_LIFETIME": "--lifetime",
+                "MYPROXY_NAME": "--name",
+                "MYPROXY_SERVER": "-H",
+                "ROBOT_KEY": "--robot-key",
+                "X509_USER_PROXY": "-x"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-globus/"
+                      "blob/master/README.md"
+        }
+    },
+    {
+        "srce.gridproxy.validity": {
+            "tags": [
+                "argo",
+                "authentication",
+                "harmonized",
+                "htc",
+                "internal",
+                "monitoring",
+                "proxy certificate"
+            ],
+            "probe": "GridProxy-probe",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "30",
+                "path": "/usr/libexec/argo/probes/globus",
+                "interval": "15",
+                "retryInterval": "3"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "VO": "1",
+                "NOPUBLISH": "1"
+            },
+            "dependency": {
+                "hr.srce.GridProxy-Get": "0"
+            },
+            "attribute": {
+                "VONAME": "--vo",
+                "X509_USER_PROXY": "-x"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-globus/"
+                      "blob/master/README.md"
         }
     }
 ]
@@ -2224,6 +2411,93 @@ mock_topology = [
             "production": "1",
             "scope": "NI4OS-Europe"
         }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "SRCE",
+        "type": "SITES",
+        "service": "gridproxy",
+        "hostname": "some.host.name",
+        "tags": {
+            "info_ID": "xxxx",
+            "monitored": "1",
+            "production": "1"
+        }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "APEL-Site1",
+        "type": "SITES",
+        "service": "APEL",
+        "hostname": "apel.grid1.example.com",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2023-10-03",
+        "group": "APEL-Site2",
+        "type": "SITES",
+        "service": "APEL",
+        "hostname": "apel.grid2.example.com",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2023-09-12",
+        "group": "APPDB",
+        "type": "SITES",
+        "service": "egi.AppDB",
+        "hostname": "appdb.egi.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2023-10-06",
+        "group": "IN2P3-CC",
+        "type": "SITES",
+        "service": "ch.cern.cvmfs.stratum.1",
+        "hostname": "cclssts1.in2p3.fr",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxx",
+            "info_ext_CVMFS-Stratum-1_PORT": "80",
+            "monitored": "1",
+            "production": "1",
+            "scope": "Local, EGI, wlcg, tier1"
+        }
+    },
+    {
+        "date": "2023-10-06",
+        "group": "JP-KEK-CRC-02",
+        "type": "SITES",
+        "service": "ch.cern.cvmfs.stratum.1",
+        "hostname": "cvmfs-stratum-one.cc.kek.jp",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
     }
 ]
 
@@ -2259,7 +2533,8 @@ mock_metric_profiles = [
                 "service": "argo.webui",
                 "metrics": [
                     "generic.certificate.validity",
-                    "eu.egi.GRAM-CertValidity"
+                    "eu.egi.GRAM-CertValidity",
+                    "srce.certificate.validity-moncert"
                 ]
             }
         ]
@@ -2894,6 +3169,74 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-03",
+        "name": "ARGO_TEST41",
+        "description": "Profile for metrics with attributes not defined "
+                       "anywhere",
+        "services": [
+            {
+                "service": "gridproxy",
+                "metrics": [
+                    "srce.gridproxy.get",
+                    "srce.gridproxy.validity"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-03",
+        "name": "ARGO_TEST42",
+        "description": "Profile for APEL metrics",
+        "services": [
+            {
+                "service": "APEL",
+                "metrics": [
+                    "argo.APEL-Pub",
+                    "argo.APEL-Sync"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-04",
+        "name": "ARGO_TEST43",
+        "description": "Profile for endpoints running generic.http.connect "
+                       "without defined URL",
+        "services": [
+            {
+                "service": "egi.AppDB",
+                "metrics": [
+                    "generic.http.connect",
+                    "generic.certificate.validity"
+                ]
+            },
+            {
+                "service": "web.check",
+                "metrics": [
+                    "generic.http.connect",
+                    "generic.certificate.validity"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-06",
+        "name": "ARGO_TEST44",
+        "description": "Profile for metrics with dashes in attribute names",
+        "services": [
+            {
+                "service": "ch.cern.cvmfs.stratum.1",
+                "metrics": [
+                    "argo.cvmfs-stratum-1.status"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3073,6 +3416,20 @@ mock_attributes_with_robot = {
         ],
         "host_attributes": [],
         "metric_parameters": []
+    },
+    "local": {
+        "global_attributes": [
+            {
+                "attribute": "NAGIOS_HOST_CERT",
+                "value": "/etc/nagios/certs/hostcert.pem"
+            },
+            {
+                "attribute": "NAGIOS_HOST_KEY",
+                "value": "/etc/nagios/certs/hostcert.key"
+            }
+        ],
+        "host_attributes": [],
+        "metric_parameters": []
     }
 }
 
@@ -3105,7 +3462,8 @@ mock_default_ports = {
     "STOMP_SSL_PORT": "6162",
     "OPENWIRE_PORT": "6166",
     "OPENWIRE_SSL_PORT": "6167",
-    "HTCondorCE_PORT": "9619"
+    "HTCondorCE_PORT": "9619",
+    "CVMFS-Stratum-1_PORT": "8000"
 }
 
 LOGNAME = "argo-scg.generator"
@@ -3550,6 +3908,31 @@ class CheckConfigurationTests(unittest.TestCase):
                             "api_version": "core/v2"
                         }
                     ]
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/cert/"
+                               "CertLifetime-probe -t 60 "
+                               "-f /etc/nagios/globus/hostcert.pem",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.certificate.validity-moncert",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -3645,6 +4028,31 @@ class CheckConfigurationTests(unittest.TestCase):
                             "api_version": "core/v2"
                         }
                     ]
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/cert/"
+                               "CertLifetime-probe -t 60 "
+                               "-f /etc/nagios/certs/hostcert.pem",
+                    "subscriptions": ["argo.webui"],
+                    "handlers": [],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.certificate.validity-moncert",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
                 }
             ]
         )
@@ -3674,8 +4082,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 --link "
                                "--onredirect follow "
                                "{{ .labels.ssl | default \" \" }} "
-                               "-p {{ .labels.port | default \"80\" }} "
-                               "-u {{ .labels.path | default \"/\" }}",
+                               "{{ .labels.generic_http_connect_port | "
+                               "default \" \" }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default \" \" }}",
                     "subscriptions": ["argo.webui"],
                     "handlers": [],
                     "proxy_requests": {
@@ -3888,8 +4298,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/midmon/"
                                "check_bdii_entries_num "
                                "-H {{ .labels.hostname }} -t 60 -c 1:1 "
-                               "-f \"(&(objectClass=GLUE2Domain)"
-                               "(GLUE2DomainID=$_SERVICESITE_NAME$))\" "
+                               "-f {{ .labels.org_nagios_glue2_check_f }} "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
                     "subscriptions": ["Site-BDII"],
                     "handlers": [],
@@ -3947,7 +4356,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "nagios-plugin-dynamic-dns/"
                                "nagios-plugin-dynamic-dns.sh "
                                "-H {{ .labels.hostname }} -t 120 "
-                               "--endpoint-name {{ .labels.endpoint-name }}",
+                               "--endpoint-name {{ .labels.endpoint_name }}",
                     "subscriptions": ["eu.egi.cloud.dyndns"],
                     "handlers": [],
                     "pipelines": [
@@ -4009,7 +4418,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios -O good_ses_file="
                                "/var/lib/gridprobes/ops/GoodSEs --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -4052,7 +4460,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-O service_suffix=-$_SERVICEVO_FQAN$ "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -4418,7 +4825,79 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
                                "-H {{ .labels.hostname }} -t 300 -d "
-                               "-p eu.egi.SRM --se-timeout 260 --voname test "
+                               "-p eu.egi.SRM -s test --se-timeout 260 "
+                               "--voname test "
+                               "-X /etc/nagios/globus/userproxy.pem "
+                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.endpoint__surl | default \"\" }}",
+                    "subscriptions": ["SRM"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_srm_all == "
+                            "'eu.egi.SRM-All'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.SRM-All",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_servicevo_without_voname(self):
+        self.maxDiff = None
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/nagios/globus/userproxy.pem"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST16"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks,
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
+                               "-H {{ .labels.hostname }} -t 300 -d "
+                               "-p eu.egi.SRM --se-timeout 260 "
                                "-X /etc/nagios/globus/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
@@ -4484,7 +4963,6 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios "
                                "-O good_ses_file=/var/lib/gridprobes/ops/"
                                "GoodSEs --voms test "
-                               "--fqan {{ .labels.vo_fqan }} "
                                "--user-proxy /etc/nagios/globus/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
@@ -4884,7 +5362,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/http_parser/"
                                "check_http_parser -t 120 "
                                "-H goc-accounting.grid-support.ac.uk "
-                               "-u /rss/$_SERVICESITE_NAME$_Pub.html "
+                               "-u {{ .labels.argo_apel_pub_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
                                "| default \"OK\" }} --case-sensitive",
@@ -4918,7 +5396,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
-                               "-p {{ .labels.port }}",
+                               "{{ .labels.generic_ssh_test_port | "
+                               "default \" \" }}",
                     "subscriptions": ["argo.test"],
                     "handlers": [],
                     "pipelines": [
@@ -5629,8 +6108,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_http "
                     "-H {{ .labels.hostname }} -t 60 --link "
                     "--onredirect follow {{ .labels.ssl | default \" \" }} "
-                    "-p {{ .labels.port | default \"80\" }} -u "
-                    "{{ .labels.path | default \"/\" }}",
+                    "{{ .labels.generic_http_connect_port | default \" \" }} "
+                    "{{ .labels.generic_http_connect_path | default \" \" }}",
                 "subscriptions": ["eu.eosc.portal.services.url"],
                 "handlers": [],
                 "interval": 300,
@@ -6731,6 +7210,466 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_with_attributes_not_defined_anywhere(
+            self
+    ):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "OIDC_TOKEN_FILE",
+                        "value": "/etc/nagios/globus/oidc"
+                    },
+                    {
+                        "attribute": "OIDC_ACCESS_TOKEN",
+                        "value": "/etc/nagios/globus/oidc"
+                    },
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/nagios/globus/userproxy.pem"
+                    },
+                    {
+                        "attribute": "VONAME",
+                        "value": "test"
+                    },
+                    {
+                        "attribute": "ROBOT_CERT",
+                        "value": "/etc/nagios/robot/robot.pem"
+                    },
+                    {
+                        "attribute": "ROBOT_KEY",
+                        "value": "/etc/nagios/robot/robot.key"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST41"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/globus/refresh_proxy "
+                               "-t 120 --vo test "
+                               "--robot-cert /etc/nagios/robot/robot.pem "
+                               "--robot-key /etc/nagios/robot/robot.key "
+                               "-x /etc/nagios/globus/userproxy.pem",
+                    "subscriptions": ["gridproxy"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.gridproxy.get",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/globus/"
+                               "GridProxy-probe -t 30 --vo test "
+                               "-x /etc/nagios/globus/userproxy.pem",
+                    "subscriptions": ["gridproxy"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "srce.gridproxy.validity",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_servicesite_name(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_pub_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_sync_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_sync == 'argo.APEL-Sync'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Sync",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_with_servicesite_name_with_override(
+            self
+    ):
+        attributes = {
+            "apel": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "apel.grid1.example.com",
+                        "metric": "argo.APEL-Pub",
+                        "parameter": "-u",
+                        "value": "/test/$_SERVICESITE_NAME$_Pub.html",
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_pub_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_sync_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": ["APEL"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_sync == 'argo.APEL-Sync'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Sync",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_http_check_configuration_if_no_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST43"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                               "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 "
+                               "-N --altnames --rootcert-dir "
+                               "/etc/grid-security/certificates "
+                               "--rootcert-file "
+                               "/etc/pki/tls/certs/ca-bundle.crt "
+                               "-C /etc/nagios/globus/hostcert.pem "
+                               "-K /etc/nagios/globus/hostkey.pem",
+                    "subscriptions": ["egi.AppDB", "web.check"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity == "
+                            "'generic.certificate.validity'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_http "
+                        "-H {{ .labels.hostname }} -t 60 --link "
+                        "--onredirect follow "
+                        "{{ .labels.ssl | default \" \" }} "
+                        "{{ .labels.generic_http_connect_port | "
+                        "default \" \" }} "
+                        "{{ .labels.generic_http_connect_path | "
+                        "default \" \" }}",
+                    "subscriptions": ["egi.AppDB", "web.check"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_attribute_with_dashes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST44"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -H {{ .labels.hostname }} "
+                               "-t 120 -u \"/cvmfsmon/api/v1.0/all\" "
+                               "--unknown-message "
+                               "\"Please check if cvmfs-servermon package is "
+                               "installed\" -p "
+                               "{{ .labels.cvmfs_stratum_1_port | "
+                               "default \"8000\" }}",
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_cvmfs_stratum_1_status == "
+                            "'argo.cvmfs-stratum-1.status'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.cvmfs-stratum-1.status",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -6847,8 +7786,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "bioinformatics.cing.ac.cy",
-                            "port": "443",
-                            "path": "/MelGene/",
+                            "generic_http_connect_path": "-u /MelGene/",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://bioinformatics.cing.ac.cy/MelGene/",
@@ -6866,9 +7804,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "eewrc-las.cyi.ac.cy",
-                            "port": "80",
-                            "path": "/las/getUI.do",
-                            "ssl": "",
+                            "generic_http_connect_path": "-u /las/getUI.do",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
@@ -6885,8 +7821,9 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "sampaeos.if.usp.br",
-                            "port": "9000",
-                            "path": "//eos/ops/opstest/",
+                            "generic_http_connect_port": "-p 9000",
+                            "generic_http_connect_path":
+                                "-u //eos/ops/opstest/",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://sampaeos.if.usp.br:9000//eos/ops/"
@@ -6926,9 +7863,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "argo-devel.ni4os.eu",
-                            "path": "/",
-                            "port": "80",
-                            "ssl": "",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET"
@@ -6944,8 +7878,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "argo.ni4os.eu",
-                            "path": "/",
-                            "port": "443",
                             "ssl": "-S --sni",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
@@ -7098,6 +8030,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=DESY-HH))\"",
                             "hostname": "grid-giis1.desy.de",
                             "bdii_dn": "Mds-Vo-Name=DESY-HH,O=Grid",
                             "bdii_type": "bdii_site",
@@ -7120,6 +8055,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=ARNES))\"",
                             "hostname": "kser.arnes.si",
                             "bdii_dn": "Mds-Vo-Name=ARNES,O=Grid",
                             "bdii_type": "bdii_site",
@@ -7142,6 +8080,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "org_bdii_entries": "org.bdii.Entries",
                             "org_nagios_glue2_check":
                                 "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=SBDII))\"",
                             "hostname": "sbdii.test.com",
                             "bdii_dn": "Mds-Vo-Name=SBDII,O=Grid",
                             "bdii_type": "bdii_site",
@@ -7201,8 +8142,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "catalogue.ni4os.eu",
                             "info_url": "https://catalogue.ni4os.eu/",
                             "ssl": "-S --sni",
-                            "path": "/",
-                            "port": "443",
+                            "generic_http_connect_path": "-u /",
                             "service": "eu.ni4os.app.web",
                             "site": "IPB"
                         }
@@ -7270,7 +8210,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns1.cloud.test.eu",
                             "info_url": "https://dns1.cloud.test.eu/",
-                            "endpoint-name": "nsupdate",
+                            "endpoint_name": "nsupdate",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -7286,7 +8226,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns2.cloud.test.eu",
-                            "endpoint-name": "secondary",
+                            "endpoint_name": "secondary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -7302,7 +8242,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eu_egi_cloud_dyndns_check":
                                 "eu.egi.cloud.DynDNS-Check",
                             "hostname": "dns3.cloud.test.eu",
-                            "endpoint-name": "primary",
+                            "endpoint_name": "primary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS"
                         }
@@ -7753,7 +8693,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
-                            "port": "443",
+                            "argo_apel_pub_u": "/rss/GRNET_Pub.html",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
@@ -7843,7 +8783,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_ssh_test": "generic.ssh.test",
                             "argo_apel_pub": "argo.APEL-Pub",
-                            "port": "443",
+                            "argo_apel_pub_u": "/rss/GRNET_Pub.html",
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
@@ -8391,8 +9331,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
-                            "path": "/path",
-                            "port": "443",
+                            "generic_http_connect_path": "-u /path",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://hostname1.argo.com/path",
@@ -8413,8 +9352,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "https://hostname2.argo.eu",
                             "hostname": "hostname2.argo.eu",
-                            "path": "/",
-                            "port": "443",
                             "ssl": "-S --sni",
                             "service": "eu.eosc.portal.services.url",
                             "site": "test2.test"
@@ -8431,10 +9368,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "http://hostname3.argo.eu/",
+                            "generic_http_connect_path": "-u /",
                             "hostname": "hostname3.argo.eu",
-                            "path": "/",
-                            "port": "80",
-                            "ssl": "",
                             "service": "eu.eosc.portal.services.url",
                             "site": "group3"
                         }
@@ -8468,7 +9403,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_json": "generic.http.json",
-                            "path": "/some/path",
+                            "generic_http_json_path": "-p /some/path",
                             "info_url":
                                 "https://test-json.argo.grnet.gr/some/path",
                             "hostname": "test-json.argo.grnet.gr",
@@ -9576,6 +10511,283 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["eu.ni4os.hpc.ui2"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_servicesite_name(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid1.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site1_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
+                            "hostname": "apel.grid1.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site1"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid2.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site2_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
+                            "hostname": "apel.grid2.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site2"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_servicesite_name_with_override(self):
+        attributes = {
+            "apel": {
+                "global_attributes":
+                    mock_attributes["local"]["global_attributes"],
+                "host_attributes": [],
+                "metric_parameters": [
+                    {
+                        "hostname": "apel.grid1.example.com",
+                        "metric": "argo.APEL-Pub",
+                        "parameter": "-u",
+                        "value": "/test/$_SERVICESITE_NAME$_Pub.html",
+                    }]
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST42"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid1.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/test/APEL-Site1_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
+                            "hostname": "apel.grid1.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site1"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "APEL__apel.grid2.example.com",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_apel_pub": "argo.APEL-Pub",
+                            "argo_apel_sync": "argo.APEL-Sync",
+                            "argo_apel_pub_u": "/rss/APEL-Site2_Pub.html",
+                            "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
+                            "hostname": "apel.grid2.example.com",
+                            "service": "APEL",
+                            "site": "APEL-Site2"
+                        }
+                    },
+                    "subscriptions": ["APEL"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_for_http_check_if_no_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST43"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "egi.AppDB__appdb.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "appdb.egi.eu",
+                            "service": "egi.AppDB",
+                            "site": "APPDB"
+                        }
+                    },
+                    "subscriptions": ["egi.AppDB"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__bioinformatics.cing.ac.cy",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "https://bioinformatics.cing.ac.cy/MelGene/",
+                            "ssl": "-S --sni",
+                            "generic_http_connect_path": "-u /MelGene/",
+                            "hostname": "bioinformatics.cing.ac.cy",
+                            "service": "web.check",
+                            "site": "CING"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__eewrc-las.cyi.ac.cy",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "http://eewrc-las.cyi.ac.cy/las/getUI.do",
+                            "generic_http_connect_path": "-u /las/getUI.do",
+                            "hostname": "eewrc-las.cyi.ac.cy",
+                            "service": "web.check",
+                            "site": "CYI"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "web.check__sampaeos.if.usp.br",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "info_url":
+                                "https://sampaeos.if.usp.br:9000//eos/ops/"
+                                "opstest/",
+                            "ssl": "-S --sni",
+                            "generic_http_connect_port": "-p 9000",
+                            "generic_http_connect_path":
+                                "-u //eos/ops/opstest/",
+                            "hostname": "sampaeos.if.usp.br",
+                            "service": "web.check",
+                            "site": "SAMPA"
+                        }
+                    },
+                    "subscriptions": ["web.check"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_attribute_with_dash(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST44"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "ch.cern.cvmfs.stratum.1__cclssts1.in2p3.fr",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "cvmfs_stratum_1_port": "80",
+                            "hostname": "cclssts1.in2p3.fr",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "IN2P3-CC"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name":
+                            "ch.cern.cvmfs.stratum.1__cvmfs-stratum-one.cc.kek."
+                            "jp",
+                        "namespace": "default",
+                        "labels": {
+                            "argo_cvmfs_stratum_1_status":
+                                "argo.cvmfs-stratum-1.status",
+                            "hostname": "cvmfs-stratum-one.cc.kek.jp",
+                            "service": "ch.cern.cvmfs.stratum.1",
+                            "site": "JP-KEK-CRC-02"
+                        }
+                    },
+                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
                 }
             ]
         )

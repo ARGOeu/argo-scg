@@ -67,6 +67,9 @@ class ConfigurationGenerator:
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
 
+        self.hostalias_var = "$HOSTALIAS$"
+        self.servicesite_name_var = "$_SERVICESITE_NAME$"
+
         metrics_list = list()
         internal_metrics = list()
         metrics_with_endpoint_url = dict()
@@ -77,6 +80,7 @@ class ConfigurationGenerator:
         metrics_with_url = dict()
         metrics_names_set = set()
         metrics_with_hostalias = list()
+        metrics_with_servicesite_name = list()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -84,10 +88,16 @@ class ConfigurationGenerator:
                     metrics_list.append(metric)
 
                     if "PORT" in value["attribute"]:
-                        metrics_with_ports.append(key)
+                        metrics_with_ports.append({
+                            "metric": key,
+                            "attr_val": value["attribute"]["PORT"]
+                        })
 
                     if "PATH" in value["attribute"]:
-                        metrics_with_path.append(key)
+                        metrics_with_path.append({
+                            "metric": key,
+                            "attr_val": value["attribute"]["PATH"]
+                        })
 
                     if "SSL" in value["attribute"]:
                         metrics_with_ssl.append(key)
@@ -111,8 +121,18 @@ class ConfigurationGenerator:
                             metrics_with_url.update({key: attribute})
 
                     for param, param_value in value["parameter"].items():
-                        if "$HOSTALIAS$" in param_value:
+                        if self.hostalias_var in param_value:
                             metrics_with_hostalias.append({
+                                "metric": key,
+                                "parameter": param,
+                                "label": self._create_metric_parameter_label(
+                                    key, param
+                                ),
+                                "value": param_value
+                            })
+
+                        if self.servicesite_name_var in param_value:
+                            metrics_with_servicesite_name.append({
                                 "metric": key,
                                 "parameter": param,
                                 "label": self._create_metric_parameter_label(
@@ -126,6 +146,7 @@ class ConfigurationGenerator:
             metrics_names_set
         )
         self.metrics_with_hostalias = metrics_with_hostalias
+        self.metrics_with_servicesite_name = metrics_with_servicesite_name
         self.metrics_with_endpoint_url = metrics_with_endpoint_url
         self.internal_metrics = internal_metrics
         self.topology = topology
@@ -154,15 +175,23 @@ class ConfigurationGenerator:
 
         self.servicetypes_with_port = list()
         for metric in metrics_with_ports:
-            self.servicetypes_with_port.extend(
-                self.servicetypes4metrics[metric]
-            )
+            sts = self.servicetypes4metrics[metric["metric"]]
+            for st in sts:
+                self.servicetypes_with_port.append({
+                    "service": st,
+                    "metric": metric["metric"],
+                    "attr_val": metric["attr_val"]
+                })
 
         self.servicetypes_with_path = list()
         for metric in metrics_with_path:
-            self.servicetypes_with_path.extend(
-                self.servicetypes4metrics[metric]
-            )
+            sts = self.servicetypes4metrics[metric["metric"]]
+            for st in sts:
+                self.servicetypes_with_path.append({
+                    "service": st,
+                    "metric": metric["metric"],
+                    "attr_val": metric["attr_val"]
+                })
 
         self.servicetypes_with_SSL = list()
         for metric in metrics_with_ssl:
@@ -350,13 +379,51 @@ class ConfigurationGenerator:
             item["parameter"] for item in self.metric_parameter_overrides
             if item["metric"] == metric
         ]
+        special_attributes = ["BDII_DN", "GLUE2_BDII_DN"]
 
         for key, value in attrs.items():
             if value not in overridden_parameters:
-                if key in self.global_attributes:
+                if key == "NAGIOS_HOST_CERT":
+                    if "ROBOT_CERT" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_CERT"]
+
+                    else:
+                        if key in self.global_attributes:
+                            key = self.global_attributes[key]
+
+                        else:
+                            key = hardcoded_attributes[key]
+
+                elif key == "NAGIOS_HOST_KEY":
+                    if "ROBOT_KEY" in self.global_attributes:
+                        key = self.global_attributes["ROBOT_KEY"]
+
+                    else:
+                        if key in self.global_attributes:
+                            key = self.global_attributes[key]
+
+                        else:
+                            key = hardcoded_attributes[key]
+
+                elif key == "NAGIOS_ACTUAL_HOST_CERT":
+                    if "NAGIOS_HOST_CERT" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_CERT"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_CERT"]
+
+                elif key == "NAGIOS_ACTUAL_HOST_KEY":
+                    if "NAGIOS_HOST_KEY" in self.global_attributes:
+                        key = self.global_attributes["NAGIOS_HOST_KEY"]
+
+                    else:
+                        key = hardcoded_attributes["NAGIOS_HOST_KEY"]
+
+                elif key in self.global_attributes:
                     if key in overridden_attributes:
                         key = "{{ .labels.%s | default \"%s\" }}" % (
-                            key.lower(), self.global_attributes[key]
+                            create_label(key.lower()),
+                            self.global_attributes[key]
                         )
 
                     else:
@@ -375,20 +442,7 @@ class ConfigurationGenerator:
                     issecret = True
 
                 else:
-                    if key == "NAGIOS_HOST_CERT":
-                        if "ROBOT_CERT" in self.global_attributes:
-                            key = self.global_attributes["ROBOT_CERT"]
-                        else:
-                            key = hardcoded_attributes[key]
-
-                    elif key == "NAGIOS_HOST_KEY":
-                        if "ROBOT_KEY" in self.global_attributes:
-                            key = self.global_attributes["ROBOT_KEY"]
-
-                        else:
-                            key = hardcoded_attributes[key]
-
-                    elif key in ["KEYSTORE", "TRUSTSTORE"]:
+                    if key in ["KEYSTORE", "TRUSTSTORE"]:
                         key = hardcoded_attributes[key]
 
                     elif key == "TOP_BDII":
@@ -397,35 +451,37 @@ class ConfigurationGenerator:
                         else:
                             key = ""
 
+                    elif key == "SITE_BDII":
+                        key = "{{ .labels.site_bdii }}"
+
                     elif key in self.default_ports:
                         if self._is_extension_present_any_endpoint(
                                 services=self.servicetypes4metrics[metric],
                                 extension=f"info_ext_{key}"
                         ) or key in overridden_attributes:
                             key = "{{ .labels.%s | default \"%s\" }}" % (
-                                key.lower(), self.default_ports[key]
+                                create_label(key.lower()),
+                                self.default_ports[key]
                             )
 
                         else:
                             key = self.default_ports[key]
 
                     elif key == "SSL":
-                        if metric == "generic.http.connect":
-                            key = "{{ .labels.ssl | default \" \" }}"
-
-                        else:
-                            key = "{{ .labels.ssl }}"
+                        key = "{{ .labels.ssl | default \" \" }}"
                         value = ""
 
                     elif key == "PATH":
-                        key = "{{ .labels.path | default \"/\" }}"
+                        key = "{{ .labels.%s_path | default \" \" }}" % (
+                            create_label(metric)
+                        )
+                        value = ""
 
                     elif key == "PORT":
-                        if metric == "generic.http.connect":
-                            key = "{{ .labels.port | default \"80\" }}"
-
-                        else:
-                            key = "{{ .labels.port }}"
+                        key = "{{ .labels.%s_port | default \" \" }}" % (
+                            create_label(metric)
+                        )
+                        value = ""
 
                     elif key.endswith("GOCDB_SERVICE_URL"):
                         key = "{{ .labels.info_url }}"
@@ -436,28 +492,55 @@ class ConfigurationGenerator:
                     elif key == "SITENAME":
                         key = "{{ .labels.site }}"
 
+                    elif key == "HOSTDN":
+                        key = "{{ .labels.info_hostdn }}"
+
                     elif key in self.extensions:
                         if self._is_extension_present_all_endpoints(
                             services=self.servicetypes4metrics[metric],
                             extension=f"info_ext_{key}"
                         ) or key.endswith("_URL"):
-                            key = "{{ .labels.%s }}" % key.lower()
+                            key = "{{ .labels.%s }}" % create_label(key.lower())
 
                         else:
                             key = "{{ .labels.%s__%s | default \"\" }}" % (
                                 value.lstrip("-").lstrip("-").replace("-", "_"),
-                                key.lower()
+                                create_label(key.lower())
                             )
                             value = ""
 
-                    else:
-                        key = "{{ .labels.%s }}" % key.lower()
+                    elif (
+                            key.startswith("OS_KEYSTONE_") or
+                            key.endswith("_URL") or
+                            key in overridden_attributes or
+                            key in special_attributes
+                    ):
+                        key = "{{ .labels.%s }}" % create_label(key.lower())
 
-                attr = f"{value} {key}".strip()
+                    else:
+                        key = ""
+
+                if key:
+                    attr = f"{value} {key}".strip()
+
+                else:
+                    attr = ""
 
                 attributes = f"{attributes} {attr}".strip()
 
         return attributes, issecret
+
+    def _is_hostalias_present(self, value):
+        return self.hostalias_var in value
+
+    def _is_servicesite_name_present(self, value):
+        return self.servicesite_name_var in value
+
+    def _create_hostalias_value(self, value, hostname):
+        return value.replace(self.hostalias_var, hostname)
+
+    def _create_servicesite_name_value(self, value, site):
+        return value.replace(self.servicesite_name_var, site)
 
     def generate_checks(self, publish, namespace="default"):
         checks = list()
@@ -486,7 +569,17 @@ class ConfigurationGenerator:
                         parameters = parameters.strip()
 
                     for key, value in configuration["parameter"].items():
-                        if "$HOSTALIAS$" in value:
+                        if value == "$_SERVICEVO$":
+                            if "VONAME" in self.global_attributes:
+                                value = self.global_attributes["VONAME"]
+
+                            else:
+                                continue
+
+                        elif (
+                            self._is_hostalias_present(value) or
+                                self._is_servicesite_name_present(value)
+                        ):
                             value = "{{ .labels.%s }}" % (
                                 self._create_metric_parameter_label(name, key)
                             )
@@ -639,37 +732,33 @@ class ConfigurationGenerator:
                     labels = {"hostname": hostname}
 
                     if "info_URL" in item["tags"]:
+                        servicetypes_with_path = [
+                            st for st in self.servicetypes_with_path if
+                            item["service"] == st["service"]
+                        ]
+                        servicetypes_with_port = [
+                            st for st in self.servicetypes_with_port if
+                            item["service"] == st["service"]
+                        ]
                         labels.update({"info_url": item["tags"]["info_URL"]})
                         o = urlparse(item["tags"]["info_URL"])
                         port = o.port
 
                         if item["service"] in self.servicetypes_with_SSL:
                             if o.scheme == "https":
-                                ssl = "-S --sni"
-                            else:
-                                ssl = ""
+                                labels.update({"ssl": "-S --sni"})
 
-                            labels.update({"ssl": ssl})
+                        if o.path:
+                            for entry in servicetypes_with_path:
+                                lbl = f"{create_label(entry['metric'])}_path"
+                                val = f"{entry['attr_val']} {o.path}"
+                                labels.update({lbl: val})
 
-                        if item["service"] in self.servicetypes_with_path:
-                            path = o.path
-                            if not o.path:
-                                path = "/"
-
-                            labels.update({"path": path})
-
-                        if item["service"] in self.servicetypes_with_port:
-                            if port:
-                                port = str(port)
-
-                            else:
-                                if o.scheme == "https":
-                                    port = "443"
-
-                                else:
-                                    port = "80"
-
-                            labels.update({"port": port})
+                        if port:
+                            for entry in servicetypes_with_port:
+                                lbl = f"{create_label(entry['metric'])}_port"
+                                val = f"{entry['attr_val']} {str(port)}"
+                                labels.update({lbl: val})
 
                         if item["service"] in [
                             "org.openstack.nova", "org.openstack.swift"
@@ -812,6 +901,11 @@ class ConfigurationGenerator:
                             if ha["metric"] == metric
                         ]
 
+                        servicesite_metrics = [
+                            ss for ss in self.metrics_with_servicesite_name
+                            if ss["metric"] == metric
+                        ]
+
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
 
@@ -841,12 +935,19 @@ class ConfigurationGenerator:
                                 if o["hostname"] in [
                                     item["hostname"], entity_name
                                 ]:
-                                    if "$HOSTALIAS$" in o["value"]:
-                                        value = o["value"].replace(
-                                            "$HOSTALIAS$", hostname
+                                    value = o["value"]
+                                    if self._is_hostalias_present(o["value"]):
+                                        value = self._create_hostalias_value(
+                                            o["value"], hostname
                                         )
-                                    else:
-                                        value = o["value"]
+
+                                    if self._is_servicesite_name_present(
+                                            o["value"]
+                                    ):
+                                        value = (
+                                            self._create_servicesite_name_value(
+                                                o["value"], item["group"]
+                                            ))
 
                                     labels.update({o["label"]: value})
 
@@ -860,8 +961,15 @@ class ConfigurationGenerator:
                         if len(host_metric_parameter_overrides) == 0:
                             for ha in hostaliases:
                                 label = ha["label"]
-                                value = ha["value"].replace(
-                                    "$HOSTALIAS$", hostname
+                                value = self._create_hostalias_value(
+                                    ha["value"], hostname
+                                )
+                                labels.update({label: value})
+
+                            for ss in servicesite_metrics:
+                                label = ss["label"]
+                                value = self._create_servicesite_name_value(
+                                    ss["value"], item["group"]
                                 )
                                 labels.update({label: value})
 
@@ -902,12 +1010,16 @@ class ConfigurationGenerator:
 
                             else:
                                 if tag[9:] in self.default_ports:
-                                    labels.update({tag[9:].lower(): value})
+                                    labels.update({
+                                        create_label(tag[9:]): value
+                                    })
 
                                 elif self._is_extension_present_all_endpoints(
                                     services=[item["service"]], extension=tag
                                 ) or tag.endswith("_URL"):
-                                    labels.update({tag[9:].lower(): value})
+                                    labels.update({
+                                        create_label(tag[9:]): value
+                                    })
 
                                 else:
                                     metrics = list()

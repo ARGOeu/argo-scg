@@ -1385,11 +1385,34 @@ class SensuCtl:
         data = self._get_events()
         return self._format_events(data)
 
-    def filter_events(self, status):
+    @staticmethod
+    def _is_servicetype(item, servicetype):
+        if item["entity"]["entity_class"] == "agent":
+            return servicetype in item["check"]["subscriptions"]
+
+        else:
+            return (item["entity"]["metadata"]["labels"]["service"] ==
+                    servicetype)
+
+    def filter_events(self, status=None, service_type=None, agent=False):
         events = self._get_events()
 
-        filtered_events = [
-            item for item in events if item["check"]["status"] == status
-        ]
+        if agent:
+            events = [
+                item for item in events
+                if item["entity"]["entity_class"] == "agent"
+            ]
 
-        return self._format_events(filtered_events)
+        if status is not None:
+            events = [
+                item for item in events if item["check"]["status"] == status
+            ]
+
+        if service_type:
+            events = [
+                item for item in events if self._is_servicetype(
+                    item=item, servicetype=service_type
+                )
+            ]
+
+        return self._format_events(events)
