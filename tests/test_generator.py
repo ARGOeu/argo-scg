@@ -7789,7 +7789,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": ["SRM"],
-                    "handlers": [],
+                    "handlers": ["publisher-handler"],
                     "pipelines": [],
                     "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                     "timeout": 900,
@@ -7803,7 +7803,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": ["SRM"],
-                    "handlers": [],
+                    "handlers": ["publisher-handler"],
                     "pipelines": [],
                     "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                     "timeout": 900,

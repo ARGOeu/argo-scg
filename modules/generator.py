@@ -701,7 +701,7 @@ class ConfigurationGenerator:
                     check = {
                         "command": "PASSIVE",
                         "subscriptions": self.servicetypes4metrics[name],
-                        "handlers": [],
+                        "handlers": ["publisher-handler"],
                         "pipelines": [],
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                         "timeout": 900,
