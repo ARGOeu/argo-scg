@@ -1389,9 +1389,7 @@ class SensuCtl:
             else:
                 status = "UNKNOWN"
 
-            executed = datetime.datetime.fromtimestamp(
-                item["check"]["executed"]
-            )
+            executed = datetime.datetime.fromtimestamp(item["timestamp"])
             metric_output = item["check"]["output"].split("|")[0].strip()
 
             output_list.append(

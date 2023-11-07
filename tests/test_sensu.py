@@ -7248,7 +7248,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu                "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7257,15 +7257,15 @@ class SensuCtlTests(unittest.TestCase):
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
                 "response time",
                 "eu.eudat.itsm.spmt__agora.ni4os.eu               "
-                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
                 "  OK - Agora is up.",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)",
                 "eu.ni4os.repo.publication__videolectures.net     "
-                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:13"
+                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:31"
                 "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
                 "expired (was valid until Jul 10 07:29:06 2022 GMT)",
                 "sensu-agent-ni4os-devel.cro-ngi                  "
@@ -7292,7 +7292,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu                "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7301,10 +7301,10 @@ class SensuCtlTests(unittest.TestCase):
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
                 "response time",
                 "eu.eudat.itsm.spmt__agora.ni4os.eu               "
-                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
                 "  OK - Agora is up.",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)",
@@ -7333,7 +7333,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu  "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7368,7 +7368,7 @@ class SensuCtlTests(unittest.TestCase):
                 "___________________________________________________________"
                 "___________",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity  OK        2023-04-24 06:23:17"
+                "generic.certificate.validity  OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)"
