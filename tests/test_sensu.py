@@ -3757,6 +3757,133 @@ class SensuCheckTests(unittest.TestCase):
     @patch("argo_scg.sensu.Sensu._delete_checks")
     @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_passive_check_if_new(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        passive_check = {
+            "command": "PASSIVE",
+            "subscriptions": ["SRM"],
+            "handlers": [],
+            "pipelines": [],
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace"
+            },
+            "round_robin": False
+        }
+        mock_get_checks.return_value = self.checks
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        checks = self.checks + [passive_check]
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+
+        self.assertEqual(mock_get_checks.call_count, 2)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        self.assertFalse(mock_get_events.called)
+        self.assertFalse(mock_delete_checks.called)
+        self.assertFalse(mock_delete_events.called)
+        mock_put.assert_called_once_with(
+            "mock-urls/api/core/v2/namespaces/TENANT1/checks/eu.egi.SRM-VOGet",
+            data=json.dumps(passive_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"INFO:{LOGNAME}:TENANT1: Check eu.egi.SRM-VOGet created"
+            ]
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_passive_check_if_existing(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        passive_check = {
+            "command": "PASSIVE",
+            "subscriptions": ["SRM"],
+            "handlers": [],
+            "pipelines": [],
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace"
+            },
+            "round_robin": False
+        }
+        mock_get_checks.return_value = self.checks + [{
+            "command": "PASSIVE",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 0,
+            "low_flap_threshold": 0,
+            "publish": False,
+            "runtime_assets": None,
+            "subscriptions": [
+                "SRM"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace",
+                "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": []
+        }]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        checks = self.checks + [passive_check]
+
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+
+        self.assertEqual(mock_get_checks.call_count, 2)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        self.assertFalse(mock_get_events.called)
+        self.assertFalse(mock_delete_checks.called)
+        self.assertFalse(mock_delete_events.called)
+        self.assertFalse(mock_put.called)
+
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_checks_with_error_in_put_check_with_msg(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
             mock_delete_events, mock_put

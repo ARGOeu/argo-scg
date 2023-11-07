@@ -110,7 +110,7 @@ class Sensu:
 
     def _get_checks(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/checks".format(self.url, namespace),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
             headers={
                 "Authorization": "Key {}".format(self.token),
                 "Content-Type": "application/json"
@@ -309,6 +309,27 @@ class Sensu:
 
             return proxy_equal
 
+        def interval_equality(c1, c2):
+            interval_equal = False
+            key1 = "cron"
+            key2 = "interval"
+            condition1 = key1 in c1 and key1 in c2
+            condition2 = key1 not in c1 and key1 not in c2
+            condition3 = key2 in c1 and key2 in c2
+            condition4 = key2 not in c1 and key2 not in c2
+            condition5 = False
+            if condition1:
+                condition5 = c1[key1] == c2[key1]
+
+            if condition2 and condition3:
+                condition5 = c1[key2] == c2[key2]
+
+            if (condition1 and condition5) or (condition3 and condition5) or \
+                    condition4:
+                interval_equal = True
+
+            return interval_equal
+
         def annotations_equality(c1, c2):
             annotations_equal = False
             key1 = "metadata"
@@ -331,7 +352,7 @@ class Sensu:
                 sorted(check2["subscriptions"]) and \
                 sorted(check1["handlers"]) == sorted(check2["handlers"]) and \
                 proxy_equality(check1, check2) and \
-                check1["interval"] == check2["interval"] and \
+                interval_equality(check1, check2) and \
                 check1["timeout"] == check2["timeout"] and \
                 check1["publish"] == check2["publish"] and \
                 check1["metadata"]["name"] == check2["metadata"]["name"] and \
