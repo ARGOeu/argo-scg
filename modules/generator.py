@@ -167,6 +167,8 @@ class ConfigurationGenerator:
         self.extensions = self._get_extensions()
         self.extensions4metrics = self._get_extensions4metrics()
 
+        self.hostnames4metrics = self._get_hostnames4metrics()
+
         self.servicetypes_with_endpointURL = list()
         for metric in list_metrics_with_endpoint_url:
             self.servicetypes_with_endpointURL.extend(
@@ -343,6 +345,21 @@ class ConfigurationGenerator:
                 metrics.update({service["service"]: service["metrics"]})
 
         return metrics
+
+    def _get_hostnames4metrics(self):
+        hostnames4metrics = dict()
+        for metric, servicetypes in self.servicetypes4metrics.items():
+            hostnames = list()
+            for servicetype in servicetypes:
+                hostnames.extend([
+                    item["hostname"] for item in self.topology
+                    if item["service"] == servicetype
+                ])
+
+            hostnames = sorted(list(set(hostnames)))
+            hostnames4metrics.update({metric: hostnames})
+
+        return hostnames4metrics
 
     def _get_extensions(self):
         extensions = set()
@@ -627,7 +644,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self.servicetypes4metrics[name],
+                "subscriptions": self.hostnames4metrics[name],
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -700,7 +717,7 @@ class ConfigurationGenerator:
                 if self._is_passive(configuration=configuration):
                     check = {
                         "command": "PASSIVE",
-                        "subscriptions": self.servicetypes4metrics[name],
+                        "subscriptions": self.hostnames4metrics[name],
                         "handlers": ["publisher-handler"],
                         "pipelines": [],
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
