@@ -8094,7 +8094,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8113,7 +8113,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -8150,7 +8150,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8164,7 +8164,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8182,7 +8182,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["bioinformatics.cing.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8199,7 +8199,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8220,7 +8220,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["sampaeos.if.usp.br"]
                 },
             ]
         )
@@ -8256,7 +8256,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8272,7 +8272,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -8312,7 +8312,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
                     },
-                    "subscriptions": ["ch.cern.dynafed"]
+                    "subscriptions": ["dynafed.hostname.ca"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8327,7 +8327,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UPV-GRyCAP"
                         }
                     },
-                    "subscriptions": ["es.upv.grycap.im"]
+                    "subscriptions": ["grycap.upv.es"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8345,7 +8345,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname.cern.ch"]
                 }
             ]
         )
@@ -8386,7 +8386,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/CN=host/dpm.bla.meh.com"
                         }
                     },
-                    "subscriptions": ["mock.webdav"]
+                    "subscriptions": ["dpm.bla.meh.com"]
                 }
             ]
         )
@@ -8432,7 +8432,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                         "mds-vo-name=DESY-HH,o=grid"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["grid-giis1.desy.de"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8457,7 +8457,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                            "CN=kser.arnes.si"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["kser.arnes.si"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8480,7 +8480,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site_bdii": "sbdii.test.com"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["sbdii.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8497,7 +8497,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BDII"
                         }
                     },
-                    "subscriptions": ["Top-BDII"]
+                    "subscriptions": ["bdii1.test.com"]
                 }
             ]
         )
@@ -8535,7 +8535,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.app.web"]
+                    "subscriptions": ["catalogue.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8551,7 +8551,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8565,7 +8565,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -8603,7 +8603,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns1.cloud.test.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8619,7 +8619,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns2.cloud.test.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8635,7 +8635,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns3.cloud.test.eu"]
                 }
             ]
         )
@@ -8676,7 +8676,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GAMMA"
                         }
                     },
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"]
+                    "subscriptions": ["185.229.108.85"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8698,7 +8698,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "HNODC"
                         }
                     },
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"]
+                    "subscriptions": ["hnodc-dm.ath.hcmr.gr"]
                 }
             ]
         )
@@ -8746,7 +8746,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF"
                         }
                     },
-                    "subscriptions": ["org.openstack.nova"]
+                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8770,7 +8770,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK"
                         }
                     },
-                    "subscriptions": ["org.openstack.nova"]
+                    "subscriptions": ["egi-cloud.pd.infn.it"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8789,7 +8789,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CESNET-MCC"
                         }
                     },
-                    "subscriptions": ["org.openstack.swift"]
+                    "subscriptions": ["identity.cloud.muni.cz"]
                 }
             ]
         )
@@ -8828,7 +8828,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn"
                         }
                     },
-                    "subscriptions": ["egi.aai.oidc"]
+                    "subscriptions": ["aai.eosc-portal.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8846,7 +8846,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn"
                         }
                     },
-                    "subscriptions": ["egi.aai.saml"]
+                    "subscriptions": ["aai.eosc-portal.eu"]
                 }
             ]
         )
@@ -8885,7 +8885,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH"
                         }
                     },
-                    "subscriptions": ["SRM"]
+                    "subscriptions": ["dcache-se-cms.desy.de"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8902,7 +8902,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                            "CN=dcache.arnes.si"
                         }
                     },
-                    "subscriptions": ["SRM"]
+                    "subscriptions": ["dcache.arnes.si"]
                 }
             ]
         )
@@ -8938,7 +8938,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "AUVERGRID"
                         }
                     },
-                    "subscriptions": ["ARC-CE"]
+                    "subscriptions": ["gridarcce01.mesocentre.uca.fr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8955,7 +8955,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--memory-limit 268435456"
                         }
                     },
-                    "subscriptions": ["ARC-CE"]
+                    "subscriptions": ["alien.spacescience.ro"]
                 }
             ]
         )
@@ -8991,7 +8991,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["argo.mon"]
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9006,7 +9006,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["argo.mon"]
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
                 }
             ]
         )
@@ -9088,7 +9088,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9104,7 +9104,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9120,7 +9120,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -9178,7 +9178,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9194,7 +9194,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9210,7 +9210,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -9269,7 +9269,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9289,7 +9289,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9309,7 +9309,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9325,7 +9325,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9385,7 +9385,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9405,7 +9405,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9425,7 +9425,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9441,7 +9441,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9490,7 +9490,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.api"]
+                    "subscriptions": ["api.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9506,7 +9506,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.api"]
+                    "subscriptions": ["api.devel.argo.grnet.gr"]
                 }
             ]
         )
@@ -9542,7 +9542,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -9601,7 +9601,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.oidc.login"]
+                    "subscriptions": ["aai.argo.eu"]
                 }
             ]
         )
@@ -9671,7 +9671,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname.cern.ch"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9688,7 +9688,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname2.cern.ch"]
                 }
             ]
         )
@@ -9728,7 +9728,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test1"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname1.argo.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9745,7 +9745,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test2.test"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname2.argo.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9762,7 +9762,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "group3"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname3.argo.eu"]
                 }
             ]
         )
@@ -9799,7 +9799,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.json"]
+                    "subscriptions": ["test-json.argo.grnet.gr"]
                 },
             ]
         )
@@ -9857,7 +9857,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9876,7 +9876,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test2.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9895,7 +9895,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test3.argo.grnet.gr"]
                 },
             ]
         )
@@ -9955,7 +9955,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9974,7 +9974,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test2.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9993,7 +9993,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test3.argo.grnet.gr"]
                 },
             ]
         )
@@ -10033,7 +10033,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle"]
+                    "subscriptions": ["b2handle.test.example.com"]
                 }
             ]
         )
@@ -10088,7 +10088,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle"]
+                    "subscriptions": ["b2handle.test.example.com"]
                 }
             ]
         )
@@ -10127,7 +10127,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.api"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -10178,7 +10178,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10197,7 +10197,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -10256,7 +10256,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10275,7 +10275,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -10328,7 +10328,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10347,7 +10347,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -10381,7 +10381,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST"
                         }
                     },
-                    "subscriptions": ["gitlab"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10398,7 +10398,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST"
                         }
                     },
-                    "subscriptions": ["gitlab"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10458,7 +10458,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10475,7 +10475,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10525,7 +10525,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10540,7 +10540,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10595,7 +10595,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10611,7 +10611,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10658,7 +10658,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10672,7 +10672,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10712,7 +10712,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10726,7 +10726,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10762,7 +10762,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10776,7 +10776,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10822,7 +10822,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10836,7 +10836,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10884,7 +10884,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10898,7 +10898,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10936,7 +10936,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid1.example.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10953,7 +10953,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid2.example.com"]
                 }
             ]
         )
@@ -11005,7 +11005,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid1.example.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -11022,7 +11022,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid2.example.com"]
                 }
             ]
         )
@@ -11059,7 +11059,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APPDB"
                         }
                     },
-                    "subscriptions": ["egi.AppDB"]
+                    "subscriptions": ["appdb.egi.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -11079,7 +11079,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["bioinformatics.cing.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -11098,7 +11098,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -11121,7 +11121,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["sampaeos.if.usp.br"]
                 }
             ]
         )
@@ -11158,7 +11158,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IN2P3-CC"
                         }
                     },
-                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                    "subscriptions": ["cclssts1.in2p3.fr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -11175,7 +11175,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "JP-KEK-CRC-02"
                         }
                     },
-                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                    "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
                 }
             ]
         )

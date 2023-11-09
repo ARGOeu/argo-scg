@@ -167,8 +167,6 @@ class ConfigurationGenerator:
         self.extensions = self._get_extensions()
         self.extensions4metrics = self._get_extensions4metrics()
 
-        self.hostnames4metrics = self._get_hostnames4metrics()
-
         self.servicetypes_with_endpointURL = list()
         for metric in list_metrics_with_endpoint_url:
             self.servicetypes_with_endpointURL.extend(
@@ -644,7 +642,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self.hostnames4metrics[name],
+                "subscriptions": self._get_hostnames4metrics()[name],
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -717,7 +715,7 @@ class ConfigurationGenerator:
                 if self._is_passive(configuration=configuration):
                     check = {
                         "command": "PASSIVE",
-                        "subscriptions": self.hostnames4metrics[name],
+                        "subscriptions": self._get_hostnames4metrics()[name],
                         "handlers": ["publisher-handler"],
                         "pipelines": [],
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
@@ -1126,7 +1124,7 @@ class ConfigurationGenerator:
                             "namespace": namespace,
                             "labels": labels
                         },
-                        "subscriptions": types
+                        "subscriptions": [hostname]
                     })
 
                 else:
