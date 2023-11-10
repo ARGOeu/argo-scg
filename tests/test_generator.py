@@ -11195,7 +11195,9 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
-        self.assertEqual(sorted(subscriptions), ["argo.test", "argo.webui"])
+        self.assertEqual(
+            sorted(subscriptions), ["argo-devel.ni4os.eu", "argo.ni4os.eu"]
+        )
         self.assertEqual(log.output, DUMMY_LOG)
 
 
