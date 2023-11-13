@@ -70,6 +70,8 @@ class ConfigurationGenerator:
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
 
+        self.internal_metrics_subscription = "internals"
+
         metrics_list = list()
         internal_metrics = list()
         metrics_with_endpoint_url = dict()
@@ -699,7 +701,7 @@ class ConfigurationGenerator:
 
             if "NOPUBLISH" in configuration["flags"]:
                 subscriptions = check["subscriptions"]
-                subscriptions.append("internals")
+                subscriptions.append(self.internal_metrics_subscription)
                 check.update({"subscriptions": subscriptions})
 
             return check
@@ -1162,5 +1164,7 @@ class ConfigurationGenerator:
         subscriptions = list()
         for metric, hostnames in self._get_hostnames4metrics().items():
             subscriptions.extend(hostnames)
+
+        subscriptions.append(self.internal_metrics_subscription)
 
         return list(set(subscriptions))

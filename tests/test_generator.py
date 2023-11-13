@@ -11202,7 +11202,8 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), ["argo-devel.ni4os.eu", "argo.ni4os.eu"]
+            sorted(subscriptions),
+            ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
