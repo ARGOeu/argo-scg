@@ -1419,7 +1419,10 @@ class SensuCtl:
     @staticmethod
     def _is_servicetype(item, servicetype):
         if item["entity"]["entity_class"] == "agent":
-            return servicetype in item["check"]["subscriptions"]
+            services = item["entity"]["metadata"]["labels"]["services"].split(
+                ","
+            )
+            return servicetype in [service.strip() for service in services]
 
         else:
             return (item["entity"]["metadata"]["labels"]["service"] ==
