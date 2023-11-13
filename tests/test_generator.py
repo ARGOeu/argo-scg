@@ -4007,7 +4007,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f /etc/nagios/globus/hostcert.pem",
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "argo.ni4os.eu",
+                        "internals"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -4136,7 +4137,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f /etc/nagios/certs/hostcert.pem",
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "argo.ni4os.eu",
+                        "internals"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -5458,7 +5460,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --user-proxy "
                                "/etc/nagios/globus/userproxy.pem",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "argo.ni4os.eu",
+                        "internals"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -6060,7 +6063,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "argo.ni4os.eu",
+                        "internals"
                     ],
                     "handlers": [],
                     "interval": 10800,
@@ -7533,7 +7537,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--robot-key /etc/nagios/robot/robot.key "
                                "-x /etc/nagios/globus/userproxy.pem",
                     "subscriptions": [
-                        "some.host.name"
+                        "some.host.name",
+                        "internals"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7560,7 +7565,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "GridProxy-probe -t 30 --vo test "
                                "-x /etc/nagios/globus/userproxy.pem",
                     "subscriptions": [
-                        "some.host.name"
+                        "some.host.name",
+                        "internals"
                     ],
                     "handlers": [],
                     "pipelines": [

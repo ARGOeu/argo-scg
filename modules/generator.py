@@ -697,6 +697,11 @@ class ConfigurationGenerator:
                     }
                 })
 
+            if "NOPUBLISH" in configuration["flags"]:
+                subscriptions = check["subscriptions"]
+                subscriptions.append("internals")
+                check.update({"subscriptions": subscriptions})
+
             return check
 
         except KeyError as e:
