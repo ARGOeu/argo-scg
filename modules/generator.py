@@ -1174,4 +1174,4 @@ class ConfigurationGenerator:
         for metric in self.internal_metrics:
             services.extend(self.servicetypes4metrics[metric])
 
-        return ",".join(sorted(services))
+        return ",".join(sorted(list(set(services))))
