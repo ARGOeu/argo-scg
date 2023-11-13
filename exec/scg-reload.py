@@ -131,6 +131,7 @@ def main():
                     get_metric_parameter_overrides(),
                     host_attributes_overrides=generator.
                     get_host_attribute_overrides(),
+                    services=generator.generate_internal_services(),
                     subscriptions=generator.generate_subscriptions(),
                     namespace=namespace
                 )
