@@ -649,11 +649,21 @@ class Sensu:
             )
 
     def handle_agents(
-            self, metric_parameters_overrides, host_attributes_overrides,
-            subscriptions, namespace="default"
+            self,
+            subscriptions,
+            metric_parameters_overrides=None,
+            host_attributes_overrides=None,
+            services="internals",
+            namespace="default"
     ):
+        if metric_parameters_overrides is None:
+            metric_parameters_overrides = []
+
+        if host_attributes_overrides is None:
+            host_attributes_overrides = []
+
         def _get_labels(hostname):
-            host_labels = {"hostname": hostname}
+            host_labels = {"hostname": hostname, "services": services}
 
             for item in metric_parameters_overrides:
                 if item["hostname"] == hostname:

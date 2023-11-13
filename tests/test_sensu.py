@@ -149,7 +149,8 @@ mock_entities = [
             "name": "sensu-agent1",
             "namespace": "TENANT1",
             "labels": {
-                "hostname": "sensu-agent1"
+                "hostname": "sensu-agent1",
+                "services": "internals"
             }
         },
         "sensu_agent_version": "6.6.3"
@@ -205,6 +206,7 @@ mock_entities = [
         ],
         "metadata": {
             "name": "sensu-agent2",
+            "services": "internals",
             "namespace": "TENANT1"
         },
         "sensu_agent_version": "6.6.5"
@@ -5034,8 +5036,6 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
@@ -5076,7 +5076,8 @@ class SensuAgentsTests(unittest.TestCase):
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5108,8 +5109,6 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
@@ -5150,7 +5149,8 @@ class SensuAgentsTests(unittest.TestCase):
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5182,8 +5182,6 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
@@ -5224,7 +5222,8 @@ class SensuAgentsTests(unittest.TestCase):
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5261,7 +5260,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "value": "80"
                     }
                 ],
-                host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
@@ -5286,6 +5284,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "metadata": {
                         "labels": {
                             "hostname": "sensu-agent1",
+                            "services": "internals",
                             "generic_tcp_connect_p": "80"
                         }
                     }
@@ -5308,7 +5307,8 @@ class SensuAgentsTests(unittest.TestCase):
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5336,7 +5336,6 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
                 host_attributes_overrides=[{
                     "hostname": "sensu-agent1",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
@@ -5370,6 +5369,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "metadata": {
                         "labels": {
                             "hostname": "sensu-agent1",
+                            "services": "internals",
                             "nagios_freshness_username":
                                 "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
                             "nagios_freshness_password":
@@ -5395,7 +5395,84 @@ class SensuAgentsTests(unittest.TestCase):
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_services(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
+                services="argo.mon,argo.test",
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+
+        mock_patch.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent1",
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent1",
+                            "services": "argo.mon,argo.test"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent2",
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2",
+                            "services": "argo.mon,argo.test"
                         }
                     }
                 }),
