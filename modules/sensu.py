@@ -685,7 +685,9 @@ class Sensu:
                         new_subscriptions.append(subscription)
 
                 if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({"subscriptions": new_subscriptions})
+                    send_data.update({
+                        "subscriptions": sorted(new_subscriptions)
+                    })
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
