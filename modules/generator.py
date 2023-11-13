@@ -1168,3 +1168,10 @@ class ConfigurationGenerator:
         subscriptions.append(self.internal_metrics_subscription)
 
         return list(set(subscriptions))
+
+    def generate_internal_services(self):
+        services = list()
+        for metric in self.internal_metrics:
+            services.extend(self.servicetypes4metrics[metric])
+
+        return ",".join(sorted(services))
