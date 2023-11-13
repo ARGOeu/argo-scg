@@ -127,7 +127,8 @@ mock_entities = [
         "subscriptions": [
             "entity:sensu-agent1",
             "argo.ni4os.eu",
-            "gocdb.ni4os.eu"
+            "gocdb.ni4os.eu",
+            "internals"
         ],
         "last_seen": 1645005291,
         "deregister": False,
@@ -184,7 +185,8 @@ mock_entities = [
         "subscriptions": [
             "argo.ni4os.eu",
             "entity:sensu-agent2",
-            "gocdb.ni4os.eu"
+            "gocdb.ni4os.eu",
+            "internals"
         ],
         "last_seen": 1645005284,
         "deregister": False,
@@ -821,7 +823,7 @@ mock_metrics_hardcoded_attributes = [
             "parent": "",
             "docurl": "https://wiki.egi.eu/wiki/MW_Nagios_tests"
         }
-    },
+    }
 ]
 
 mock_metrics_file_defined_attributes = [
@@ -2055,7 +2057,8 @@ mock_events_ctl = [
             "runtime_assets": None,
             "subscriptions": [
                 "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu"
+                "argo-mon.ni4os.eu",
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2155,6 +2158,7 @@ mock_events_ctl = [
                 "argo-mon-devel.ni4os.eu",
                 "argo-mon.ni4os.eu",
                 "cherry.chem.bg.ac.rs",
+                "internals",
                 "videolectures.net"
             ],
             "last_seen": 1682322924,
@@ -2197,7 +2201,8 @@ mock_events_ctl = [
             "runtime_assets": None,
             "subscriptions": [
                 "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu"
+                "argo-mon.ni4os.eu",
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2291,6 +2296,7 @@ mock_events_ctl = [
                 "argo-mon-devel.ni4os.eu",
                 "argo-mon.ni4os.eu",
                 "cherry.chem.bg.ac.rs",
+                "internals",
                 "videolectures.net"
             ],
             "last_seen": 1682319670,
@@ -5032,7 +5038,8 @@ class SensuAgentsTests(unittest.TestCase):
                 host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "argo.ni4os.eu",
+                    "internals"
                 ],
                 namespace="TENANT1"
             )
@@ -5047,7 +5054,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ]
                 }),
                 headers={
@@ -5063,7 +5071,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5103,7 +5112,8 @@ class SensuAgentsTests(unittest.TestCase):
                 host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "argo.ni4os.eu",
+                    "internals"
                 ],
                 namespace="TENANT1"
             )
@@ -5118,7 +5128,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ]
                 }),
                 headers={
@@ -5134,7 +5145,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5174,7 +5186,8 @@ class SensuAgentsTests(unittest.TestCase):
                 host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "argo.ni4os.eu",
+                    "internals"
                 ],
                 namespace="TENANT1"
             )
@@ -5189,7 +5202,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ]
                 }),
                 headers={
@@ -5205,7 +5219,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5249,7 +5264,8 @@ class SensuAgentsTests(unittest.TestCase):
                 host_attributes_overrides=list(),
                 subscriptions=[
                     "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "argo.ni4os.eu",
+                    "internals"
                 ],
                 namespace="TENANT1"
             )
@@ -5264,7 +5280,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5286,7 +5303,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5346,7 +5364,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
@@ -5371,7 +5390,8 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu"
+                        "gocdb.ni4os.eu",
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
