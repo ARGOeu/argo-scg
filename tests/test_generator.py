@@ -6319,9 +6319,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.generic_http_connect_port | default \" \" }} "
                     "{{ .labels.generic_http_connect_path | default \" \" }}",
                 "subscriptions": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id"
+                    "hostname1.argo.com",
+                    "hostname2.argo.eu",
+                    "hostname3.argo.eu"
                 ],
                 "handlers": [],
                 "interval": 300,

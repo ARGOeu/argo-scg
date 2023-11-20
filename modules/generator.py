@@ -347,12 +347,19 @@ class ConfigurationGenerator:
         return metrics
 
     def _get_hostnames4metrics(self):
+        def get_hostname(item):
+            if "hostname" in item["tags"]:
+                return item["tags"]["hostname"]
+
+            else:
+                return item["hostname"]
+
         hostnames4metrics = dict()
         for metric, servicetypes in self.servicetypes4metrics.items():
             hostnames = list()
             for servicetype in servicetypes:
                 hostnames.extend([
-                    item["hostname"] for item in self.topology
+                    get_hostname(item) for item in self.topology
                     if item["service"] == servicetype
                 ])
 
