@@ -5056,7 +5056,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ]
                 }),
@@ -5073,7 +5072,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ],
                     "metadata": {
@@ -5129,7 +5127,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ]
                 }),
@@ -5146,7 +5143,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ],
                     "metadata": {
@@ -5202,7 +5198,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ]
                 }),
@@ -5219,7 +5214,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ],
                     "metadata": {
@@ -5280,7 +5274,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ],
                     "metadata": {
@@ -5304,7 +5297,6 @@ class SensuAgentsTests(unittest.TestCase):
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
                         "internals"
                     ],
                     "metadata": {
@@ -5364,9 +5356,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
-                        "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent1"
                     ],
                     "metadata": {
                         "labels": {
@@ -5391,9 +5381,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
-                        "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent2"
                     ],
                     "metadata": {
                         "labels": {
@@ -5444,9 +5432,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
-                        "entity:sensu-agent1",
-                        "gocdb.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent1"
                     ],
                     "metadata": {
                         "labels": {
@@ -5467,9 +5453,7 @@ class SensuAgentsTests(unittest.TestCase):
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
-                        "entity:sensu-agent2",
-                        "gocdb.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent2"
                     ],
                     "metadata": {
                         "labels": {

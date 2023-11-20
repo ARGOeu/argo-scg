@@ -689,10 +689,10 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                new_subscriptions = agent["subscriptions"].copy()
-                for subscription in subscriptions:
-                    if subscription not in agent["subscriptions"]:
-                        new_subscriptions.append(subscription)
+                new_subscriptions = subscriptions + [
+                    item for item in agent["subscriptions"] if
+                    agent["metadata"]["name"] in item
+                ]
 
                 if not set(new_subscriptions) == set(agent["subscriptions"]):
                     send_data.update({
