@@ -51,10 +51,12 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant
+            attributes, secrets_file, default_ports, tenant,
+            subscriptions_use_ids=False
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
+        self.subscriptions_use_ids = subscriptions_use_ids
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -348,7 +350,10 @@ class ConfigurationGenerator:
 
     def _get_hostnames4metrics(self):
         def get_hostname(item):
-            if "hostname" in item["tags"]:
+            if self.subscriptions_use_ids:
+                return item["hostname"]
+
+            elif "hostname" in item["tags"]:
                 return item["tags"]["hostname"]
 
             else:
@@ -1138,7 +1143,10 @@ class ConfigurationGenerator:
                             "namespace": namespace,
                             "labels": labels
                         },
-                        "subscriptions": [hostname]
+                        "subscriptions": [
+                            item["hostname"] if self.subscriptions_use_ids
+                            else hostname
+                        ]
                     })
 
                 else:
