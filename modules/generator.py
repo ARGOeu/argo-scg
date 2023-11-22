@@ -5,10 +5,10 @@ from urllib.parse import urlparse
 from argo_scg.exceptions import GeneratorException
 
 hardcoded_attributes = {
-    "NAGIOS_HOST_CERT": "/etc/nagios/globus/hostcert.pem",
-    "NAGIOS_HOST_KEY": "/etc/nagios/globus/hostkey.pem",
-    "KEYSTORE": "/etc/nagios/globus/keystore.jks",
-    "TRUSTSTORE": "/etc/nagios/globus/truststore.ts"
+    "NAGIOS_HOST_CERT": "/etc/sensu/certs/hostcert.pem",
+    "NAGIOS_HOST_KEY": "/etc/sensu/certs/hostkey.pem",
+    "KEYSTORE": "/etc/sensu/certs/keystore.jks",
+    "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
 
