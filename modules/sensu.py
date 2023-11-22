@@ -649,11 +649,21 @@ class Sensu:
             )
 
     def handle_agents(
-            self, metric_parameters_overrides, host_attributes_overrides,
-            subscriptions, namespace="default"
+            self,
+            subscriptions,
+            metric_parameters_overrides=None,
+            host_attributes_overrides=None,
+            services="internals",
+            namespace="default"
     ):
+        if metric_parameters_overrides is None:
+            metric_parameters_overrides = []
+
+        if host_attributes_overrides is None:
+            host_attributes_overrides = []
+
         def _get_labels(hostname):
-            host_labels = {"hostname": hostname}
+            host_labels = {"hostname": hostname, "services": services}
 
             for item in metric_parameters_overrides:
                 if item["hostname"] == hostname:
@@ -679,13 +689,15 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                new_subscriptions = agent["subscriptions"].copy()
-                for subscription in subscriptions:
-                    if subscription not in agent["subscriptions"]:
-                        new_subscriptions.append(subscription)
+                new_subscriptions = subscriptions + [
+                    item for item in agent["subscriptions"] if
+                    agent["metadata"]["name"] in item
+                ]
 
                 if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({"subscriptions": new_subscriptions})
+                    send_data.update({
+                        "subscriptions": sorted(new_subscriptions)
+                    })
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
@@ -1407,7 +1419,10 @@ class SensuCtl:
     @staticmethod
     def _is_servicetype(item, servicetype):
         if item["entity"]["entity_class"] == "agent":
-            return servicetype in item["check"]["subscriptions"]
+            services = item["entity"]["metadata"]["labels"]["services"].split(
+                ","
+            )
+            return servicetype in [service.strip() for service in services]
 
         else:
             return (item["entity"]["metadata"]["labels"]["service"] ==

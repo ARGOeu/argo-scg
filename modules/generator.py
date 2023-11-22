@@ -51,10 +51,12 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant
+            attributes, secrets_file, default_ports, tenant,
+            subscriptions_use_ids=False
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
+        self.subscriptions_use_ids = subscriptions_use_ids
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -69,6 +71,8 @@ class ConfigurationGenerator:
 
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
+
+        self.internal_metrics_subscription = "internals"
 
         metrics_list = list()
         internal_metrics = list()
@@ -343,6 +347,31 @@ class ConfigurationGenerator:
                 metrics.update({service["service"]: service["metrics"]})
 
         return metrics
+
+    def _get_hostnames4metrics(self):
+        def get_hostname(item):
+            if self.subscriptions_use_ids:
+                return item["hostname"]
+
+            elif "hostname" in item["tags"]:
+                return item["tags"]["hostname"]
+
+            else:
+                return item["hostname"]
+
+        hostnames4metrics = dict()
+        for metric, servicetypes in self.servicetypes4metrics.items():
+            hostnames = list()
+            for servicetype in servicetypes:
+                hostnames.extend([
+                    get_hostname(item) for item in self.topology
+                    if item["service"] == servicetype
+                ])
+
+            hostnames = sorted(list(set(hostnames)))
+            hostnames4metrics.update({metric: hostnames})
+
+        return hostnames4metrics
 
     def _get_extensions(self):
         extensions = set()
@@ -627,7 +656,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self.servicetypes4metrics[name],
+                "subscriptions": self._get_hostnames4metrics()[name],
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -682,6 +711,11 @@ class ConfigurationGenerator:
                     }
                 })
 
+            if "NOPUBLISH" in configuration["flags"]:
+                subscriptions = check["subscriptions"]
+                subscriptions.append(self.internal_metrics_subscription)
+                check.update({"subscriptions": subscriptions})
+
             return check
 
         except KeyError as e:
@@ -700,7 +734,7 @@ class ConfigurationGenerator:
                 if self._is_passive(configuration=configuration):
                     check = {
                         "command": "PASSIVE",
-                        "subscriptions": self.servicetypes4metrics[name],
+                        "subscriptions": self._get_hostnames4metrics()[name],
                         "handlers": ["publisher-handler"],
                         "pipelines": [],
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
@@ -1109,7 +1143,10 @@ class ConfigurationGenerator:
                             "namespace": namespace,
                             "labels": labels
                         },
-                        "subscriptions": types
+                        "subscriptions": [
+                            item["hostname"] if self.subscriptions_use_ids
+                            else hostname
+                        ]
                     })
 
                 else:
@@ -1139,4 +1176,17 @@ class ConfigurationGenerator:
             )
 
     def generate_subscriptions(self):
-        return self.servicetypes
+        subscriptions = list()
+        for metric, hostnames in self._get_hostnames4metrics().items():
+            subscriptions.extend(hostnames)
+
+        subscriptions.append(self.internal_metrics_subscription)
+
+        return list(set(subscriptions))
+
+    def generate_internal_services(self):
+        services = list()
+        for metric in self.internal_metrics:
+            services.extend(self.servicetypes4metrics[metric])
+
+        return ",".join(sorted(list(set(services))))

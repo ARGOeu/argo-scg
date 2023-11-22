@@ -197,3 +197,16 @@ class Config:
                 queue.update({tenant: queue_value})
 
         return queue
+
+    def get_use_ids(self):
+        use_ids = dict()
+        for tenant in self.tenants:
+            try:
+                value = self.conf.getboolean(tenant, "subscriptions_use_ids")
+
+            except configparser.NoOptionError:
+                value = False
+
+            use_ids.update({tenant: value})
+
+        return use_ids
