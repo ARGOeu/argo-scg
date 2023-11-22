@@ -3894,8 +3894,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-w 30 -c 0 -N --altnames --rootcert-dir "
                                "/etc/grid-security/certificates "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem -p 2119",
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem -p 2119",
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu"
@@ -3934,8 +3934,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/grid-security/certificates "
                                "--rootcert-file "
                                "/etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu"
@@ -4003,7 +4003,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/cert/"
                                "CertLifetime-probe -t 60 "
-                               "-f /etc/nagios/globus/hostcert.pem",
+                               "-f /etc/sensu/certs/hostcert.pem",
                     "subscriptions": [
                         "argo-devel.ni4os.eu",
                         "argo.ni4os.eu",
@@ -4918,8 +4918,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/grid-monitoring/probes/eu.egi.sec/"
                                "probes/check_pakiti_vuln "
                                "-H {{ .labels.hostname }} -t 30 --vo test "
-                               "--cert /etc/nagios/globus/hostcert.pem "
-                               "--key /etc/nagios/globus/hostkey.pem "
+                               "--cert /etc/sensu/certs/hostcert.pem "
+                               "--key /etc/sensu/certs/hostkey.pem "
                                "--site {{ .labels.site }}",
                     "subscriptions": [
                         "alien.spacescience.ro",
@@ -5243,8 +5243,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-w 30 -c 0 -N --altnames --rootcert-dir "
                                "/etc/grid-security/certificates --rootcert-file"
                                " /etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
                         "argo-mon2.ni4os.eu"
                     ],
@@ -7884,8 +7884,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/grid-security/certificates "
                                "--rootcert-file "
                                "/etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
                         "appdb.egi.eu",
                         "bioinformatics.cing.ac.cy",
