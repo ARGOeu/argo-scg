@@ -3432,11 +3432,11 @@ mock_attributes = {
         "global_attributes": [
             {
                 "attribute": "OIDC_TOKEN_FILE",
-                "value": "/etc/nagios/globus/oidc"
+                "value": "/etc/sensu/certs/oidc"
             },
             {
                 "attribute": "OIDC_ACCESS_TOKEN",
-                "value": "/etc/nagios/globus/oidc"
+                "value": "/etc/sensu/certs/oidc"
             },
             {
                 "attribute": "OS_APPDB_IMAGE",
@@ -3444,7 +3444,7 @@ mock_attributes = {
             },
             {
                 "attribute": "X509_USER_PROXY",
-                "value": "/etc/nagios/globus/userproxy.pem"
+                "value": "/etc/sensu/certs/userproxy.pem"
             },
             {
                 "attribute": "VONAME",
@@ -4250,7 +4250,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls "
                                "-u {{ .labels.webdav_url }} "
-                               "-E /etc/nagios/globus/userproxy.pem",
+                               "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "hostname.cern.ch"
                     ],
@@ -4286,7 +4286,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls --dynafed --fixed-content-length "
                                "-u {{ .labels.endpoint_url }} "
-                               "-E /etc/nagios/globus/userproxy.pem",
+                               "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "dynafed.hostname.ca"
                     ],
@@ -4321,7 +4321,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/"
                                "es.upv.grycap.im/probeim.py -t 60 -l NONE "
                                "--url {{ .labels.info_url }} "
-                               "--token /etc/nagios/globus/oidc",
+                               "--token /etc/sensu/certs/oidc",
                     "subscriptions": [
                         "grycap.upv.es"
                     ],
@@ -4545,7 +4545,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios -O good_ses_file="
                                "/var/lib/gridprobes/ops/GoodSEs --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
@@ -4590,7 +4590,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-O service_suffix=-$_SERVICEVO_FQAN$ "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
@@ -4786,7 +4786,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "swiftprobe.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }} "
-                               "--access-token /etc/nagios/globus/oidc",
+                               "--access-token /etc/sensu/certs/oidc",
                     "subscriptions": [
                         "identity.cloud.muni.cz"
                     ],
@@ -4820,10 +4820,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "novaprobe.py -t 300 -v "
-                               "--access-token /etc/nagios/globus/oidc "
+                               "--access-token /etc/sensu/certs/oidc "
                                "--appdb-image xxxx "
                                "--endpoint {{ .labels.os_keystone_url }} "
-                               "--cert /etc/nagios/globus/userproxy.pem "
+                               "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
                         "cloud-api-pub.cr.cnaf.infn.it",
@@ -4980,7 +4980,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM -s test --se-timeout 260 "
                                "--voname test "
-                               "-X /etc/nagios/globus/userproxy.pem "
+                               "-X /etc/sensu/certs/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
@@ -5024,7 +5024,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 "global_attributes": [
                     {
                         "attribute": "X509_USER_PROXY",
-                        "value": "/etc/nagios/globus/userproxy.pem"
+                        "value": "/etc/sensu/certs/userproxy.pem"
                     }
                 ],
                 "host_attributes": [],
@@ -5053,7 +5053,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM --se-timeout 260 "
-                               "-X /etc/nagios/globus/userproxy.pem "
+                               "-X /etc/sensu/certs/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
@@ -5121,7 +5121,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios "
                                "-O good_ses_file=/var/lib/gridprobes/ops/"
                                "GoodSEs --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
@@ -5183,7 +5183,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "org.qoscosgrid/broker/qcg-broker-probe "
                                "-H {{ .labels.hostname }} -t 600 -p 8443 "
                                "-n {{ .labels.info_hostdn }} "
-                               "-x /etc/nagios/globus/userproxy.pem",
+                               "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "qcg-broker.man.poznan.pl"
                     ],
@@ -5457,7 +5457,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "lfc_host=dummy -O se_host=dummy --timeout 900 "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --user-proxy "
-                               "/etc/nagios/globus/userproxy.pem",
+                               "/etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "argo.ni4os.eu",
                         "internals"
@@ -6259,7 +6259,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_webdav "
                     "-H {{ .labels.hostname }} -t 600 -v -v --no-crls "
                     "-u {{ .labels.webdav_url }} "
-                    "-E /etc/nagios/globus/userproxy.pem",
+                    "-E /etc/sensu/certs/userproxy.pem",
                 "subscriptions": [
                     "hostname.cern.ch",
                     "hostname2.cern.ch"
@@ -7545,15 +7545,15 @@ class CheckConfigurationTests(unittest.TestCase):
                 "global_attributes": [
                     {
                         "attribute": "OIDC_TOKEN_FILE",
-                        "value": "/etc/nagios/globus/oidc"
+                        "value": "/etc/sensu/certs/oidc"
                     },
                     {
                         "attribute": "OIDC_ACCESS_TOKEN",
-                        "value": "/etc/nagios/globus/oidc"
+                        "value": "/etc/sensu/certs/oidc"
                     },
                     {
                         "attribute": "X509_USER_PROXY",
-                        "value": "/etc/nagios/globus/userproxy.pem"
+                        "value": "/etc/sensu/certs/userproxy.pem"
                     },
                     {
                         "attribute": "VONAME",
@@ -7594,7 +7594,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-t 120 --vo test "
                                "--robot-cert /etc/nagios/robot/robot.pem "
                                "--robot-key /etc/nagios/robot/robot.key "
-                               "-x /etc/nagios/globus/userproxy.pem",
+                               "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "some.host.name",
                         "internals"
@@ -7622,7 +7622,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/globus/"
                                "GridProxy-probe -t 30 --vo test "
-                               "-x /etc/nagios/globus/userproxy.pem",
+                               "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
                         "some.host.name",
                         "internals"
@@ -8051,7 +8051,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM -s test --se-timeout 260 "
                                "--voname test "
-                               "-X /etc/nagios/globus/userproxy.pem "
+                               "-X /etc/sensu/certs/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [

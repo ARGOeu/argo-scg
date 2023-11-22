@@ -3002,9 +3002,9 @@ class SensuCheckTests(unittest.TestCase):
                            " --rootcert-file "
                            "/etc/pki/tls/certs/ca-bundle.crt "
                            "-C {{ .labels.ROBOT_CERT | "
-                           "default /etc/nagios/globus/hostcert.pem }} "
+                           "default /etc/sensu/certs/hostcert.pem }} "
                            "-K {{ .labels.ROBOT_KEY | "
-                           "default /etc/nagios/globus/hostkey.pem }}",
+                           "default /etc/sensu/certs/hostkey.pem }}",
                 "subscriptions": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
@@ -3429,9 +3429,9 @@ class SensuCheckTests(unittest.TestCase):
                            "-s monitor.test.$_SERVICESERVER$.$HOSTALIAS$."
                            "openwiressl "
                            "-K {{ .labels.KEYSTORE | default "
-                           "/etc/nagios/globus/keystore.jks }} "
+                           "/etc/sensu/certs/keystore.jks }} "
                            "-T {{ .labels.TRUSTSTORE | default "
-                           "/etc/nagios/globus/truststore.ts }}",
+                           "/etc/sensu/certs/truststore.ts }}",
                 "subscriptions": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
