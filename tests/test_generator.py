@@ -1,3 +1,4 @@
+import copy
 import logging
 import unittest
 
@@ -881,6 +882,42 @@ mock_metrics = [
             "parent": "",
             "docurl": "https://github.com/matteocorti/check_ssl_cert/"
                       "blob/master/README.md"
+        }
+    },
+    {
+        "generic.certificate.validity-srm": {
+            "tags": [
+                "certificate",
+                "htc",
+                "srm",
+                "storage"
+            ],
+            "probe": "check_ssl_cert",
+            "config": {
+                "timeout": "60",
+                "retryInterval": "30",
+                "path": "/usr/lib64/nagios/plugins",
+                "maxCheckAttempts": "2",
+                "interval": "240"
+            },
+            "flags": {
+                "OBSESS": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_HOST_CERT": "-C",
+                "NAGIOS_HOST_KEY": "-K",
+                "SRM2_PORT": "-p"
+            },
+            "parameter": {
+                "-w": "30 -c 0 -N --altnames",
+                "--rootcert-dir": "/etc/grid-security/certificates"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/matteocorti/check_ssl_cert/blob/"
+                      "master/README.md"
         }
     },
     {
@@ -2544,6 +2581,36 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2023-11-23",
+        "group": "BEgrid-ULB-VUB",
+        "type": "SITES",
+        "service": "SRM",
+        "hostname": "dcache6-shadow.iihe.ac.be",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": "EGI, wlcg, tier2, cms"
+        }
+    },
+    {
+        "date": "2023-11-23",
+        "group": "BEgrid-ULB-VUB",
+        "type": "SITES",
+        "service": "Site-BDII",
+        "hostname": "sitebdii.iihe.ac.be",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2, cms"
+        }
     }
 ]
 
@@ -3296,6 +3363,20 @@ mock_metric_profiles = [
                     "eu.egi.SRM-All",
                     "eu.egi.SRM-VOGet",
                     "eu.egi.SRM-VOLsDir"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-11-23",
+        "name": "ARGO_TEST46",
+        "description": "Profile with metrics with info in info_bdii_* tag",
+        "services": [
+            {
+                "service": "SRM",
+                "metrics": [
+                    "generic.certificate.validity-srm"
                 ]
             }
         ]
@@ -4384,7 +4465,8 @@ class CheckConfigurationTests(unittest.TestCase):
                         "bdii1.test.com",
                         "grid-giis1.desy.de",
                         "kser.arnes.si",
-                        "sbdii.test.com"
+                        "sbdii.test.com",
+                        "sitebdii.iihe.ac.be"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4422,7 +4504,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "subscriptions": [
                         "grid-giis1.desy.de",
                         "kser.arnes.si",
-                        "sbdii.test.com"
+                        "sbdii.test.com",
+                        "sitebdii.iihe.ac.be"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4986,7 +5069,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
-                        "dcache.arnes.si"
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5059,7 +5143,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
-                        "dcache.arnes.si"
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8057,7 +8142,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
-                        "dcache.arnes.si"
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8090,7 +8176,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "PASSIVE",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
-                        "dcache.arnes.si"
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
                     ],
                     "handlers": ["publisher-handler"],
                     "pipelines": [],
@@ -8107,7 +8194,8 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "PASSIVE",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
-                        "dcache.arnes.si"
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
                     ],
                     "handlers": ["publisher-handler"],
                     "pipelines": [],
@@ -8117,6 +8205,134 @@ class CheckConfigurationTests(unittest.TestCase):
                     "metadata": {
                         "name": "eu.egi.SRM-VOLsDir",
                         "namespace": "mockspace"
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_info_bdii_tag(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_ssl_cert "
+                        "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
+                        "--altnames "
+                        "--rootcert-dir /etc/grid-security/certificates "
+                        "-C /etc/sensu/certs/hostcert.pem "
+                        "-K /etc/sensu/certs/hostkey.pem "
+                        "-p {{ .labels.srm2_port | default \"8443\" }}",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity_srm == "
+                            "'generic.certificate.validity-srm'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity-srm",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_info_bdii_and_info_ext_tag(self):
+        topology = copy.deepcopy(mock_topology)
+        topology[33]["tags"].update({"info_ext_SRM2_PORT": "8444"})
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_ssl_cert "
+                        "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
+                        "--altnames "
+                        "--rootcert-dir /etc/grid-security/certificates "
+                        "-C /etc/sensu/certs/hostcert.pem "
+                        "-K /etc/sensu/certs/hostkey.pem "
+                        "-p {{ .labels.srm2_port | default \"8443\" }}",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity_srm == "
+                            "'generic.certificate.validity-srm'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity-srm",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
                     },
                     "round_robin": False
                 }
@@ -8551,6 +8767,30 @@ class EntityConfigurationTests(unittest.TestCase):
                 {
                     "entity_class": "proxy",
                     "metadata": {
+                        "name": "Site-BDII__sitebdii.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "org_bdii_entries": "org.bdii.Entries",
+                            "org_nagios_glue2_check":
+                                "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=BEgrid-ULB-VUB))\"",
+                            "hostname": "sitebdii.iihe.ac.be",
+                            "bdii_dn": "Mds-Vo-Name=BEgrid-ULB-VUB,O=Grid",
+                            "bdii_type": "bdii_site",
+                            "glue2_bdii_dn":
+                                "GLUE2DomainID=BEgrid-ULB-VUB,o=glue",
+                            "service": "Site-BDII",
+                            "site": "BEgrid-ULB-VUB",
+                            "site_bdii": "sitebdii.iihe.ac.be"
+                        }
+                    },
+                    "subscriptions": ["sitebdii.iihe.ac.be"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
                         "name": "Top-BDII__bdii1.test.com",
                         "namespace": "default",
                         "labels": {
@@ -8945,6 +9185,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache-se-cms.desy.de",
                             "site_bdii": "grid-giis1.desy.de",
                             "service": "SRM",
+                            "srm2_port": "8443",
                             "endpoint__surl":
                                 "--endpoint srm://dcache-se-cms.desy.de:8443"
                                 "/srm/managerv2?SFN=/pnfs/desy.de/ops",
@@ -8965,10 +9206,26 @@ class EntityConfigurationTests(unittest.TestCase):
                             "service": "SRM",
                             "site": "ARNES",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
-                                           "CN=dcache.arnes.si"
+                                           "CN=dcache.arnes.si",
+                            "srm2_port": "8443"
                         }
                     },
                     "subscriptions": ["dcache.arnes.si"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache6-shadow.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_srm_all": "eu.egi.SRM-All",
+                            "hostname": "dcache6-shadow.iihe.ac.be",
+                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "service": "SRM",
+                            "site": "BEgrid-ULB-VUB"
+                        }
+                    },
+                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
                 }
             ]
         )
@@ -11317,6 +11574,79 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_info_bdii_tag(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache-se-cms.desy.de",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "srm2_port": "8443",
+                            "hostname": "dcache-se-cms.desy.de",
+                            "service": "SRM",
+                            "site": "DESY-HH",
+                            "site_bdii": "grid-giis1.desy.de"
+                        }
+                    },
+                    "subscriptions": ["dcache-se-cms.desy.de"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache.arnes.si",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "srm2_port": "8443",
+                            "hostname": "dcache.arnes.si",
+                            "service": "SRM",
+                            "site": "ARNES",
+                            "site_bdii": "kser.arnes.si",
+                            "info_hostdn":
+                                "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si"
+                        }
+                    },
+                    "subscriptions": ["dcache.arnes.si"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache6-shadow.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "hostname": "dcache6-shadow.iihe.ac.be",
+                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "service": "SRM",
+                            "site": "BEgrid-ULB-VUB"
+                        }
+                    },
+                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
                 }
             ]
         )

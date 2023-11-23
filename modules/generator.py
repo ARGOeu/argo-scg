@@ -487,6 +487,9 @@ class ConfigurationGenerator:
                         if self._is_extension_present_any_endpoint(
                                 services=self.servicetypes4metrics[metric],
                                 extension=f"info_ext_{key}"
+                        ) or self._is_extension_present_any_endpoint(
+                            services=self.servicetypes4metrics[metric],
+                            extension=f"info_bdii_{key}"
                         ) or key in overridden_attributes:
                             key = "{{ .labels.%s | default \"%s\" }}" % (
                                 create_label(key.lower()),
@@ -1073,6 +1076,12 @@ class ConfigurationGenerator:
                                 labels.update({create_label(attr): label})
 
                     for tag, value in item["tags"].items():
+                        if (tag.startswith("info_bdii_") and
+                                f"info_ext_{tag[10:]}" not in item["tags"]):
+                            labels.update({
+                                create_label(tag[10:]): value
+                            })
+
                         if tag.startswith("info_ext_"):
                             if tag.lower() == "info_ext_port":
                                 labels.update({"port": value})
