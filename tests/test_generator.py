@@ -4858,7 +4858,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
-                               "-t 120 -p {{ .labels.os_keystone_port }} "
+                               "-t 120 -p {{ .labels.os_keystone_port | "
+                               "default \"443\" }} "
                                "-H {{ .labels.os_keystone_host }}",
                     "subscriptions": [
                         "cloud-api-pub.cr.cnaf.infn.it",
