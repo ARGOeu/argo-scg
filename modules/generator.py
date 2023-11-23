@@ -538,6 +538,10 @@ class ConfigurationGenerator:
                             )
                             value = ""
 
+                    elif key == "OS_KEYSTONE_PORT":
+                        key = "{{ .labels.%s | default \"443\" }}" \
+                              % create_label(key.lower())
+
                     elif (
                             key.startswith("OS_KEYSTONE_") or
                             key.endswith("_URL") or
