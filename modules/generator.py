@@ -487,6 +487,9 @@ class ConfigurationGenerator:
                         if self._is_extension_present_any_endpoint(
                                 services=self.servicetypes4metrics[metric],
                                 extension=f"info_ext_{key}"
+                        ) or self._is_extension_present_any_endpoint(
+                            services=self.servicetypes4metrics[metric],
+                            extension=f"info_bdii_{key}"
                         ) or key in overridden_attributes:
                             key = "{{ .labels.%s | default \"%s\" }}" % (
                                 create_label(key.lower()),
