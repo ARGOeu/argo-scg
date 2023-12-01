@@ -263,12 +263,11 @@ class ConfigurationGenerator:
     def get_host_attribute_overrides(self):
         return self.host_attribute_overrides
 
-    @staticmethod
-    def _get_single_endpoint_url(url):
+    def _get_single_endpoint_url(self, url):
         if "," in url:
             url = url.split(",")[0].strip()
 
-        return url
+        return self._handle_endpoint_url(url)
 
     def _get_metrics4attribute(self, attribute):
         metrics_with_attribute = list()
@@ -779,6 +778,13 @@ class ConfigurationGenerator:
 
         return service_types
 
+    @staticmethod
+    def _handle_endpoint_url(url):
+        if "&" in url:
+            url = f"\"{url}\""
+
+        return url
+
     def generate_entities(self, namespace="default"):
         try:
             entities = list()
@@ -812,7 +818,11 @@ class ConfigurationGenerator:
                             st for st in self.servicetypes_with_port if
                             item["service"] == st["service"]
                         ]
-                        labels.update({"info_url": item["tags"]["info_URL"]})
+                        labels.update({
+                            "info_url": self._handle_endpoint_url(
+                                item["tags"]["info_URL"]
+                            )
+                        })
                         o = urlparse(item["tags"]["info_URL"])
                         port = o.port
 
@@ -840,7 +850,9 @@ class ConfigurationGenerator:
 
                             labels.update({"os_keystone_host": o.hostname})
                             labels.update({
-                                "os_keystone_url": item["tags"]["info_URL"]
+                                "os_keystone_url": self._handle_endpoint_url(
+                                    item["tags"]["info_URL"]
+                                )
                             })
 
                     missing_metrics_endpoint_url = list()
@@ -900,7 +912,9 @@ class ConfigurationGenerator:
 
                             else:
                                 labels.update({
-                                    "endpoint_url": item["tags"]["info_URL"]
+                                    "endpoint_url": self._handle_endpoint_url(
+                                        item["tags"]["info_URL"]
+                                    )
                                 })
 
                     if item["service"] in self.servicetypes_with_url:
@@ -918,7 +932,9 @@ class ConfigurationGenerator:
                             elif "info_URL" in item["tags"]:
                                 labels.update({
                                     create_label(attr):
-                                        item["tags"]["info_URL"]
+                                        self._handle_endpoint_url(
+                                            item["tags"]["info_URL"]
+                                        )
                                 })
 
                             else:
