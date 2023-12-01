@@ -1017,6 +1017,37 @@ mock_metrics = [
         }
     },
     {
+        "generic.oai-pmh.validity": {
+            "tags": [
+                "OAI-PMH",
+                "http"
+            ],
+            "probe": "check_oai_pmh",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "60",
+                "path": "/usr/libexec/argo/probes/oai_pmh",
+                "interval": "60",
+                "retryInterval": "5"
+            },
+            "flags": {
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "URL": "-u"
+            },
+            "parameter": {
+                "-v": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-oai-pmh/"
+                      "blob/master/README.md"
+        }
+    },
+    {
         "generic.ssh.test": {
             "tags": [
                 "harmonized"
@@ -2611,7 +2642,20 @@ mock_topology = [
             "production": "1",
             "scope": "EGI, wlcg, tier2, cms"
         }
-    }
+    },
+    {
+            "date": "2023-12-01",
+            "group": "lida.lida_survey_data",
+            "type": "SERVICEGROUPS",
+            "service": "eu.eosc.generic.oai-pmh",
+            "hostname": "lida.dataverse.lt",
+            "tags": {
+                "hostname": "lida.dataverse.lt",
+                "info_URL": "https://lida.dataverse.lt/oai?verb="
+                            "ListRecords&metadataPrefix=oai_datacite&set="
+                            "lida_survey_data"
+            }
+        }
 ]
 
 mock_metric_profiles = [
@@ -3377,6 +3421,20 @@ mock_metric_profiles = [
                 "service": "SRM",
                 "metrics": [
                     "generic.certificate.validity-srm"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-12-01",
+        "name": "ARGO_TEST47",
+        "description": "Profile with endpoint with & in URL",
+        "services": [
+            {
+                "service": "eu.eosc.generic.oai-pmh",
+                "metrics": [
+                    "generic.oai-pmh.validity"
                 ]
             }
         ]
@@ -11647,6 +11705,50 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_ampersand_in_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST47"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.generic.oai-pmh__lida.dataverse.lt",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_oai_pmh_validity":
+                                "generic.oai-pmh.validity",
+                            "endpoint_url":
+                                "\"https://lida.dataverse.lt/oai?verb="
+                                "ListRecords&metadataPrefix=oai_datacite&set="
+                                "lida_survey_data\"",
+                            "info_url":
+                                "\"https://lida.dataverse.lt/oai?verb="
+                                "ListRecords&metadataPrefix=oai_datacite&set="
+                                "lida_survey_data\"",
+                            "hostname": "lida.dataverse.lt",
+                            "service": "eu.eosc.generic.oai-pmh",
+                            "site": "lida.lida_survey_data"
+                        }
+                    },
+                    "subscriptions": ["lida.dataverse.lt"]
                 }
             ]
         )
