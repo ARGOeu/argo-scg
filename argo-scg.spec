@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.3.0
+Version:       0.4.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -46,7 +46,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(0755,root,root) %dir %{_localstatedir}/log/argo-scg/
 
+
 %changelog
+* Thu Dec 7 2023 Katarina Zailac <kzailac@srce.hr> - 0.4.0-1%{?dist}
+- ARGO-4442 Add quotation marks to URLs that contain ampersand
+- ARGO-4436 Use info_bdii_* tags as extensions
+- ARGO-4435 Have default value for OS_KEYSTONE_PORT attribute
+- ARGO-4427 Change values of hard-coded attributes
+- ARGO-4423 Use hostnames as subscriptions
+- ARGO-4421 Use event timestamp for display of events
+- ARGO-3947 Handle passive metrics
 * Thu Nov 2 2023 Katarina Zailac <kzailac@srce.hr> - 0.3.0-1%{?dist}
 - ARGO-4415 Handle $_SERVICEVO$ variable in metric configuration
 - ARGO-4403 Option to run scg-reload for one tenant
