@@ -110,7 +110,7 @@ class Sensu:
 
     def _get_checks(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/checks".format(self.url, namespace),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
             headers={
                 "Authorization": "Key {}".format(self.token),
                 "Content-Type": "application/json"
@@ -309,6 +309,27 @@ class Sensu:
 
             return proxy_equal
 
+        def interval_equality(c1, c2):
+            interval_equal = False
+            key1 = "cron"
+            key2 = "interval"
+            condition1 = key1 in c1 and key1 in c2
+            condition2 = key1 not in c1 and key1 not in c2
+            condition3 = key2 in c1 and key2 in c2
+            condition4 = key2 not in c1 and key2 not in c2
+            condition5 = False
+            if condition1:
+                condition5 = c1[key1] == c2[key1]
+
+            if condition2 and condition3:
+                condition5 = c1[key2] == c2[key2]
+
+            if (condition1 and condition5) or (condition3 and condition5) or \
+                    condition4:
+                interval_equal = True
+
+            return interval_equal
+
         def annotations_equality(c1, c2):
             annotations_equal = False
             key1 = "metadata"
@@ -331,7 +352,7 @@ class Sensu:
                 sorted(check2["subscriptions"]) and \
                 sorted(check1["handlers"]) == sorted(check2["handlers"]) and \
                 proxy_equality(check1, check2) and \
-                check1["interval"] == check2["interval"] and \
+                interval_equality(check1, check2) and \
                 check1["timeout"] == check2["timeout"] and \
                 check1["publish"] == check2["publish"] and \
                 check1["metadata"]["name"] == check2["metadata"]["name"] and \
@@ -628,11 +649,21 @@ class Sensu:
             )
 
     def handle_agents(
-            self, metric_parameters_overrides, host_attributes_overrides,
-            subscriptions, namespace="default"
+            self,
+            subscriptions,
+            metric_parameters_overrides=None,
+            host_attributes_overrides=None,
+            services="internals",
+            namespace="default"
     ):
+        if metric_parameters_overrides is None:
+            metric_parameters_overrides = []
+
+        if host_attributes_overrides is None:
+            host_attributes_overrides = []
+
         def _get_labels(hostname):
-            host_labels = {"hostname": hostname}
+            host_labels = {"hostname": hostname, "services": services}
 
             for item in metric_parameters_overrides:
                 if item["hostname"] == hostname:
@@ -658,13 +689,15 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                new_subscriptions = agent["subscriptions"].copy()
-                for subscription in subscriptions:
-                    if subscription not in agent["subscriptions"]:
-                        new_subscriptions.append(subscription)
+                new_subscriptions = subscriptions + [
+                    item for item in agent["subscriptions"] if
+                    agent["metadata"]["name"] in item
+                ]
 
                 if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({"subscriptions": new_subscriptions})
+                    send_data.update({
+                        "subscriptions": sorted(new_subscriptions)
+                    })
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
@@ -1368,9 +1401,7 @@ class SensuCtl:
             else:
                 status = "UNKNOWN"
 
-            executed = datetime.datetime.fromtimestamp(
-                item["check"]["executed"]
-            )
+            executed = datetime.datetime.fromtimestamp(item["timestamp"])
             metric_output = item["check"]["output"].split("|")[0].strip()
 
             output_list.append(
@@ -1388,7 +1419,10 @@ class SensuCtl:
     @staticmethod
     def _is_servicetype(item, servicetype):
         if item["entity"]["entity_class"] == "agent":
-            return servicetype in item["check"]["subscriptions"]
+            services = item["entity"]["metadata"]["labels"]["services"].split(
+                ","
+            )
+            return servicetype in [service.strip() for service in services]
 
         else:
             return (item["entity"]["metadata"]["labels"]["service"] ==

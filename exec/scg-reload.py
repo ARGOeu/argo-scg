@@ -44,6 +44,7 @@ def main():
         local_topology = config.get_topology()
         secrets = config.get_secrets()
         publish_bool = config.publish()
+        subscriptions_use_ids = config.get_use_ids()
 
         tenants = config.get_tenants()
 
@@ -97,7 +98,8 @@ def main():
                     attributes=poem.get_metric_overrides(),
                     secrets_file=secrets[namespace],
                     default_ports=poem.get_default_ports(),
-                    tenant=tenant
+                    tenant=tenant,
+                    subscriptions_use_ids=subscriptions_use_ids[namespace]
                 )
 
                 sensu.add_daily_filter(namespace=namespace)
@@ -131,6 +133,7 @@ def main():
                     get_metric_parameter_overrides(),
                     host_attributes_overrides=generator.
                     get_host_attribute_overrides(),
+                    services=generator.generate_internal_services(),
                     subscriptions=generator.generate_subscriptions(),
                     namespace=namespace
                 )

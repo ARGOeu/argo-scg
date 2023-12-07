@@ -50,7 +50,9 @@ mock_entities = [
             "cloud_provider": "",
             "processes": None
         },
-        "subscriptions": ["argo.webui"],
+        "subscriptions": [
+            "argo.ni4os.eu"
+        ],
         "last_seen": 0,
         "deregister": False,
         "deregistration": {},
@@ -77,7 +79,9 @@ mock_entities = [
             "cloud_provider": "",
             "processes": None
         },
-        "subscriptions": ["argo.webui"],
+        "subscriptions": [
+            "gocdb.ni4os.eu"
+        ],
         "last_seen": 0,
         "deregister": False,
         "deregistration": {},
@@ -122,8 +126,9 @@ mock_entities = [
         },
         "subscriptions": [
             "entity:sensu-agent1",
-            "argo.webui",
-            "eu.ni4os.ops.gocdb"
+            "argo.ni4os.eu",
+            "gocdb.ni4os.eu",
+            "internals"
         ],
         "last_seen": 1645005291,
         "deregister": False,
@@ -144,7 +149,8 @@ mock_entities = [
             "name": "sensu-agent1",
             "namespace": "TENANT1",
             "labels": {
-                "hostname": "sensu-agent1"
+                "hostname": "sensu-agent1",
+                "services": "internals"
             }
         },
         "sensu_agent_version": "6.6.3"
@@ -178,9 +184,10 @@ mock_entities = [
             "processes": None
         },
         "subscriptions": [
-            "argo.webui",
+            "argo.ni4os.eu",
             "entity:sensu-agent2",
-            "eu.ni4os.ops.gocdb"
+            "gocdb.ni4os.eu",
+            "internals"
         ],
         "last_seen": 1645005284,
         "deregister": False,
@@ -199,6 +206,7 @@ mock_entities = [
         ],
         "metadata": {
             "name": "sensu-agent2",
+            "services": "internals",
             "namespace": "TENANT1"
         },
         "sensu_agent_version": "6.6.5"
@@ -217,7 +225,10 @@ mock_checks = [
         "low_flap_threshold": 0,
         "publish": True,
         "runtime_assets": None,
-        "subscriptions": ["argo.webui"],
+        "subscriptions": [
+            "argo-devel.ni4os.eu",
+            "argo.ni4os.eu"
+        ],
         "proxy_entity_name": "",
         "check_hooks": None,
         "stdin": False,
@@ -259,7 +270,10 @@ mock_checks = [
         "low_flap_threshold": 0,
         "publish": True,
         "runtime_assets": None,
-        "subscriptions": ["argo.webui"],
+        "subscriptions": [
+            "argo-devel.ni4os.eu",
+            "argo.ni4os.eu"
+        ],
         "proxy_entity_name": "",
         "check_hooks": None,
         "stdin": False,
@@ -299,7 +313,10 @@ mock_checks = [
         "low_flap_threshold": 0,
         "publish": True,
         "runtime_assets": None,
-        "subscriptions": ["argo.webui"],
+        "subscriptions": [
+            "argo-devel.ni4os.eu",
+            "argo.ni4os.eu"
+        ],
         "proxy_entity_name": "",
         "check_hooks": None,
         "stdin": False,
@@ -349,7 +366,9 @@ mock_events = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": ["argo.webui"],
+            "subscriptions": [
+                "argo.ni4os.eu"
+            ],
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -374,11 +393,15 @@ mock_events = [
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": None,
-            "subscriptions": ["argo.webui"],
+            "subscriptions": [
+                "argo-devel.ni4os.eu",
+                "argo.ni4os.eu"
+            ],
             "proxy_entity_name": "argo.ni4os.eu",
             "check_hooks": None,
             "stdin": False,
-            "subdue": None, "ttl": 0,
+            "subdue": None,
+            "ttl": 0,
             "timeout": 30,
             "proxy_requests": {
                 "entity_attributes": [
@@ -452,7 +475,9 @@ mock_events = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": ["eu.ni4os.ops.gocdb"],
+            "subscriptions": [
+                "gocdb.ni4os.eu"
+            ],
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -476,7 +501,9 @@ mock_events = [
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": None,
-            "subscriptions": ["eu.ni4os.ops.gocdb"],
+            "subscriptions": [
+                "gocdb.ni4os.eu"
+            ],
             "proxy_entity_name": "gocdb.ni4os.eu",
             "check_hooks": None,
             "stdin": False,
@@ -541,7 +568,9 @@ mock_events = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": ["argo.webui"],
+            "subscriptions": [
+                "argo.ni4os.eu"
+            ],
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -569,7 +598,10 @@ mock_events = [
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": None,
-            "subscriptions": ["argo.webui"],
+            "subscriptions": [
+                "argo-devel.ni4os.eu",
+                "argo.ni4os.eu"
+            ],
             "proxy_entity_name": "argo.ni4os.eu",
             "check_hooks": None,
             "stdin": False,
@@ -793,7 +825,7 @@ mock_metrics_hardcoded_attributes = [
             "parent": "",
             "docurl": "https://wiki.egi.eu/wiki/MW_Nagios_tests"
         }
-    },
+    }
 ]
 
 mock_metrics_file_defined_attributes = [
@@ -1201,7 +1233,8 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1310,7 +1343,7 @@ mock_events_ctl = [
                 "processes": None
             },
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -1360,7 +1393,8 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1511,7 +1545,7 @@ mock_events_ctl = [
                 "processes": None
             },
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -1560,7 +1594,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "eu.eudat.itsm.spmt"
+                "agora.ni4os.eu"
             ],
             "proxy_entity_name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
             "check_hooks": None,
@@ -1653,7 +1687,7 @@ mock_events_ctl = [
                 "processes": None
             },
             "subscriptions": [
-                "eu.eudat.itsm.spmt"
+                "agora.ni4os.eu"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -1701,9 +1735,8 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "eu.ni4os.app.api",
-                "eu.ni4os.app.web",
-                "eu.ni4os.repo.publication"
+                "cherry.chem.bg.ac.rs",
+                "videolectures.net"
             ],
             "proxy_entity_name":
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
@@ -1816,7 +1849,7 @@ mock_events_ctl = [
                 "processes": None
             },
             "subscriptions": [
-                "eu.ni4os.repo.publication"
+                "cherry.chem.bg.ac.rs"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -1869,8 +1902,10 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo.mon",
-                "eu.ni4os.app.web"
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "cherry.chem.bg.ac.rs",
+                "videolectures.net"
             ],
             "proxy_entity_name": "eu.ni4os.repo.publication__videolectures.net",
             "check_hooks": None,
@@ -1974,7 +2009,7 @@ mock_events_ctl = [
                 "processes": None
             },
             "subscriptions": [
-                "eu.ni4os.repo.publication"
+                "videolectures.net"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -2023,7 +2058,9 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2119,9 +2156,12 @@ mock_events_ctl = [
             },
             "subscriptions": [
                 "entity:sensu-agent-ni4os-devel.cro-ngi",
-                "argo.mon",
-                "eu.eudat.itsm.spmt",
-                "eu.ni4os.repo.publication"
+                "agora.ni4os.eu",
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "cherry.chem.bg.ac.rs",
+                "internals",
+                "videolectures.net"
             ],
             "last_seen": 1682322924,
             "deregister": False,
@@ -2131,7 +2171,8 @@ mock_events_ctl = [
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
                 "namespace": "NI4OS",
                 "labels": {
-                    "hostname": "sensu-agent-ni4os-devel.cro-ngi"
+                    "hostname": "sensu-agent-ni4os-devel.cro-ngi",
+                    "services": "argo.mon,argo.test"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
@@ -2162,7 +2203,9 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo.mon"
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2252,9 +2295,12 @@ mock_events_ctl = [
             },
             "subscriptions": [
                 "entity:sensu-agent-ni4os-devel.cro-ngi",
-                "argo.mon",
-                "eu.eudat.itsm.spmt",
-                "eu.ni4os.repo.publication"
+                "agora.ni4os.eu",
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "cherry.chem.bg.ac.rs",
+                "internals",
+                "videolectures.net"
             ],
             "last_seen": 1682319670,
             "deregister": False,
@@ -2264,7 +2310,8 @@ mock_events_ctl = [
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
                 "namespace": "NI4OS",
                 "labels": {
-                    "hostname": "sensu-agent-ni4os-devel.cro-ngi"
+                    "hostname": "sensu-agent-ni4os-devel.cro-ngi",
+                    "services": "argo.mon"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
@@ -2506,7 +2553,7 @@ def mock_function(*args, **kwargs):
 
 class SensuNamespaceTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
 
     @patch("requests.get")
     def test_get_namespaces(self, mock_get):
@@ -2515,7 +2562,7 @@ class SensuNamespaceTests(unittest.TestCase):
             DUMMY_LOGGER.info("dummy")
             namespaces = self.sensu._get_namespaces()
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2532,7 +2579,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 self.sensu._get_namespaces()
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2558,7 +2605,7 @@ class SensuNamespaceTests(unittest.TestCase):
             with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_namespaces()
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2588,7 +2635,7 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
                 data=json.dumps({"name": "TeNAnT3"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2596,7 +2643,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/tenant4",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant4",
                 data=json.dumps({"name": "tenant4"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2624,7 +2671,7 @@ class SensuNamespaceTests(unittest.TestCase):
                     tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
                 )
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TeNAnT3",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2657,7 +2704,7 @@ class SensuNamespaceTests(unittest.TestCase):
                     tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
                 )
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TeNAnT3",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -2694,7 +2741,7 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
                 data=json.dumps({"name": "TeNAnT3"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2702,7 +2749,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/tenant4",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant4",
                 data=json.dumps({"name": "tenant4"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2715,7 +2762,7 @@ class SensuNamespaceTests(unittest.TestCase):
             "--namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/Tenant5",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
             headers={"Authorization": "Key t0k3n"}
         )
         self.assertEqual(
@@ -2747,7 +2794,7 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
                 data=json.dumps({"name": "TeNAnT3"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2755,7 +2802,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/tenant4",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant4",
                 data=json.dumps({"name": "tenant4"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2797,7 +2844,7 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
                 data=json.dumps({"name": "TeNAnT3"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2805,7 +2852,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/tenant4",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant4",
                 data=json.dumps({"name": "tenant4"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2818,7 +2865,7 @@ class SensuNamespaceTests(unittest.TestCase):
             "--namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/Tenant5",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
             headers={"Authorization": "Key t0k3n"}
         )
         self.assertEqual(
@@ -2849,7 +2896,7 @@ class SensuNamespaceTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TeNAnT3",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
                 data=json.dumps({"name": "TeNAnT3"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2857,7 +2904,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/tenant4",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant4",
                 data=json.dumps({"name": "tenant4"}),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -2870,7 +2917,7 @@ class SensuNamespaceTests(unittest.TestCase):
             "--namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/Tenant5",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
             headers={"Authorization": "Key t0k3n"}
         )
         self.assertEqual(
@@ -2885,7 +2932,7 @@ class SensuNamespaceTests(unittest.TestCase):
 
 class SensuCheckTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
         self.checks = [
             {
                 "command": "/usr/lib64/nagios/plugins/check_http "
@@ -2894,7 +2941,10 @@ class SensuCheckTests(unittest.TestCase):
                            "-u /ni4os/report-ar/Critical/"
                            "NGI?accept=csv "
                            "--ssl --onredirect follow",
-                "subscriptions": ["argo.webui", "argo.test"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -2919,7 +2969,10 @@ class SensuCheckTests(unittest.TestCase):
             {
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
                            "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": ["argo.webui"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": [],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -2949,10 +3002,13 @@ class SensuCheckTests(unittest.TestCase):
                            " --rootcert-file "
                            "/etc/pki/tls/certs/ca-bundle.crt "
                            "-C {{ .labels.ROBOT_CERT | "
-                           "default /etc/nagios/globus/hostcert.pem }} "
+                           "default /etc/sensu/certs/hostcert.pem }} "
                            "-K {{ .labels.ROBOT_KEY | "
-                           "default /etc/nagios/globus/hostkey.pem }}",
-                "subscriptions": ["argo.webui"],
+                           "default /etc/sensu/certs/hostkey.pem }}",
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -2984,7 +3040,7 @@ class SensuCheckTests(unittest.TestCase):
             checks = self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3003,7 +3059,7 @@ class SensuCheckTests(unittest.TestCase):
                 self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3031,7 +3087,7 @@ class SensuCheckTests(unittest.TestCase):
                 self.sensu._get_checks(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3064,22 +3120,22 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.certificate.validity",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.certificate.validity",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -3112,15 +3168,15 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -3152,15 +3208,15 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -3184,7 +3240,7 @@ class SensuCheckTests(unittest.TestCase):
             check="generic.tcp.connect", namespace="TENANT1"
         )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -3202,7 +3258,7 @@ class SensuCheckTests(unittest.TestCase):
             )
 
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -3223,7 +3279,7 @@ class SensuCheckTests(unittest.TestCase):
             )
 
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -3273,8 +3329,8 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.ar-argoui-ni4os",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3282,8 +3338,8 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.certificate.validity",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3341,7 +3397,7 @@ class SensuCheckTests(unittest.TestCase):
             namespace="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -3373,10 +3429,13 @@ class SensuCheckTests(unittest.TestCase):
                            "-s monitor.test.$_SERVICESERVER$.$HOSTALIAS$."
                            "openwiressl "
                            "-K {{ .labels.KEYSTORE | default "
-                           "/etc/nagios/globus/keystore.jks }} "
+                           "/etc/sensu/certs/keystore.jks }} "
                            "-T {{ .labels.TRUSTSTORE | default "
-                           "/etc/nagios/globus/truststore.ts }}",
-                "subscriptions": ["argo.webui", "argo.test"],
+                           "/etc/sensu/certs/truststore.ts }}",
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -3401,7 +3460,10 @@ class SensuCheckTests(unittest.TestCase):
                            "-f \"(GlueServiceEndpoint=*$HOSTALIAS$*)\" "
                            "-p {{ .labels.BDII_PORT | default 2170 }} "
                            "-H {{ .labels.BDII_HOST }}",
-                "subscriptions": ["argo.webui"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -3459,8 +3521,8 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "org.activemq.OpenWireSSL",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/org.activemq.OpenWireSSL",
                 data=json.dumps(checks[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3468,8 +3530,8 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "org.nagiosexchange.Broker-BDII",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/org.nagiosexchange.Broker-BDII",
                 data=json.dumps(checks[1]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3503,7 +3565,10 @@ class SensuCheckTests(unittest.TestCase):
                            "-H {{ .labels.hostname }} "
                            "--url https://b2access.fz-juelich.de:8443 "
                            "--username username --password pa55w0rD",
-                "subscriptions": ["argo.webui", "argo.test"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -3527,7 +3592,10 @@ class SensuCheckTests(unittest.TestCase):
                            "-H {{ .labels.hostname }} -t 600 "
                            "-p {{ .labels.QCG-COMPUTING_PORT | "
                            "default 19000 }} -x",
-                "subscriptions": ["argo.webui"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -3586,8 +3654,8 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "eudat.b2access.unity.login-local",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/eudat.b2access.unity.login-local",
                 data=json.dumps(checks[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3595,8 +3663,8 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "pl.plgrid.QCG-Computing",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/pl.plgrid.QCG-Computing",
                 data=json.dumps(checks[1]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3635,7 +3703,10 @@ class SensuCheckTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["argo.webui"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
                 "stdin": False,
@@ -3682,7 +3753,7 @@ class SensuCheckTests(unittest.TestCase):
             namespace="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             data=json.dumps(no_proxy_checks[0]),
             headers={
@@ -3737,7 +3808,7 @@ class SensuCheckTests(unittest.TestCase):
             namespace="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -3751,6 +3822,138 @@ class SensuCheckTests(unittest.TestCase):
                 f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
             ]
         )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_passive_check_if_new(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        passive_check = {
+            "command": "PASSIVE",
+            "subscriptions": [
+                "dcache.arnes.si"
+            ],
+            "handlers": [],
+            "pipelines": [],
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace"
+            },
+            "round_robin": False
+        }
+        mock_get_checks.return_value = self.checks
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        checks = self.checks + [passive_check]
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+
+        self.assertEqual(mock_get_checks.call_count, 2)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        self.assertFalse(mock_get_events.called)
+        self.assertFalse(mock_delete_checks.called)
+        self.assertFalse(mock_delete_events.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "eu.egi.SRM-VOGet",
+            data=json.dumps(passive_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+
+        self.assertEqual(
+            log.output, [
+                f"INFO:{LOGNAME}:TENANT1: Check eu.egi.SRM-VOGet created"
+            ]
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_passive_check_if_existing(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        passive_check = {
+            "command": "PASSIVE",
+            "subscriptions": [
+                "dcache.arnes.si"
+            ],
+            "handlers": [],
+            "pipelines": [],
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "timeout": 900,
+            "publish": False,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace"
+            },
+            "round_robin": False
+        }
+        mock_get_checks.return_value = self.checks + [{
+            "command": "PASSIVE",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 0,
+            "low_flap_threshold": 0,
+            "publish": False,
+            "runtime_assets": None,
+            "subscriptions": [
+                "dcache.arnes.si"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "eu.egi.SRM-VOGet",
+                "namespace": "mockspace",
+                "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": []
+        }]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        checks = self.checks + [passive_check]
+
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+
+        self.assertEqual(mock_get_checks.call_count, 2)
+        mock_get_checks.assert_called_with(namespace="TENANT1")
+        self.assertFalse(mock_get_events.called)
+        self.assertFalse(mock_delete_checks.called)
+        self.assertFalse(mock_delete_events.called)
+        self.assertFalse(mock_put.called)
+
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
@@ -3793,8 +3996,8 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.ar-argoui-ni4os",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3802,8 +4005,8 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.certificate.validity",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3863,8 +4066,8 @@ class SensuCheckTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.http.ar-argoui-ni4os",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3872,8 +4075,8 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/checks/"
-                "generic.certificate.validity",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -3898,7 +4101,9 @@ class SensuCheckTests(unittest.TestCase):
         check = {
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
-            "subscriptions": ["argo-test"],
+            "subscriptions": [
+                "argo.ni4os.eu"
+            ],
             "handlers": [],
             "interval": 86400,
             "timeout": 900,
@@ -3912,7 +4117,8 @@ class SensuCheckTests(unittest.TestCase):
 
         self.sensu.put_check(check=check, namespace="TENANT1")
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "adhoc-check",
             data=json.dumps(check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -3928,7 +4134,9 @@ class SensuCheckTests(unittest.TestCase):
         check = {
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
-            "subscriptions": ["argo-test"],
+            "subscriptions": [
+                "argo.ni4os.eu"
+            ],
             "handlers": [],
             "interval": 86400,
             "timeout": 900,
@@ -3944,7 +4152,8 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.put_check(check=check, namespace="TENANT1")
 
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "adhoc-check",
             data=json.dumps(check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -3964,7 +4173,9 @@ class SensuCheckTests(unittest.TestCase):
         check = {
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
-            "subscriptions": ["argo-test"],
+            "subscriptions": [
+                "argo.ni4os.eu"
+            ],
             "handlers": [],
             "interval": 86400,
             "timeout": 900,
@@ -3980,7 +4191,8 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.put_check(check=check, namespace="TENANT1")
 
         mock_put.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/checks/adhoc-check",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "adhoc-check",
             data=json.dumps(check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -3997,7 +4209,7 @@ class SensuCheckTests(unittest.TestCase):
 
 class SensuEventsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
 
     @patch("requests.get")
     def test_fetch_events(self, mock_get):
@@ -4017,7 +4229,7 @@ class SensuEventsTests(unittest.TestCase):
                 self.sensu._fetch_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4045,7 +4257,7 @@ class SensuEventsTests(unittest.TestCase):
                 self.sensu._fetch_events(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4081,22 +4293,22 @@ class SensuEventsTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/"
-                "argo-devel.ni4os.eu/generic.certificate.validation",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo-devel.ni4os.eu/generic.certificate.validation",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4134,15 +4346,15 @@ class SensuEventsTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4179,15 +4391,15 @@ class SensuEventsTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.tcp.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-                "generic.http.connect",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4212,8 +4424,8 @@ class SensuEventsTests(unittest.TestCase):
             namespace="TENANT1"
         )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-            "generic.tcp.connect",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -4230,8 +4442,8 @@ class SensuEventsTests(unittest.TestCase):
                 namespace="TENANT1"
             )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-            "generic.tcp.connect",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -4251,8 +4463,8 @@ class SensuEventsTests(unittest.TestCase):
                 namespace="TENANT1"
             )
         mock_delete.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/events/argo.ni4os.eu/"
-            "generic.tcp.connect",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -4323,7 +4535,7 @@ class SensuEventsTests(unittest.TestCase):
 
 class SensuEntityTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
         self.entities = [
             {
                 "entity_class": "proxy",
@@ -4341,8 +4553,7 @@ class SensuEntityTests(unittest.TestCase):
                     },
                 },
                 "subscriptions": [
-                    "argo.webui",
-                    "argo-test.web"
+                    "argo-devel.ni4os.eu"
                 ]
             },
             {
@@ -4356,7 +4567,7 @@ class SensuEntityTests(unittest.TestCase):
                     }
                 },
                 "subscriptions": [
-                    "argo.webui"
+                    "argo.ni4os.eu"
                 ]
             },
             {
@@ -4370,7 +4581,7 @@ class SensuEntityTests(unittest.TestCase):
                     }
                 },
                 "subscriptions": [
-                    "argo.mon"
+                    "argo-mon.ni4os.eu"
                 ]
             }
         ]
@@ -4382,7 +4593,8 @@ class SensuEntityTests(unittest.TestCase):
             _log_dummy()
             entities = self.sensu._get_proxy_entities(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4402,7 +4614,8 @@ class SensuEntityTests(unittest.TestCase):
                 self.sensu._get_proxy_entities(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4429,7 +4642,8 @@ class SensuEntityTests(unittest.TestCase):
                 self.sensu._get_proxy_entities(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4459,22 +4673,22 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "gocdb.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4503,22 +4717,22 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "gocdb.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4548,22 +4762,22 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "gocdb.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
@@ -4598,8 +4812,8 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4607,8 +4821,8 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-mon.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4651,8 +4865,8 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4660,8 +4874,8 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-mon.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4705,8 +4919,8 @@ class SensuEntityTests(unittest.TestCase):
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-devel.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4714,8 +4928,8 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/"
-                "argo-mon.ni4os.eu",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
                     "Authorization": "Key t0k3n",
@@ -4740,7 +4954,7 @@ class SensuEntityTests(unittest.TestCase):
 
 class SensuAgentsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
 
     @patch("requests.get")
     def test_get_agents(self, mock_get):
@@ -4749,7 +4963,8 @@ class SensuAgentsTests(unittest.TestCase):
             _log_dummy()
             agents = self.sensu._get_agents(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4768,7 +4983,8 @@ class SensuAgentsTests(unittest.TestCase):
                 self.sensu._get_agents(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4795,7 +5011,8 @@ class SensuAgentsTests(unittest.TestCase):
                 self.sensu._get_agents(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/entities",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "entities",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4821,23 +5038,25 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
-                subscriptions=["argo.webui", "argo.test"],
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu",
+                    "internals"
+                ],
                 namespace="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent1",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "argo.webui",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ]
                 }),
                 headers={
@@ -4846,18 +5065,19 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent2",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
-                        "argo.webui",
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -4889,23 +5109,25 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
-                subscriptions=["argo.webui", "argo.test"],
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu",
+                    "internals"
+                ],
                 namespace="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent1",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "argo.webui",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ]
                 }),
                 headers={
@@ -4914,18 +5136,19 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent2",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
-                        "argo.webui",
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -4957,23 +5180,25 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=list(),
-                host_attributes_overrides=list(),
-                subscriptions=["argo.webui", "argo.test"],
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu",
+                    "internals"
+                ],
                 namespace="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent1",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "argo.webui",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ]
                 }),
                 headers={
@@ -4982,18 +5207,19 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent2",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
-                        "argo.webui",
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5030,26 +5256,30 @@ class SensuAgentsTests(unittest.TestCase):
                         "value": "80"
                     }
                 ],
-                host_attributes_overrides=list(),
-                subscriptions=["argo.webui", "argo.test"],
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu",
+                    "internals"
+                ],
                 namespace="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent1",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent1",
-                        "argo.webui",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
                             "hostname": "sensu-agent1",
+                            "services": "internals",
                             "generic_tcp_connect_p": "80"
                         }
                     }
@@ -5060,18 +5290,19 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent2",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
-                        "argo.webui",
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
                         "entity:sensu-agent2",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "internals"
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
                         }
                     }
                 }),
@@ -5099,7 +5330,6 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                metric_parameters_overrides=dict(),
                 host_attributes_overrides=[{
                     "hostname": "sensu-agent1",
                     "attribute": "NAGIOS_FRESHNESS_USERNAME",
@@ -5109,7 +5339,10 @@ class SensuAgentsTests(unittest.TestCase):
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }],
-                subscriptions=["argo.webui", "argo.test"],
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 namespace="TENANT1"
             )
 
@@ -5117,18 +5350,18 @@ class SensuAgentsTests(unittest.TestCase):
 
         mock_patch.assert_has_calls([
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent1",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
-                        "entity:sensu-agent1",
-                        "argo.webui",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent1"
                     ],
                     "metadata": {
                         "labels": {
                             "hostname": "sensu-agent1",
+                            "services": "internals",
                             "nagios_freshness_username":
                                 "$NI4OS_NAGIOS_FRESHNESS_USERNAME",
                             "nagios_freshness_password":
@@ -5142,18 +5375,90 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "mock-urls/api/core/v2/namespaces/TENANT1/entities/sensu-"
-                "agent2",
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
-                        "argo.webui",
-                        "entity:sensu-agent2",
-                        "eu.ni4os.ops.gocdb",
-                        "argo.test"
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent2"
                     ],
                     "metadata": {
                         "labels": {
-                            "hostname": "sensu-agent2"
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_services(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                subscriptions=[
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
+                services="argo.mon,argo.test",
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+
+        mock_patch.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent1"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent1",
+                            "services": "argo.mon,argo.test"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent2"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2",
+                            "services": "argo.mon,argo.test"
                         }
                     }
                 }),
@@ -5176,7 +5481,7 @@ class SensuAgentsTests(unittest.TestCase):
 
 class SensuHandlersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
         self.publisher_handler = {
             "metadata": {
                 "name": "publisher-handler",
@@ -5204,7 +5509,8 @@ class SensuHandlersTests(unittest.TestCase):
             _log_dummy()
             handlers = self.sensu._get_handlers(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5221,7 +5527,8 @@ class SensuHandlersTests(unittest.TestCase):
                 self.sensu._get_handlers(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5248,7 +5555,8 @@ class SensuHandlersTests(unittest.TestCase):
                 self.sensu._get_handlers(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5276,7 +5584,8 @@ class SensuHandlersTests(unittest.TestCase):
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5301,7 +5610,8 @@ class SensuHandlersTests(unittest.TestCase):
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5333,7 +5643,8 @@ class SensuHandlersTests(unittest.TestCase):
 
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5377,8 +5688,8 @@ class SensuHandlersTests(unittest.TestCase):
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
-            "publisher-handler",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
             }),
@@ -5404,8 +5715,8 @@ class SensuHandlersTests(unittest.TestCase):
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
-            "publisher-handler",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
             }),
@@ -5432,8 +5743,8 @@ class SensuHandlersTests(unittest.TestCase):
             self.sensu.handle_publisher_handler(namespace="TENANT1")
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/"
-            "publisher-handler",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
             }),
@@ -5460,7 +5771,8 @@ class SensuHandlersTests(unittest.TestCase):
             )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.slack_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5485,7 +5797,8 @@ class SensuHandlersTests(unittest.TestCase):
                 )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.slack_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5518,7 +5831,8 @@ class SensuHandlersTests(unittest.TestCase):
                 )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers",
             data=json.dumps(self.slack_handler),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5566,7 +5880,8 @@ class SensuHandlersTests(unittest.TestCase):
             )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
                            "export $(cut -d= -f1 /etc/sensu/secrets) ; "
@@ -5594,7 +5909,8 @@ class SensuHandlersTests(unittest.TestCase):
             )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
                            "export $(cut -d= -f1 /etc/sensu/secrets) ; "
@@ -5625,7 +5941,8 @@ class SensuHandlersTests(unittest.TestCase):
             )
         mock_get_handlers.assert_called_once_with(namespace="TENANT1")
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/handlers/slack",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
                            "export $(cut -d= -f1 /etc/sensu/secrets) ; "
@@ -5646,7 +5963,7 @@ class SensuHandlersTests(unittest.TestCase):
 
 class SensuFiltersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
         self.daily = {
             "metadata": {
                 "name": "daily",
@@ -5684,7 +6001,8 @@ class SensuFiltersTests(unittest.TestCase):
             _log_dummy()
             filters = self.sensu._get_filters(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -5700,7 +6018,8 @@ class SensuFiltersTests(unittest.TestCase):
                 self.sensu._get_filters(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -5726,7 +6045,8 @@ class SensuFiltersTests(unittest.TestCase):
                 self.sensu._get_filters(namespace="TENANT1")
 
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -5752,7 +6072,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.daily),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5774,7 +6095,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.daily),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5806,7 +6128,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.daily),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5848,7 +6171,8 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters/daily",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters/daily",
             data=json.dumps({
                 "expressions": [
                     "((event.check.occurrences == 1 && event.check.status == 0 "
@@ -5881,7 +6205,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.hard),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5905,7 +6230,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.hard),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5939,7 +6265,8 @@ class SensuFiltersTests(unittest.TestCase):
 
         mock_filters.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters",
             data=json.dumps(self.hard),
             headers={
                 "Authorization": "Key t0k3n",
@@ -5984,7 +6311,8 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/filters/hard-state",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "filters/hard-state",
             data=json.dumps({
                 "expressions": [
                     "((event.check.status == 0) || (event.check.occurrences >= "
@@ -6005,7 +6333,7 @@ class SensuFiltersTests(unittest.TestCase):
 
 class SensuPipelinesTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="mock-urls", token="t0k3n")
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
         self.reduce_alerts = {
             "metadata": {
                 "name": "reduce_alerts",
@@ -6071,7 +6399,8 @@ class SensuPipelinesTests(unittest.TestCase):
             _log_dummy()
             pipelines = self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -6086,7 +6415,8 @@ class SensuPipelinesTests(unittest.TestCase):
             with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -6110,7 +6440,8 @@ class SensuPipelinesTests(unittest.TestCase):
             with self.assertLogs(LOGNAME) as log:
                 self.sensu._get_pipelines(namespace="TENANT1")
         mock_get.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
             }
@@ -6135,7 +6466,8 @@ class SensuPipelinesTests(unittest.TestCase):
             self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6157,7 +6489,8 @@ class SensuPipelinesTests(unittest.TestCase):
                 self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6187,7 +6520,8 @@ class SensuPipelinesTests(unittest.TestCase):
                 self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6230,7 +6564,8 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines/reduce_alerts",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines/reduce_alerts",
             data=json.dumps({
                 "workflows": [{
                     "name": "slack_alerts",
@@ -6277,7 +6612,8 @@ class SensuPipelinesTests(unittest.TestCase):
             self.sensu.add_hard_state_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.hard_state),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6299,7 +6635,8 @@ class SensuPipelinesTests(unittest.TestCase):
                 self.sensu.add_hard_state_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.hard_state),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6329,7 +6666,8 @@ class SensuPipelinesTests(unittest.TestCase):
                 self.sensu.add_hard_state_pipeline(namespace="TENANT1")
         mock_pipelines.assert_called_once_with(namespace="TENANT1")
         mock_post.assert_called_once_with(
-            "mock-urls/api/core/v2/namespaces/TENANT1/pipelines",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "pipelines",
             data=json.dumps(self.hard_state),
             headers={
                 "Authorization": "Key t0k3n",
@@ -6375,7 +6713,7 @@ class MetricOutputTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["eu.eosc.portal.services.url"],
+                "subscriptions": ["hostname.example.eu_site-name"],
                 "proxy_entity_name": "eu.eosc.portal.services.url__hostname."
                                      "example.eu_site-name",
                 "check_hooks": None,
@@ -6441,7 +6779,7 @@ class MetricOutputTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["eu.eosc.portal.services.url"],
+                "subscriptions": ["hostname.example.eu_site-name"],
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -6558,7 +6896,10 @@ class SensuCheckCallTests(unittest.TestCase):
                            "--onredirect follow "
                            "{{ .labels.ssl }} "
                            "-p {{ .labels.port }} ",
-                "subscriptions": ["argo.webui"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo.ni4os.eu"
+                ],
                 "handlers": [],
                 "proxy_requests": {
                     "entity_attributes": [
@@ -6595,7 +6936,12 @@ class SensuCheckCallTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["argo.tcp"],
+                "subscriptions": [
+                    "argo-devel.ni4os.eu",
+                    "argo-mon-devel.ni4os.eu",
+                    "argo-mon.ni4os.eu",
+                    "argo2.ni4os.eu"
+                ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
                 "stdin": False,
@@ -6635,7 +6981,10 @@ class SensuCheckCallTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["argo.mon"],
+                "subscriptions": [
+                    "argo-mon-devel.ni4os.eu",
+                    "argo-mon.ni4os.eu"
+                ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
                 "stdin": False,
@@ -6676,7 +7025,7 @@ class SensuCheckCallTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["argo.webui"],
+                "subscriptions": ["argo.ni4os.eu"],
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -6706,7 +7055,7 @@ class SensuCheckCallTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["argo.webui"],
+                "subscriptions": ["argo2.ni4os.eu"],
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -6753,9 +7102,11 @@ class SensuCheckCallTests(unittest.TestCase):
                     "processes": None
                 },
                 "subscriptions": [
-                    "entity:sensu-agent1",
-                    "argo.webui",
-                    "argo.mon"
+                    "argo-devel.ni4os.eu",
+                    "argo-mon-devel.ni4os.eu",
+                    "argo-mon.ni4os.eu",
+                    "argo2.ni4os.eu",
+                    "entity:sensu-agent1"
                 ],
                 "last_seen": 1645005291,
                 "deregister": False,
@@ -6938,11 +7289,15 @@ class SensuCheckCallTests(unittest.TestCase):
         return_checks.return_value = self.checks
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.http.connect"),
-            ["argo.webui"]
+            ["argo-devel.ni4os.eu", "argo.ni4os.eu"]
         )
         self.assertEqual(
-            self.sensu.get_check_subscriptions(check="generic.tcp.connect"),
-            ["argo.tcp"]
+            self.sensu.get_check_subscriptions(check="generic.tcp.connect"), [
+                "argo-devel.ni4os.eu",
+                "argo-mon-devel.ni4os.eu",
+                "argo-mon.ni4os.eu",
+                "argo2.ni4os.eu"
+            ]
         )
 
     @patch("argo_scg.sensu.Sensu._get_entities")
@@ -7121,7 +7476,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu                "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7130,15 +7485,15 @@ class SensuCtlTests(unittest.TestCase):
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
                 "response time",
                 "eu.eudat.itsm.spmt__agora.ni4os.eu               "
-                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
                 "  OK - Agora is up.",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)",
                 "eu.ni4os.repo.publication__videolectures.net     "
-                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:13"
+                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:31"
                 "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
                 "expired (was valid until Jul 10 07:29:06 2022 GMT)",
                 "sensu-agent-ni4os-devel.cro-ngi                  "
@@ -7165,7 +7520,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu                "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7174,10 +7529,10 @@ class SensuCtlTests(unittest.TestCase):
                 "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
                 "response time",
                 "eu.eudat.itsm.spmt__agora.ni4os.eu               "
-                "grnet.agora.healthcheck         OK        2023-04-24 07:54:10"
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
                 "  OK - Agora is up.",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity    OK        2023-04-24 06:23:17"
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)",
@@ -7193,7 +7548,6 @@ class SensuCtlTests(unittest.TestCase):
 
     @patch("argo_scg.sensu.subprocess.check_output")
     def test_filter_events_by_service_type(self, mock_subprocess):
-        self.maxDiff = None
         mock_subprocess.return_value = (
             json.dumps(mock_events_ctl).encode("utf-8"))
         events = self.sensuctl.filter_events(service_type="argo.mon")
@@ -7206,7 +7560,7 @@ class SensuCtlTests(unittest.TestCase):
                 "_____________________________________________________________"
                 "___________",
                 "argo.mon__argo-mon-devel.ni4os.eu  "
-                "generic.certificate.validity    OK        2023-03-01 10:23:13"
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
                 "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
                 "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
                 "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
@@ -7241,7 +7595,7 @@ class SensuCtlTests(unittest.TestCase):
                 "___________________________________________________________"
                 "___________",
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
-                "generic.certificate.validity  OK        2023-04-24 06:23:17"
+                "generic.certificate.validity  OK        2023-04-24 06:23:32"
                 "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
                 "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
                 "88 days)"

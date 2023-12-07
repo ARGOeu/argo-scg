@@ -1,3 +1,4 @@
+import copy
 import logging
 import unittest
 
@@ -612,6 +613,52 @@ mock_metrics = [
         }
     },
     {
+        "eu.egi.SRM-VOGet": {
+            "tags": [
+                "htc",
+                "nonharmonized",
+                "srm",
+                "storage"
+            ],
+            "probe": "",
+            "config": {},
+            "flags": {
+                "PASSIVE": "1",
+                "VO": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "eu.egi.SRM-All",
+            "docurl": ""
+        }
+    },
+    {
+        "eu.egi.SRM-VOLsDir": {
+            "tags": [
+                "htc",
+                "nonharmonized",
+                "srm",
+                "storage"
+            ],
+            "probe": "",
+            "config": {},
+            "flags": {
+                "PASSIVE": "1",
+                "VO": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "eu.egi.SRM-All",
+            "docurl": ""
+        }
+    },
+    {
         "eu.seadatanet.org.replicationmanager-check": {
             "tags": [],
             "probe": "check_http",
@@ -838,6 +885,42 @@ mock_metrics = [
         }
     },
     {
+        "generic.certificate.validity-srm": {
+            "tags": [
+                "certificate",
+                "htc",
+                "srm",
+                "storage"
+            ],
+            "probe": "check_ssl_cert",
+            "config": {
+                "timeout": "60",
+                "retryInterval": "30",
+                "path": "/usr/lib64/nagios/plugins",
+                "maxCheckAttempts": "2",
+                "interval": "240"
+            },
+            "flags": {
+                "OBSESS": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "NAGIOS_HOST_CERT": "-C",
+                "NAGIOS_HOST_KEY": "-K",
+                "SRM2_PORT": "-p"
+            },
+            "parameter": {
+                "-w": "30 -c 0 -N --altnames",
+                "--rootcert-dir": "/etc/grid-security/certificates"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/matteocorti/check_ssl_cert/blob/"
+                      "master/README.md"
+        }
+    },
+    {
         "generic.http.ar-argoui-ni4os": {
             "tags": [
                 "argo.webui",
@@ -931,6 +1014,37 @@ mock_metrics = [
             "file_attribute": {},
             "parent": "",
             "docurl": "https://github.com/ARGOeu-Metrics/nagios-http-json"
+        }
+    },
+    {
+        "generic.oai-pmh.validity": {
+            "tags": [
+                "OAI-PMH",
+                "http"
+            ],
+            "probe": "check_oai_pmh",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "60",
+                "path": "/usr/libexec/argo/probes/oai_pmh",
+                "interval": "60",
+                "retryInterval": "5"
+            },
+            "flags": {
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "URL": "-u"
+            },
+            "parameter": {
+                "-v": ""
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-oai-pmh/"
+                      "blob/master/README.md"
         }
     },
     {
@@ -2498,7 +2612,50 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
-    }
+    },
+    {
+        "date": "2023-11-23",
+        "group": "BEgrid-ULB-VUB",
+        "type": "SITES",
+        "service": "SRM",
+        "hostname": "dcache6-shadow.iihe.ac.be",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxx",
+            "monitored": "1",
+            "production": "0",
+            "scope": "EGI, wlcg, tier2, cms"
+        }
+    },
+    {
+        "date": "2023-11-23",
+        "group": "BEgrid-ULB-VUB",
+        "type": "SITES",
+        "service": "Site-BDII",
+        "hostname": "sitebdii.iihe.ac.be",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2, cms"
+        }
+    },
+    {
+            "date": "2023-12-01",
+            "group": "lida.lida_survey_data",
+            "type": "SERVICEGROUPS",
+            "service": "eu.eosc.generic.oai-pmh",
+            "hostname": "lida.dataverse.lt",
+            "tags": {
+                "hostname": "lida.dataverse.lt",
+                "info_URL": "https://lida.dataverse.lt/oai?verb="
+                            "ListRecords&metadataPrefix=oai_datacite&set="
+                            "lida_survey_data"
+            }
+        }
 ]
 
 mock_metric_profiles = [
@@ -3237,6 +3394,50 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-10-26",
+        "name": "ARGO_TEST45",
+        "description": "Profile with passive metrics",
+        "services": [
+            {
+                "service": "SRM",
+                "metrics": [
+                    "eu.egi.SRM-All",
+                    "eu.egi.SRM-VOGet",
+                    "eu.egi.SRM-VOLsDir"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-11-23",
+        "name": "ARGO_TEST46",
+        "description": "Profile with metrics with info in info_bdii_* tag",
+        "services": [
+            {
+                "service": "SRM",
+                "metrics": [
+                    "generic.certificate.validity-srm"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-12-01",
+        "name": "ARGO_TEST47",
+        "description": "Profile with endpoint with & in URL",
+        "services": [
+            {
+                "service": "eu.eosc.generic.oai-pmh",
+                "metrics": [
+                    "generic.oai-pmh.validity"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3370,11 +3571,11 @@ mock_attributes = {
         "global_attributes": [
             {
                 "attribute": "OIDC_TOKEN_FILE",
-                "value": "/etc/nagios/globus/oidc"
+                "value": "/etc/sensu/certs/oidc"
             },
             {
                 "attribute": "OIDC_ACCESS_TOKEN",
-                "value": "/etc/nagios/globus/oidc"
+                "value": "/etc/sensu/certs/oidc"
             },
             {
                 "attribute": "OS_APPDB_IMAGE",
@@ -3382,7 +3583,7 @@ mock_attributes = {
             },
             {
                 "attribute": "X509_USER_PROXY",
-                "value": "/etc/nagios/globus/userproxy.pem"
+                "value": "/etc/sensu/certs/userproxy.pem"
             },
             {
                 "attribute": "VONAME",
@@ -3502,7 +3703,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u /ni4os/report-ar/Critical/"
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
-                    "subscriptions": ["argo.webui", "argo.test"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -3533,7 +3737,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -3586,7 +3793,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -3649,7 +3859,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u /ni4os/report-ar/Critical/"
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
-                    "subscriptions": ["argo.webui", "argo.test"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "interval": 300,
                     "timeout": 900,
@@ -3673,7 +3886,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "interval": 300,
                     "timeout": 900,
@@ -3724,7 +3940,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u /ni4os/report-ar/Critical/"
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
-                    "subscriptions": ["argo.webui", "argo.test"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -3755,7 +3974,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -3811,9 +4033,12 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-w 30 -c 0 -N --altnames --rootcert-dir "
                                "/etc/grid-security/certificates "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem -p 2119",
-                    "subscriptions": ["argo.webui"],
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem -p 2119",
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -3848,9 +4073,12 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/grid-security/certificates "
                                "--rootcert-file "
                                "/etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
-                    "subscriptions": ["argo.webui"],
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -3881,7 +4109,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
                                "-H {{ .labels.hostname }} -t 60 -p 2811",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -3912,8 +4142,12 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/cert/"
                                "CertLifetime-probe -t 60 "
-                               "-f /etc/nagios/globus/hostcert.pem",
-                    "subscriptions": ["argo.webui"],
+                               "-f /etc/sensu/certs/hostcert.pem",
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
                     "handlers": [],
                     "interval": 14400,
                     "timeout": 900,
@@ -3964,7 +4198,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/grid-security/certificates "
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key -p 2119",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -4001,7 +4238,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/pki/tls/certs/ca-bundle.crt "
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -4033,7 +4273,11 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/cert/"
                                "CertLifetime-probe -t 60 "
                                "-f /etc/nagios/certs/hostcert.pem",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
                     "handlers": [],
                     "interval": 14400,
                     "timeout": 900,
@@ -4086,7 +4330,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \" \" }} "
                                "{{ .labels.generic_http_connect_path | "
                                "default \" \" }}",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -4142,8 +4389,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls "
                                "-u {{ .labels.webdav_url }} "
-                               "-E /etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["webdav"],
+                               "-E /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "hostname.cern.ch"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4176,8 +4425,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 600 -v -v "
                                "--no-crls --dynafed --fixed-content-length "
                                "-u {{ .labels.endpoint_url }} "
-                               "-E /etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["ch.cern.dynafed"],
+                               "-E /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "dynafed.hostname.ca"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4209,8 +4460,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/"
                                "es.upv.grycap.im/probeim.py -t 60 -l NONE "
                                "--url {{ .labels.info_url }} "
-                               "--token /etc/nagios/globus/oidc",
-                    "subscriptions": ["es.upv.grycap.im"],
+                               "--token /etc/sensu/certs/oidc",
+                    "subscriptions": [
+                        "grycap.upv.es"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4266,7 +4519,13 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 -c 40:1 "
                                "-w 20:1 -b {{ .labels.bdii_dn }} "
                                "-p 2170",
-                    "subscriptions": ["Site-BDII", "Top-BDII"],
+                    "subscriptions": [
+                        "bdii1.test.com",
+                        "grid-giis1.desy.de",
+                        "kser.arnes.si",
+                        "sbdii.test.com",
+                        "sitebdii.iihe.ac.be"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4300,7 +4559,12 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 -c 1:1 "
                                "-f {{ .labels.org_nagios_glue2_check_f }} "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
-                    "subscriptions": ["Site-BDII"],
+                    "subscriptions": [
+                        "grid-giis1.desy.de",
+                        "kser.arnes.si",
+                        "sbdii.test.com",
+                        "sitebdii.iihe.ac.be"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4357,7 +4621,11 @@ class CheckConfigurationTests(unittest.TestCase):
                                "nagios-plugin-dynamic-dns.sh "
                                "-H {{ .labels.hostname }} -t 120 "
                                "--endpoint-name {{ .labels.endpoint_name }}",
-                    "subscriptions": ["eu.egi.cloud.dyndns"],
+                    "subscriptions": [
+                        "dns1.cloud.test.eu",
+                        "dns2.cloud.test.eu",
+                        "dns3.cloud.test.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4418,10 +4686,13 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios -O good_ses_file="
                                "/var/lib/gridprobes/ops/GoodSEs --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
-                    "subscriptions": ["ARC-CE"],
+                    "subscriptions": [
+                        "alien.spacescience.ro",
+                        "gridarcce01.mesocentre.uca.fr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4460,10 +4731,13 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-O service_suffix=-$_SERVICEVO_FQAN$ "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
-                    "subscriptions": ["ARC-CE"],
+                    "subscriptions": [
+                        "alien.spacescience.ro",
+                        "gridarcce01.mesocentre.uca.fr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4518,7 +4792,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_http "
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
                                "{{ .labels.u__rm_path | default \"\" }}",
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"],
+                    "subscriptions": [
+                        "185.229.108.85",
+                        "hnodc-dm.ath.hcmr.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4553,7 +4830,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "replication_manager_check.py "
                                "-H {{ .labels.hostname }} -t 30 "
                                "{{ .labels.r__rm_path | default \"\" }}",
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"],
+                    "subscriptions": [
+                        "185.229.108.85",
+                        "hnodc-dm.ath.hcmr.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4612,7 +4892,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
-                    "subscriptions": ["org.openstack.nova"],
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4644,8 +4927,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "swiftprobe.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }} "
-                               "--access-token /etc/nagios/globus/oidc",
-                    "subscriptions": ["org.openstack.swift"],
+                               "--access-token /etc/sensu/certs/oidc",
+                    "subscriptions": [
+                        "identity.cloud.muni.cz"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4676,12 +4961,15 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
                                "novaprobe.py -t 300 -v "
-                               "--access-token /etc/nagios/globus/oidc "
+                               "--access-token /etc/sensu/certs/oidc "
                                "--appdb-image xxxx "
                                "--endpoint {{ .labels.os_keystone_url }} "
-                               "--cert /etc/nagios/globus/userproxy.pem "
+                               "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
-                    "subscriptions": ["org.openstack.nova"],
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4711,9 +4999,13 @@ class CheckConfigurationTests(unittest.TestCase):
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
-                               "-t 120 -p {{ .labels.os_keystone_port }} "
+                               "-t 120 -p {{ .labels.os_keystone_port | "
+                               "default \"443\" }} "
                                "-H {{ .labels.os_keystone_host }}",
-                    "subscriptions": ["org.openstack.nova"],
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4768,10 +5060,13 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/grid-monitoring/probes/eu.egi.sec/"
                                "probes/check_pakiti_vuln "
                                "-H {{ .labels.hostname }} -t 30 --vo test "
-                               "--cert /etc/nagios/globus/hostcert.pem "
-                               "--key /etc/nagios/globus/hostkey.pem "
+                               "--cert /etc/sensu/certs/hostcert.pem "
+                               "--key /etc/sensu/certs/hostkey.pem "
                                "--site {{ .labels.site }}",
-                    "subscriptions": ["ARC-CE"],
+                    "subscriptions": [
+                        "alien.spacescience.ro",
+                        "gridarcce01.mesocentre.uca.fr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4827,10 +5122,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM -s test --se-timeout 260 "
                                "--voname test "
-                               "-X /etc/nagios/globus/userproxy.pem "
+                               "-X /etc/sensu/certs/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
-                    "subscriptions": ["SRM"],
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4863,13 +5162,12 @@ class CheckConfigurationTests(unittest.TestCase):
         self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_check_configuration_with_servicevo_without_voname(self):
-        self.maxDiff = None
         attributes = {
             "local": {
                 "global_attributes": [
                     {
                         "attribute": "X509_USER_PROXY",
-                        "value": "/etc/nagios/globus/userproxy.pem"
+                        "value": "/etc/sensu/certs/userproxy.pem"
                     }
                 ],
                 "host_attributes": [],
@@ -4898,10 +5196,14 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM --se-timeout 260 "
-                               "-X /etc/nagios/globus/userproxy.pem "
+                               "-X /etc/sensu/certs/userproxy.pem "
                                "--ldap-url {{ .labels.site_bdii }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
-                    "subscriptions": ["SRM"],
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -4963,10 +5265,13 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios "
                                "-O good_ses_file=/var/lib/gridprobes/ops/"
                                "GoodSEs --voms test "
-                               "--user-proxy /etc/nagios/globus/userproxy.pem "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
-                    "subscriptions": ["ARC-CE"],
+                    "subscriptions": [
+                        "alien.spacescience.ro",
+                        "gridarcce01.mesocentre.uca.fr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5022,8 +5327,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "org.qoscosgrid/broker/qcg-broker-probe "
                                "-H {{ .labels.hostname }} -t 600 -p 8443 "
                                "-n {{ .labels.info_hostdn }} "
-                               "-x /etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["QCG.Broker"],
+                               "-x /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "qcg-broker.man.poznan.pl"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5080,9 +5387,11 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-w 30 -c 0 -N --altnames --rootcert-dir "
                                "/etc/grid-security/certificates --rootcert-file"
                                " /etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
-                    "subscriptions": ["argo.mon"],
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "argo-mon2.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5139,7 +5448,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/usr/libexec/argo/probes/grnet-agora/"
                                "checkhealth -H {{ .labels.hostname }} -v -i "
                                "-u $AGORA_USERNAME -p $AGORA_PASSWORD",
-                    "subscriptions": ["eu.eudat.itsm.spmt"],
+                    "subscriptions": [
+                        "eosc.agora.grnet.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5198,7 +5509,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--tenant EGI --rtype ar --unused-reports "
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token $ARGO_API_TOKEN",
-                    "subscriptions": ["argo.api"],
+                    "subscriptions": [
+                        "api.argo.grnet.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5252,7 +5565,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5286,8 +5601,11 @@ class CheckConfigurationTests(unittest.TestCase):
                                "lfc_host=dummy -O se_host=dummy --timeout 900 "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --user-proxy "
-                               "/etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["argo.test"],
+                               "/etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
                     "handlers": [],
                     "proxy_requests": {
                         "entity_attributes": [
@@ -5366,7 +5684,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
                                "| default \"OK\" }} --case-sensitive",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5398,7 +5718,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "{{ .labels.generic_ssh_test_port | "
                                "default \" \" }}",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5431,7 +5753,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 "
                                "-p {{ .labels.generic_tcp_connect_p | "
                                "default \"443\" }}",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5514,7 +5839,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.nagios_freshness_username }} "
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5546,7 +5874,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-b2handle/"
                                "check_handle_resolution.pl -t 10 "
                                "--prefix {{ .labels.b2handle_prefix }}",
-                    "subscriptions": ["b2handle.test"],
+                    "subscriptions": [
+                        "b2handle3.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5578,7 +5908,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5664,7 +5996,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.nagios_freshness_username }} "
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5697,7 +6032,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_handle_resolution.pl -t 10 "
                                "--prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
-                    "subscriptions": ["b2handle.test"],
+                    "subscriptions": [
+                        "b2handle3.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5729,7 +6066,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5806,7 +6145,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--tenant EGI --rtype ar --unused-reports "
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token {{ .labels.argo_api_token }}",
-                    "subscriptions": ["argo.api"],
+                    "subscriptions": [
+                        "api.argo.grnet.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5864,7 +6205,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-q 'w:metrics+g:published180' -c 4000 -q "
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
                     "handlers": [],
                     "interval": 10800,
                     "timeout": 900,
@@ -5888,7 +6232,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.test"],
+                    "subscriptions": [
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -5971,7 +6317,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-e https://mon-dev.rciam.grnet.gr/probes/results "
                     "-u $EDUGAIN_USER -a $EDUGAIN_PASSWORD -s "
                     "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/auth.php",
-                "subscriptions": ["argo.oidc.login"],
+                "subscriptions": [
+                    "aai.argo.eu"
+                ],
                 "handlers": [],
                 "interval": 900,
                 "timeout": 900,
@@ -6055,8 +6403,11 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_webdav "
                     "-H {{ .labels.hostname }} -t 600 -v -v --no-crls "
                     "-u {{ .labels.webdav_url }} "
-                    "-E /etc/nagios/globus/userproxy.pem",
-                "subscriptions": ["webdav"],
+                    "-E /etc/sensu/certs/userproxy.pem",
+                "subscriptions": [
+                    "hostname.cern.ch",
+                    "hostname2.cern.ch"
+                ],
                 "handlers": [],
                 "interval": 3600,
                 "timeout": 900,
@@ -6110,7 +6461,71 @@ class CheckConfigurationTests(unittest.TestCase):
                     "--onredirect follow {{ .labels.ssl | default \" \" }} "
                     "{{ .labels.generic_http_connect_port | default \" \" }} "
                     "{{ .labels.generic_http_connect_path | default \" \" }}",
-                "subscriptions": ["eu.eosc.portal.services.url"],
+                "subscriptions": [
+                    "hostname1.argo.com",
+                    "hostname2.argo.eu",
+                    "hostname3.argo.eu"
+                ],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_if_hostname_in_tags_use_ids(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscriptions_use_ids=True
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_http "
+                    "-H {{ .labels.hostname }} -t 60 --link "
+                    "--onredirect follow {{ .labels.ssl | default \" \" }} "
+                    "{{ .labels.generic_http_connect_port | default \" \" }} "
+                    "{{ .labels.generic_http_connect_path | default \" \" }}",
+                "subscriptions": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id"
+                ],
                 "handlers": [],
                 "interval": 300,
                 "timeout": 900,
@@ -6162,7 +6577,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["argo.webui"],
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6242,7 +6660,11 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-t 30 "
                                "{{ .labels.eosc_test_api_l }} "
                                "-u {{ .labels.endpoint_url }}",
-                    "subscriptions": ["probe.test"],
+                    "subscriptions": [
+                        "test.argo.grnet.gr",
+                        "test2.argo.grnet.gr",
+                        "test3.argo.grnet.gr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6297,7 +6719,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_handle_api.py "
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
-                    "subscriptions": ["b2handle"],
+                    "subscriptions": [
+                        "b2handle.test.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6368,7 +6792,9 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_handle_api.py "
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
-                    "subscriptions": ["b2handle"],
+                    "subscriptions": [
+                        "b2handle.test.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6439,7 +6865,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.eudat_b2handle_handle_api_crud_f }}"
                                " --prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
-                    "subscriptions": ["b2handle.handle.test"],
+                    "subscriptions": [
+                        "b2handle.test.com",
+                        "b2handle3.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6494,7 +6923,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
-                    "subscriptions": ["gitlab"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6525,7 +6957,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["gitlab"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6601,7 +7036,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6632,7 +7070,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6702,7 +7143,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6733,7 +7177,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6805,7 +7252,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6836,7 +7286,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6904,7 +7357,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6935,7 +7391,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
-                    "subscriptions": ["gitlab2"],
+                    "subscriptions": [
+                        "gitlab.test.com",
+                        "gitlab2.test.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -6991,7 +7450,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
-                    "subscriptions": ["eu.ni4os.hpc.ui"],
+                    "subscriptions": [
+                        "hpc.resource.ni4os.eu",
+                        "teran.srce.hr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7046,7 +7508,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 22",
-                    "subscriptions": ["eu.ni4os.hpc.ui2"],
+                    "subscriptions": [
+                        "hpc.resource.ni4os.eu",
+                        "teran.srce.hr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7111,7 +7576,10 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 1022",
-                    "subscriptions": ["eu.ni4os.hpc.ui2"],
+                    "subscriptions": [
+                        "hpc.resource.ni4os.eu",
+                        "teran.srce.hr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7178,7 +7646,10 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
-                    "subscriptions": ["eu.ni4os.hpc.ui2"],
+                    "subscriptions": [
+                        "hpc.resource.ni4os.eu",
+                        "teran.srce.hr"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7218,15 +7689,15 @@ class CheckConfigurationTests(unittest.TestCase):
                 "global_attributes": [
                     {
                         "attribute": "OIDC_TOKEN_FILE",
-                        "value": "/etc/nagios/globus/oidc"
+                        "value": "/etc/sensu/certs/oidc"
                     },
                     {
                         "attribute": "OIDC_ACCESS_TOKEN",
-                        "value": "/etc/nagios/globus/oidc"
+                        "value": "/etc/sensu/certs/oidc"
                     },
                     {
                         "attribute": "X509_USER_PROXY",
-                        "value": "/etc/nagios/globus/userproxy.pem"
+                        "value": "/etc/sensu/certs/userproxy.pem"
                     },
                     {
                         "attribute": "VONAME",
@@ -7267,8 +7738,11 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-t 120 --vo test "
                                "--robot-cert /etc/nagios/robot/robot.pem "
                                "--robot-key /etc/nagios/robot/robot.key "
-                               "-x /etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["gridproxy"],
+                               "-x /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "some.host.name",
+                        "internals"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7292,8 +7766,11 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/globus/"
                                "GridProxy-probe -t 30 --vo test "
-                               "-x /etc/nagios/globus/userproxy.pem",
-                    "subscriptions": ["gridproxy"],
+                               "-x /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "some.host.name",
+                        "internals"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7343,7 +7820,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.argo_apel_pub_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
-                    "subscriptions": ["APEL"],
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7377,7 +7857,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.argo_apel_sync_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
-                    "subscriptions": ["APEL"],
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7449,7 +7932,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.argo_apel_pub_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
-                    "subscriptions": ["APEL"],
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7483,7 +7969,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.argo_apel_sync_u }} "
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
-                    "subscriptions": ["APEL"],
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7539,9 +8028,14 @@ class CheckConfigurationTests(unittest.TestCase):
                                "/etc/grid-security/certificates "
                                "--rootcert-file "
                                "/etc/pki/tls/certs/ca-bundle.crt "
-                               "-C /etc/nagios/globus/hostcert.pem "
-                               "-K /etc/nagios/globus/hostkey.pem",
-                    "subscriptions": ["egi.AppDB", "web.check"],
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "appdb.egi.eu",
+                        "bioinformatics.cing.ac.cy",
+                        "eewrc-las.cyi.ac.cy",
+                        "sampaeos.if.usp.br"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7579,7 +8073,12 @@ class CheckConfigurationTests(unittest.TestCase):
                         "default \" \" }} "
                         "{{ .labels.generic_http_connect_path | "
                         "default \" \" }}",
-                    "subscriptions": ["egi.AppDB", "web.check"],
+                    "subscriptions": [
+                        "appdb.egi.eu",
+                        "bioinformatics.cing.ac.cy",
+                        "eewrc-las.cyi.ac.cy",
+                        "sampaeos.if.usp.br"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7638,7 +8137,10 @@ class CheckConfigurationTests(unittest.TestCase):
                                "installed\" -p "
                                "{{ .labels.cvmfs_stratum_1_port | "
                                "default \"8000\" }}",
-                    "subscriptions": ["ch.cern.cvmfs.stratum.1"],
+                    "subscriptions": [
+                        "cclssts1.in2p3.fr",
+                        "cvmfs-stratum-one.cc.kek.jp"
+                    ],
                     "handlers": [],
                     "pipelines": [
                         {
@@ -7662,6 +8164,232 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_passive_check_configuration(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST45"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/lib64/nagios/plugins/srm/srm_probe.py "
+                               "-H {{ .labels.hostname }} -t 300 -d "
+                               "-p eu.egi.SRM -s test --se-timeout 260 "
+                               "--voname test "
+                               "-X /etc/sensu/certs/userproxy.pem "
+                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.endpoint__surl | default \"\" }}",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_srm_all == "
+                            "'eu.egi.SRM-All'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.SRM-All",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "PASSIVE",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": ["publisher-handler"],
+                    "pipelines": [],
+                    "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                    "timeout": 900,
+                    "publish": False,
+                    "metadata": {
+                        "name": "eu.egi.SRM-VOGet",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "PASSIVE",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": ["publisher-handler"],
+                    "pipelines": [],
+                    "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                    "timeout": 900,
+                    "publish": False,
+                    "metadata": {
+                        "name": "eu.egi.SRM-VOLsDir",
+                        "namespace": "mockspace"
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_info_bdii_tag(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_ssl_cert "
+                        "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
+                        "--altnames "
+                        "--rootcert-dir /etc/grid-security/certificates "
+                        "-C /etc/sensu/certs/hostcert.pem "
+                        "-K /etc/sensu/certs/hostkey.pem "
+                        "-p {{ .labels.srm2_port | default \"8443\" }}",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity_srm == "
+                            "'generic.certificate.validity-srm'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity-srm",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_info_bdii_and_info_ext_tag(self):
+        topology = copy.deepcopy(mock_topology)
+        topology[33]["tags"].update({"info_ext_SRM2_PORT": "8444"})
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_ssl_cert "
+                        "-H {{ .labels.hostname }} -t 60 -w 30 -c 0 -N "
+                        "--altnames "
+                        "--rootcert-dir /etc/grid-security/certificates "
+                        "-C /etc/sensu/certs/hostcert.pem "
+                        "-K /etc/sensu/certs/hostkey.pem "
+                        "-p {{ .labels.srm2_port | default \"8443\" }}",
+                    "subscriptions": [
+                        "dcache-se-cms.desy.de",
+                        "dcache.arnes.si",
+                        "dcache6-shadow.iihe.ac.be"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity_srm == "
+                            "'generic.certificate.validity-srm'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity-srm",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
                         }
                     },
                     "round_robin": False
@@ -7706,7 +8434,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7725,7 +8453,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -7762,7 +8490,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7776,7 +8504,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7794,7 +8522,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["bioinformatics.cing.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7811,7 +8539,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7832,7 +8560,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["sampaeos.if.usp.br"]
                 },
             ]
         )
@@ -7868,7 +8596,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7884,7 +8612,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -7924,7 +8652,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
                     },
-                    "subscriptions": ["ch.cern.dynafed"]
+                    "subscriptions": ["dynafed.hostname.ca"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7939,7 +8667,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UPV-GRyCAP"
                         }
                     },
-                    "subscriptions": ["es.upv.grycap.im"]
+                    "subscriptions": ["grycap.upv.es"]
                 },
                 {
                     "entity_class": "proxy",
@@ -7957,7 +8685,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname.cern.ch"]
                 }
             ]
         )
@@ -7998,7 +8726,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/CN=host/dpm.bla.meh.com"
                         }
                     },
-                    "subscriptions": ["mock.webdav"]
+                    "subscriptions": ["dpm.bla.meh.com"]
                 }
             ]
         )
@@ -8044,7 +8772,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                         "mds-vo-name=DESY-HH,o=grid"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["grid-giis1.desy.de"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8069,7 +8797,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                            "CN=kser.arnes.si"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["kser.arnes.si"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8092,7 +8820,31 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site_bdii": "sbdii.test.com"
                         }
                     },
-                    "subscriptions": ["Site-BDII"]
+                    "subscriptions": ["sbdii.test.com"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "Site-BDII__sitebdii.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "org_bdii_entries": "org.bdii.Entries",
+                            "org_nagios_glue2_check":
+                                "org.nagios.GLUE2-Check",
+                            "org_nagios_glue2_check_f":
+                                "\"(&(objectClass=GLUE2Domain)"
+                                "(GLUE2DomainID=BEgrid-ULB-VUB))\"",
+                            "hostname": "sitebdii.iihe.ac.be",
+                            "bdii_dn": "Mds-Vo-Name=BEgrid-ULB-VUB,O=Grid",
+                            "bdii_type": "bdii_site",
+                            "glue2_bdii_dn":
+                                "GLUE2DomainID=BEgrid-ULB-VUB,o=glue",
+                            "service": "Site-BDII",
+                            "site": "BEgrid-ULB-VUB",
+                            "site_bdii": "sitebdii.iihe.ac.be"
+                        }
+                    },
+                    "subscriptions": ["sitebdii.iihe.ac.be"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8109,7 +8861,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BDII"
                         }
                     },
-                    "subscriptions": ["Top-BDII"]
+                    "subscriptions": ["bdii1.test.com"]
                 }
             ]
         )
@@ -8147,7 +8899,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.app.web"]
+                    "subscriptions": ["catalogue.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8163,7 +8915,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8177,7 +8929,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -8215,7 +8967,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns1.cloud.test.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8231,7 +8983,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns2.cloud.test.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8247,7 +8999,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS"
                         }
                     },
-                    "subscriptions": ["eu.egi.cloud.dyndns"]
+                    "subscriptions": ["dns3.cloud.test.eu"]
                 }
             ]
         )
@@ -8288,7 +9040,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GAMMA"
                         }
                     },
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"]
+                    "subscriptions": ["185.229.108.85"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8310,7 +9062,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "HNODC"
                         }
                     },
-                    "subscriptions": ["eu.seadatanet.org.replicationmanager"]
+                    "subscriptions": ["hnodc-dm.ath.hcmr.gr"]
                 }
             ]
         )
@@ -8358,7 +9110,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF"
                         }
                     },
-                    "subscriptions": ["org.openstack.nova"]
+                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8382,7 +9134,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK"
                         }
                     },
-                    "subscriptions": ["org.openstack.nova"]
+                    "subscriptions": ["egi-cloud.pd.infn.it"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8401,7 +9153,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CESNET-MCC"
                         }
                     },
-                    "subscriptions": ["org.openstack.swift"]
+                    "subscriptions": ["identity.cloud.muni.cz"]
                 }
             ]
         )
@@ -8440,7 +9192,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn"
                         }
                     },
-                    "subscriptions": ["egi.aai.oidc"]
+                    "subscriptions": ["aai.eosc-portal.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8458,7 +9210,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn"
                         }
                     },
-                    "subscriptions": ["egi.aai.saml"]
+                    "subscriptions": ["aai.eosc-portal.eu"]
                 }
             ]
         )
@@ -8491,13 +9243,14 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache-se-cms.desy.de",
                             "site_bdii": "grid-giis1.desy.de",
                             "service": "SRM",
+                            "srm2_port": "8443",
                             "endpoint__surl":
                                 "--endpoint srm://dcache-se-cms.desy.de:8443"
                                 "/srm/managerv2?SFN=/pnfs/desy.de/ops",
                             "site": "DESY-HH"
                         }
                     },
-                    "subscriptions": ["SRM"]
+                    "subscriptions": ["dcache-se-cms.desy.de"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8511,10 +9264,26 @@ class EntityConfigurationTests(unittest.TestCase):
                             "service": "SRM",
                             "site": "ARNES",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
-                                           "CN=dcache.arnes.si"
+                                           "CN=dcache.arnes.si",
+                            "srm2_port": "8443"
                         }
                     },
-                    "subscriptions": ["SRM"]
+                    "subscriptions": ["dcache.arnes.si"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache6-shadow.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_srm_all": "eu.egi.SRM-All",
+                            "hostname": "dcache6-shadow.iihe.ac.be",
+                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "service": "SRM",
+                            "site": "BEgrid-ULB-VUB"
+                        }
+                    },
+                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
                 }
             ]
         )
@@ -8550,7 +9319,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "AUVERGRID"
                         }
                     },
-                    "subscriptions": ["ARC-CE"]
+                    "subscriptions": ["gridarcce01.mesocentre.uca.fr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8567,7 +9336,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--memory-limit 268435456"
                         }
                     },
-                    "subscriptions": ["ARC-CE"]
+                    "subscriptions": ["alien.spacescience.ro"]
                 }
             ]
         )
@@ -8603,7 +9372,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["argo.mon"]
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8618,7 +9387,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["argo.mon"]
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
                 }
             ]
         )
@@ -8700,7 +9469,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8716,7 +9485,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8732,7 +9501,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -8790,7 +9559,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8806,7 +9575,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8822,7 +9591,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -8881,7 +9650,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8901,7 +9670,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8921,7 +9690,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -8937,7 +9706,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -8997,7 +9766,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9017,7 +9786,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo-devel.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9037,7 +9806,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.webui"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9053,7 +9822,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9102,7 +9871,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.api"]
+                    "subscriptions": ["api.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9118,7 +9887,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.api"]
+                    "subscriptions": ["api.devel.argo.grnet.gr"]
                 }
             ]
         )
@@ -9154,7 +9923,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET"
                         }
                     },
-                    "subscriptions": ["argo.test"]
+                    "subscriptions": ["argo.ni4os.eu"]
                 }
             ]
         )
@@ -9213,7 +9982,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.oidc.login"]
+                    "subscriptions": ["aai.argo.eu"]
                 }
             ]
         )
@@ -9283,7 +10052,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname.cern.ch"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9300,7 +10069,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD"
                         }
                     },
-                    "subscriptions": ["webdav"]
+                    "subscriptions": ["hostname2.cern.ch"]
                 }
             ]
         )
@@ -9340,7 +10109,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test1"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname1.argo.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9357,7 +10126,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test2.test"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname2.argo.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9374,7 +10143,82 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "group3"
                         }
                     },
-                    "subscriptions": ["eu.eosc.portal.services.url"]
+                    "subscriptions": ["hostname3.argo.eu"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_hostname_in_tags_use_ids(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscriptions_use_ids=True
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname1.argo.com_hostname1_id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_http_connect_path": "-u /path",
+                            "ssl": "-S --sni",
+                            "info_url":
+                                "https://hostname1.argo.com/path",
+                            "hostname": "hostname1.argo.com",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test1"
+                        }
+                    },
+                    "subscriptions": ["hostname1.argo.com_hostname1_id"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname2.argo.eu_second.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "https://hostname2.argo.eu",
+                            "hostname": "hostname2.argo.eu",
+                            "ssl": "-S --sni",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test2.test"
+                        }
+                    },
+                    "subscriptions": ["hostname2.argo.eu_second.id"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname3.argo.eu_test.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "http://hostname3.argo.eu/",
+                            "generic_http_connect_path": "-u /",
+                            "hostname": "hostname3.argo.eu",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "group3"
+                        }
+                    },
+                    "subscriptions": ["hostname3.argo.eu_test.id"]
                 }
             ]
         )
@@ -9411,7 +10255,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["argo.json"]
+                    "subscriptions": ["test-json.argo.grnet.gr"]
                 },
             ]
         )
@@ -9469,7 +10313,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9488,7 +10332,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test2.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9507,7 +10351,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test3.argo.grnet.gr"]
                 },
             ]
         )
@@ -9567,7 +10411,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9586,7 +10430,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test2.argo.grnet.gr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9605,7 +10449,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO"
                         }
                     },
-                    "subscriptions": ["probe.test"]
+                    "subscriptions": ["test3.argo.grnet.gr"]
                 },
             ]
         )
@@ -9645,7 +10489,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle"]
+                    "subscriptions": ["b2handle.test.example.com"]
                 }
             ]
         )
@@ -9700,7 +10544,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle"]
+                    "subscriptions": ["b2handle.test.example.com"]
                 }
             ]
         )
@@ -9739,7 +10583,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.api"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9790,7 +10634,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9809,7 +10653,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9868,7 +10712,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9887,7 +10731,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9940,7 +10784,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -9959,7 +10803,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE"
                         }
                     },
-                    "subscriptions": ["b2handle.handle.test"]
+                    "subscriptions": ["b2handle3.test.com"]
                 }
             ]
         )
@@ -9993,7 +10837,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST"
                         }
                     },
-                    "subscriptions": ["gitlab"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10010,7 +10854,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST"
                         }
                     },
-                    "subscriptions": ["gitlab"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10070,7 +10914,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10087,7 +10931,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10137,7 +10981,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10152,7 +10996,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10207,7 +11051,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10223,7 +11067,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10270,7 +11114,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab.test.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10284,7 +11128,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2"
                         }
                     },
-                    "subscriptions": ["gitlab2"]
+                    "subscriptions": ["gitlab2.test.com"]
                 }
             ]
         )
@@ -10324,7 +11168,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10338,7 +11182,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10374,7 +11218,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10388,7 +11232,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10434,7 +11278,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10448,7 +11292,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10496,7 +11340,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["hpc.resource.ni4os.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10510,7 +11354,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE"
                         }
                     },
-                    "subscriptions": ["eu.ni4os.hpc.ui2"]
+                    "subscriptions": ["teran.srce.hr"]
                 }
             ]
         )
@@ -10548,7 +11392,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid1.example.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10565,7 +11409,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid2.example.com"]
                 }
             ]
         )
@@ -10617,7 +11461,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid1.example.com"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10634,7 +11478,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2"
                         }
                     },
-                    "subscriptions": ["APEL"]
+                    "subscriptions": ["apel.grid2.example.com"]
                 }
             ]
         )
@@ -10671,7 +11515,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APPDB"
                         }
                     },
-                    "subscriptions": ["egi.AppDB"]
+                    "subscriptions": ["appdb.egi.eu"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10691,7 +11535,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["bioinformatics.cing.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10710,7 +11554,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10733,7 +11577,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA"
                         }
                     },
-                    "subscriptions": ["web.check"]
+                    "subscriptions": ["sampaeos.if.usp.br"]
                 }
             ]
         )
@@ -10770,7 +11614,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IN2P3-CC"
                         }
                     },
-                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                    "subscriptions": ["cclssts1.in2p3.fr"]
                 },
                 {
                     "entity_class": "proxy",
@@ -10787,7 +11631,124 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "JP-KEK-CRC-02"
                         }
                     },
-                    "subscriptions": ["ch.cern.cvmfs.stratum.1"]
+                    "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_info_bdii_tag(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST46"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache-se-cms.desy.de",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "srm2_port": "8443",
+                            "hostname": "dcache-se-cms.desy.de",
+                            "service": "SRM",
+                            "site": "DESY-HH",
+                            "site_bdii": "grid-giis1.desy.de"
+                        }
+                    },
+                    "subscriptions": ["dcache-se-cms.desy.de"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache.arnes.si",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "srm2_port": "8443",
+                            "hostname": "dcache.arnes.si",
+                            "service": "SRM",
+                            "site": "ARNES",
+                            "site_bdii": "kser.arnes.si",
+                            "info_hostdn":
+                                "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si"
+                        }
+                    },
+                    "subscriptions": ["dcache.arnes.si"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "SRM__dcache6-shadow.iihe.ac.be",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity_srm":
+                                "generic.certificate.validity-srm",
+                            "hostname": "dcache6-shadow.iihe.ac.be",
+                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "service": "SRM",
+                            "site": "BEgrid-ULB-VUB"
+                        }
+                    },
+                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_ampersand_in_URL(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST47"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.generic.oai-pmh__lida.dataverse.lt",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_oai_pmh_validity":
+                                "generic.oai-pmh.validity",
+                            "endpoint_url":
+                                "\"https://lida.dataverse.lt/oai?verb="
+                                "ListRecords&metadataPrefix=oai_datacite&set="
+                                "lida_survey_data\"",
+                            "info_url":
+                                "\"https://lida.dataverse.lt/oai?verb="
+                                "ListRecords&metadataPrefix=oai_datacite&set="
+                                "lida_survey_data\"",
+                            "hostname": "lida.dataverse.lt",
+                            "service": "eu.eosc.generic.oai-pmh",
+                            "site": "lida.lida_survey_data"
+                        }
+                    },
+                    "subscriptions": ["lida.dataverse.lt"]
                 }
             ]
         )
@@ -10807,7 +11768,74 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
-        self.assertEqual(sorted(subscriptions), ["argo.test", "argo.webui"])
+        self.assertEqual(
+            sorted(subscriptions),
+            ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_hostnames_without_id(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            sorted(subscriptions), [
+                "hostname1.argo.com", "hostname2.argo.eu", "hostname3.argo.eu",
+                "internals"
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_hostnames_with_id(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscriptions_use_ids=True
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            sorted(subscriptions), [
+                "hostname1.argo.com_hostname1_id",
+                "hostname2.argo.eu_second.id",
+                "hostname3.argo.eu_test.id",
+                "internals"
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_internal_services(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1", "ARGO_TEST2", "ARGO_TEST27"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            services = generator.generate_internal_services()
+        self.assertEqual(services, "argo.test,argo.webui")
         self.assertEqual(log.output, DUMMY_LOG)
 
 

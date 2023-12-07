@@ -30,6 +30,7 @@ webapi_token = w3b4p1t0k3n2\n
 attributes = /path/to/attributes2\n
 metricprofiles = PROFILE4\n
 publish = false
+subscriptions_use_ids = true
 """
 
 config_file_missing_section = """
@@ -403,4 +404,9 @@ class ConfigTests(unittest.TestCase):
                 "TENANT1":
                     "/var/spool/argo-nagios-ams-publisher/tenant1_metrics"
             }
+        )
+
+    def test_get_use_ids(self):
+        self.assertEqual(
+            self.config.get_use_ids(), {"TENANT1": False, "TENANT2": True}
         )

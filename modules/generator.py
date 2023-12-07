@@ -5,10 +5,10 @@ from urllib.parse import urlparse
 from argo_scg.exceptions import GeneratorException
 
 hardcoded_attributes = {
-    "NAGIOS_HOST_CERT": "/etc/nagios/globus/hostcert.pem",
-    "NAGIOS_HOST_KEY": "/etc/nagios/globus/hostkey.pem",
-    "KEYSTORE": "/etc/nagios/globus/keystore.jks",
-    "TRUSTSTORE": "/etc/nagios/globus/truststore.ts"
+    "NAGIOS_HOST_CERT": "/etc/sensu/certs/hostcert.pem",
+    "NAGIOS_HOST_KEY": "/etc/sensu/certs/hostkey.pem",
+    "KEYSTORE": "/etc/sensu/certs/keystore.jks",
+    "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
 
@@ -51,10 +51,12 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant
+            attributes, secrets_file, default_ports, tenant,
+            subscriptions_use_ids=False
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
+        self.subscriptions_use_ids = subscriptions_use_ids
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -69,6 +71,8 @@ class ConfigurationGenerator:
 
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
+
+        self.internal_metrics_subscription = "internals"
 
         metrics_list = list()
         internal_metrics = list()
@@ -259,12 +263,11 @@ class ConfigurationGenerator:
     def get_host_attribute_overrides(self):
         return self.host_attribute_overrides
 
-    @staticmethod
-    def _get_single_endpoint_url(url):
+    def _get_single_endpoint_url(self, url):
         if "," in url:
             url = url.split(",")[0].strip()
 
-        return url
+        return self._handle_endpoint_url(url)
 
     def _get_metrics4attribute(self, attribute):
         metrics_with_attribute = list()
@@ -343,6 +346,31 @@ class ConfigurationGenerator:
                 metrics.update({service["service"]: service["metrics"]})
 
         return metrics
+
+    def _get_hostnames4metrics(self):
+        def get_hostname(item):
+            if self.subscriptions_use_ids:
+                return item["hostname"]
+
+            elif "hostname" in item["tags"]:
+                return item["tags"]["hostname"]
+
+            else:
+                return item["hostname"]
+
+        hostnames4metrics = dict()
+        for metric, servicetypes in self.servicetypes4metrics.items():
+            hostnames = list()
+            for servicetype in servicetypes:
+                hostnames.extend([
+                    get_hostname(item) for item in self.topology
+                    if item["service"] == servicetype
+                ])
+
+            hostnames = sorted(list(set(hostnames)))
+            hostnames4metrics.update({metric: hostnames})
+
+        return hostnames4metrics
 
     def _get_extensions(self):
         extensions = set()
@@ -458,6 +486,9 @@ class ConfigurationGenerator:
                         if self._is_extension_present_any_endpoint(
                                 services=self.servicetypes4metrics[metric],
                                 extension=f"info_ext_{key}"
+                        ) or self._is_extension_present_any_endpoint(
+                            services=self.servicetypes4metrics[metric],
+                            extension=f"info_bdii_{key}"
                         ) or key in overridden_attributes:
                             key = "{{ .labels.%s | default \"%s\" }}" % (
                                 create_label(key.lower()),
@@ -509,6 +540,10 @@ class ConfigurationGenerator:
                             )
                             value = ""
 
+                    elif key == "OS_KEYSTONE_PORT":
+                        key = "{{ .labels.%s | default \"443\" }}" \
+                              % create_label(key.lower())
+
                     elif (
                             key.startswith("OS_KEYSTONE_") or
                             key.endswith("_URL") or
@@ -542,154 +577,190 @@ class ConfigurationGenerator:
     def _create_servicesite_name_value(self, value, site):
         return value.replace(self.servicesite_name_var, site)
 
+    @staticmethod
+    def _is_passive(configuration):
+        return "PASSIVE" in configuration["flags"]
+
+    def _generate_active_check(
+            self, name, configuration, publish, namespace="default"
+    ):
+        parameter_overrides = [
+            item for item in self.metric_parameter_overrides
+            if item["metric"] == name
+        ]
+        try:
+            path = configuration["config"]["path"]
+            if path.endswith("/"):
+                path = path[:-1]
+
+            executable = os.path.join(path, configuration["probe"])
+
+            if "NOTIMEOUT" not in configuration["flags"]:
+                parameters = "-t " + configuration["config"]["timeout"]
+
+            else:
+                parameters = ""
+
+            if "NOHOSTNAME" not in configuration["flags"]:
+                parameters = "-H {{ .labels.hostname }} " + parameters
+                parameters = parameters.strip()
+
+            for key, value in configuration["parameter"].items():
+                if value == "$_SERVICEVO$":
+                    if "VONAME" in self.global_attributes:
+                        value = self.global_attributes["VONAME"]
+
+                    else:
+                        continue
+
+                elif (
+                        self._is_hostalias_present(value) or
+                        self._is_servicesite_name_present(value)
+                ):
+                    value = "{{ .labels.%s }}" % (
+                        self._create_metric_parameter_label(name, key)
+                    )
+
+                else:
+                    p = [
+                        item for item in parameter_overrides
+                        if item["parameter"] == key
+                    ]
+                    if len(p) > 0:
+                        value = "{{ .labels.%s | default \"%s\" }}" % (
+                            p[0]["label"], value
+                        )
+
+                param = f"{key} {value}".strip()
+                parameters = f"{parameters} {param}".strip()
+
+            used_default_params = list()
+            if len(parameter_overrides) > 0:
+                for o in parameter_overrides:
+                    if (
+                            self._is_parameter_default(
+                                name, o["parameter"]
+                            ) and o["label"] not in used_default_params
+                    ):
+                        param = "{{ .labels.%s }}" % o["label"]
+                        used_default_params.append(o["label"])
+                        parameters = f"{parameters} {param}"
+
+            attributes, issecret = self._handle_attributes(
+                metric=name,
+                attrs=configuration["attribute"]
+            )
+
+            command = "{} {} {}".format(
+                executable, parameters.strip(), attributes.lstrip()
+            )
+
+            if issecret:
+                command = f"source {self.secrets} ; " \
+                          f"export $(cut -d= -f1 {self.secrets}) ; " \
+                          f"{command}"
+
+            check = {
+                "command": command.strip(),
+                "subscriptions": self._get_hostnames4metrics()[name],
+                "handlers": [],
+                "interval": int(configuration["config"]["interval"]) * 60,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": name,
+                    "namespace": namespace,
+                    "annotations": {
+                        "attempts": configuration["config"]["maxCheckAttempts"]
+                    }
+                },
+                "round_robin": False
+            }
+
+            if publish and "NOPUBLISH" not in configuration["flags"]:
+                check.update({
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                })
+
+            elif not publish or "internal" in configuration["tags"]:
+                check.update({
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                })
+
+            else:
+                check.update({"pipelines": []})
+
+            if namespace != "default" and \
+                    "internal" not in configuration["tags"]:
+                check.update({
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.{} == '{}'".format(
+                                name.lower().replace(".", "_").replace(
+                                    "-", "_"
+                                ), name
+                            )
+                        ]
+                    }
+                })
+
+            if "NOPUBLISH" in configuration["flags"]:
+                subscriptions = check["subscriptions"]
+                subscriptions.append(self.internal_metrics_subscription)
+                check.update({"subscriptions": subscriptions})
+
+            return check
+
+        except KeyError as e:
+            self.logger.warning(
+                f"{self.tenant}: Skipping check {name}: "
+                f"Missing key {str(e)}"
+            )
+
+            return None
+
     def generate_checks(self, publish, namespace="default"):
         checks = list()
 
         for metric in self.metrics:
             for name, configuration in metric.items():
-                parameter_overrides = [
-                    item for item in self.metric_parameter_overrides
-                    if item["metric"] == name
-                ]
-                try:
-                    path = configuration["config"]["path"]
-                    if path.endswith("/"):
-                        path = path[:-1]
-
-                    executable = os.path.join(path, configuration["probe"])
-
-                    if "NOTIMEOUT" not in configuration["flags"]:
-                        parameters = "-t " + configuration["config"]["timeout"]
-
-                    else:
-                        parameters = ""
-
-                    if "NOHOSTNAME" not in configuration["flags"]:
-                        parameters = "-H {{ .labels.hostname }} " + parameters
-                        parameters = parameters.strip()
-
-                    for key, value in configuration["parameter"].items():
-                        if value == "$_SERVICEVO$":
-                            if "VONAME" in self.global_attributes:
-                                value = self.global_attributes["VONAME"]
-
-                            else:
-                                continue
-
-                        elif (
-                            self._is_hostalias_present(value) or
-                                self._is_servicesite_name_present(value)
-                        ):
-                            value = "{{ .labels.%s }}" % (
-                                self._create_metric_parameter_label(name, key)
-                            )
-
-                        else:
-                            p = [
-                                item for item in parameter_overrides
-                                if item["parameter"] == key
-                            ]
-                            if len(p) > 0:
-                                value = "{{ .labels.%s | default \"%s\" }}" % (
-                                    p[0]["label"], value
-                                )
-
-                        param = f"{key} {value}".strip()
-                        parameters = f"{parameters} {param}".strip()
-
-                    used_default_params = list()
-                    if len(parameter_overrides) > 0:
-                        for o in parameter_overrides:
-                            if (
-                                    self._is_parameter_default(
-                                        name, o["parameter"]
-                                    ) and o["label"] not in used_default_params
-                            ):
-                                param = "{{ .labels.%s }}" % o["label"]
-                                used_default_params.append(o["label"])
-                                parameters = f"{parameters} {param}"
-
-                    attributes, issecret = self._handle_attributes(
-                        metric=name,
-                        attrs=configuration["attribute"]
-                    )
-
-                    command = "{} {} {}".format(
-                        executable, parameters.strip(), attributes.lstrip()
-                    )
-
-                    if issecret:
-                        command = f"source {self.secrets} ; " \
-                                  f"export $(cut -d= -f1 {self.secrets}) ; " \
-                                  f"{command}"
-
+                if self._is_passive(configuration=configuration):
                     check = {
-                        "command": command.strip(),
-                        "subscriptions": self.servicetypes4metrics[name],
-                        "handlers": [],
-                        "interval":
-                            int(configuration["config"]["interval"]) * 60,
+                        "command": "PASSIVE",
+                        "subscriptions": self._get_hostnames4metrics()[name],
+                        "handlers": ["publisher-handler"],
+                        "pipelines": [],
+                        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                         "timeout": 900,
-                        "publish": True,
+                        "publish": False,
                         "metadata": {
                             "name": name,
                             "namespace": namespace,
-                            "annotations": {
-                                "attempts":
-                                    configuration["config"]["maxCheckAttempts"]
-                            }
                         },
                         "round_robin": False
                     }
 
-                    if publish and "NOPUBLISH" not in configuration["flags"]:
-                        check.update({
-                            "pipelines": [
-                                {
-                                    "name": "hard_state",
-                                    "type": "Pipeline",
-                                    "api_version": "core/v2"
-                                }
-                            ]
-                        })
-
-                    elif not publish or "internal" in configuration["tags"]:
-                        check.update({
-                            "pipelines": [
-                                {
-                                    "name": "reduce_alerts",
-                                    "type": "Pipeline",
-                                    "api_version": "core/v2"
-                                }
-                            ]
-                        })
-
-                    else:
-                        check.update({"pipelines": []})
-
-                    if namespace != "default" and \
-                            "internal" not in configuration["tags"]:
-                        check.update({
-                            "proxy_requests": {
-                                "entity_attributes": [
-                                    "entity.entity_class == 'proxy'",
-                                    "entity.labels.{} == '{}'".format(
-                                        name.lower().replace(".", "_").replace(
-                                            "-", "_"
-                                        ), name
-                                    )
-                                ]
-                            }
-                        })
-
-                    checks.append(check)
-
-                except KeyError as e:
-                    self.logger.warning(
-                        f"{self.tenant}: Skipping check {name}: "
-                        f"Missing key {str(e)}"
+                else:
+                    check = self._generate_active_check(
+                        name=name, configuration=configuration,
+                        publish=publish, namespace=namespace
                     )
-                    continue
+
+                if check:
+                    checks.append(check)
 
         for metric in self.metrics_without_configuration:
             self.logger.warning(
@@ -706,6 +777,13 @@ class ConfigurationGenerator:
                 service_types.add(service["service"])
 
         return service_types
+
+    @staticmethod
+    def _handle_endpoint_url(url):
+        if "&" in url:
+            url = f"\"{url}\""
+
+        return url
 
     def generate_entities(self, namespace="default"):
         try:
@@ -740,7 +818,11 @@ class ConfigurationGenerator:
                             st for st in self.servicetypes_with_port if
                             item["service"] == st["service"]
                         ]
-                        labels.update({"info_url": item["tags"]["info_URL"]})
+                        labels.update({
+                            "info_url": self._handle_endpoint_url(
+                                item["tags"]["info_URL"]
+                            )
+                        })
                         o = urlparse(item["tags"]["info_URL"])
                         port = o.port
 
@@ -768,7 +850,9 @@ class ConfigurationGenerator:
 
                             labels.update({"os_keystone_host": o.hostname})
                             labels.update({
-                                "os_keystone_url": item["tags"]["info_URL"]
+                                "os_keystone_url": self._handle_endpoint_url(
+                                    item["tags"]["info_URL"]
+                                )
                             })
 
                     missing_metrics_endpoint_url = list()
@@ -828,7 +912,9 @@ class ConfigurationGenerator:
 
                             else:
                                 labels.update({
-                                    "endpoint_url": item["tags"]["info_URL"]
+                                    "endpoint_url": self._handle_endpoint_url(
+                                        item["tags"]["info_URL"]
+                                    )
                                 })
 
                     if item["service"] in self.servicetypes_with_url:
@@ -846,7 +932,9 @@ class ConfigurationGenerator:
                             elif "info_URL" in item["tags"]:
                                 labels.update({
                                     create_label(attr):
-                                        item["tags"]["info_URL"]
+                                        self._handle_endpoint_url(
+                                            item["tags"]["info_URL"]
+                                        )
                                 })
 
                             else:
@@ -1004,6 +1092,12 @@ class ConfigurationGenerator:
                                 labels.update({create_label(attr): label})
 
                     for tag, value in item["tags"].items():
+                        if (tag.startswith("info_bdii_") and
+                                f"info_ext_{tag[10:]}" not in item["tags"]):
+                            labels.update({
+                                create_label(tag[10:]): value
+                            })
+
                         if tag.startswith("info_ext_"):
                             if tag.lower() == "info_ext_port":
                                 labels.update({"port": value})
@@ -1078,7 +1172,10 @@ class ConfigurationGenerator:
                             "namespace": namespace,
                             "labels": labels
                         },
-                        "subscriptions": types
+                        "subscriptions": [
+                            item["hostname"] if self.subscriptions_use_ids
+                            else hostname
+                        ]
                     })
 
                 else:
@@ -1108,4 +1205,17 @@ class ConfigurationGenerator:
             )
 
     def generate_subscriptions(self):
-        return self.servicetypes
+        subscriptions = list()
+        for metric, hostnames in self._get_hostnames4metrics().items():
+            subscriptions.extend(hostnames)
+
+        subscriptions.append(self.internal_metrics_subscription)
+
+        return list(set(subscriptions))
+
+    def generate_internal_services(self):
+        services = list()
+        for metric in self.internal_metrics:
+            services.extend(self.servicetypes4metrics[metric])
+
+        return ",".join(sorted(list(set(services))))
