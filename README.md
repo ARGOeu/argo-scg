@@ -356,6 +356,8 @@ In case of extensions, special values from the topology (e.g. `info_hostdn`), ov
 
 If an attribute that is extension has a value of `0` or `1`, attribute's value is considered to be a flag: the value than marks that the flag should be used in probe execution. If it is not defined, the flag is simply not used.
 
+Any extension ending in `_URL`, if not defined in the topology, would fall back to value defined in `info_URL`, except for two attributes used for webdav/xrootd endpoints: `ARGO_WEBDAV_OPS_URL` and `ARGO_XROOTD_OPS_URL`, which **must** be defined in the topology.
+
 ### Events
 
 In Sensu, event is the context containing information about the entity running the check and the corresponding check result. Sensu scheduler runs checks on certain entities based on their subscriptions. Events are automatically processed by Sensu using handlers, filters and pipelines.
