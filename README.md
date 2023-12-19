@@ -354,6 +354,8 @@ That way endpoints with overrides will use their values, and those that do not, 
 
 In case of extensions, special values from the topology (e.g. `info_hostdn`), overridden attributes and/or parameters, the checks are configured so that they can make use of all the labels created in entities' definitions.
 
+If an attribute that is extension has a value of `0` or `1`, attribute's value is considered to be a flag: the value than marks that the flag should be used in probe execution. If it is not defined, the flag is simply not used.
+
 ### Events
 
 In Sensu, event is the context containing information about the entity running the check and the corresponding check result. Sensu scheduler runs checks on certain entities based on their subscriptions. Events are automatically processed by Sensu using handlers, filters and pipelines.

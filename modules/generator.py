@@ -1111,6 +1111,9 @@ class ConfigurationGenerator:
                                 elif self._is_extension_present_all_endpoints(
                                     services=[item["service"]], extension=tag
                                 ) or tag.endswith("_URL"):
+                                    if value in ["0", "1"]:
+                                        value = ""
+
                                     labels.update({
                                         create_label(tag[9:]): value
                                     })
@@ -1131,6 +1134,9 @@ class ConfigurationGenerator:
                                                 metric.items():
                                             if tag[9:] in \
                                                     configuration["attribute"]:
+                                                if value in ["0", "1"]:
+                                                    value = ""
+
                                                 labels.update({
                                                     "{}__{}".format(
                                                         configuration[
