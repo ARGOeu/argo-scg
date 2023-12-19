@@ -283,6 +283,38 @@ mock_metrics = [
         }
     },
     {
+        "egi.xrootd.readwrite": {
+            "tags": [
+                "htc",
+                "storage",
+                "xrootd"
+            ],
+            "probe": "storage_probe.py",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "300",
+                "path": "/usr/lib64/nagios/plugins/storage",
+                "interval": "60",
+                "retryInterval": "15"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "ARGO_XROOTD_OPS_URL": "-E",
+                "X509_USER_PROXY": "-X",
+                "ARGO_XROOTD_SKIP_LS_DIR": "--skip-ls-dir"
+            },
+            "parameter": {
+                "-p": "egi.xrootd.readwrite"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/EGI-Federation/nagios-plugins-storage"
+                      "/blob/main/README.md"
+        }
+    },
+    {
         "eosc.test.api": {
             "tags": [],
             "probe": "check_api.py",
@@ -2644,18 +2676,54 @@ mock_topology = [
         }
     },
     {
-            "date": "2023-12-01",
-            "group": "lida.lida_survey_data",
-            "type": "SERVICEGROUPS",
-            "service": "eu.eosc.generic.oai-pmh",
+        "date": "2023-12-01",
+        "group": "lida.lida_survey_data",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.generic.oai-pmh",
+        "hostname": "lida.dataverse.lt",
+        "tags": {
             "hostname": "lida.dataverse.lt",
-            "tags": {
-                "hostname": "lida.dataverse.lt",
-                "info_URL": "https://lida.dataverse.lt/oai?verb="
-                            "ListRecords&metadataPrefix=oai_datacite&set="
-                            "lida_survey_data"
-            }
+            "info_URL": "https://lida.dataverse.lt/oai?verb="
+                        "ListRecords&metadataPrefix=oai_datacite&set="
+                        "lida_survey_data"
         }
+    },
+    {
+        "date": "2023-12-18",
+        "group": "XROOTD-SITE1",
+        "type": "SITES",
+        "service": "XRootD",
+        "hostname": "atlas.dcache.example.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "root://atlas.dcache.example.eu:1094/",
+            "info_ext_ARGO_XROOTD_OPS_URL":
+                "root://atlas.dcache.example.eu:1094/data/ops/",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    },
+    {
+        "date": "2023-12-18",
+        "group": "XROOTD-SITE2",
+        "type": "SITES",
+        "service": "XRootD",
+        "hostname": "xrootd.example.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "info_URL": "root://xrootd.example.eu:1094",
+            "info_ext_ARGO_XROOTD_OPS_URL":
+                "root://xrootd.example.eu:1094/ops/",
+            "info_ext_ARGO_XROOTD_SKIP_LS_DIR": "0",
+            "info_service_endpoint_URL": "root://xrootd.example.eu:1094",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI"
+        }
+    }
 ]
 
 mock_metric_profiles = [
@@ -3435,6 +3503,20 @@ mock_metric_profiles = [
                 "service": "eu.eosc.generic.oai-pmh",
                 "metrics": [
                     "generic.oai-pmh.validity"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-12-18",
+        "name": "ARGO_TEST48",
+        "description": "Profile with XRootD endpoints",
+        "services": [
+            {
+                "service": "XRootD",
+                "metrics": [
+                    "egi.xrootd.readwrite"
                 ]
             }
         ]
@@ -8398,6 +8480,68 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_with_integer_attributes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST48"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/storage/storage_probe.py "
+                        "-H {{ .labels.hostname }} -t 300 "
+                        "-p egi.xrootd.readwrite "
+                        "-E {{ .labels.argo_xrootd_ops_url }} "
+                        "-X /etc/sensu/certs/userproxy.pem "
+                        "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
+                        "default \"\" }}",
+                    "subscriptions": [
+                        "atlas.dcache.example.eu",
+                        "xrootd.example.eu"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.egi_xrootd_readwrite == "
+                            "'egi.xrootd.readwrite'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "egi.xrootd.readwrite",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -11749,6 +11893,64 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["lida.dataverse.lt"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_integer_attributes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST48"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "XRootD__atlas.dcache.example.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "egi_xrootd_readwrite": "egi.xrootd.readwrite",
+                            "argo_xrootd_ops_url":
+                                "root://atlas.dcache.example.eu:1094/data/ops/",
+                            "info_url": "root://atlas.dcache.example.eu:1094/",
+                            "hostname": "atlas.dcache.example.eu",
+                            "service": "XRootD",
+                            "site": "XROOTD-SITE1"
+                        }
+                    },
+                    "subscriptions": ["atlas.dcache.example.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "XRootD__xrootd.example.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "egi_xrootd_readwrite": "egi.xrootd.readwrite",
+                            "info_url": "root://xrootd.example.eu:1094",
+                            "argo_xrootd_ops_url":
+                                "root://xrootd.example.eu:1094/ops/",
+                            "skip_ls_dir__argo_xrootd_skip_ls_dir":
+                                "--skip-ls-dir ",
+                            "endpoint_url": "root://xrootd.example.eu:1094",
+                            "hostname": "xrootd.example.eu",
+                            "service": "XRootD",
+                            "site": "XROOTD-SITE2"
+                        }
+                    },
+                    "subscriptions": ["xrootd.example.eu"]
                 }
             ]
         )
