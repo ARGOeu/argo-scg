@@ -69,6 +69,8 @@ class ConfigurationGenerator:
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
 
+        self.non_fallback_urls = ["ARGO_WEBDAV_OPS_URL", "ARGO_XROOTD_OPS_URL"]
+
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
 
@@ -85,6 +87,7 @@ class ConfigurationGenerator:
         metrics_names_set = set()
         metrics_with_hostalias = list()
         metrics_with_servicesite_name = list()
+        metrics_with_non_fallback_urls = dict()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -119,7 +122,15 @@ class ConfigurationGenerator:
                                 }
                             })
 
-                        if attribute.endswith("_URL") and not (
+                        if attribute in self.non_fallback_urls:
+                            metrics_with_non_fallback_urls.update({
+                                key: {
+                                    "attribute": attribute,
+                                    "value": attr_val
+                                }
+                            })
+
+                        elif attribute.endswith("_URL") and not (
                                 attribute.endswith("GOCDB_SERVICE_URL")
                         ):
                             metrics_with_url.update({key: attribute})
@@ -152,6 +163,7 @@ class ConfigurationGenerator:
         self.metrics_with_hostalias = metrics_with_hostalias
         self.metrics_with_servicesite_name = metrics_with_servicesite_name
         self.metrics_with_endpoint_url = metrics_with_endpoint_url
+        self.metrics_with_non_fallback_urls = metrics_with_non_fallback_urls
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
@@ -530,19 +542,22 @@ class ConfigurationGenerator:
                         if self._is_extension_present_all_endpoints(
                             services=self.servicetypes4metrics[metric],
                             extension=f"info_ext_{key}"
-                        ) or key.endswith("_URL"):
+                        ) or (
+                                key.endswith("_URL") and
+                                key not in self.non_fallback_urls
+                        ):
                             key = "{{ .labels.%s }}" % create_label(key.lower())
 
                         else:
                             key = "{{ .labels.%s__%s | default \"\" }}" % (
-                                value.lstrip("-").lstrip("-").replace("-", "_"),
-                                create_label(key.lower())
+                                create_label(value.lstrip("-").lstrip("-")),
+                                create_label(key)
                             )
                             value = ""
 
                     elif key == "OS_KEYSTONE_PORT":
                         key = "{{ .labels.%s | default \"443\" }}" \
-                              % create_label(key.lower())
+                              % create_label(key)
 
                     elif (
                             key.startswith("OS_KEYSTONE_") or
@@ -978,6 +993,7 @@ class ConfigurationGenerator:
                         ) > 0
                     ]
 
+                    non_fallback_urls_created = list()
                     for metric in metrics4servicetype:
                         metric_parameter_overrides = [
                             o for o in self.metric_parameter_overrides
@@ -993,6 +1009,32 @@ class ConfigurationGenerator:
                             ss for ss in self.metrics_with_servicesite_name
                             if ss["metric"] == metric
                         ]
+
+                        if metric in self.metrics_with_non_fallback_urls:
+                            metric_attribute = \
+                                self.metrics_with_non_fallback_urls[metric]
+                            key_prefix = create_label(
+                                metric_attribute["value"].strip("-").strip("-")
+                            )
+                            key_suffix = create_label(
+                                metric_attribute["attribute"]
+                            )
+                            value = ""
+                            if (f"info_ext_{metric_attribute['attribute']}"
+                                    in item["tags"]):
+                                ext_value = item["tags"][
+                                    f"info_ext_{metric_attribute['attribute']}"
+                                ]
+                                value = \
+                                    f"{metric_attribute['value']} {ext_value}"
+
+                            non_fallback_urls_created.append(
+                                metric_attribute["attribute"]
+                            )
+
+                            labels.update({
+                                f"{key_prefix}__{key_suffix}": value
+                            })
 
                         if metric not in self.internal_metrics:
                             key = create_label(metric)
@@ -1107,6 +1149,9 @@ class ConfigurationGenerator:
                                     labels.update({
                                         create_label(tag[9:]): value
                                     })
+
+                                elif tag[9:] in non_fallback_urls_created:
+                                    continue
 
                                 elif self._is_extension_present_all_endpoints(
                                     services=[item["service"]], extension=tag
