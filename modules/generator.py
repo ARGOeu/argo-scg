@@ -993,6 +993,11 @@ class ConfigurationGenerator:
                         ) > 0
                     ]
 
+                    host_attribute_overrides = [
+                        o for o in attribute_overrides
+                        if o["hostname"] in [item["hostname"], entity_name]
+                    ]
+
                     non_fallback_urls_created = list()
                     for metric in metrics4servicetype:
                         metric_parameter_overrides = [
@@ -1013,6 +1018,9 @@ class ConfigurationGenerator:
                         if metric in self.metrics_with_non_fallback_urls:
                             metric_attribute = \
                                 self.metrics_with_non_fallback_urls[metric]
+                            non_fallback_urls_created.append(
+                                metric_attribute["attribute"]
+                            )
                             key_prefix = create_label(
                                 metric_attribute["value"].strip("-").strip("-")
                             )
@@ -1028,9 +1036,17 @@ class ConfigurationGenerator:
                                 value = \
                                     f"{metric_attribute['value']} {ext_value}"
 
-                            non_fallback_urls_created.append(
-                                metric_attribute["attribute"]
-                            )
+                            overridden_attribute = [
+                                a for a in host_attribute_overrides
+                                if a["attribute"] == metric_attribute[
+                                    "attribute"
+                                ]
+                            ]
+
+                            if len(overridden_attribute) > 0:
+                                value = \
+                                    f"{metric_attribute['value']} "\
+                                    f"{overridden_attribute[-1]['value']}"
 
                             labels.update({
                                 f"{key_prefix}__{key_suffix}": value
@@ -1104,10 +1120,6 @@ class ConfigurationGenerator:
                                 labels.update({label: value})
 
                     if len(attribute_overrides) > 0:
-                        host_attribute_overrides = [
-                            o for o in attribute_overrides
-                            if o["hostname"] in [item["hostname"], entity_name]
-                        ]
                         overriding_attributes = set(
                             [o["attribute"] for o in attribute_overrides]
                         ).difference(
@@ -1117,15 +1129,19 @@ class ConfigurationGenerator:
                         )
 
                         for o in host_attribute_overrides:
-                            if o["label"] == "url":
-                                label = "endpoint_url"
+                            if o["label"] not in [
+                                create_label(item) for item
+                                in non_fallback_urls_created
+                            ]:
+                                if o["label"] == "url":
+                                    label = "endpoint_url"
 
-                            else:
-                                label = o["label"]
+                                else:
+                                    label = o["label"]
 
-                            labels.update({
-                                label: o["value"]
-                            })
+                                labels.update({
+                                    label: o["value"]
+                                })
 
                         for attr in overriding_attributes:
                             if attr not in self.global_attributes and \
