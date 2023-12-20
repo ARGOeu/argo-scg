@@ -3608,6 +3608,20 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2023-12-20",
+        "name": "ARGO_TEST50",
+        "description": "Profile for testing duplicate entries in the topology",
+        "services": [
+            {
+                "service": "webdav",
+                "metrics": [
+                    "cern.webdav.status"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3734,6 +3748,79 @@ mock_topology_with_hostname_wrong_chars = [
             "info_URL": "http://hostname3.argo.eu/"
         }
     }
+]
+
+mock_topology_with_duplicate_entries = [
+    {
+        "date": "2023-12-20",
+        "group": "UNI-EXAMPLE",
+        "type": "SITES",
+        "service": "webdav",
+        "hostname": "xrootd.example.de",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxxx",
+            "info_URL": "https://xrootd.example.de:1094/cephfs/grid/ops",
+            "info_ext_ARGO_WEBDAV_OPS_URL":
+                "https://xrootd.example.de:1094//cephfs/grid/ops",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, atlas"
+        }
+    },
+    {
+        "date": "2023-12-20",
+        "group": "UNI-TEST",
+        "type": "SITES",
+        "service": "webdav",
+        "hostname": "webdav.test.de",
+        "notifications": {
+            "enabled": True
+        },
+        "tags": {
+            "info_ID": "xxxxxx",
+            "info_URL": "davs://webdav.test.de:2880",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2, atlas"
+        }
+    },
+    {
+        "date": "2023-12-20",
+        "group": "UNI-TEST",
+        "type": "SITES",
+        "service": "webdav",
+        "hostname": "webdav.test.de",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "info_URL": "https://webdav.test.de:2881/ops/",
+            "info_ext_ARGO_WEBDAV_OPS_URL": "https://webdav.test.de:2881/ops/",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2"
+        }
+    },
+    {
+        "date": "2023-12-20",
+        "group": "CERN-PROD",
+        "type": "SITES",
+        "service": "webdav",
+        "hostname": "eosatlas.cern.ch",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "info_URL": "https://eosatlas.cern.ch//eos/atlas/opstest",
+            "info_ext_ARGO_WEBDAV_OPS_URL":
+                "https://eosatlas.cern.ch//eos/atlas/opstest/egi/",
+            "info_ext_ARGO_WEBDAV_SKIP_DIR_TEST": "0",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, atlas"
+        }
+    },
 ]
 
 mock_attributes = {
@@ -8852,6 +8939,68 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_with_duplicates_in_topology(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST50"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_duplicate_entries,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command":
+                        "/usr/lib64/nagios/plugins/check_webdav "
+                        "-H {{ .labels.hostname }} -t 600 -v -v --no-crls "
+                        "{{ .labels.u__argo_webdav_ops_url | default \"\" }} "
+                        "-E /etc/sensu/certs/userproxy.pem "
+                        "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
+                        "| default \"\" }}",
+                    "subscriptions": [
+                        "eosatlas.cern.ch",
+                        "webdav.test.de",
+                        "xrootd.example.de"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.cern_webdav_status == "
+                            "'cern.webdav.status'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "cern.webdav.status",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -12539,6 +12688,85 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["hostname.cern.ch"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_duplicates_in_topology(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST50"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_duplicate_entries,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "webdav__eosatlas.cern.ch",
+                        "namespace": "default",
+                        "labels": {
+                            "cern_webdav_status": "cern.webdav.status",
+                            "u__argo_webdav_ops_url":
+                                "-u https://eosatlas.cern.ch//eos/atlas/"
+                                "opstest/egi/",
+                            "skip_dir_test__argo_webdav_skip_dir_test":
+                                "--skip-dir-test ",
+                            "info_url":
+                                "https://eosatlas.cern.ch//eos/atlas/opstest",
+                            "hostname": "eosatlas.cern.ch",
+                            "service": "webdav",
+                            "site": "CERN-PROD"
+                        }
+                    },
+                    "subscriptions": ["eosatlas.cern.ch"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "webdav__webdav.test.de",
+                        "namespace": "default",
+                        "labels": {
+                            "cern_webdav_status": "cern.webdav.status",
+                            "u__argo_webdav_ops_url":
+                                "-u https://webdav.test.de:2881/ops/",
+                            "info_url": "davs://webdav.test.de:2880",
+                            "hostname": "webdav.test.de",
+                            "service": "webdav",
+                            "site": "UNI-TEST"
+                        }
+                    },
+                    "subscriptions": ["webdav.test.de"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "webdav__xrootd.example.de",
+                        "namespace": "default",
+                        "labels": {
+                            "cern_webdav_status": "cern.webdav.status",
+                            "u__argo_webdav_ops_url":
+                                "-u https://xrootd.example.de:1094//cephfs/"
+                                "grid/ops",
+                            "info_url":
+                                "https://xrootd.example.de:1094/cephfs/grid/"
+                                "ops",
+                            "hostname": "xrootd.example.de",
+                            "service": "webdav",
+                            "site": "UNI-EXAMPLE"
+                        }
+                    },
+                    "subscriptions": ["xrootd.example.de"]
                 }
             ]
         )

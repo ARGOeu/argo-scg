@@ -813,425 +813,429 @@ class ConfigurationGenerator:
                 types = list()
                 entity_name = f"{item['service']}__{item['hostname']}"
 
-                if entity_name not in [
-                    entity["metadata"]["name"] for entity in entities
-                ]:
-                    if "hostname" in item["tags"]:
-                        hostname = item["tags"]["hostname"]
+                if "hostname" in item["tags"]:
+                    hostname = item["tags"]["hostname"]
 
-                    else:
-                        hostname = item["hostname"]
+                else:
+                    hostname = item["hostname"]
 
-                    labels = {"hostname": hostname}
+                labels = {"hostname": hostname}
 
-                    if "info_URL" in item["tags"]:
-                        servicetypes_with_path = [
-                            st for st in self.servicetypes_with_path if
-                            item["service"] == st["service"]
-                        ]
-                        servicetypes_with_port = [
-                            st for st in self.servicetypes_with_port if
-                            item["service"] == st["service"]
-                        ]
+                if "info_URL" in item["tags"]:
+                    servicetypes_with_path = [
+                        st for st in self.servicetypes_with_path if
+                        item["service"] == st["service"]
+                    ]
+                    servicetypes_with_port = [
+                        st for st in self.servicetypes_with_port if
+                        item["service"] == st["service"]
+                    ]
+                    labels.update({
+                        "info_url": self._handle_endpoint_url(
+                            item["tags"]["info_URL"]
+                        )
+                    })
+                    o = urlparse(item["tags"]["info_URL"])
+                    port = o.port
+
+                    if item["service"] in self.servicetypes_with_SSL:
+                        if o.scheme == "https":
+                            labels.update({"ssl": "-S --sni"})
+
+                    if o.path:
+                        for entry in servicetypes_with_path:
+                            lbl = f"{create_label(entry['metric'])}_path"
+                            val = f"{entry['attr_val']} {o.path}"
+                            labels.update({lbl: val})
+
+                    if port:
+                        for entry in servicetypes_with_port:
+                            lbl = f"{create_label(entry['metric'])}_port"
+                            val = f"{entry['attr_val']} {str(port)}"
+                            labels.update({lbl: val})
+
+                    if item["service"] in [
+                        "org.openstack.nova", "org.openstack.swift"
+                    ]:
+                        if port:
+                            labels.update({"os_keystone_port": str(port)})
+
+                        labels.update({"os_keystone_host": o.hostname})
                         labels.update({
-                            "info_url": self._handle_endpoint_url(
+                            "os_keystone_url": self._handle_endpoint_url(
                                 item["tags"]["info_URL"]
                             )
                         })
-                        o = urlparse(item["tags"]["info_URL"])
-                        port = o.port
 
-                        if item["service"] in self.servicetypes_with_SSL:
-                            if o.scheme == "https":
-                                labels.update({"ssl": "-S --sni"})
+                missing_metrics_endpoint_url = list()
+                if "info_service_endpoint_URL" in item["tags"]:
+                    labels.update({
+                        "endpoint_url":
+                            self._get_single_endpoint_url(
+                                item["tags"]["info_service_endpoint_URL"]
+                            )
+                    })
 
-                        if o.path:
-                            for entry in servicetypes_with_path:
-                                lbl = f"{create_label(entry['metric'])}_path"
-                                val = f"{entry['attr_val']} {o.path}"
-                                labels.update({lbl: val})
+                else:
+                    if item["service"] in self.servicetypes_with_endpointURL:
+                        if "info_URL" not in item["tags"]:
+                            metrics_with_endpoint_url = \
+                                self.metrics_with_endpoint_url.keys()
+                            url_metrics = list(set(
+                                self.metrics4servicetypes[item["service"]]
+                            ).intersection(
+                                set(metrics_with_endpoint_url)
+                            ))
 
-                        if port:
-                            for entry in servicetypes_with_port:
-                                lbl = f"{create_label(entry['metric'])}_port"
-                                val = f"{entry['attr_val']} {str(port)}"
-                                labels.update({lbl: val})
+                            for metric in url_metrics:
+                                parameter_overrides = [
+                                    o["parameter"] for o in
+                                    self.metric_parameter_overrides if
+                                    o["metric"] == metric and
+                                    o["hostname"] in [
+                                        item["hostname"], entity_name
+                                    ]
+                                ]
+                                attr_overrides = [
+                                    o["attribute"] for o in
+                                    self.host_attribute_overrides if
+                                    o["hostname"] in [
+                                        item["hostname"], entity_name
+                                    ]
+                                ]
+                                if self.metrics_with_endpoint_url[metric][
+                                    "value"
+                                ] not in parameter_overrides and \
+                                        "URL" not in attr_overrides:
+                                    missing_metrics_endpoint_url.append(metric)
 
-                        if item["service"] in [
-                            "org.openstack.nova", "org.openstack.swift"
-                        ]:
-                            if port:
-                                labels.update({"os_keystone_port": str(port)})
+                            if len(missing_metrics_endpoint_url) > 0:
+                                self.logger.warning(
+                                    f"{self.tenant}: Entity {entity_name} "
+                                    f"missing URL"
+                                )
 
-                            labels.update({"os_keystone_host": o.hostname})
+                        else:
                             labels.update({
-                                "os_keystone_url": self._handle_endpoint_url(
+                                "endpoint_url": self._handle_endpoint_url(
                                     item["tags"]["info_URL"]
                                 )
                             })
 
-                    missing_metrics_endpoint_url = list()
-                    if "info_service_endpoint_URL" in item["tags"]:
-                        labels.update({
-                            "endpoint_url":
-                                self._get_single_endpoint_url(
-                                    item["tags"]["info_service_endpoint_URL"]
-                                )
-                        })
-
-                    else:
-                        if item["service"] in \
-                                self.servicetypes_with_endpointURL:
-                            if "info_URL" not in item["tags"]:
-                                metrics_with_endpoint_url = \
-                                    self.metrics_with_endpoint_url.keys()
-                                url_metrics = list(
-                                    set(
-                                        self.metrics4servicetypes[
-                                            item["service"]
+                if item["service"] in self.servicetypes_with_url:
+                    for attr in self.servicetypes_with_url[item["service"]]:
+                        if "info_service_endpoint_URL" in item["tags"]:
+                            labels.update({
+                                create_label(attr):
+                                    self._get_single_endpoint_url(
+                                        item["tags"][
+                                            "info_service_endpoint_URL"
                                         ]
-                                    ).intersection(
-                                        set(metrics_with_endpoint_url)
                                     )
-                                )
+                            })
 
-                                for metric in url_metrics:
-                                    parameter_overrides = [
-                                        o["parameter"] for o in
-                                        self.metric_parameter_overrides if
-                                        o["metric"] == metric and
-                                        o["hostname"] in [
-                                            item["hostname"], entity_name
-                                        ]
-                                    ]
-                                    attr_overrides = [
-                                        o["attribute"] for o in
-                                        self.host_attribute_overrides if
-                                        o["hostname"] in [
-                                            item["hostname"], entity_name
-                                        ]
-                                    ]
-                                    if self.metrics_with_endpoint_url[
-                                        metric
-                                    ]["value"] not in parameter_overrides and \
-                                            "URL" not in attr_overrides:
-                                        missing_metrics_endpoint_url.append(
-                                            metric
-                                        )
-
-                                if len(missing_metrics_endpoint_url) > 0:
-                                    self.logger.warning(
-                                        f"{self.tenant}: Entity {entity_name} "
-                                        f"missing URL"
-                                    )
-
-                            else:
-                                labels.update({
-                                    "endpoint_url": self._handle_endpoint_url(
+                        elif "info_URL" in item["tags"]:
+                            labels.update({
+                                create_label(attr):
+                                    self._handle_endpoint_url(
                                         item["tags"]["info_URL"]
                                     )
-                                })
-
-                    if item["service"] in self.servicetypes_with_url:
-                        for attr in self.servicetypes_with_url[item["service"]]:
-                            if "info_service_endpoint_URL" in item["tags"]:
-                                labels.update({
-                                    create_label(attr):
-                                        self._get_single_endpoint_url(
-                                            item["tags"][
-                                                "info_service_endpoint_URL"
-                                            ]
-                                        )
-                                })
-
-                            elif "info_URL" in item["tags"]:
-                                labels.update({
-                                    create_label(attr):
-                                        self._handle_endpoint_url(
-                                            item["tags"]["info_URL"]
-                                        )
-                                })
-
-                            else:
-                                pass
-
-                    if item["service"] == "Top-BDII":
-                        labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
-                        labels.update({"bdii_type": "bdii_top"})
-                        labels.update({
-                            "glue2_bdii_dn":
-                                "GLUE2DomainID=%s,o=glue" % item["group"]
-                        })
-
-                    if item["service"] == "Site-BDII":
-                        labels.update(
-                            {"bdii_dn": "Mds-Vo-Name=%s,O=Grid" % item["group"]}
-                        )
-                        labels.update({"bdii_type": "bdii_site"})
-                        labels.update({
-                            "glue2_bdii_dn":
-                                "GLUE2DomainID=%s,o=glue" % item["group"]
-                        })
-
-                    if "info_HOSTDN" in item["tags"]:
-                        labels.update({
-                            "info_hostdn": item["tags"]["info_HOSTDN"]
-                        })
-
-                    types.append(item["service"])
-
-                    metrics4servicetype = self.metrics4servicetypes[
-                        item["service"]
-                    ]
-
-                    attribute_overrides = [
-                        o for o in self.host_attribute_overrides
-                        if len(
-                            set(o["metrics"]).intersection(
-                                set(metrics4servicetype)
-                            )
-                        ) > 0
-                    ]
-
-                    host_attribute_overrides = [
-                        o for o in attribute_overrides
-                        if o["hostname"] in [item["hostname"], entity_name]
-                    ]
-
-                    non_fallback_urls_created = list()
-                    for metric in metrics4servicetype:
-                        metric_parameter_overrides = [
-                            o for o in self.metric_parameter_overrides
-                            if o["metric"] == metric
-                        ]
-
-                        hostaliases = [
-                            ha for ha in self.metrics_with_hostalias
-                            if ha["metric"] == metric
-                        ]
-
-                        servicesite_metrics = [
-                            ss for ss in self.metrics_with_servicesite_name
-                            if ss["metric"] == metric
-                        ]
-
-                        if metric in self.metrics_with_non_fallback_urls:
-                            metric_attribute = \
-                                self.metrics_with_non_fallback_urls[metric]
-                            non_fallback_urls_created.append(
-                                metric_attribute["attribute"]
-                            )
-                            key_prefix = create_label(
-                                metric_attribute["value"].strip("-").strip("-")
-                            )
-                            key_suffix = create_label(
-                                metric_attribute["attribute"]
-                            )
-                            value = ""
-                            if (f"info_ext_{metric_attribute['attribute']}"
-                                    in item["tags"]):
-                                ext_value = item["tags"][
-                                    f"info_ext_{metric_attribute['attribute']}"
-                                ]
-                                value = \
-                                    f"{metric_attribute['value']} {ext_value}"
-
-                            overridden_attribute = [
-                                a for a in host_attribute_overrides
-                                if a["attribute"] == metric_attribute[
-                                    "attribute"
-                                ]
-                            ]
-
-                            if len(overridden_attribute) > 0:
-                                value = \
-                                    f"{metric_attribute['value']} "\
-                                    f"{overridden_attribute[-1]['value']}"
-
-                            labels.update({
-                                f"{key_prefix}__{key_suffix}": value
                             })
 
-                        if metric not in self.internal_metrics:
-                            key = create_label(metric)
+                        else:
+                            pass
 
-                            if key not in labels and \
-                                    metric not in missing_metrics_endpoint_url:
-                                labels.update({key: metric})
-
-                        for o in metric_parameter_overrides:
-                            if self._is_parameter_default(
-                                    metric, o["parameter"]
-                            ):
-                                label = o["label"]
-                                if o["hostname"] in [
-                                    item["hostname"], entity_name
-                                ]:
-                                    labels.update({
-                                        label: "%s %s" % (
-                                            o["parameter"], o["value"]
-                                        )
-                                    })
-                                    break
-
-                                else:
-                                    labels.update({label: ""})
-
-                            else:
-                                if o["hostname"] in [
-                                    item["hostname"], entity_name
-                                ]:
-                                    value = o["value"]
-                                    if self._is_hostalias_present(o["value"]):
-                                        value = self._create_hostalias_value(
-                                            o["value"], hostname
-                                        )
-
-                                    if self._is_servicesite_name_present(
-                                            o["value"]
-                                    ):
-                                        value = (
-                                            self._create_servicesite_name_value(
-                                                o["value"], item["group"]
-                                            ))
-
-                                    labels.update({o["label"]: value})
-
-                        host_metric_parameter_overrides = [
-                            o for o in metric_parameter_overrides if
-                            o["hostname"] in [
-                                item["hostname"], entity_name
-                            ]
-                        ]
-
-                        if len(host_metric_parameter_overrides) == 0:
-                            for ha in hostaliases:
-                                label = ha["label"]
-                                value = self._create_hostalias_value(
-                                    ha["value"], hostname
-                                )
-                                labels.update({label: value})
-
-                            for ss in servicesite_metrics:
-                                label = ss["label"]
-                                value = self._create_servicesite_name_value(
-                                    ss["value"], item["group"]
-                                )
-                                labels.update({label: value})
-
-                    if len(attribute_overrides) > 0:
-                        overriding_attributes = set(
-                            [o["attribute"] for o in attribute_overrides]
-                        ).difference(
-                            set([
-                                o["attribute"] for o in host_attribute_overrides
-                            ])
-                        )
-
-                        for o in host_attribute_overrides:
-                            if o["label"] not in [
-                                create_label(item) for item
-                                in non_fallback_urls_created
-                            ]:
-                                if o["label"] == "url":
-                                    label = "endpoint_url"
-
-                                else:
-                                    label = o["label"]
-
-                                labels.update({
-                                    label: o["value"]
-                                })
-
-                        for attr in overriding_attributes:
-                            if attr not in self.global_attributes and \
-                                    is_attribute_secret(attr):
-                                label = f"${create_attribute_env(attr)}"
-                                labels.update({create_label(attr): label})
-
-                    for tag, value in item["tags"].items():
-                        if (tag.startswith("info_bdii_") and
-                                f"info_ext_{tag[10:]}" not in item["tags"]):
-                            labels.update({
-                                create_label(tag[10:]): value
-                            })
-
-                        if tag.startswith("info_ext_"):
-                            if tag.lower() == "info_ext_port":
-                                labels.update({"port": value})
-
-                            else:
-                                if tag[9:] in self.default_ports:
-                                    labels.update({
-                                        create_label(tag[9:]): value
-                                    })
-
-                                elif tag[9:] in non_fallback_urls_created:
-                                    continue
-
-                                elif self._is_extension_present_all_endpoints(
-                                    services=[item["service"]], extension=tag
-                                ) or tag.endswith("_URL"):
-                                    if value in ["0", "1"]:
-                                        value = ""
-
-                                    labels.update({
-                                        create_label(tag[9:]): value
-                                    })
-
-                                else:
-                                    metrics = list()
-                                    for metric in self.metrics:
-                                        for name, configuration in \
-                                                metric.items():
-                                            if name in \
-                                                    self.metrics4servicetypes[
-                                                        item["service"]
-                                                    ]:
-                                                metrics.append(metric)
-
-                                    for metric in metrics:
-                                        for name, configuration in \
-                                                metric.items():
-                                            if tag[9:] in \
-                                                    configuration["attribute"]:
-                                                if value in ["0", "1"]:
-                                                    value = ""
-
-                                                labels.update({
-                                                    "{}__{}".format(
-                                                        configuration[
-                                                            "attribute"
-                                                        ][
-                                                            tag[9:]
-                                                        ].lstrip("-").lstrip(
-                                                            "-"
-                                                        ).replace("-", "_"),
-                                                        tag[9:].lower()
-                                                    ): "{} {}".format(
-                                                        configuration[
-                                                            "attribute"
-                                                        ][
-                                                            tag[9:]
-                                                        ], value
-                                                    )
-                                                })
-
+                if item["service"] == "Top-BDII":
+                    labels.update({"bdii_dn": "Mds-Vo-Name=local,O=Grid"})
+                    labels.update({"bdii_type": "bdii_top"})
                     labels.update({
-                        "service": item["service"], "site": item["group"]
+                        "glue2_bdii_dn":
+                            "GLUE2DomainID=%s,o=glue" % item["group"]
                     })
 
-                    site_entries = [
-                        i for i in self.topology if i["group"] == item["group"]
+                if item["service"] == "Site-BDII":
+                    labels.update({
+                        "bdii_dn": "Mds-Vo-Name=%s,O=Grid" % item["group"]
+                    })
+                    labels.update({"bdii_type": "bdii_site"})
+                    labels.update({
+                        "glue2_bdii_dn":
+                            "GLUE2DomainID=%s,o=glue" % item["group"]
+                    })
+
+                if "info_HOSTDN" in item["tags"]:
+                    labels.update({"info_hostdn": item["tags"]["info_HOSTDN"]})
+
+                types.append(item["service"])
+
+                metrics4servicetype = self.metrics4servicetypes[item["service"]]
+
+                attribute_overrides = [
+                    o for o in self.host_attribute_overrides
+                    if len(
+                        set(o["metrics"]).intersection(
+                            set(metrics4servicetype)
+                        )
+                    ) > 0
+                ]
+
+                host_attribute_overrides = [
+                    o for o in attribute_overrides
+                    if o["hostname"] in [item["hostname"], entity_name]
+                ]
+
+                non_fallback_urls_created = list()
+                for metric in metrics4servicetype:
+                    metric_parameter_overrides = [
+                        o for o in self.metric_parameter_overrides
+                        if o["metric"] == metric
                     ]
-                    site_bdii_entries = [
-                        i for i in site_entries if i["service"] == "Site-BDII"
+
+                    hostaliases = [
+                        ha for ha in self.metrics_with_hostalias
+                        if ha["metric"] == metric
                     ]
-                    if len(site_bdii_entries) > 0:
+
+                    servicesite_metrics = [
+                        ss for ss in self.metrics_with_servicesite_name
+                        if ss["metric"] == metric
+                    ]
+
+                    if metric in self.metrics_with_non_fallback_urls:
+                        metric_attribute = \
+                            self.metrics_with_non_fallback_urls[metric]
+                        non_fallback_urls_created.append(
+                            metric_attribute["attribute"]
+                        )
+                        key_prefix = create_label(
+                            metric_attribute["value"].strip("-").strip("-")
+                        )
+                        key_suffix = create_label(
+                            metric_attribute["attribute"]
+                        )
+                        value = ""
+                        if (f"info_ext_{metric_attribute['attribute']}"
+                                in item["tags"]):
+                            ext_value = item["tags"][
+                                f"info_ext_{metric_attribute['attribute']}"
+                            ]
+                            value = f"{metric_attribute['value']} {ext_value}"
+
+                        overridden_attribute = [
+                            a for a in host_attribute_overrides
+                            if a["attribute"] == metric_attribute[
+                                "attribute"
+                            ]
+                        ]
+
+                        if len(overridden_attribute) > 0:
+                            value = \
+                                f"{metric_attribute['value']} "\
+                                f"{overridden_attribute[-1]['value']}"
+
+                        labels.update({f"{key_prefix}__{key_suffix}": value})
+
+                    if metric not in self.internal_metrics:
+                        key = create_label(metric)
+
+                        if key not in labels and \
+                                metric not in missing_metrics_endpoint_url:
+                            labels.update({key: metric})
+
+                    for o in metric_parameter_overrides:
+                        if self._is_parameter_default(metric, o["parameter"]):
+                            label = o["label"]
+                            if o["hostname"] in [item["hostname"], entity_name]:
+                                labels.update({
+                                    label: "%s %s" % (
+                                        o["parameter"], o["value"]
+                                    )
+                                })
+                                break
+
+                            else:
+                                labels.update({label: ""})
+
+                        else:
+                            if o["hostname"] in [item["hostname"], entity_name]:
+                                value = o["value"]
+                                if self._is_hostalias_present(o["value"]):
+                                    value = self._create_hostalias_value(
+                                        o["value"], hostname
+                                    )
+
+                                if self._is_servicesite_name_present(
+                                        o["value"]
+                                ):
+                                    value = (
+                                        self._create_servicesite_name_value(
+                                            o["value"], item["group"]
+                                        ))
+
+                                labels.update({o["label"]: value})
+
+                    host_metric_parameter_overrides = [
+                        o for o in metric_parameter_overrides if
+                        o["hostname"] in [item["hostname"], entity_name]
+                    ]
+
+                    if len(host_metric_parameter_overrides) == 0:
+                        for ha in hostaliases:
+                            label = ha["label"]
+                            value = self._create_hostalias_value(
+                                ha["value"], hostname
+                            )
+                            labels.update({label: value})
+
+                        for ss in servicesite_metrics:
+                            label = ss["label"]
+                            value = self._create_servicesite_name_value(
+                                ss["value"], item["group"]
+                            )
+                            labels.update({label: value})
+
+                if len(attribute_overrides) > 0:
+                    overriding_attributes = set(
+                        [o["attribute"] for o in attribute_overrides]
+                    ).difference(set([
+                            o["attribute"] for o in host_attribute_overrides
+                    ]))
+
+                    for o in host_attribute_overrides:
+                        if o["label"] not in [
+                            create_label(item) for item
+                            in non_fallback_urls_created
+                        ]:
+                            if o["label"] == "url":
+                                label = "endpoint_url"
+
+                            else:
+                                label = o["label"]
+
+                            labels.update({
+                                label: o["value"]
+                            })
+
+                    for attr in overriding_attributes:
+                        if attr not in self.global_attributes and \
+                                is_attribute_secret(attr):
+                            label = f"${create_attribute_env(attr)}"
+                            labels.update({create_label(attr): label})
+
+                for tag, value in item["tags"].items():
+                    if (tag.startswith("info_bdii_") and
+                            f"info_ext_{tag[10:]}" not in item["tags"]):
                         labels.update({
-                            "site_bdii": site_bdii_entries[0]["hostname"]
+                            create_label(tag[10:]): value
                         })
 
+                    if tag.startswith("info_ext_"):
+                        if tag.lower() == "info_ext_port":
+                            labels.update({"port": value})
+
+                        else:
+                            if tag[9:] in self.default_ports:
+                                labels.update({
+                                    create_label(tag[9:]): value
+                                })
+
+                            elif tag[9:] in non_fallback_urls_created:
+                                continue
+
+                            elif self._is_extension_present_all_endpoints(
+                                services=[item["service"]], extension=tag
+                            ) or tag.endswith("_URL"):
+                                if value in ["0", "1"]:
+                                    value = ""
+
+                                labels.update({
+                                    create_label(tag[9:]): value
+                                })
+
+                            else:
+                                metrics = list()
+                                for metric in self.metrics:
+                                    for name, configuration in metric.items():
+                                        if name in self.metrics4servicetypes[
+                                            item["service"]
+                                        ]:
+                                            metrics.append(metric)
+
+                                for metric in metrics:
+                                    for name, configuration in metric.items():
+                                        if tag[9:] in \
+                                                configuration["attribute"]:
+                                            if value in ["0", "1"]:
+                                                value = ""
+
+                                            labels.update({
+                                                "{}__{}".format(
+                                                    configuration["attribute"][
+                                                        tag[9:]
+                                                    ].lstrip("-").lstrip(
+                                                        "-"
+                                                    ).replace("-", "_"),
+                                                    tag[9:].lower()
+                                                ): "{} {}".format(
+                                                    configuration["attribute"][
+                                                        tag[9:]
+                                                    ], value
+                                                )
+                                            })
+
+                labels.update({
+                    "service": item["service"], "site": item["group"]
+                })
+
+                site_entries = [
+                    i for i in self.topology if i["group"] == item["group"]
+                ]
+                site_bdii_entries = [
+                    i for i in site_entries if i["service"] == "Site-BDII"
+                ]
+                if len(site_bdii_entries) > 0:
+                    labels.update({
+                        "site_bdii": site_bdii_entries[0]["hostname"]
+                    })
+
+                existing_entities = [
+                    ent for ent in entities if
+                    ent["metadata"]["name"] == entity_name
+                ]
+
+                if len(existing_entities) > 0:
+                    existing_entity = existing_entities[0]
+                    old_labels = existing_entity["metadata"]["labels"].copy()
+                    site = set([
+                        e.strip() for e in
+                        existing_entity["metadata"]["labels"]["site"].split(",")
+                    ])
+                    site.add(labels["site"])
+                    if len(old_labels.keys()) >= len(labels.keys()):
+                        new_labels = old_labels
+                        for k, v in labels.items():
+                            if k not in new_labels:
+                                new_labels.update({k: v})
+
+                            else:
+                                if not new_labels[k]:
+                                    new_labels[k] = v
+
+                    else:
+                        new_labels = labels.copy()
+                        for k, v in old_labels.items():
+                            if k not in new_labels:
+                                new_labels.update({k: v})
+
+                            else:
+                                if not new_labels[k]:
+                                    new_labels[k] = v
+
+                    new_labels["site"] = ",".join(sorted(list(site)))
+
+                    existing_entity["metadata"]["labels"] = new_labels
+
+                else:
                     entities.append({
                         "entity_class": "proxy",
                         "metadata": {
@@ -1244,15 +1248,6 @@ class ConfigurationGenerator:
                             else hostname
                         ]
                     })
-
-                else:
-                    entity = [
-                        ent for ent in entities if
-                        ent["metadata"]["name"] == entity_name
-                    ][0]
-                    entity["metadata"]["labels"]["site"] = \
-                        f"{entity['metadata']['labels']['site']}," \
-                        f"{item['group']}"
 
             if len(skipped_entities) > 0:
                 self.logger.info(
