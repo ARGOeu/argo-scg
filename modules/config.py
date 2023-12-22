@@ -198,15 +198,21 @@ class Config:
 
         return queue
 
-    def get_use_ids(self):
-        use_ids = dict()
+    def get_subscriptions(self):
+        subscriptions = dict()
         for tenant in self.tenants:
             try:
-                value = self.conf.getboolean(tenant, "subscriptions_use_ids")
+                value = self.conf.get(tenant, "subscription")
+
+                if value not in ["hostname", "hostname_with_id", "servicetype"]:
+                    raise ConfigException(
+                        f"Unacceptable value '{value}' for option: "
+                        f"'subscription' in section: '{tenant}'"
+                    )
 
             except configparser.NoOptionError:
-                value = False
+                value = "hostname"
 
-            use_ids.update({tenant: value})
+            subscriptions.update({tenant: value})
 
-        return use_ids
+        return subscriptions
