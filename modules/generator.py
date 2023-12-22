@@ -52,11 +52,11 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            subscriptions_use_ids=False
+            subscription="hostname"
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
-        self.subscriptions_use_ids = subscriptions_use_ids
+        self.subscription = subscription
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -361,7 +361,7 @@ class ConfigurationGenerator:
 
     def _get_hostnames4metrics(self):
         def get_hostname(item):
-            if self.subscriptions_use_ids:
+            if self.subscription == "hostname_with_id":
                 return item["hostname"]
 
             elif "hostname" in item["tags"]:
@@ -596,6 +596,15 @@ class ConfigurationGenerator:
     def _is_passive(configuration):
         return "PASSIVE" in configuration["flags"]
 
+    def _generate_metric_subscriptions(self, name):
+        if self.subscription == "servicetype":
+            subscriptions = self._get_servicetypes4metrics()[name]
+
+        else:
+            subscriptions = self._get_hostnames4metrics()[name]
+
+        return sorted(subscriptions)
+
     def _generate_active_check(
             self, name, configuration, publish, namespace="default"
     ):
@@ -677,7 +686,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self._get_hostnames4metrics()[name],
+                "subscriptions": self._generate_metric_subscriptions(name),
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -755,7 +764,8 @@ class ConfigurationGenerator:
                 if self._is_passive(configuration=configuration):
                     check = {
                         "command": "PASSIVE",
-                        "subscriptions": self._get_hostnames4metrics()[name],
+                        "subscriptions":
+                            self._generate_metric_subscriptions(name),
                         "handlers": ["publisher-handler"],
                         "pipelines": [],
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
@@ -1236,6 +1246,15 @@ class ConfigurationGenerator:
                     existing_entity["metadata"]["labels"] = new_labels
 
                 else:
+                    if self.subscription == "servicetype":
+                        subscriptions = types
+
+                    elif self.subscription == "hostname_with_id":
+                        subscriptions = [item["hostname"]]
+
+                    else:
+                        subscriptions = [hostname]
+
                     entities.append({
                         "entity_class": "proxy",
                         "metadata": {
@@ -1243,10 +1262,7 @@ class ConfigurationGenerator:
                             "namespace": namespace,
                             "labels": labels
                         },
-                        "subscriptions": [
-                            item["hostname"] if self.subscriptions_use_ids
-                            else hostname
-                        ]
+                        "subscriptions": subscriptions
                     })
 
             if len(skipped_entities) > 0:

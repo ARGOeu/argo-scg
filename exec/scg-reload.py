@@ -44,7 +44,7 @@ def main():
         local_topology = config.get_topology()
         secrets = config.get_secrets()
         publish_bool = config.publish()
-        subscriptions_use_ids = config.get_use_ids()
+        subscriptions = config.get_subscriptions()
 
         tenants = config.get_tenants()
 
@@ -99,7 +99,7 @@ def main():
                     secrets_file=secrets[namespace],
                     default_ports=poem.get_default_ports(),
                     tenant=tenant,
-                    subscriptions_use_ids=subscriptions_use_ids[namespace]
+                    subscription=subscriptions[namespace]
                 )
 
                 sensu.add_daily_filter(namespace=namespace)
