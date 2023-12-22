@@ -1284,8 +1284,13 @@ class ConfigurationGenerator:
 
     def generate_subscriptions(self):
         subscriptions = list()
-        for metric, hostnames in self._get_hostnames4metrics().items():
-            subscriptions.extend(hostnames)
+
+        if self.subscription == "servicetype":
+            subscriptions.extend(self.servicetypes)
+
+        else:
+            for metric, hostnames in self._get_hostnames4metrics().items():
+                subscriptions.extend(hostnames)
 
         subscriptions.append(self.internal_metrics_subscription)
 

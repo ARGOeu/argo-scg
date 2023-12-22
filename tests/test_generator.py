@@ -13006,6 +13006,26 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subscriptions_for_servicetypes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            sorted(subscriptions), ["eu.eosc.portal.services.url", "internals"]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_internal_services(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
