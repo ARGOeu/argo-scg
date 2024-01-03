@@ -3622,6 +3622,54 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-03",
+        "name": "ARGO_TEST51",
+        "description": "Profile for testing subscription generation",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "generic.http.ar-argoui-ni4os",
+                    "generic.tcp.connect"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.certificate.validity"
+                ]
+            },
+            {
+                "service": "SRM",
+                "metrics": [
+                    "eu.egi.SRM-All"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-03",
+        "name": "ARGO_TEST52",
+        "description":
+            "Profile for testing subscription generation with hostname ids",
+        "services": [
+            {
+                "service": "eu.eosc.generic.oai-pmh",
+                "metrics": [
+                    "generic.oai-pmh.validity"
+                ]
+            },
+            {
+                "service": "eu.eosc.portal.services.url",
+                "metrics": [
+                    "generic.http.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3704,6 +3752,30 @@ mock_topology_with_hostname_in_tag = [
             "hostname": "hostname3.argo.eu",
             "info_ID": "test.id",
             "info_URL": "http://hostname3.argo.eu/"
+        }
+    },
+    {
+        "date": "2024-01-03",
+        "group": "srce",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.generic.oai-pmh",
+        "hostname": "dabar.srce.hr_dabar_id",
+        "tags": {
+            "hostname": "dabar.srce.hr",
+            "info_ID": "dabar_id",
+            "info_URL": "https://dabar.srce.hr/oai?verb=Identify"
+        }
+    },
+    {
+        "date": "2024-01-03",
+        "group": "srce",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.generic.oai-pmh",
+        "hostname": "hrcak.srce.hr_hrcak.id",
+        "tags": {
+            "hostname": "hrcak.srce.hr",
+            "info_ID": "hrcak.id",
+            "info_URL": "https://hrcak.srce.hr/oai?verb=Identify"
         }
     }
 ]
@@ -12960,6 +13032,35 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subscriptions_for_custom_agents(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST51"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            agents_services={
+                "sensu-agent1": ["argo.test"], "sensu-agent2": ["argo.webui"]
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dcache-se-cms.desy.de", "dcache.arnes.si",
+                    "dcache6-shadow.iihe.ac.be", "internals"
+                ],
+                "sensu-agent1": ["argo.ni4os.eu", "internals"],
+                "sensu-agent2": ["argo-devel.ni4os.eu", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions_for_hostnames_without_id(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -12980,6 +13081,32 @@ class EntityConfigurationTests(unittest.TestCase):
                     "hostname1.argo.com", "hostname2.argo.eu",
                     "hostname3.argo.eu", "internals"
                 ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_hostnames_without_id_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "internals"
+                ],
+                "sensu-agent1": ["dabar.srce.hr", "hrcak.srce.hr", "internals"]
             }
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -13011,6 +13138,38 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subscriptions_for_hostnames_with_id_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id",
+            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "internals"
+                ],
+                "sensu-agent1": [
+                    "dabar.srce.hr_dabar_id", "hrcak.srce.hr_hrcak.id",
+                    "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions_for_servicetypes(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -13029,6 +13188,30 @@ class EntityConfigurationTests(unittest.TestCase):
         self.assertEqual(
             subscriptions, {
                 "default": ["eu.eosc.portal.services.url", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_servicetypes_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype",
+            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"],
+                "sensu-agent1": ["eu.eosc.generic.oai-pmh", "internals"]
             }
         )
         self.assertEqual(log.output, DUMMY_LOG)

@@ -392,12 +392,12 @@ class ConfigurationGenerator:
 
     def _get_hostnames4servicetypes(self):
         hostnames4servicetypes = dict()
-        hostnames = list()
+
         for servicetype in self.servicetypes:
-            hostnames.extend([
+            hostnames = [
                 self._get_hostname(item) for item in self.topology
                 if item["service"] == servicetype
-            ])
+            ]
 
             hostnames4servicetypes.update({
                 servicetype: sorted(list(set(hostnames)))
@@ -1307,44 +1307,47 @@ class ConfigurationGenerator:
         subscriptions = list()
 
         for servicetype in servicetypes:
-            subscriptions.extend(
-                self._get_hostnames4servicetypes()[servicetype]
-            )
-
-        subscriptions.append(self.internal_metrics_subscription)
+            if servicetype != self.internal_metrics_subscription:
+                subscriptions.extend(
+                    self._get_hostnames4servicetypes()[servicetype]
+                )
 
         return sorted(list(set(subscriptions)))
 
     def generate_subscriptions(self):
         subscriptions = dict()
         remaining_servicetypes = self.servicetypes
+        remaining_hostnames = set(
+            self._generate_hostname_subscriptions(list(remaining_servicetypes))
+        )
 
+        used_hostnames = set()
         for key, values in self.agents_services.items():
             remaining_servicetypes = remaining_servicetypes.difference(
                 set(values)
             )
 
             if self.subscription == "servicetype":
-                subs_values = values
+                subs_values = set(values)
 
             else:
                 subs_values = self._generate_hostname_subscriptions(values)
+                subs_values = set(subs_values).difference(used_hostnames)
+                used_hostnames.update(subs_values)
 
-            subscriptions.update({key: list(set(subs_values))})
-
-        remaining_servicetypes.add(self.internal_metrics_subscription)
+            subs_values.add(self.internal_metrics_subscription)
+            subscriptions.update({key: sorted(list(subs_values))})
 
         if self.subscription == "servicetype":
+            remaining_servicetypes.add(self.internal_metrics_subscription)
             subscriptions.update({
                 "default": sorted(list(remaining_servicetypes))
             })
 
         else:
-            subscriptions.update({
-                "default": self._generate_hostname_subscriptions(
-                    list(remaining_servicetypes)
-                )
-            })
+            subs = remaining_hostnames.difference(used_hostnames)
+            subs.add(self.internal_metrics_subscription)
+            subscriptions.update({"default": sorted(list(subs))})
 
         return subscriptions
 
