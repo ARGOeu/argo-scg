@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.4.0
+Version:       0.4.1
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 3 2024 Katarina Zailac <kzailac@srce.hr> - 0.4.1-1%{?dist}
+- ARGO-4449 Add multiple subscription options
+- ARGO-4450 Do not use URL for webdav/xrootd checks
+- ARGO-4448 Treat certain attribute values as flags
 * Thu Dec 7 2023 Katarina Zailac <kzailac@srce.hr> - 0.4.0-1%{?dist}
 - ARGO-4442 Add quotation marks to URLs that contain ampersand
 - ARGO-4436 Use info_bdii_* tags as extensions
