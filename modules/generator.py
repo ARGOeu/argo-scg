@@ -52,7 +52,7 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            subscription="hostname"
+            subscription="hostname", agents_services=None
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -227,6 +227,12 @@ class ConfigurationGenerator:
                 else:
                     self.servicetypes_with_url.update({st: [attribute]})
 
+        if agents_services is None:
+            self.agents_services = dict()
+
+        else:
+            self.agents_services = agents_services
+
     @staticmethod
     def _read_global_attributes(input_attrs):
         attrs = dict()
@@ -359,23 +365,23 @@ class ConfigurationGenerator:
 
         return metrics
 
+    def _get_hostname(self, item):
+        if self.subscription == "hostname_with_id":
+            return item["hostname"]
+
+        elif "hostname" in item["tags"]:
+            return item["tags"]["hostname"]
+
+        else:
+            return item["hostname"]
+
     def _get_hostnames4metrics(self):
-        def get_hostname(item):
-            if self.subscription == "hostname_with_id":
-                return item["hostname"]
-
-            elif "hostname" in item["tags"]:
-                return item["tags"]["hostname"]
-
-            else:
-                return item["hostname"]
-
         hostnames4metrics = dict()
         for metric, servicetypes in self.servicetypes4metrics.items():
             hostnames = list()
             for servicetype in servicetypes:
                 hostnames.extend([
-                    get_hostname(item) for item in self.topology
+                    self._get_hostname(item) for item in self.topology
                     if item["service"] == servicetype
                 ])
 
@@ -383,6 +389,21 @@ class ConfigurationGenerator:
             hostnames4metrics.update({metric: hostnames})
 
         return hostnames4metrics
+
+    def _get_hostnames4servicetypes(self):
+        hostnames4servicetypes = dict()
+        hostnames = list()
+        for servicetype in self.servicetypes:
+            hostnames.extend([
+                self._get_hostname(item) for item in self.topology
+                if item["service"] == servicetype
+            ])
+
+            hostnames4servicetypes.update({
+                servicetype: sorted(list(set(hostnames)))
+            })
+
+        return hostnames4servicetypes
 
     def _get_extensions(self):
         extensions = set()
@@ -1282,19 +1303,50 @@ class ConfigurationGenerator:
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
 
-    def generate_subscriptions(self):
+    def _generate_hostname_subscriptions(self, servicetypes):
         subscriptions = list()
 
-        if self.subscription == "servicetype":
-            subscriptions.extend(self.servicetypes)
-
-        else:
-            for metric, hostnames in self._get_hostnames4metrics().items():
-                subscriptions.extend(hostnames)
+        for servicetype in servicetypes:
+            subscriptions.extend(
+                self._get_hostnames4servicetypes()[servicetype]
+            )
 
         subscriptions.append(self.internal_metrics_subscription)
 
-        return list(set(subscriptions))
+        return sorted(list(set(subscriptions)))
+
+    def generate_subscriptions(self):
+        subscriptions = dict()
+        remaining_servicetypes = self.servicetypes
+
+        for key, values in self.agents_services.items():
+            remaining_servicetypes = remaining_servicetypes.difference(
+                set(values)
+            )
+
+            if self.subscription == "servicetype":
+                subs_values = values
+
+            else:
+                subs_values = self._generate_hostname_subscriptions(values)
+
+            subscriptions.update({key: list(set(subs_values))})
+
+        remaining_servicetypes.add(self.internal_metrics_subscription)
+
+        if self.subscription == "servicetype":
+            subscriptions.update({
+                "default": sorted(list(remaining_servicetypes))
+            })
+
+        else:
+            subscriptions.update({
+                "default": self._generate_hostname_subscriptions(
+                    list(remaining_servicetypes)
+                )
+            })
+
+        return subscriptions
 
     def generate_internal_services(self):
         services = list()

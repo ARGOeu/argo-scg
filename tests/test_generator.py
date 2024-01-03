@@ -12954,8 +12954,9 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions),
-            ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
+            subscriptions, {
+                "default": ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -12974,10 +12975,12 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), [
-                "hostname1.argo.com", "hostname2.argo.eu", "hostname3.argo.eu",
-                "internals"
-            ]
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "internals"
+                ]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -12997,12 +13000,14 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), [
-                "hostname1.argo.com_hostname1_id",
-                "hostname2.argo.eu_second.id",
-                "hostname3.argo.eu_test.id",
-                "internals"
-            ]
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "internals"
+                ]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -13022,7 +13027,9 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), ["eu.eosc.portal.services.url", "internals"]
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
