@@ -1,14 +1,13 @@
 import configparser
 
-from argo_scg.exceptions import ConfigException
+from argo_scg.exceptions import ConfigException, AgentConfigException
 
 
-class Config:
-    def __init__(self, config_file):
-        self.file = config_file
+class _Config:
+    def __init__(self, file):
+        self.file = file
         self._check_file_exists()
         self.conf = self._read()
-        self.tenants = self._get_tenants()
 
     def _check_file_exists(self):
         conf = configparser.ConfigParser()
@@ -23,6 +22,12 @@ class Config:
         config = configparser.ConfigParser()
         config.read(self.file)
         return config
+
+
+class Config(_Config):
+    def __init__(self, config_file):
+        super().__init__(config_file)
+        self.tenants = self._get_tenants()
 
     @staticmethod
     def _remove_trailing_slash(url):
@@ -216,3 +221,27 @@ class Config:
             subscriptions.update({tenant: value})
 
         return subscriptions
+
+
+class AgentConfig(_Config):
+    def get_default_agent(self):
+        try:
+            return self.conf.get("GENERAL", "default")
+
+        except (configparser.NoSectionError, configparser.NoOptionError) as e:
+            raise AgentConfigException(str(e))
+
+    def get_custom_agents(self):
+        custom = dict()
+        try:
+            agents = self.conf.items("AGENTS")
+
+            for agent in agents:
+                custom.update({
+                    agent[0]: [item.strip() for item in agent[1].split(",")]
+                })
+
+        except configparser.NoSectionError:
+            pass
+
+        return custom
