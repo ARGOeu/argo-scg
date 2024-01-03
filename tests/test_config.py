@@ -22,6 +22,7 @@ topology = /path/to/topology1\n
 secrets = /path/to/secrets\n
 publish = true\n
 publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
+agents_configuration = /path/to/config-file
 \n
 [TENANT2]\n
 poem_url = https://tenant2.poem.mock.url/\n
@@ -485,6 +486,13 @@ class ConfigTests(unittest.TestCase):
             context.exception.__str__(),
             "Configuration file error: Unacceptable value 'nonexisting' for "
             "option: 'subscription' in section: 'TENANT2'"
+        )
+
+    def test_get_agents_configurations(self):
+        self.assertEqual(
+            self.config.get_agents_configurations(), {
+                "TENANT1": "/path/to/config-file", "TENANT2": ""
+            }
         )
 
 

@@ -222,6 +222,20 @@ class Config(_Config):
 
         return subscriptions
 
+    def get_agents_configurations(self):
+        configurations = dict()
+
+        for tenant in self.tenants:
+            try:
+                configuration = self.conf.get(tenant, "agents_configuration")
+
+            except configparser.NoOptionError:
+                configuration = ""
+
+            configurations.update({tenant: configuration})
+
+        return configurations
+
 
 class AgentConfig(_Config):
     def get_default_agent(self):
