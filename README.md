@@ -40,7 +40,7 @@ attributes = /etc/argo-scg/attributes/attributes-tenant2.conf
 metricprofiles = PROFILE1, PROFILE2
 publish = true
 publisher_queue = /var/spool/argo-nagios-ams-publisher/metrics
-subscriptions_use_ids = true
+subscription = servicetype
 ```
 
 * `poem_url` - POEM URL for the given tenant,
@@ -50,7 +50,10 @@ subscriptions_use_ids = true
 * `metricprofile` - comma separated list of metric profiles for the given tenant,
 * `publish` - flag that marks if the metrics results should be sent to publisher,
 * `publisher_queue` - publisher queue; this entry can be left out if `publish` is set to `False`,
-* `subscriptions_use_ids ` - flag that marks that subscriptions should be represented as hostnames with ids; normally they are represented by simple hostname. Note that this only refers to subscriptions - entities are represented the same as they are represented in the topology.
+* `subscription` - type of subscription to use. There are three possible values:
+  * `hostname` - hostname is used as a subscription (this is a default value),
+  * `servicetype` - service types are used as subscription,
+  * `hostname_with_id` - hostname with id is used as subscription.
 
 ## Tools
 
@@ -353,6 +356,10 @@ Default ports are defined in Super POEM. If metric has any of the default ports 
 That way endpoints with overrides will use their values, and those that do not, will use the default value of 2119.
 
 In case of extensions, special values from the topology (e.g. `info_hostdn`), overridden attributes and/or parameters, the checks are configured so that they can make use of all the labels created in entities' definitions.
+
+If an attribute that is extension has a value of `0` or `1`, attribute's value is considered to be a flag: the value than marks that the flag should be used in probe execution. If it is not defined, the flag is simply not used.
+
+Any extension ending in `_URL`, if not defined in the topology, would fall back to value defined in `info_URL`, except for two attributes used for webdav/xrootd endpoints: `ARGO_WEBDAV_OPS_URL` and `ARGO_XROOTD_OPS_URL`, which **must** be defined in the topology.
 
 ### Events
 

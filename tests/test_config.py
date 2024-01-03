@@ -30,7 +30,7 @@ webapi_token = w3b4p1t0k3n2\n
 attributes = /path/to/attributes2\n
 metricprofiles = PROFILE4\n
 publish = false
-subscriptions_use_ids = true
+subscription = hostname_with_id
 """
 
 config_file_missing_section = """
@@ -93,6 +93,36 @@ attributes = /path/to/attributes2\n
 metricprofiles = PROFILE4\n
 publish = false
 """
+
+config_file_wrong_subscription_entry = """
+[GENERAL]\n
+sensu_url = http://sensu.mock.url/\n
+sensu_token = s3ns8t0k3n\n
+webapi_url = https://web-api.mock.url/\n
+\n
+[TENANT1]\n
+poem_url = https://tenant1.poem.mock.url/\n
+poem_token = p03mtok3n\n
+webapi_token = w3b4p1t0k3n\n
+topology_groups_filter = type=NGI&tags=certification:Certified
+topology_endpoints_filter = tags=monitored:1
+attributes = /path/to/attributes1\n
+metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
+topology = /path/to/topology1\n
+secrets = /path/to/secrets\n
+publish = true\n
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
+\n
+[TENANT2]\n
+poem_url = https://tenant2.poem.mock.url/\n
+poem_token = p03mtok3n22\n
+webapi_token = w3b4p1t0k3n2\n
+attributes = /path/to/attributes2\n
+metricprofiles = PROFILE4\n
+publish = false
+subscription = nonexisting
+"""
+
 
 config_file_name = "test.conf"
 
@@ -406,7 +436,24 @@ class ConfigTests(unittest.TestCase):
             }
         )
 
-    def test_get_use_ids(self):
+    def test_get_subscriptions(self):
         self.assertEqual(
-            self.config.get_use_ids(), {"TENANT1": False, "TENANT2": True}
+            self.config.get_subscriptions(), {
+                "TENANT1": "hostname", "TENANT2": "hostname_with_id"
+            }
+        )
+
+    def test_get_subscriptions_with_wrong_entry(self):
+        with open(config_file_name, "w") as f:
+            f.write(config_file_wrong_subscription_entry)
+
+        config = Config(config_file=config_file_name)
+
+        with self.assertRaises(ConfigException) as context:
+            config.get_subscriptions()
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Configuration file error: Unacceptable value 'nonexisting' for "
+            "option: 'subscription' in section: 'TENANT2'"
         )
