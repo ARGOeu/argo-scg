@@ -3,7 +3,7 @@ import argparse
 import json
 import sys
 
-from argo_scg.config import Config
+from argo_scg.config import Config, AgentConfig
 from argo_scg.exceptions import SensuException, ConfigException, \
     PoemException, WebApiException, GeneratorException
 from argo_scg.generator import ConfigurationGenerator
@@ -45,6 +45,7 @@ def main():
         secrets = config.get_secrets()
         publish_bool = config.publish()
         subscriptions = config.get_subscriptions()
+        agents_configurations = config.get_agents_configurations()
 
         tenants = config.get_tenants()
 
@@ -90,6 +91,15 @@ def main():
                 else:
                     topology = webapi.get_topology()
 
+                if agents_configurations[tenant]:
+                    agent_config = AgentConfig(
+                        file=agents_configurations[tenant]
+                    )
+                    custom_subs = agent_config.get_custom_subs()
+
+                else:
+                    custom_subs = None
+
                 generator = ConfigurationGenerator(
                     metrics=poem.get_metrics_configurations(),
                     profiles=metricprofiles[tenant],
@@ -134,7 +144,9 @@ def main():
                     host_attributes_overrides=generator.
                     get_host_attribute_overrides(),
                     services=generator.generate_internal_services(),
-                    subscriptions=generator.generate_subscriptions(),
+                    subscriptions=generator.generate_subscriptions(
+                        custom_subs=custom_subs
+                    ),
                     namespace=namespace
                 )
 
