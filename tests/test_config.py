@@ -125,34 +125,15 @@ subscription = nonexisting
 """
 
 agents_config_ok = """
-[GENERAL]
-default = sensu-agent0.argo.eu
-
 [AGENTS]
 sensu-agent1.argo.eu = webdav, xrootd
 sensu-agent2.argo.eu = ARC-CE
 """
 
 agents_config_missing_agents_section = """
-[GENERAL]
-default = sensu-agent0.argo.eu
-"""
-
-agents_config_missing_general_section = """
-[AGENTS]
+[TEST]
 sensu-agent1.argo.eu = webdav, xrootd
-sensu-agent2.argo.eu = ARC-CE
 """
-
-agents_config_missing_default_option = """
-[GENERAL]
-mock = sensu-agent0.argo.eu
-
-[AGENTS]
-sensu-agent1.argo.eu = webdav, xrootd
-sensu-agent2.argo.eu = ARC-CE
-"""
-
 
 config_file_name = "test.conf"
 
@@ -517,11 +498,6 @@ class AgentConfigTests(unittest.TestCase):
             "File nonexisting.conf does not exist"
         )
 
-    def test_get_default_agent(self):
-        self.assertEqual(
-            self.config.get_default_agent(), "sensu-agent0.argo.eu"
-        )
-
     def test_get_custom_agents(self):
         self.assertEqual(
             self.config.get_custom_agents(), {
@@ -530,69 +506,9 @@ class AgentConfigTests(unittest.TestCase):
             }
         )
 
-    def test_get_default_agent_if_missing_agents_section(self):
-        with open(config_file_name, "w") as f:
-            f.write(agents_config_missing_agents_section)
-
-        config = AgentConfig(file=config_file_name)
-        self.assertEqual(
-            config.get_default_agent(), "sensu-agent0.argo.eu"
-        )
-
     def test_get_custom_agents_if_missing_agents_section(self):
         with open(config_file_name, "w") as f:
             f.write(agents_config_missing_agents_section)
 
         config = AgentConfig(file=config_file_name)
         self.assertEqual(config.get_custom_agents(), dict())
-
-    def test_get_default_agent_if_missing_general_section(self):
-        with open(config_file_name, "w") as f:
-            f.write(agents_config_missing_general_section)
-
-        config = AgentConfig(file=config_file_name)
-        with self.assertRaises(AgentConfigException) as context:
-            config.get_default_agent()
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Agent configuration file error: No section: 'GENERAL'"
-        )
-
-    def test_get_custom_agents_if_missing_general_section(self):
-        with open(config_file_name, "w") as f:
-            f.write(agents_config_missing_general_section)
-
-        config = AgentConfig(file=config_file_name)
-        self.assertEqual(
-            config.get_custom_agents(), {
-                "sensu-agent1.argo.eu": ["webdav", "xrootd"],
-                "sensu-agent2.argo.eu": ["ARC-CE"]
-            }
-        )
-
-    def test_get_default_agent_if_missing_default_option(self):
-        with open(config_file_name, "w") as f:
-            f.write(agents_config_missing_default_option)
-
-        config = AgentConfig(file=config_file_name)
-        with self.assertRaises(AgentConfigException) as context:
-            config.get_default_agent()
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Agent configuration file error: "
-            "No option 'default' in section: 'GENERAL'"
-        )
-
-    def test_get_custom_agents_if_missing_default_option(self):
-        with open(config_file_name, "w") as f:
-            f.write(agents_config_missing_default_option)
-
-        config = AgentConfig(file=config_file_name)
-        self.assertEqual(
-            config.get_custom_agents(), {
-                "sensu-agent1.argo.eu": ["webdav", "xrootd"],
-                "sensu-agent2.argo.eu": ["ARC-CE"]
-            }
-        )

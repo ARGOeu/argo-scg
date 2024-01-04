@@ -238,13 +238,6 @@ class Config(_Config):
 
 
 class AgentConfig(_Config):
-    def get_default_agent(self):
-        try:
-            return self.conf.get("GENERAL", "default")
-
-        except (configparser.NoSectionError, configparser.NoOptionError) as e:
-            raise AgentConfigException(str(e))
-
     def get_custom_agents(self):
         custom = dict()
         try:
