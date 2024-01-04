@@ -13041,14 +13041,16 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            agents_services={
-                "sensu-agent1": ["argo.test"], "sensu-agent2": ["argo.webui"]
-            }
+            tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            subscriptions = generator.generate_subscriptions()
+            subscriptions = generator.generate_subscriptions(
+                custom_agents={
+                    "sensu-agent1": ["argo.test"],
+                    "sensu-agent2": ["argo.webui"]
+                }
+            )
         self.assertEqual(
             subscriptions, {
                 "default": [
@@ -13094,12 +13096,13 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            tenant="MOCK_TENANT"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            subscriptions = generator.generate_subscriptions()
+            subscriptions = generator.generate_subscriptions(
+                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
         self.assertEqual(
             subscriptions, {
                 "default": [
@@ -13148,12 +13151,13 @@ class EntityConfigurationTests(unittest.TestCase):
             secrets_file="",
             default_ports=mock_default_ports,
             tenant="MOCK_TENANT",
-            subscription="hostname_with_id",
-            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            subscription="hostname_with_id"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            subscriptions = generator.generate_subscriptions()
+            subscriptions = generator.generate_subscriptions(
+                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
         self.assertEqual(
             subscriptions, {
                 "default": [
@@ -13202,12 +13206,13 @@ class EntityConfigurationTests(unittest.TestCase):
             secrets_file="",
             default_ports=mock_default_ports,
             tenant="MOCK_TENANT",
-            subscription="servicetype",
-            agents_services={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            subscription="servicetype"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            subscriptions = generator.generate_subscriptions()
+            subscriptions = generator.generate_subscriptions(
+                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
         self.assertEqual(
             subscriptions, {
                 "default": ["eu.eosc.portal.services.url", "internals"],

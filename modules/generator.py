@@ -52,7 +52,7 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            subscription="hostname", agents_services=None
+            subscription="hostname"
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -226,12 +226,6 @@ class ConfigurationGenerator:
 
                 else:
                     self.servicetypes_with_url.update({st: [attribute]})
-
-        if agents_services is None:
-            self.agents_services = dict()
-
-        else:
-            self.agents_services = agents_services
 
     @staticmethod
     def _read_global_attributes(input_attrs):
@@ -1314,7 +1308,10 @@ class ConfigurationGenerator:
 
         return sorted(list(set(subscriptions)))
 
-    def generate_subscriptions(self):
+    def generate_subscriptions(self, custom_agents=None):
+        if custom_agents is None:
+            custom_agents = dict()
+
         subscriptions = dict()
         remaining_servicetypes = self.servicetypes
         remaining_hostnames = set(
@@ -1322,7 +1319,7 @@ class ConfigurationGenerator:
         )
 
         used_hostnames = set()
-        for key, values in self.agents_services.items():
+        for key, values in custom_agents.items():
             remaining_servicetypes = remaining_servicetypes.difference(
                 set(values)
             )
