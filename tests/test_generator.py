@@ -13032,7 +13032,7 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_subscriptions_for_custom_agents(self):
+    def test_generate_subscriptions_for_custom_agents_subs(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
             profiles=["ARGO_TEST51"],
@@ -13046,7 +13046,7 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions(
-                custom_agents={
+                custom_subs={
                     "sensu-agent1": ["argo.test"],
                     "sensu-agent2": ["argo.webui"]
                 }
@@ -13101,7 +13101,7 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions(
-                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
             )
         self.assertEqual(
             subscriptions, {
@@ -13156,7 +13156,7 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions(
-                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
             )
         self.assertEqual(
             subscriptions, {
@@ -13211,7 +13211,7 @@ class EntityConfigurationTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             subscriptions = generator.generate_subscriptions(
-                custom_agents={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
             )
         self.assertEqual(
             subscriptions, {

@@ -1308,9 +1308,9 @@ class ConfigurationGenerator:
 
         return sorted(list(set(subscriptions)))
 
-    def generate_subscriptions(self, custom_agents=None):
-        if custom_agents is None:
-            custom_agents = dict()
+    def generate_subscriptions(self, custom_subs=None):
+        if custom_subs is None:
+            custom_subs = dict()
 
         subscriptions = dict()
         remaining_servicetypes = self.servicetypes
@@ -1319,7 +1319,7 @@ class ConfigurationGenerator:
         )
 
         used_hostnames = set()
-        for key, values in custom_agents.items():
+        for key, values in custom_subs.items():
             remaining_servicetypes = remaining_servicetypes.difference(
                 set(values)
             )
