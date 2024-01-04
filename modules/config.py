@@ -238,7 +238,7 @@ class Config(_Config):
 
 
 class AgentConfig(_Config):
-    def get_custom_agents(self):
+    def get_custom_subs(self):
         custom = dict()
         try:
             agents = self.conf.items("AGENTS")
@@ -251,4 +251,8 @@ class AgentConfig(_Config):
         except configparser.NoSectionError:
             pass
 
-        return custom
+        if custom:
+            return custom
+
+        else:
+            return None

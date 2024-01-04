@@ -135,6 +135,9 @@ agents_config_missing_agents_section = """
 sensu-agent1.argo.eu = webdav, xrootd
 """
 
+agents_config_empty_file = """
+"""
+
 config_file_name = "test.conf"
 
 
@@ -498,17 +501,24 @@ class AgentConfigTests(unittest.TestCase):
             "File nonexisting.conf does not exist"
         )
 
-    def test_get_custom_agents(self):
+    def test_get_custom_subs(self):
         self.assertEqual(
-            self.config.get_custom_agents(), {
+            self.config.get_custom_subs(), {
                 "sensu-agent1.argo.eu": ["webdav", "xrootd"],
                 "sensu-agent2.argo.eu": ["ARC-CE"]
             }
         )
 
-    def test_get_custom_agents_if_missing_agents_section(self):
+    def test_get_custom_subs_if_missing_agents_section(self):
         with open(config_file_name, "w") as f:
             f.write(agents_config_missing_agents_section)
 
         config = AgentConfig(file=config_file_name)
-        self.assertEqual(config.get_custom_agents(), dict())
+        self.assertEqual(config.get_custom_subs(), None)
+
+    def test_get_custom_subs_if_empty_file(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_empty_file)
+
+        config = AgentConfig(file=config_file_name)
+        self.assertEqual(config.get_custom_subs(), None)
