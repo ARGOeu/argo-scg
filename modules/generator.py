@@ -1302,9 +1302,13 @@ class ConfigurationGenerator:
 
         for servicetype in servicetypes:
             if servicetype != self.internal_metrics_subscription:
-                subscriptions.extend(
-                    self._get_hostnames4servicetypes()[servicetype]
-                )
+                try:
+                    subscriptions.extend(
+                        self._get_hostnames4servicetypes()[servicetype]
+                    )
+
+                except KeyError:
+                    continue
 
         return sorted(list(set(subscriptions)))
 

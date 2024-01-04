@@ -13063,6 +13063,38 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subscriptions_for_custom_agents_subs_if_missing_service(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST51"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={
+                    "sensu-agent1": ["web.check"],
+                }
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo-devel.ni4os.eu", "argo.ni4os.eu",
+                    "dcache-se-cms.desy.de", "dcache.arnes.si",
+                    "dcache6-shadow.iihe.ac.be", "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions_for_hostnames_without_id(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -13110,6 +13142,35 @@ class EntityConfigurationTests(unittest.TestCase):
                     "hostname3.argo.eu", "internals"
                 ],
                 "sensu-agent1": ["dabar.srce.hr", "hrcak.srce.hr", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_hostnames_without_id_custom_agnt_missing_serv(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dabar.srce.hr", "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "hrcak.srce.hr", "internals"
+                ],
+                "sensu-agent1": ["internals"]
             }
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -13174,6 +13235,40 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subs_for_hostnames_with_id_custom_agent_missing_service(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dabar.srce.hr_dabar_id",
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "hrcak.srce.hr_hrcak.id",
+                    "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions_for_servicetypes(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -13217,6 +13312,31 @@ class EntityConfigurationTests(unittest.TestCase):
             subscriptions, {
                 "default": ["eu.eosc.portal.services.url", "internals"],
                 "sensu-agent1": ["eu.eosc.generic.oai-pmh", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_servicetypes_custom_agent_missing_service(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"],
+                "sensu-agent1": ["argo.test", "internals"]
             }
         )
         self.assertEqual(log.output, DUMMY_LOG)
