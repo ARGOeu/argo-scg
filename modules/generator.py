@@ -415,6 +415,21 @@ class ConfigurationGenerator:
 
         return hostnames4servicetypes
 
+    def _get_entities4servicetypes(self):
+        entities4servicetypes = dict()
+
+        for servicetype in self.servicetypes:
+            entities = [
+                f"{servicetype}__{item['hostname']}" for item in self.topology
+                if item["service"] == servicetype
+            ]
+
+            entities4servicetypes.update({
+                servicetype: sorted(list(set(entities)))
+            })
+
+        return entities4servicetypes
+
     def _get_extensions(self):
         extensions = set()
         for item in self.topology:
@@ -1325,9 +1340,15 @@ class ConfigurationGenerator:
         for servicetype in servicetypes:
             if servicetype != self.internal_metrics_subscription:
                 try:
-                    subscriptions.extend(
-                        self._get_hostnames4servicetypes()[servicetype]
-                    )
+                    if self.subscription == "entity":
+                        subscriptions.extend(
+                            self._get_entities4servicetypes()[servicetype]
+                        )
+
+                    else:
+                        subscriptions.extend(
+                            self._get_hostnames4servicetypes()[servicetype]
+                        )
 
                 except KeyError:
                     continue

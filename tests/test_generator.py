@@ -13662,6 +13662,92 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_subscriptions_for_entity_sub(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.test__argo.ni4os.eu",
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_entity_subs_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ],
+                "sensu-agent1": ["argo.test__argo.ni4os.eu", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_entity_subs_custom_agent_missing_service(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["eu.eosc.portal.services.url"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.test__argo.ni4os.eu",
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_internal_services(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
