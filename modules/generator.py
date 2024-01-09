@@ -359,23 +359,23 @@ class ConfigurationGenerator:
 
         return metrics
 
+    def _get_hostname(self, item):
+        if self.subscription == "hostname_with_id":
+            return item["hostname"]
+
+        elif "hostname" in item["tags"]:
+            return item["tags"]["hostname"]
+
+        else:
+            return item["hostname"]
+
     def _get_hostnames4metrics(self):
-        def get_hostname(item):
-            if self.subscription == "hostname_with_id":
-                return item["hostname"]
-
-            elif "hostname" in item["tags"]:
-                return item["tags"]["hostname"]
-
-            else:
-                return item["hostname"]
-
         hostnames4metrics = dict()
         for metric, servicetypes in self.servicetypes4metrics.items():
             hostnames = list()
             for servicetype in servicetypes:
                 hostnames.extend([
-                    get_hostname(item) for item in self.topology
+                    self._get_hostname(item) for item in self.topology
                     if item["service"] == servicetype
                 ])
 
@@ -383,6 +383,21 @@ class ConfigurationGenerator:
             hostnames4metrics.update({metric: hostnames})
 
         return hostnames4metrics
+
+    def _get_hostnames4servicetypes(self):
+        hostnames4servicetypes = dict()
+
+        for servicetype in self.servicetypes:
+            hostnames = [
+                self._get_hostname(item) for item in self.topology
+                if item["service"] == servicetype
+            ]
+
+            hostnames4servicetypes.update({
+                servicetype: sorted(list(set(hostnames)))
+            })
+
+        return hostnames4servicetypes
 
     def _get_extensions(self):
         extensions = set()
@@ -1282,19 +1297,60 @@ class ConfigurationGenerator:
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
 
-    def generate_subscriptions(self):
+    def _generate_hostname_subscriptions(self, servicetypes):
         subscriptions = list()
 
+        for servicetype in servicetypes:
+            if servicetype != self.internal_metrics_subscription:
+                try:
+                    subscriptions.extend(
+                        self._get_hostnames4servicetypes()[servicetype]
+                    )
+
+                except KeyError:
+                    continue
+
+        return sorted(list(set(subscriptions)))
+
+    def generate_subscriptions(self, custom_subs=None):
+        if custom_subs is None:
+            custom_subs = dict()
+
+        subscriptions = dict()
+        remaining_servicetypes = self.servicetypes
+        remaining_hostnames = set(
+            self._generate_hostname_subscriptions(list(remaining_servicetypes))
+        )
+
+        used_hostnames = set()
+        for key, values in custom_subs.items():
+            remaining_servicetypes = remaining_servicetypes.difference(
+                set(values)
+            )
+
+            if self.subscription == "servicetype":
+                subs_values = set(values)
+
+            else:
+                subs_values = self._generate_hostname_subscriptions(values)
+                subs_values = set(subs_values).difference(used_hostnames)
+                used_hostnames.update(subs_values)
+
+            subs_values.add(self.internal_metrics_subscription)
+            subscriptions.update({key: sorted(list(subs_values))})
+
         if self.subscription == "servicetype":
-            subscriptions.extend(self.servicetypes)
+            remaining_servicetypes.add(self.internal_metrics_subscription)
+            subscriptions.update({
+                "default": sorted(list(remaining_servicetypes))
+            })
 
         else:
-            for metric, hostnames in self._get_hostnames4metrics().items():
-                subscriptions.extend(hostnames)
+            subs = remaining_hostnames.difference(used_hostnames)
+            subs.add(self.internal_metrics_subscription)
+            subscriptions.update({"default": sorted(list(subs))})
 
-        subscriptions.append(self.internal_metrics_subscription)
-
-        return list(set(subscriptions))
+        return subscriptions
 
     def generate_internal_services(self):
         services = list()

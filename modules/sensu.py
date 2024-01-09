@@ -689,7 +689,13 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                new_subscriptions = subscriptions + [
+                if agent["metadata"]["name"] in subscriptions.keys():
+                    subs = subscriptions[agent["metadata"]["name"]]
+
+                else:
+                    subs = subscriptions["default"]
+
+                new_subscriptions = subs + [
                     item for item in agent["subscriptions"] if
                     agent["metadata"]["name"] in item
                 ]

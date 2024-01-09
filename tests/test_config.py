@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from argo_scg.config import Config
-from argo_scg.exceptions import ConfigException
+from argo_scg.config import Config, AgentConfig
+from argo_scg.exceptions import ConfigException, AgentConfigException
 
 config_file_ok = """
 [GENERAL]\n
@@ -22,6 +22,7 @@ topology = /path/to/topology1\n
 secrets = /path/to/secrets\n
 publish = true\n
 publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
+agents_configuration = /path/to/config-file
 \n
 [TENANT2]\n
 poem_url = https://tenant2.poem.mock.url/\n
@@ -123,6 +124,19 @@ publish = false
 subscription = nonexisting
 """
 
+agents_config_ok = """
+[AGENTS]
+sensu-agent1.argo.eu = webdav, xrootd
+sensu-agent2.argo.eu = ARC-CE
+"""
+
+agents_config_missing_agents_section = """
+[TEST]
+sensu-agent1.argo.eu = webdav, xrootd
+"""
+
+agents_config_empty_file = """
+"""
 
 config_file_name = "test.conf"
 
@@ -457,3 +471,54 @@ class ConfigTests(unittest.TestCase):
             "Configuration file error: Unacceptable value 'nonexisting' for "
             "option: 'subscription' in section: 'TENANT2'"
         )
+
+    def test_get_agents_configurations(self):
+        self.assertEqual(
+            self.config.get_agents_configurations(), {
+                "TENANT1": "/path/to/config-file", "TENANT2": ""
+            }
+        )
+
+
+class AgentConfigTests(unittest.TestCase):
+    def setUp(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_ok)
+
+        self.config = AgentConfig(file=config_file_name)
+
+    def tearDown(self):
+        if os.path.isfile(config_file_name):
+            os.remove(config_file_name)
+
+    def test_config_nonexisting_file(self):
+        with self.assertRaises(ConfigException) as context:
+            AgentConfig(file="nonexisting.conf")
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Configuration file error: "
+            "File nonexisting.conf does not exist"
+        )
+
+    def test_get_custom_subs(self):
+        self.assertEqual(
+            self.config.get_custom_subs(), {
+                "sensu-agent1.argo.eu": ["webdav", "xrootd"],
+                "sensu-agent2.argo.eu": ["ARC-CE"]
+            }
+        )
+
+    def test_get_custom_subs_if_missing_agents_section(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_missing_agents_section)
+
+        config = AgentConfig(file=config_file_name)
+        self.assertEqual(config.get_custom_subs(), None)
+
+    def test_get_custom_subs_if_empty_file(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_empty_file)
+
+        config = AgentConfig(file=config_file_name)
+        self.assertEqual(config.get_custom_subs(), None)

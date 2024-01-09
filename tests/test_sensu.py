@@ -5038,11 +5038,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5098,6 +5098,77 @@ class SensuAgentsTests(unittest.TestCase):
 
     @patch("requests.patch")
     @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_agent_subscriptions(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                subscriptions={
+                    "default": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
+                    "sensu-agent2": [
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ]
+                },
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+        mock_patch.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent1",
+                        "internals"
+                    ]
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "entity:sensu-agent2",
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
     def test_add_subscriptions_to_agents_with_error_in_patch_with_msg(
             self, mock_get, mock_patch
     ):
@@ -5109,11 +5180,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5180,11 +5251,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5256,11 +5327,11 @@ class SensuAgentsTests(unittest.TestCase):
                         "value": "80"
                     }
                 ],
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5339,10 +5410,10 @@ class SensuAgentsTests(unittest.TestCase):
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }],
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5414,10 +5485,10 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
-                ],
+                ]},
                 services="argo.mon,argo.test",
                 namespace="TENANT1"
             )
