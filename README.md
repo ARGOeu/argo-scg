@@ -60,9 +60,10 @@ agents_configuration = /path/to/config-file
 * `attributes` - path to the file containing the attributes for the given tenant (optional),
 * `secrets` - path to file containing sensitive attributes (e.g. passwords, tokens) (optional),
 * `subscription` - type of subscription to use (optional; if not set, it uses the default value). There are three possible values:
+  * `entity` - entity name is used as subscription,
   * `hostname` - hostname is used as a subscription (this is a default value),
-  * `servicetype` - service types are used as subscription,
   * `hostname_with_id` - hostname with id is used as subscription,
+  * `servicetype` - service types are used as subscription,
 * `agents_configuration` - path to configuration file for custom agents' subscriptions (optional).
 
 #### Agents configuration
