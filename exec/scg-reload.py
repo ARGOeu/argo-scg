@@ -49,8 +49,6 @@ def main():
 
         tenants = config.get_tenants()
 
-        logger.info(f"Configuration file {args.conf} read successfully")
-
         if args.tenant:
             if args.tenant not in tenants:
                 parser.error(f"Tenant {args.tenant} does not exist")
@@ -149,6 +147,7 @@ def main():
                     ),
                     namespace=namespace
                 )
+                logger.info(f"{namespace}: All synced!")
 
             except json.decoder.JSONDecodeError as e:
                 logger.error(f"{namespace}: Error reading JSON: {str(e)}")
