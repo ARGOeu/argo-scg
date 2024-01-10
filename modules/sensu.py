@@ -1409,11 +1409,13 @@ class SensuCtl:
 
             executed = datetime.datetime.fromtimestamp(item["timestamp"])
             metric_output = item["check"]["output"].split("|")[0].strip()
+            single_line_output = (
+                metric_output.split("\n")[0].split("\\n")[0].strip())
 
             output_list.append(
                 f"{entity.ljust(entities_len)}{metric.ljust(metric_len)}"
                 f"{status.ljust(10)}{executed.strftime('%Y-%m-%d %H:%M:%S')}  "
-                f"{metric_output}"
+                f"{single_line_output}"
             )
 
         return output_list
