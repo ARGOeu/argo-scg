@@ -13,7 +13,7 @@ class Poem:
 
     def _get_metrics(self):
         response = requests.get(
-            "{}/api/v2/metrics".format(self.url),
+            f"{self.url}/api/v2/metrics",
             headers={"x-api-key": self.token}
         )
 
@@ -31,12 +31,11 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            self.logger.info(f"{self.tenant}: Metrics fetched successfully")
             return response.json()
 
     def get_metric_overrides(self):
         response = requests.get(
-            "{}/api/v2/metricoverrides".format(self.url),
+            f"{self.url}/api/v2/metricoverrides",
             headers={"x-api-key": self.token}
         )
 
@@ -54,9 +53,6 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            self.logger.info(
-                f"{self.tenant}: Metric overrides fetched successfully"
-            )
             return response.json()
 
     def get_metrics_configurations(self):
@@ -100,7 +96,4 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            self.logger.info(
-                f"{self.tenant}: Default ports fetched successfully"
-            )
             return response.json()
