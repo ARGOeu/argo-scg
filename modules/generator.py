@@ -384,6 +384,22 @@ class ConfigurationGenerator:
 
         return hostnames4metrics
 
+    def _get_entities4metrics(self):
+        entities4metrics = dict()
+        for metric, servicetypes in self.servicetypes4metrics.items():
+            entities = list()
+            for servicetype in servicetypes:
+                entities.extend([
+                    f"{servicetype}__{item['hostname']}"
+                    for item in self.topology if
+                    item["service"] == servicetype
+                ])
+
+            entities = sorted(list(set(entities)))
+            entities4metrics.update({metric: entities})
+
+        return entities4metrics
+
     def _get_hostnames4servicetypes(self):
         hostnames4servicetypes = dict()
 
@@ -398,6 +414,21 @@ class ConfigurationGenerator:
             })
 
         return hostnames4servicetypes
+
+    def _get_entities4servicetypes(self):
+        entities4servicetypes = dict()
+
+        for servicetype in self.servicetypes:
+            entities = [
+                f"{servicetype}__{item['hostname']}" for item in self.topology
+                if item["service"] == servicetype
+            ]
+
+            entities4servicetypes.update({
+                servicetype: sorted(list(set(entities)))
+            })
+
+        return entities4servicetypes
 
     def _get_extensions(self):
         extensions = set()
@@ -614,6 +645,9 @@ class ConfigurationGenerator:
     def _generate_metric_subscriptions(self, name):
         if self.subscription == "servicetype":
             subscriptions = self._get_servicetypes4metrics()[name]
+
+        elif self.subscription == "entity":
+            subscriptions = self._get_entities4metrics()[name]
 
         else:
             subscriptions = self._get_hostnames4metrics()[name]
@@ -1267,6 +1301,9 @@ class ConfigurationGenerator:
                     elif self.subscription == "hostname_with_id":
                         subscriptions = [item["hostname"]]
 
+                    elif self.subscription == "entity":
+                        subscriptions = [entity_name]
+
                     else:
                         subscriptions = [hostname]
 
@@ -1303,9 +1340,15 @@ class ConfigurationGenerator:
         for servicetype in servicetypes:
             if servicetype != self.internal_metrics_subscription:
                 try:
-                    subscriptions.extend(
-                        self._get_hostnames4servicetypes()[servicetype]
-                    )
+                    if self.subscription == "entity":
+                        subscriptions.extend(
+                            self._get_entities4servicetypes()[servicetype]
+                        )
+
+                    else:
+                        subscriptions.extend(
+                            self._get_hostnames4servicetypes()[servicetype]
+                        )
 
                 except KeyError:
                     continue

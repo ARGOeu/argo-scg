@@ -1,6 +1,6 @@
 import configparser
 
-from argo_scg.exceptions import ConfigException, AgentConfigException
+from argo_scg.exceptions import ConfigException
 
 
 class _Config:
@@ -209,7 +209,9 @@ class Config(_Config):
             try:
                 value = self.conf.get(tenant, "subscription")
 
-                if value not in ["hostname", "hostname_with_id", "servicetype"]:
+                if value not in [
+                    "entity", "hostname", "hostname_with_id", "servicetype"
+                ]:
                     raise ConfigException(
                         f"Unacceptable value '{value}' for option: "
                         f"'subscription' in section: '{tenant}'"
