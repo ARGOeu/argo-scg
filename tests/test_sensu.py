@@ -2332,6 +2332,299 @@ mock_events_ctl = [
     }
 ]
 
+mock_events_multiline_ctl = [
+    {
+        'check': {
+            'command': '/usr/libexec/argo/probes/htcondorce/'
+                       'htcondorce-cert-check -H ce503.cern.ch -t 60 '
+                       '--ca-bundle /etc/pki/tls/certs/ca-bundle.crt '
+                       '--user_proxy /etc/sensu/certs/userproxy.pem',
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 86400,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+            ],
+            'proxy_entity_name':
+                'org.opensciencegrid.htcondorce__ce503.cern.ch',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.argo_certificate_validity_htcondorce == "
+                    "'argo.certificate.validity-htcondorce'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 1.420389828,
+            'executed': 1704835943,
+            'history': [
+                {'status': 0, 'executed': 1704490341},
+                {'status': 0, 'executed': 1704576741},
+                {'status': 0, 'executed': 1704663142}
+            ],
+            'issued': 1704835943,
+            'output':
+                'OK - HTCondorCE certificate valid until Jul 11 10:51:04 2024 '
+                'UTC (expires in 183 days)\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1704835943,
+            'occurrences': 3,
+            'occurrences_watermark': 3,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'argo.certificate.validity-htcondorce',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '2'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent-egi-htcondor-devel.cro-ngi',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
+        }],
+        'sequence': 461,
+        'timestamp': 1704835944
+    }, {
+        'check': {
+            'command':
+                "/usr/lib64/nagios/plugins/check_js -H ce503.cern.ch -t 600 "
+                "--executable /bin/hostname --resource "
+                "condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue "
+                "--backend scondor --pool ce503.cern.ch:9619 "
+                "--schedd ce503.cern.ch --zero-payload --jdl-ads "
+                "'+Owner = undefined' --prefix ch.cern.HTCondorCE "
+                "--suffix ops --vo ops -x /etc/sensu/certs/userproxy.pem",
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 3600,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                 'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+            ],
+            'proxy_entity_name':
+                'org.opensciencegrid.htcondorce__ce503.cern.ch',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.ch_cern_htcondorce_jobstate == "
+                    "'ch.cern.HTCondorCE-JobState'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 17.584724169,
+            'executed': 1704878172,
+            'history': [
+                {'status': 0, 'executed': 1704856572},
+                {'status': 0, 'executed': 1704856573}
+            ],
+            'issued': 1704878171,
+            'output':
+                "OK - Job was successfully submitted (93770287)\n"
+                "=== Credentials:\nx509:\n/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/"
+                "CN=Robot:argo-egi@cro-ngi.hr/CN=158209419\r\n"
+                "/ops/Role=NULL/Capability=NULL\r\n\n",
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1704878172,
+            'occurrences': 88,
+            'occurrences_watermark': 88,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'ch.cern.HTCondorCE-JobState',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '2'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent-egi-htcondor-devel.cro-ngi',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
+        }],
+        'sequence': 17331,
+        'timestamp': 1704878189
+    }, {
+        'check': {
+            'handlers': ['publisher-handler'],
+            'high_flap_threshold': 0,
+            'interval': 0,
+            'low_flap_threshold': 0,
+            'publish': False,
+            'runtime_assets': None,
+            'subscriptions': [],
+            'proxy_entity_name': '',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 0,
+            'round_robin': False,
+            'executed': 0,
+            'history': [
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 0, 'executed': 0}
+            ],
+            'issued': 0,
+            'output':
+                'OK - Job successfully completed\\n=== ETF job log:\\nTimeout '
+                'limits configured were:\\n=== Credentials:\\nx509:\\n'
+                '/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@'
+                'cro-ngi.hr/CN=2102436855\n\\n/ops/Role=NULL/Capability=NULL\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 0,
+            'occurrences': 3,
+            'occurrences_watermark': 3,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'ch.cern.HTCondorCE-JobSubmit',
+                'namespace': 'EGI',
+                'created_by': 'admin'
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'pipelines': []
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'created_by': 'admin'},
+        'pipelines': None,
+        'sequence': 0,
+        'timestamp': 1704860185
+    }
+]
+
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
 DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
@@ -7574,6 +7867,34 @@ class SensuCtlTests(unittest.TestCase):
                 "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
                 "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
                 "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events_multiline_output(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_multiline_ctl).encode("utf-8")
+        events = self.sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Entity                                         "
+                "Metric                                Status    "
+                "Executed             Output",
+                "_______________________________________________"
+                "_________________________________________________"
+                "_____________________________",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "argo.certificate.validity-htcondorce  OK        "
+                "2024-01-09 21:32:24  "
+                "OK - HTCondorCE certificate valid until Jul 11 10:51:04 2024 "
+                "UTC (expires in 183 days)",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "ch.cern.HTCondorCE-JobState           OK        "
+                "2024-01-10 09:16:29  "
+                "OK - Job was successfully submitted (93770287)",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "ch.cern.HTCondorCE-JobSubmit          OK        "
+                "2024-01-10 04:16:25  OK - Job successfully completed"
             ]
         )
 
