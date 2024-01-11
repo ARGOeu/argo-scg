@@ -1,3 +1,4 @@
+import logging
 import unittest
 from unittest.mock import patch
 
@@ -362,6 +363,14 @@ mock_default_ports = {
     "HTCondorCE_PORT": "9619"
 }
 
+LOGNAME = "argo-scg.poem"
+DUMMY_LOGGER = logging.getLogger(LOGNAME)
+DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
+
+
+def _log_dummy():
+    DUMMY_LOGGER.info("dummy")
+
 
 def mock_poem_metrics_request(*args, **kwargs):
     return MockResponse(mock_metrics, status_code=200)
@@ -398,6 +407,7 @@ class PoemTests(unittest.TestCase):
     def test_get_metrics(self, mock_request):
         mock_request.side_effect = mock_poem_metrics_request
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             metrics = self.poem.get_metrics_configurations()
         mock_request.assert_called_once()
         mock_request.assert_called_with(
@@ -409,11 +419,7 @@ class PoemTests(unittest.TestCase):
             for key, value in metric.items():
                 metric[key]["config"]["path"] = "/usr/lib64/nagios/plugins"
         self.assertEqual(metrics, metrics2)
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Metrics fetched successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_metrics_with_error_with_msg(self, mock_request):
@@ -421,12 +427,10 @@ class PoemTests(unittest.TestCase):
         with self.assertRaises(PoemException) as context:
             with self.assertLogs(self.logname) as log:
                 self.poem.get_metrics_configurations()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metrics",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Metrics fetch error: 400 BAD REQUEST: "
@@ -445,17 +449,14 @@ class PoemTests(unittest.TestCase):
         with self.assertRaises(PoemException) as context:
             with self.assertLogs(self.logname) as log:
                 self.poem.get_metrics_configurations()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metrics",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Metrics fetch error: 400 BAD REQUEST"
         )
-
         self.assertEqual(
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: Metrics fetch error: "
@@ -478,12 +479,9 @@ class PoemTests(unittest.TestCase):
         ]
         metrics2[0]["generic.http.ar-argoui-ni4os"]["config"]["path"] = \
             "/usr/lib64/nagios/plugins"
-
         self.assertEqual(metrics, metrics2)
         self.assertEqual(
             log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Metrics fetched "
-                f"successfully",
                 f"WARNING:{self.logname}:MOCK_TENANT: "
                 f"Metric generic.http.connect skipped: Missing key 'path'"
             ]
@@ -493,6 +491,7 @@ class PoemTests(unittest.TestCase):
     def test_get_metric_overrides(self, mock_request):
         mock_request.side_effect = mock_poem_metric_overrides_request
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             overrides = self.poem.get_metric_overrides()
         mock_request.assert_called_once()
         mock_request.assert_called_with(
@@ -500,12 +499,7 @@ class PoemTests(unittest.TestCase):
             headers={'x-api-key': 'P03mt0k3n'}
         )
         self.assertEqual(overrides, mock_metric_overrides)
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Metric overrides fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_metric_overrides_with_error_with_msg(self, mock_request):
@@ -513,18 +507,15 @@ class PoemTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             with self.assertRaises(PoemException) as context:
                 self.poem.get_metric_overrides()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metricoverrides",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Metric overrides fetch error: "
             "400 BAD REQUEST: Something went wrong."
         )
-
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
@@ -539,18 +530,15 @@ class PoemTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             with self.assertRaises(PoemException) as context:
                 self.poem.get_metric_overrides()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/metricoverrides",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Metric overrides fetch error: "
             "400 BAD REQUEST"
         )
-
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
@@ -562,6 +550,7 @@ class PoemTests(unittest.TestCase):
     def test_get_default_ports(self, mock_request):
         mock_request.side_effect = mock_poem_default_ports_request
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             ports = self.poem.get_default_ports()
         mock_request.assert_called_once()
         mock_request.assert_called_with(
@@ -569,12 +558,7 @@ class PoemTests(unittest.TestCase):
             headers={'x-api-key': 'P03mt0k3n'}
         )
         self.assertEqual(ports, mock_default_ports)
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Default ports fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_default_ports_with_error_with_msg(self, mock_request):
@@ -582,18 +566,15 @@ class PoemTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             with self.assertRaises(PoemException) as context:
                 self.poem.get_default_ports()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/default_ports",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Default ports fetch error: "
             "400 BAD REQUEST: Something went wrong."
         )
-
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "
@@ -608,18 +589,15 @@ class PoemTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             with self.assertRaises(PoemException) as context:
                 self.poem.get_default_ports()
-
         mock_request.assert_called_once_with(
             "https://mock.poem.url/api/v2/default_ports",
             headers={'x-api-key': 'P03mt0k3n'}
         )
-
         self.assertEqual(
             context.exception.__str__(),
             "Poem error: MOCK_TENANT: Default ports fetch error: "
             "400 BAD REQUEST"
         )
-
         self.assertEqual(
             log.output, [
                 f"WARNING:{self.logname}:MOCK_TENANT: "

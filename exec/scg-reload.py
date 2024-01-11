@@ -29,6 +29,8 @@ def main():
 
     logger = get_logger()
 
+    logger.info("Started")
+
     try:
         config = Config(config_file=args.conf)
 
@@ -48,8 +50,6 @@ def main():
         agents_configurations = config.get_agents_configurations()
 
         tenants = config.get_tenants()
-
-        logger.info(f"Configuration file {args.conf} read successfully")
 
         if args.tenant:
             if args.tenant not in tenants:
@@ -149,6 +149,7 @@ def main():
                     ),
                     namespace=namespace
                 )
+                logger.info(f"{namespace}: All synced!")
 
             except json.decoder.JSONDecodeError as e:
                 logger.error(f"{namespace}: Error reading JSON: {str(e)}")
