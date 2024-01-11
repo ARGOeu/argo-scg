@@ -94,16 +94,11 @@ ARGO-SCG consists of several tools:
 
 ```
 # scg-reload.py 
-INFO - Configuration file /etc/argo-scg/scg.conf read successfully
-INFO - default: Metrics fetched successfully
-INFO - default: Metric profiles fetched successfully
-INFO - default: Metric overrides fetched successfully
-INFO - default: Default ports fetched successfully
-INFO - TENANT: Topology endpoints fetched successfully
-INFO - TENANT: Metrics fetched successfully
-INFO - TENANT: Metric profiles fetched successfully
-INFO - TENANT: Metric overrides fetched successfully
-INFO - TENANT: Default ports fetched successfully
+INFO - Started
+INFO - default: Check argo.scg.check updated
+INFO - default: All synced!
+INFO - TENANT: Check generic.http.connect updated
+INFO - TENANT: All synced!
 INFO - Done
 ```
 
@@ -111,12 +106,9 @@ If you wish to run `scg-reload.py` script for a single tenant, you can do it by 
 
 ```
 # scg-reload.py -t TENANT
-INFO - Configuration file /etc/argo-scg/scg.conf read successfully
-INFO - TENANT: Topology endpoints fetched successfully
-INFO - TENANT: Metrics fetched successfully
-INFO - TENANT: Metric profiles fetched successfully
-INFO - TENANT: Metric overrides fetched successfully
-INFO - TENANT: Default ports fetched successfully
+INFO - Started
+INFO - TENANT: Check generic.http.connect updated
+INFO - TENANT: All synced!
 INFO - Done
 ```
 
