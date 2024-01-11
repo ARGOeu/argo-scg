@@ -29,6 +29,8 @@ def main():
 
     logger = get_logger()
 
+    logger.info("Started")
+
     try:
         config = Config(config_file=args.conf)
 
