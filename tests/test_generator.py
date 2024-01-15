@@ -319,6 +319,40 @@ mock_metrics = [
         }
     },
     {
+        "egi.xrootd.readonly": {
+            "tags": [
+                "htc",
+                "storage",
+                "xrootd"
+            ],
+            "probe": "xrootd_probe.py",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "300",
+                "path": "/usr/lib64/nagios/plugins/xrootd",
+                "interval": "60",
+                "retryInterval": "15"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "ARGO_XROOTD_OPS_URL": "-E",
+                "X509_USER_PROXY": "-X",
+                "ARGO_XROOTD_SKIP_LS_DIR": "--skip-ls-dir"
+            },
+            "parameter": {
+                "--read-only": "",
+                "-p": "egi.xrootd.readonly"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/EGI-Federation/nagios-plugins-xrootd/blob/"
+                "main/README.md"
+        }
+    },
+    {
         "egi.xrootd.readwrite": {
             "tags": [
                 "htc",
@@ -2791,6 +2825,24 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2024-01-15",
+        "group": "XROOTD-READONLY",
+        "type": "SITES",
+        "service": "eu.egi.readonly.xrootd",
+        "hostname": "xrootd01.readonly.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "info_ext_ARGO_XROOTD_OPS_URL":
+                "root://xrootd01.readonly.eu:1094/ops/xrootd_tests",
+            "info_service_endpoint_URL":
+                "root://xrootd01.readonly.eu:1094/ops/xrootd_tests",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2, atlas, cms, lhcb"
+        }
     }
 ]
 
@@ -3667,6 +3719,21 @@ mock_metric_profiles = [
                 "service": "eu.eosc.portal.services.url",
                 "metrics": [
                     "generic.http.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-15",
+        "name": "ARGO_TEST53",
+        "description": "Profile for testing non-fallback attributes defined in "
+                       "all endpoints",
+        "services": [
+            {
+                "service": "eu.egi.readonly.xrootd",
+                "metrics": [
+                    "egi.xrootd.readonly"
                 ]
             }
         ]
@@ -9345,6 +9412,63 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_with_non_fallback_attribute_in_every_endpoint(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST53"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/xrootd/xrootd_probe.py "
+                    "-H {{ .labels.hostname }} -t 300 --read-only "
+                    "-p egi.xrootd.readonly "
+                    "-E {{ .labels.argo_xrootd_ops_url }} "
+                    "-X /etc/sensu/certs/userproxy.pem "
+                    "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
+                    "default \"\" }}",
+                "subscriptions": ["xrootd01.readonly.eu"],
+                "handlers": [],
+                "interval": 3600,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "egi.xrootd.readonly",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.egi_xrootd_readonly == "
+                        "'egi.xrootd.readonly'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration_with_servicetype_subscriptions(self):
@@ -13327,6 +13451,50 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["argo.webui__argo.ni4os.eu"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_non_fallback_attribute_in_every_endpoint(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST53"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.egi.readonly.xrootd__xrootd01.readonly.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "egi_xrootd_readonly": "egi.xrootd.readonly",
+                            "argo_xrootd_ops_url":
+                                "root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "e__argo_xrootd_ops_url":
+                                "-E root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "endpoint_url":
+                                "root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "hostname": "xrootd01.readonly.eu",
+                            "service": "eu.egi.readonly.xrootd",
+                            "site": "XROOTD-READONLY"
+                        }
+                    },
+                    "subscriptions": ["xrootd01.readonly.eu"]
                 }
             ]
         )

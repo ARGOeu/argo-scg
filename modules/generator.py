@@ -820,10 +820,7 @@ class ConfigurationGenerator:
                         "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                         "timeout": 900,
                         "publish": False,
-                        "metadata": {
-                            "name": name,
-                            "namespace": namespace,
-                        },
+                        "metadata": {"name": name, "namespace": namespace},
                         "round_robin": False
                     }
 
@@ -1189,6 +1186,10 @@ class ConfigurationGenerator:
                         })
 
                     if tag.startswith("info_ext_"):
+                        present_in_all = \
+                            self._is_extension_present_all_endpoints(
+                                services=[item["service"]], extension=tag
+                            )
                         if tag.lower() == "info_ext_port":
                             labels.update({"port": value})
 
@@ -1198,12 +1199,11 @@ class ConfigurationGenerator:
                                     create_label(tag[9:]): value
                                 })
 
-                            elif tag[9:] in non_fallback_urls_created:
+                            elif (tag[9:] in non_fallback_urls_created and
+                                  not present_in_all):
                                 continue
 
-                            elif self._is_extension_present_all_endpoints(
-                                services=[item["service"]], extension=tag
-                            ) or tag.endswith("_URL"):
+                            elif present_in_all or tag.endswith("_URL"):
                                 if value in ["0", "1"]:
                                     value = ""
 
