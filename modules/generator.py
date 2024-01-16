@@ -73,6 +73,7 @@ class ConfigurationGenerator:
 
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
+        self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
         self.internal_metrics_subscription = "internals"
 
@@ -632,11 +633,23 @@ class ConfigurationGenerator:
     def _is_servicesite_name_present(self, value):
         return self.servicesite_name_var in value
 
+    def _is_servicevo_fqan_present(self, value):
+        return self.servicevo_fqan_var in value
+
     def _create_hostalias_value(self, value, hostname):
         return value.replace(self.hostalias_var, hostname)
 
     def _create_servicesite_name_value(self, value, site):
         return value.replace(self.servicesite_name_var, site)
+
+    def _create_servicevo_fqan_value(self, value):
+        if "VO_FQAN" in self.global_attributes:
+            vo_fqan = self.global_attributes["VO_FQAN"]
+
+        else:
+            vo_fqan = self.global_attributes["VONAME"]
+
+        return value.replace(self.servicevo_fqan_var, vo_fqan)
 
     @staticmethod
     def _is_passive(configuration):
@@ -685,6 +698,9 @@ class ConfigurationGenerator:
 
                     else:
                         continue
+
+                elif self._is_servicevo_fqan_present(value):
+                    value = self._create_servicevo_fqan_value(value)
 
                 elif (
                         self._is_hostalias_present(value) or
