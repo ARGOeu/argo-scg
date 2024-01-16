@@ -3737,6 +3737,27 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-16",
+        "name": "ARGO_TEST54",
+        "description":
+            "Profile for testing situations with _SERVICEVO_FQAN variable",
+        "services": [
+            {
+                "service": "ARC-CE",
+                "metrics": [
+                    "org.nordugrid.ARC-CE-SRM-submit"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -9468,6 +9489,190 @@ class CheckConfigurationTests(unittest.TestCase):
             }]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_ARC_CE_check_with_set_VO_FQAN(self):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/sensu/certs/userproxy.pem"
+                    },
+                    {
+                        "attribute": "VONAME",
+                        "value": "test"
+                    },
+                    {
+                        "attribute": "ARC_GOOD_SES",
+                        "value": "good_ses_file=/var/lib/gridprobes/ops/GoodSEs"
+                    },
+                    {
+                        "attribute": "VO_FQAN",
+                        "value": "ops"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST54"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_tcp "
+                    "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.ni4os.eu"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }}, {
+                "command":
+                    "/usr/lib64/nagios/plugins/check_arcce_submit "
+                    "-H {{ .labels.hostname }} --job-tag dist-stage-srm "
+                    "--termination-service org.nordugrid.ARC-CE-SRM-result-ops"
+                    " --test dist-stage-srm -O service_suffix=-ops "
+                    "--command-file /var/nagios/rw/nagios.cmd "
+                    "--how-invoked nagios "
+                    "-O good_ses_file=/var/lib/gridprobes/ops/GoodSEs "
+                    "--voms test --fqan ops "
+                    "--user-proxy /etc/sensu/certs/userproxy.pem "
+                    "{{ .labels.memory_limit__arc_ce_memory_limit "
+                    "| default \"\" }}",
+                "subscriptions": [
+                    "alien.spacescience.ro",
+                    "gridarcce01.mesocentre.uca.fr"
+                ],
+                "handlers": [],
+                "interval": 3600,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "org.nordugrid.ARC-CE-SRM-submit",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.org_nordugrid_arc_ce_srm_submit == "
+                        "'org.nordugrid.ARC-CE-SRM-submit'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_ARC_CE_check_without_VONAME(self):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/sensu/certs/userproxy.pem"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST54"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_tcp "
+                    "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.ni4os.eu"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Skipping check "
+            f"org.nordugrid.ARC-CE-SRM-submit: VONAME not defined"
+        ])
 
 
 class EntityConfigurationTests(unittest.TestCase):

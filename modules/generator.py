@@ -700,7 +700,16 @@ class ConfigurationGenerator:
                         continue
 
                 elif self._is_servicevo_fqan_present(value):
-                    value = self._create_servicevo_fqan_value(value)
+                    try:
+                        value = self._create_servicevo_fqan_value(value)
+
+                    except KeyError:
+                        self.logger.warning(
+                            f"{self.tenant}: Skipping check {name}: "
+                            f"VONAME not defined"
+                        )
+
+                        return None
 
                 elif (
                         self._is_hostalias_present(value) or
