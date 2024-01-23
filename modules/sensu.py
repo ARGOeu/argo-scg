@@ -1433,8 +1433,12 @@ class SensuCtl:
             return servicetype in [service.strip() for service in services]
 
         else:
-            return (item["entity"]["metadata"]["labels"]["service"] ==
-                    servicetype)
+            try:
+                return (item["entity"]["metadata"]["labels"]["service"] ==
+                        servicetype)
+
+            except KeyError:
+                return False
 
     def filter_events(self, status=None, service_type=None, agent=False):
         events = self._get_events()
