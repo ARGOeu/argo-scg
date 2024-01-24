@@ -1303,7 +1303,7 @@ class MetricOutput:
         return status
 
     def _get_output(self):
-        return self.data["check"]["output"]
+        return self.data["check"]["output"].replace("\\n", "\n")
 
     def _get_output_lines(self):
         return self._get_output().split("\n")
