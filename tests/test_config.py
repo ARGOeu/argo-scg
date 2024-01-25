@@ -31,6 +31,7 @@ attributes = /path/to/attributes2
 metricprofiles = PROFILE4
 publish = false
 subscription = hostname_with_id
+skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
 """
 
 config_file_ok_hostname_service_sub = """[GENERAL]
@@ -552,6 +553,14 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(
             self.config.get_agents_configurations(), {
                 "TENANT1": "/path/to/config-file", "TENANT2": ""
+            }
+        )
+
+    def test_get_skipped_metrics(self):
+        self.assertEqual(
+            self.config.get_skipped_metrics(), {
+                "TENANT1": [],
+                "TENANT2": ["eudat.b2safe.irods-crud", "argo.connectors.check"]
             }
         )
 
