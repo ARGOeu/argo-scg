@@ -52,7 +52,7 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            subscription="hostname"
+            skipped_metrics=None, subscription="hostname"
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -65,6 +65,12 @@ class ConfigurationGenerator:
             for service in profile["services"]:
                 for metric in service["metrics"]:
                     metrics_in_profiles_set.add(metric)
+
+        if not skipped_metrics:
+            self.skipped_metrics = []
+
+        else:
+            self.skipped_metrics = skipped_metrics
 
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
@@ -835,28 +841,29 @@ class ConfigurationGenerator:
 
         for metric in self.metrics:
             for name, configuration in metric.items():
-                if self._is_passive(configuration=configuration):
-                    check = {
-                        "command": "PASSIVE",
-                        "subscriptions":
-                            self._generate_metric_subscriptions(name),
-                        "handlers": ["publisher-handler"],
-                        "pipelines": [],
-                        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
-                        "timeout": 900,
-                        "publish": False,
-                        "metadata": {"name": name, "namespace": namespace},
-                        "round_robin": False
-                    }
+                if name not in self.skipped_metrics:
+                    if self._is_passive(configuration=configuration):
+                        check = {
+                            "command": "PASSIVE",
+                            "subscriptions":
+                                self._generate_metric_subscriptions(name),
+                            "handlers": ["publisher-handler"],
+                            "pipelines": [],
+                            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                            "timeout": 900,
+                            "publish": False,
+                            "metadata": {"name": name, "namespace": namespace},
+                            "round_robin": False
+                        }
 
-                else:
-                    check = self._generate_active_check(
-                        name=name, configuration=configuration,
-                        publish=publish, namespace=namespace
-                    )
+                    else:
+                        check = self._generate_active_check(
+                            name=name, configuration=configuration,
+                            publish=publish, namespace=namespace
+                        )
 
-                if check:
-                    checks.append(check)
+                    if check:
+                        checks.append(check)
 
         for metric in self.metrics_without_configuration:
             self.logger.warning(
