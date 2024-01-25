@@ -877,7 +877,10 @@ class ConfigurationGenerator:
         service_types = set()
         for mp in self.metric_profiles:
             for service in mp["services"]:
-                service_types.add(service["service"])
+                if len(
+                        set(service["metrics"]).difference(self.skipped_metrics)
+                ) > 0:
+                    service_types.add(service["service"])
 
         return service_types
 
@@ -1127,7 +1130,8 @@ class ConfigurationGenerator:
                         key = create_label(metric)
 
                         if key not in labels and \
-                                metric not in missing_metrics_endpoint_url:
+                                metric not in missing_metrics_endpoint_url and \
+                                metric not in self.skipped_metrics:
                             labels.update({key: metric})
 
                     for o in metric_parameter_overrides:

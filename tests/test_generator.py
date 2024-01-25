@@ -13938,6 +13938,77 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entities_with_skipped_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=[
+                "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
+            ],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__"
+                                "cloud-api-pub.cr.cnaf.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_port": "5000",
+                            "os_keystone_host": "cloud-api-pub.cr.cnaf.infn.it",
+                            "hostname": "cloud-api-pub.cr.cnaf.infn.it",
+                            "region__os_region": "--region sdds",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-CLOUD-CNAF"
+                        }
+                    },
+                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__egi-cloud.pd.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url": "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_url":
+                                "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_port": "443",
+                            "os_keystone_host": "egi-cloud.pd.infn.it",
+                            "hostname": "egi-cloud.pd.infn.it",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-PADOVA-STACK"
+                        }
+                    },
+                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
