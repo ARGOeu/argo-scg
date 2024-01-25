@@ -238,6 +238,18 @@ class Config(_Config):
 
         return configurations
 
+    def get_skipped_metrics(self):
+        skipped_metrics = dict()
+        for tenant in self.tenants:
+            try:
+                metrics = self.conf.get(tenant, "skipped_metrics").split(",")
+                skipped_metrics.update({tenant: [m.strip() for m in metrics]})
+
+            except configparser.NoOptionError:
+                skipped_metrics.update({tenant: []})
+
+        return skipped_metrics
+
 
 class AgentConfig(_Config):
     def get_custom_subs(self):

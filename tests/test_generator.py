@@ -9674,6 +9674,239 @@ class CheckConfigurationTests(unittest.TestCase):
             f"org.nordugrid.ARC-CE-SRM-submit: VONAME not defined"
         ])
 
+    def test_generate_check_configuration_if_skipped_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=[
+                "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
+            ],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "cloudinfo.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_infoprovider == "
+                            "'eu.egi.cloud.InfoProvider'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.InfoProvider",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "novaprobe.py -t 300 -v "
+                               "--access-token /etc/sensu/certs/oidc "
+                               "--appdb-image xxxx "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--cert /etc/sensu/certs/userproxy.pem "
+                               "{{ .labels.region__os_region | default \"\" }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_vm == "
+                            "'eu.egi.cloud.OpenStack-VM'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-VM",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_skipped_metric_missing(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=["org.nagios.Keystone-TCP", "argo.mock.metric"],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "cloudinfo.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_infoprovider == "
+                            "'eu.egi.cloud.InfoProvider'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.InfoProvider",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "swiftprobe.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--access-token /etc/sensu/certs/oidc",
+                    "subscriptions": [
+                        "identity.cloud.muni.cz"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_swift == "
+                            "'eu.egi.cloud.OpenStack-Swift'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-Swift",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "novaprobe.py -t 300 -v "
+                               "--access-token /etc/sensu/certs/oidc "
+                               "--appdb-image xxxx "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--cert /etc/sensu/certs/userproxy.pem "
+                               "{{ .labels.region__os_region | default \"\" }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_vm == "
+                            "'eu.egi.cloud.OpenStack-VM'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-VM",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration_with_servicetype_subscriptions(self):
@@ -13700,6 +13933,77 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["xrootd01.readonly.eu"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_skipped_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=[
+                "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
+            ],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__"
+                                "cloud-api-pub.cr.cnaf.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_port": "5000",
+                            "os_keystone_host": "cloud-api-pub.cr.cnaf.infn.it",
+                            "hostname": "cloud-api-pub.cr.cnaf.infn.it",
+                            "region__os_region": "--region sdds",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-CLOUD-CNAF"
+                        }
+                    },
+                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__egi-cloud.pd.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url": "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_url":
+                                "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_port": "443",
+                            "os_keystone_host": "egi-cloud.pd.infn.it",
+                            "hostname": "egi-cloud.pd.infn.it",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-PADOVA-STACK"
+                        }
+                    },
+                    "subscriptions": ["egi-cloud.pd.infn.it"]
                 }
             ]
         )
