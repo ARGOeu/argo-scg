@@ -47,6 +47,7 @@ def main():
         secrets = config.get_secrets()
         publish_bool = config.publish()
         subscriptions = config.get_subscriptions()
+        skipped_metrics = config.get_skipped_metrics()
         agents_configurations = config.get_agents_configurations()
 
         tenants = config.get_tenants()
@@ -109,6 +110,7 @@ def main():
                     secrets_file=secrets[namespace],
                     default_ports=poem.get_default_ports(),
                     tenant=tenant,
+                    skipped_metrics=skipped_metrics[namespace],
                     subscription=subscriptions[namespace]
                 )
 
