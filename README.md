@@ -46,6 +46,7 @@ attributes = /etc/argo-scg/attributes/attributes-tenant2.conf
 secrets = /path/to/secrets
 subscription = servicetype
 agents_configuration = /path/to/config-file
+skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
 ```
 
 * `poem_url` - POEM URL for the given tenant (mandatory),
@@ -64,7 +65,8 @@ agents_configuration = /path/to/config-file
   * `hostname` - hostname is used as a subscription (this is a default value),
   * `hostname_with_id` - hostname with id is used as subscription,
   * `servicetype` - service types are used as subscription,
-* `agents_configuration` - path to configuration file for custom agents' subscriptions (optional).
+* `agents_configuration` - path to configuration file for custom agents' subscriptions (optional),
+* `skipped_metrics` - list of metrics that should not be run on Sensu agent (optional). These metrics would then be skipped when doing the configuration for the Sensu agent, even if they do exist in the metric profile.
 
 #### Agents configuration
 
