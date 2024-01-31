@@ -131,6 +131,8 @@ def main():
                     ),
                     namespace=namespace
                 )
+                sensu.add_cpu_check(namespace=namespace)
+                sensu.add_memory_check(namespace=namespace)
 
                 if namespace != "default":
                     sensu.handle_proxy_entities(
