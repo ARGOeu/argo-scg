@@ -6,7 +6,7 @@ import subprocess
 import requests
 from argo_scg.exceptions import SensuException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret
+    is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
 
 
 class Sensu:
@@ -1143,24 +1143,29 @@ class Sensu:
             name="hard_state", workflows=workflows, namespace=namespace
         )
 
-    def add_cpu_check(self, namespace="default"):
+    def _add_asset_check(self, name, namespace):
         checks = self._get_checks(namespace=namespace)
         checks_names = [check["metadata"]["name"] for check in checks]
 
+        assets = {
+            "sensu.cpu.usage": "check-cpu-usage",
+            "sensu.memory.usage": "check-memory-usage"
+        }
+
         data = {
-            "command": "check-cpu-usage -w 85 -c 90",
+            "command": f"{assets[name]} -w 85 -c 90",
             "interval": 300,
             "publish": True,
             "runtime_assets": [
-                "check-cpu-usage"
+                assets[name]
             ],
             "subscriptions": [
-                "internals"
+                INTERNAL_METRICS_SUBSCRIPTION
             ],
             "timeout": 900,
             "round_robin": False,
             "metadata": {
-                "name": "sensu.cpu.usage",
+                "name": name,
                 "namespace": "TENANT1"
             },
             "pipelines": [
@@ -1174,7 +1179,7 @@ class Sensu:
 
         response = None
         added = False
-        if "sensu.cpu.usage" not in checks_names:
+        if name not in checks_names:
             added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
@@ -1187,8 +1192,7 @@ class Sensu:
 
         else:
             cpu_check = [
-                check for check in checks if
-                check["metadata"]["name"] == "sensu.cpu.usage"
+                check for check in checks if check["metadata"]["name"] == name
             ][0]
             if cpu_check["command"] != data["command"] or \
                     cpu_check["interval"] != data["interval"] \
@@ -1198,7 +1202,7 @@ class Sensu:
                     or cpu_check["pipelines"] != data["pipelines"]:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
-                    f"sensu.cpu.usage",
+                    f"{name}",
                     data=json.dumps(data),
                     headers={
                         "Authorization": f"Key {self.token}",
@@ -1213,12 +1217,10 @@ class Sensu:
                 operation = "updated"
 
             if response.ok:
-                self.logger.info(
-                    f"{namespace}: Check sensu.cpu.usage {operation}"
-                )
+                self.logger.info(f"{namespace}: Check {name} {operation}")
 
             else:
-                msg = f"{namespace}: Check sensu.cpu.usage not {operation}: " \
+                msg = f"{namespace}: Check {name} not {operation}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -1229,6 +1231,12 @@ class Sensu:
 
                 self.logger.error(msg)
                 raise SensuException(msg)
+
+    def add_cpu_check(self, namespace="default"):
+        self._add_asset_check(name="sensu.cpu.usage",  namespace=namespace)
+
+    def add_memory_check(self, namespace="default"):
+        self._add_asset_check(name="sensu.memory.usage", namespace=namespace)
 
     def _get_check(self, check, namespace):
         try:
