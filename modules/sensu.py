@@ -1145,46 +1145,80 @@ class Sensu:
 
     def add_cpu_check(self, namespace="default"):
         checks = self._get_checks(namespace=namespace)
-        checks_names = [p["metadata"]["name"] for p in checks]
+        checks_names = [check["metadata"]["name"] for check in checks]
 
+        data = {
+            "command": "check-cpu-usage -w 85 -c 90",
+            "interval": 300,
+            "publish": True,
+            "runtime_assets": [
+                "check-cpu-usage"
+            ],
+            "subscriptions": [
+                "internals"
+            ],
+            "timeout": 900,
+            "round_robin": False,
+            "metadata": {
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1"
+            },
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+
+        response = None
+        added = False
         if "sensu.cpu.usage" not in checks_names:
+            added = True
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
-                data=json.dumps({
-                    "command": "check-cpu-usage -w 85 -c 90",
-                    "interval": 300,
-                    "publish": True,
-                    "runtime_assets": [
-                        "check-cpu-usage"
-                    ],
-                    "subscriptions": [
-                        "internals"
-                    ],
-                    "timeout": 900,
-                    "round_robin": False,
-                    "metadata": {
-                        "name": "sensu.cpu.usage",
-                        "namespace": "TENANT1"
-                    },
-                    "pipelines": [
-                        {
-                            "name": "reduce_alerts",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ]
-                }),
+                data=json.dumps(data),
                 headers={
                     "Authorization": f"Key {self.token}",
                     "Content-Type": "application/json"
                 }
             )
 
+        else:
+            cpu_check = [
+                check for check in checks if
+                check["metadata"]["name"] == "sensu.cpu.usage"
+            ][0]
+            if cpu_check["command"] != data["command"] or \
+                    cpu_check["interval"] != data["interval"] \
+                    or cpu_check["runtime_assets"] != data["runtime_assets"] \
+                    or cpu_check["subscriptions"] != data["subscriptions"] \
+                    or cpu_check["timeout"] != data["timeout"] \
+                    or cpu_check["pipelines"] != data["pipelines"]:
+                response = requests.put(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
+                    f"sensu.cpu.usage",
+                    data=json.dumps(data),
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/json"
+                    }
+                )
+
+        if response:
+            if added:
+                operation = "created"
+            else:
+                operation = "updated"
+
             if response.ok:
-                self.logger.info(f"{namespace}: sensu.cpu.usage created")
+                self.logger.info(
+                    f"{namespace}: Check sensu.cpu.usage {operation}"
+                )
 
             else:
-                msg = f"{namespace}: sensu.cpu.usage check create error: " \
+                msg = f"{namespace}: Check sensu.cpu.usage not {operation}: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
