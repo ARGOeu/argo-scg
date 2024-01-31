@@ -11,6 +11,8 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
+INTERNAL_METRICS_SUBSCRIPTION = "internals"
+
 
 def create_attribute_env(item):
     return item.upper().replace(".", "_").replace("-", "_")
@@ -81,7 +83,7 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.internal_metrics_subscription = "internals"
+        self.internal_metrics_subscription = INTERNAL_METRICS_SUBSCRIPTION
 
         metrics_list = list()
         internal_metrics = list()

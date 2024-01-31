@@ -112,7 +112,7 @@ class Sensu:
         response = requests.get(
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             }
         )
@@ -1142,6 +1142,46 @@ class Sensu:
         self._add_pipeline(
             name="hard_state", workflows=workflows, namespace=namespace
         )
+
+    def add_cpu_check(self, namespace="default"):
+        checks = self._get_checks(namespace=namespace)
+        checks_names = [p["metadata"]["name"] for p in checks]
+
+        if "sensu.cpu.usage" not in checks_names:
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
+                data=json.dumps({
+                    "command": "check-cpu-usage -w 85 -c 90",
+                    "interval": 300,
+                    "publish": True,
+                    "runtime_assets": [
+                        "check-cpu-usage"
+                    ],
+                    "subscriptions": [
+                        "internals"
+                    ],
+                    "timeout": 900,
+                    "round_robin": False,
+                    "metadata": {
+                        "name": "sensu.cpu.usage",
+                        "namespace": "TENANT1"
+                    },
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                }),
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                }
+            )
+
+            if response.ok:
+                self.logger.info(f"{namespace}: sensu.cpu.usage created")
 
     def _get_check(self, check, namespace):
         try:

@@ -7063,6 +7063,56 @@ class SensuPipelinesTests(unittest.TestCase):
         self.assertEqual(log.output, DUMMY_LOG)
 
 
+class SensuUsageChecksTests(unittest.TestCase):
+    def setUp(self):
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.cpu_check = {
+            "command": "check-cpu-usage -w 85 -c 90",
+            "interval": 300,
+            "publish": True,
+            "runtime_assets": [
+                "check-cpu-usage"
+            ],
+            "subscriptions": [
+                "internals"
+            ],
+            "timeout": 900,
+            "round_robin": False,
+            "metadata": {
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1"
+            },
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                  }
+            ]
+        }
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check(self, mock_get, mock_post):
+        mock_get.return_value = mock_checks
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: sensu.cpu.usage created"]
+        )
+
+
 class MetricOutputTests(unittest.TestCase):
     def setUp(self) -> None:
         sample_output = {
