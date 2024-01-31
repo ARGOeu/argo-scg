@@ -313,6 +313,13 @@ In metadata bucket the tool stores the metric name, namespace in which it is def
 
 Depending on which pipeline should process the metric, the correct one is defined in check configuration. As a rule, all the metrics with `NOPUBLISH` flag (internal metrics) are processed with `reduce_alerts` pipeline (and their results sent to ARGO Slack channel). Also, if the tenant has set `publish = false` in the configuration file, all the checks defined for that namespace are processed by the same pipeline. In case configuration for tenant is set to `publish = true`, checks are processed by `hard_state` pipeline.
 
+In addition to metrics defined in POEM, for each tenant two additional checks, generated using Sensu bonsai assets, are created:
+
+* `sensu.cpu.usage` ([sensu/check-cpu-usage](https://bonsai.sensu.io/assets/sensu/check-cpu-usage)) - checks CPU usage (raises warning when it's at 85%, critical when it's at 90%),
+* `sensu.memory.usage` ([sensu/check-memory-usage](https://bonsai.sensu.io/assets/sensu/check-memory-usage)) - checks memory usage (raises warning when it's at 85%, critical when it's at 90%).
+
+This metrics are considered internal, so the alerts are only raised to ARGO Slack channel.
+
 #### Flags
 
 `scg-reload.py` tool takes into account `NOHOSTNAME`, `NOTIMEOUT`, `NOPUBLISH`, and `PASSIVE` flags.
