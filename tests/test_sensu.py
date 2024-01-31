@@ -7112,6 +7112,66 @@ class SensuUsageChecksTests(unittest.TestCase):
             [f"INFO:{LOGNAME}:TENANT1: sensu.cpu.usage created"]
         )
 
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_with_error_with_message(self, mock_get, mock_post):
+        mock_get.return_value = mock_checks
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: sensu.cpu.usage check create error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: sensu.cpu.usage check create error: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_with_error_without_message(
+            self, mock_get, mock_post
+    ):
+        mock_get.return_value = mock_checks
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: sensu.cpu.usage check create error: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: sensu.cpu.usage check create error: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
 
 class MetricOutputTests(unittest.TestCase):
     def setUp(self) -> None:

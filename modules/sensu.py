@@ -1183,6 +1183,19 @@ class Sensu:
             if response.ok:
                 self.logger.info(f"{namespace}: sensu.cpu.usage created")
 
+            else:
+                msg = f"{namespace}: sensu.cpu.usage check create error: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = f"{msg}: {response.json()['message']}"
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                self.logger.error(msg)
+                raise SensuException(msg)
+
     def _get_check(self, check, namespace):
         try:
             return [
