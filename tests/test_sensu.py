@@ -2332,6 +2332,299 @@ mock_events_ctl = [
     }
 ]
 
+mock_events_multiline_ctl = [
+    {
+        'check': {
+            'command': '/usr/libexec/argo/probes/htcondorce/'
+                       'htcondorce-cert-check -H ce503.cern.ch -t 60 '
+                       '--ca-bundle /etc/pki/tls/certs/ca-bundle.crt '
+                       '--user_proxy /etc/sensu/certs/userproxy.pem',
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 86400,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+            ],
+            'proxy_entity_name':
+                'org.opensciencegrid.htcondorce__ce503.cern.ch',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.argo_certificate_validity_htcondorce == "
+                    "'argo.certificate.validity-htcondorce'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 1.420389828,
+            'executed': 1704835943,
+            'history': [
+                {'status': 0, 'executed': 1704490341},
+                {'status': 0, 'executed': 1704576741},
+                {'status': 0, 'executed': 1704663142}
+            ],
+            'issued': 1704835943,
+            'output':
+                'OK - HTCondorCE certificate valid until Jul 11 10:51:04 2024 '
+                'UTC (expires in 183 days)\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1704835943,
+            'occurrences': 3,
+            'occurrences_watermark': 3,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'argo.certificate.validity-htcondorce',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '2'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent-egi-htcondor-devel.cro-ngi',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
+        }],
+        'sequence': 461,
+        'timestamp': 1704835944
+    }, {
+        'check': {
+            'command':
+                "/usr/lib64/nagios/plugins/check_js -H ce503.cern.ch -t 600 "
+                "--executable /bin/hostname --resource "
+                "condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue "
+                "--backend scondor --pool ce503.cern.ch:9619 "
+                "--schedd ce503.cern.ch --zero-payload --jdl-ads "
+                "'+Owner = undefined' --prefix ch.cern.HTCondorCE "
+                "--suffix ops --vo ops -x /etc/sensu/certs/userproxy.pem",
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 3600,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                 'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+            ],
+            'proxy_entity_name':
+                'org.opensciencegrid.htcondorce__ce503.cern.ch',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.ch_cern_htcondorce_jobstate == "
+                    "'ch.cern.HTCondorCE-JobState'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 17.584724169,
+            'executed': 1704878172,
+            'history': [
+                {'status': 0, 'executed': 1704856572},
+                {'status': 0, 'executed': 1704856573}
+            ],
+            'issued': 1704878171,
+            'output':
+                "OK - Job was successfully submitted (93770287)\n"
+                "=== Credentials:\nx509:\n/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/"
+                "CN=Robot:argo-egi@cro-ngi.hr/CN=158209419\r\n"
+                "/ops/Role=NULL/Capability=NULL\r\n\n",
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1704878172,
+            'occurrences': 88,
+            'occurrences_watermark': 88,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'ch.cern.HTCondorCE-JobState',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '2'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent-egi-htcondor-devel.cro-ngi',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
+        }],
+        'sequence': 17331,
+        'timestamp': 1704878189
+    }, {
+        'check': {
+            'handlers': ['publisher-handler'],
+            'high_flap_threshold': 0,
+            'interval': 0,
+            'low_flap_threshold': 0,
+            'publish': False,
+            'runtime_assets': None,
+            'subscriptions': [],
+            'proxy_entity_name': '',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 0,
+            'round_robin': False,
+            'executed': 0,
+            'history': [
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 0, 'executed': 0}
+            ],
+            'issued': 0,
+            'output':
+                'OK - Job successfully completed\\n=== ETF job log:\\nTimeout '
+                'limits configured were:\\n=== Credentials:\\nx509:\\n'
+                '/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@'
+                'cro-ngi.hr/CN=2102436855\n\\n/ops/Role=NULL/Capability=NULL\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 0,
+            'occurrences': 3,
+            'occurrences_watermark': 3,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'ch.cern.HTCondorCE-JobSubmit',
+                'namespace': 'EGI',
+                'created_by': 'admin'
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'pipelines': []
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ce503.cern.ch'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
+                'namespace': 'EGI',
+                'labels': {
+                    'argo_certificate_validity_htcondorce':
+                        'argo.certificate.validity-htcondorce',
+                    'ch_cern_htcondorce_jobstate':
+                        'ch.cern.HTCondorCE-JobState',
+                    'ch_cern_htcondorce_jobstate_pool': 'ce503.cern.ch:9619',
+                    'ch_cern_htcondorce_jobstate_resource':
+                        'condor-ce://ce503.cern.ch/ce503.cern.ch/nopbs/noqueue',
+                    'ch_cern_htcondorce_jobstate_schedd': 'ce503.cern.ch',
+                    'ch_cern_htcondorce_jobsubmit':
+                        'ch.cern.HTCondorCE-JobSubmit',
+                    'hostname': 'ce503.cern.ch',
+                    'service': 'org.opensciencegrid.htcondorce',
+                    'site': 'CERN-PROD',
+                    'site_bdii': 'site-bdii.cern.ch'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxx',
+        'metadata': {'created_by': 'admin'},
+        'pipelines': None,
+        'sequence': 0,
+        'timestamp': 1704860185
+    }
+]
+
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
 DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
@@ -5038,11 +5331,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5098,6 +5391,77 @@ class SensuAgentsTests(unittest.TestCase):
 
     @patch("requests.patch")
     @patch("argo_scg.sensu.Sensu._get_agents")
+    def test_handle_agents_with_agent_subscriptions(self, mock_get, mock_patch):
+        mock_get.return_value = [mock_entities[3], mock_entities[4]]
+        mock_patch.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_agents(
+                subscriptions={
+                    "default": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "internals"
+                    ],
+                    "sensu-agent2": [
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ]
+                },
+                namespace="TENANT1"
+            )
+
+        self.assertEqual(mock_patch.call_count, 2)
+        mock_patch.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent1",
+                data=json.dumps({
+                    "subscriptions": [
+                        "argo-devel.ni4os.eu",
+                        "argo.ni4os.eu",
+                        "entity:sensu-agent1",
+                        "internals"
+                    ]
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "entities/sensu-agent2",
+                data=json.dumps({
+                    "subscriptions": [
+                        "entity:sensu-agent2",
+                        "gocdb.ni4os.eu",
+                        "internals"
+                    ],
+                    "metadata": {
+                        "labels": {
+                            "hostname": "sensu-agent2",
+                            "services": "internals"
+                        }
+                    }
+                }),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/merge-patch+json"
+                }
+            )
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+            }
+        )
+
+    @patch("requests.patch")
+    @patch("argo_scg.sensu.Sensu._get_agents")
     def test_add_subscriptions_to_agents_with_error_in_patch_with_msg(
             self, mock_get, mock_patch
     ):
@@ -5109,11 +5473,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5180,11 +5544,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5256,11 +5620,11 @@ class SensuAgentsTests(unittest.TestCase):
                         "value": "80"
                     }
                 ],
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu",
                     "internals"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5339,10 +5703,10 @@ class SensuAgentsTests(unittest.TestCase):
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
                 }],
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
-                ],
+                ]},
                 namespace="TENANT1"
             )
 
@@ -5414,10 +5778,10 @@ class SensuAgentsTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_agents(
-                subscriptions=[
+                subscriptions={"default": [
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
-                ],
+                ]},
                 services="argo.mon,argo.test",
                 namespace="TENANT1"
             )
@@ -6819,6 +7183,188 @@ class MetricOutputTests(unittest.TestCase):
             "TEXT OUTPUT|OPTIONAL PERFDATA"
         sample_output_multiline_no_perfdata["check"]["output"] = \
             "TEXT OUTPUT\nLONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
+        sample_output_multiline_with_breaks = copy.deepcopy(sample_output)
+        sample_output_multiline_with_breaks["check"]["output"] = \
+            ("OK - Job successfully completed\\n=== ETF job log:\\nTimeout "
+             "limits configured were:\\n=== Credentials:\\nx509:\\n/DC=EU/DC="
+             "EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr/CN="
+             "605601970\n\\n/ops/Role=NULL/Capability=NULL\n\\n\\n=== Job "
+             "description:\\nJDL([('universe', 'vanilla'), ('executable', "
+             "'hostname'), ('transfer_executable', 'true'), ('output', "
+             "'/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/"
+             "gridjob.out'), ('error', '/var/lib/gridprobes/ops/scondor/"
+             "alict-ce-01.ct.infn.it/out/gridjob.err'), ('log', '/var/lib/"
+             "gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/gridjob.log'), "
+             "('log_xml', 'true'), ('should_transfer_files', 'YES'), "
+             "('when_to_transfer_output', 'ON_EXIT'), ('use_x509userproxy', "
+             "'true')])\\n=== Job submission command:\\ncondor_submit --spool "
+             "--name alict-ce-01.ct.infn.it --pool alict-ce-01.ct.infn.it:9619 "
+             "/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/"
+             "gridjob.jdl\\nSubmitting job(s).\n\\n1 job(s) submitted to "
+             "cluster 1538415.\n\\n\\n=== Job log:\\nArguments = \"\"\n\\n"
+             "BytesRecvd = 15784.0\n\\nBytesSent = 24.0\n\\nClusterId = "
+             "1538415\n\\nCmd = \"hostname\"\n\\nCommittedSlotTime = 0\n\\n"
+             "CommittedSuspensionTime = 0\n\\nCommittedTime = 0\n\\n"
+             "CompletionDate = 1705930181\n\\nCondorPlatform = "
+             "\"$CondorPlatform: x86_64_CentOS7 $\"\n\\nCondorVersion = "
+             "\"$CondorVersion: 9.0.20 Nov 15 2023 BuildID: 690225 PackageID: "
+             "9.0.20-1 $\"\n\\nCoreSize = 0\n\\nCumulativeRemoteSysCpu = 0.0"
+             "\n\\nCumulativeRemoteUserCpu = 0.0\n\\nCumulativeSlotTime = 0"
+             "\n\\nCumulativeSuspensionTime = 0\n\\nCurrentHosts = 0\n\\n"
+             "DiskUsage = 40\n\\nDiskUsage_RAW = 40\n\\n"
+             "EncryptExecuteDirectory = false\n\\nEnteredCurrentStatus = "
+             "1705608983\n\\nEnvironment = \"\"\n\\nErr = \"_condor_stderr\""
+             "\n\\nExecutableSize = 17\n\\nExecutableSize_RAW = 16\n\\n"
+             "ExitBySignal = false\n\\nExitCode = 0\n\\nExitStatus = 0\n\\n"
+             "GlobalJobId = \"alict-ce-01.ct.infn.it#1538415.0#1705608982\""
+             "\n\\nHoldReason = undefined\n\\nHoldReasonCode = undefined\n\\n"
+             "ImageSize = 17\n\\nImageSize_RAW = 16\n\\nIn = \"/dev/null\""
+             "\n\\nIwd = \"/var/lib/condor-ce/spool/8415/0/cluster1538415."
+             "proc0.subproc0\"\n\\nJobCurrentStartDate = 1705930179\n\\n"
+             "JobCurrentStartExecutingDate = 1705930180\n\\n"
+             "JobFinishedHookDone = 1705930203\n\\nJobLeaseDuration = 2400"
+             "\n\\nJobNotification = 0\n\\nJobPrio = 0\n\\nJobRunCount = 1"
+             "\n\\nJobStartDate = 1705930179\n\\nJobStatus = 4\n\\n"
+             "JobUniverse = 5\n\\nLastHoldReason = \"Spooling input data "
+             "files\"\n\\nLastHoldReasonCode = 16\n\\nLastJobStatus = 1\n\\n"
+             "LastSuspensionTime = 0\n\\nLeaveJobInQueue = JobStatus == 4 && "
+             "(CompletionDate =?= undefined \\u2758\\u2758 CompletionDate == 0 "
+             "\\u2758\\u2758 ((time() - CompletionDate) < 864000))\n\\n"
+             "Managed = \"ScheddDone\"\n\\nManagedManager = \"\"\n\\n"
+             "MaxHosts = 1\n\\nMemoryUsage = ((ResidentSetSize + 1023) / "
+             "1024)\n\\nMinHosts = 1\n\\nMyType = \"Job\"\n\\nNumCkpts = 0"
+             "\n\\nNumCkpts_RAW = 0\n\\nNumJobCompletions = 0\n\\n"
+             "NumJobMatches = 1\n\\nNumJobStarts = 1\n\\nNumRestarts = 0\n\\n"
+             "NumShadowStarts = 1\n\\nNumSystemHolds = 0\n\\nOnExitHold = false"
+             "\n\\nOnExitRemove = true\n\\nOut = \"_condor_stdout\"\n\\n"
+             "Owner = \"ops008\"\n\\nPeriodicHold = false\n\\nPeriodicRelease ="
+             " false\n\\nPeriodicRemove = false\n\\nProcId = 0\n\\nQDate = "
+             "1705608981\n\\nRank = 0.0\n\\nReleaseReason = \"Data files "
+             "spooled\"\n\\nRemoteSysCpu = 0.0\n\\nRemoteUserCpu = 0.0\n\\n"
+             "RemoteWallClockTime = 2.0\n\\nRequestCpus = 1\n\\nRequestDisk = "
+             "DiskUsage\n\\nRequestMemory = ifthenelse(MemoryUsage =!= "
+             "undefined,MemoryUsage,(ImageSize + 1023) / 1024)\n\\n"
+             "Requirements = (TARGET.Arch == \"X86_64\") && (TARGET.OpSys == "
+             "\"LINUX\") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= "
+             "RequestMemory) && (TARGET.HasFileTransfer)\n\\nResidentSetSize "
+             "= 0\n\\nResidentSetSize_RAW = 0\n\\nRootDir = \"/\"\n\\n"
+             "RoutedToJobId = \"1537363.0\"\n\\nScratchDirFileCount = 10\n\\n"
+             "ServerTime = 1705932987\n\\nShouldTransferFiles = \"YES\"\n\\n"
+             "SpooledOutputFiles = \"\"\n\\nStageInFinish = 1705608982\n\\n"
+             "StageInStart = 1705608982\n\\nStreamErr = false\n\\nStreamOut = "
+             "false\n\\nSUBMIT_Cmd = \"/var/lib/gridprobes/ops/scondor/"
+             "alict-ce-01.ct.infn.it/hostname\"\n\\nSUBMIT_Iwd = \"/var/lib/"
+             "gridprobes/ops/scondor/alict-ce-01.ct.infn.it\"\n\\nSUBMIT_"
+             "TransferOutputRemaps = \"_condor_stdout=/var/lib/gridprobes/ops/"
+             "scondor/alict-ce-01.ct.infn.it/out/gridjob.out;_condor_stderr=/"
+             "var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/"
+             "gridjob.err\"\n\\nSUBMIT_UserLog = \"/var/lib/gridprobes/ops/"
+             "scondor/alict-ce-01.ct.infn.it/out/gridjob.log\"\n\\nSUBMIT_"
+             "x509userproxy = \"/etc/sensu/certs/userproxy.pem\"\n\\n"
+             "TargetType = \"Machine\"\n\\nTotalSubmitProcs = 1\n\\n"
+             "TotalSuspensions = 0\n\\nTransferIn = false\n\\n"
+             "TransferInputSizeMB = 0\n\\nTransferOutputRemaps = undefined"
+             "\n\\nUser = \"ops008@T2HTC\"\n\\nUserLog = \"gridjob.log\"\n\\n"
+             "UserLogUseXML = true\n\\nWantCheckpoint = false\n\\n"
+             "WantRemoteIO = true\n\\nWantRemoteSyscalls = false\n\\n"
+             "WhenToTransferOutput = \"ON_EXIT\"\n\\nx509userproxy = "
+             "\"userproxy.pem\"\n\\nx509UserProxyEmail = \"argo-egi@cro-ngi.hr"
+             "\"\n\\nx509UserProxyExpiration = 1705651369\n\\n"
+             "x509UserProxyFirstFQAN = \"/ops/Role=NULL/Capability=NULL\"\n\\n"
+             "x509UserProxyFQAN = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+             "Robot:argo-egi@cro-ngi.hr,/ops/Role=NULL/Capability=NULL\"\n\\n"
+             "x509userproxysubject = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+             "Robot:argo-egi@cro-ngi.hr\"\n\\nx509UserProxyVOName = \"ops\""
+             "\n\\n\n\\n\\n=== Last job status:\\nArguments = \"\"\n\\n"
+             "BytesRecvd = 15784.0\n\\nBytesSent = 24.0\n\\nClusterId = 1538415"
+             "\n\\nCmd = \"hostname\"\n\\nCommittedSlotTime = 0\n\\n"
+             "CommittedSuspensionTime = 0\n\\nCommittedTime = 0\n\\n"
+             "CompletionDate = 1705930181\n\\nCondorPlatform = "
+             "\"$CondorPlatform: x86_64_CentOS7 $\"\n\\nCondorVersion = "
+             "\"$CondorVersion: 9.0.20 Nov 15 2023 BuildID: 690225 PackageID: "
+             "9.0.20-1 $\"\n\\nCoreSize = 0\n\\nCumulativeRemoteSysCpu = 0.0"
+             "\n\\nCumulativeRemoteUserCpu = 0.0\n\\nCumulativeSlotTime = 0"
+             "\n\\nCumulativeSuspensionTime = 0\n\\nCurrentHosts = 0\n\\n"
+             "DiskUsage = 40\n\\nDiskUsage_RAW = 40\n\\n"
+             "EncryptExecuteDirectory = false\n\\nEnteredCurrentStatus = "
+             "1705608983\n\\nEnvironment = \"\"\n\\nErr = \"_condor_stderr"
+             "\"\n\\nExecutableSize = 17\n\\nExecutableSize_RAW = 16\n\\n"
+             "ExitBySignal = false\n\\nExitCode = 0\n\\nExitStatus = 0\n\\n"
+             "GlobalJobId = \"alict-ce-01.ct.infn.it#1538415.0#1705608982"
+             "\"\n\\nHoldReason = undefined\n\\nHoldReasonCode = undefined"
+             "\n\\nImageSize = 17\n\\nImageSize_RAW = 16\n\\nIn = \"/dev/null"
+             "\"\n\\nIwd = \"/var/lib/condor-ce/spool/8415/0/cluster1538415."
+             "proc0.subproc0\"\n\\nJobCurrentStartDate = 1705930179\n\\n"
+             "JobCurrentStartExecutingDate = 1705930180\n\\n"
+             "JobFinishedHookDone = 1705930203\n\\nJobLeaseDuration = 2400\n\\n"
+             "JobNotification = 0\n\\nJobPrio = 0\n\\nJobRunCount = 1\n\\n"
+             "JobStartDate = 1705930179\n\\nJobStatus = 4\n\\nJobUniverse = 5"
+             "\n\\nLastHoldReason = \"Spooling input data files\"\n\\n"
+             "LastHoldReasonCode = 16\n\\nLastJobStatus = 1\n\\n"
+             "LastSuspensionTime = 0\n\\nLeaveJobInQueue = JobStatus == 4 && "
+             "(CompletionDate =?= undefined \\u2758\\u2758 CompletionDate == 0"
+             " \\u2758\\u2758 ((time() - CompletionDate) < 864000))\n\\n"
+             "Managed = \"ScheddDone\"\n\\nManagedManager = \"\"\n\\n"
+             "MaxHosts = 1\n\\nMemoryUsage = ((ResidentSetSize + 1023) / 1024)"
+             "\n\\nMinHosts = 1\n\\nMyType = \"Job\"\n\\nNumCkpts = 0\n\\n"
+             "NumCkpts_RAW = 0\n\\nNumJobCompletions = 0\n\\nNumJobMatches = 1"
+             "\n\\nNumJobStarts = 1\n\\nNumRestarts = 0\n\\nNumShadowStarts = 1"
+             "\n\\nNumSystemHolds = 0\n\\nOnExitHold = false\n\\nOnExitRemove "
+             "= true\n\\nOut = \"_condor_stdout\"\n\\nOwner = \"ops008\"\n\\n"
+             "PeriodicHold = false\n\\nPeriodicRelease = false\n\\n"
+             "PeriodicRemove = false\n\\nProcId = 0\n\\nQDate = 1705608981\n\\n"
+             "Rank = 0.0\n\\nReleaseReason = \"Data files spooled\"\n\\n"
+             "RemoteSysCpu = 0.0\n\\nRemoteUserCpu = 0.0\n\\n"
+             "RemoteWallClockTime = 2.0\n\\nRequestCpus = 1\n\\nRequestDisk = "
+             "DiskUsage\n\\nRequestMemory = ifthenelse(MemoryUsage =!= "
+             "undefined,MemoryUsage,(ImageSize + 1023) / 1024)\n\\n"
+             "Requirements = (TARGET.Arch == \"X86_64\") && (TARGET.OpSys == "
+             "\"LINUX\") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= "
+             "RequestMemory) && (TARGET.HasFileTransfer)\n\\nResidentSetSize "
+             "= 0\n\\nResidentSetSize_RAW = 0\n\\nRootDir = \"/\"\n\\n"
+             "RoutedToJobId = \"1537363.0\"\n\\nScratchDirFileCount = 10\n\\n"
+             "ServerTime = 1705932985\n\\nShouldTransferFiles = \"YES\"\n\\n"
+             "SpooledOutputFiles = \"\"\n\\nStageInFinish = 1705608982\n\\n"
+             "StageInStart = 1705608982\n\\nStreamErr = false\n\\nStreamOut = "
+             "false\n\\nSUBMIT_Cmd = \"/var/lib/gridprobes/ops/scondor/"
+             "alict-ce-01.ct.infn.it/hostname\"\n\\nSUBMIT_Iwd = \"/var/lib/"
+             "gridprobes/ops/scondor/alict-ce-01.ct.infn.it\"\n\\nSUBMIT_"
+             "TransferOutputRemaps = \"_condor_stdout=/var/lib/gridprobes/ops/"
+             "scondor/alict-ce-01.ct.infn.it/out/gridjob.out;_condor_stderr="
+             "/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/"
+             "gridjob.err\"\n\\nSUBMIT_UserLog = \"/var/lib/gridprobes/ops/"
+             "scondor/alict-ce-01.ct.infn.it/out/gridjob.log\"\n\\nSUBMIT_"
+             "x509userproxy = \"/etc/sensu/certs/userproxy.pem\"\n\\n"
+             "TargetType = \"Machine\"\n\\nTotalSubmitProcs = 1\n\\n"
+             "TotalSuspensions = 0\n\\nTransferIn = false\n\\n"
+             "TransferInputSizeMB = 0\n\\nTransferOutputRemaps = undefined\n\\n"
+             "User = \"ops008@T2HTC\"\n\\nUserLog = \"gridjob.log\"\n\\n"
+             "UserLogUseXML = true\n\\nWantCheckpoint = false\n\\n"
+             "WantRemoteIO = true\n\\nWantRemoteSyscalls = false\n\\n"
+             "WhenToTransferOutput = \"ON_EXIT\"\n\\nx509userproxy = \""
+             "userproxy.pem\"\n\\nx509UserProxyEmail = \"argo-egi@cro-ngi.hr\""
+             "\n\\nx509UserProxyExpiration = 1705651369\n\\n"
+             "x509UserProxyFirstFQAN = \"/ops/Role=NULL/Capability=NULL\"\n\\n"
+             "x509UserProxyFQAN = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+             "Robot:argo-egi@cro-ngi.hr,/ops/Role=NULL/Capability=NULL\"\n\\n"
+             "x509userproxysubject = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+             "Robot:argo-egi@cro-ngi.hr\"\n\\nx509UserProxyVOName = "
+             "\"ops\"\n\\n\n\\n\\nCOMPLETED\\n\n = \"/etc/sensu/certs/"
+             "userproxy.pem\"\n\\nTargetType = \"Machine\"\n\\n"
+             "TotalSubmitProcs = 1\n\\nTotalSuspensions = 0\n\\n"
+             "TransferIn = false\n\\nTransferInputSizeMB = 0\n\\n"
+             "TransferOutputRemaps = undefined\n\\nUser = \"ops048@cern.ch\""
+             "\n\\nUserLog = \"gridjob.log\"\n\\nUserLogUseXML = true\n\\n"
+             "WantCheckpoint = false\n\\nWantRemoteIO = true\n\\n"
+             "WantRemoteSyscalls = false\n\\nWhenToTransferOutput = "
+             "\"ON_EXIT\"\n\\nx509userproxy = \"userproxy.pem\"\n\\n"
+             "x509UserProxyEmail = \"argo-egi@cro-ngi.hr\"\n\\n"
+             "x509UserProxyExpiration = 1705968173\n\\nx509UserProxyFirstFQAN ="
+             " \"/ops/Role=NULL/Capability=NULL\"\n\\nx509UserProxyFQAN = "
+             "\"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr"
+             ",/ops/Role=NULL/Capability=NULL\"\n\\nx509userproxysubject = \""
+             "/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr\""
+             "\n\\nx509UserProxyVOName = \"ops\"\n\\n\n\\n\\nCOMPLETED\\n")
         self.output = MetricOutput(data=sample_output)
         self.output_oneline = MetricOutput(data=sample_output_one_line)
         self.output_oneline_perfdata = MetricOutput(
@@ -6826,6 +7372,9 @@ class MetricOutputTests(unittest.TestCase):
         )
         self.output_multiline_no_perfdata = MetricOutput(
             data=sample_output_multiline_no_perfdata
+        )
+        self.output_multiline_with_breaks = MetricOutput(
+            data=sample_output_multiline_with_breaks
         )
 
     def test_get_service(self):
@@ -6857,6 +7406,178 @@ class MetricOutputTests(unittest.TestCase):
             self.output_multiline_no_perfdata.get_message(),
             "LONG TEXT LINE 1\nLONG TEXT LINE 2\nLONG TEXT LINE 3"
         )
+        self.assertEqual(
+            self.output_multiline_with_breaks.get_message(),
+            "=== ETF job log:\nTimeout limits configured were:\n=== Credentials"
+            ":\nx509:\n/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@"
+            "cro-ngi.hr/CN=605601970\n\n/ops/Role=NULL/Capability=NULL\n\n\n==="
+            " Job description:\nJDL([('universe', 'vanilla'), ('executable', "
+            "'hostname'), ('transfer_executable', 'true'), ('output', "
+            "'/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/"
+            "gridjob.out'), ('error', '/var/lib/gridprobes/ops/scondor/"
+            "alict-ce-01.ct.infn.it/out/gridjob.err'), ('log', '/var/lib/"
+            "gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/gridjob.log'), "
+            "('log_xml', 'true'), ('should_transfer_files', 'YES'), "
+            "('when_to_transfer_output', 'ON_EXIT'), ('use_x509userproxy', "
+            "'true')])\n=== Job submission command:\ncondor_submit --spool "
+            "--name alict-ce-01.ct.infn.it --pool alict-ce-01.ct.infn.it:9619 "
+            "/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/gridjob.jdl"
+            "\nSubmitting job(s).\n\n1 job(s) submitted to cluster 1538415."
+            "\n\n\n=== Job log:\nArguments = \"\"\n\nBytesRecvd = 15784.0\n\n"
+            "BytesSent = 24.0\n\nClusterId = 1538415\n\nCmd = \"hostname\"\n\n"
+            "CommittedSlotTime = 0\n\nCommittedSuspensionTime = 0\n\n"
+            "CommittedTime = 0\n\nCompletionDate = 1705930181\n\nCondorPlatform"
+            " = \"$CondorPlatform: x86_64_CentOS7 $\"\n\nCondorVersion = "
+            "\"$CondorVersion: 9.0.20 Nov 15 2023 BuildID: 690225 PackageID: "
+            "9.0.20-1 $\"\n\nCoreSize = 0\n\nCumulativeRemoteSysCpu = 0.0\n\n"
+            "CumulativeRemoteUserCpu = 0.0\n\nCumulativeSlotTime = 0\n\n"
+            "CumulativeSuspensionTime = 0\n\nCurrentHosts = 0\n\nDiskUsage = 40"
+            "\n\nDiskUsage_RAW = 40\n\nEncryptExecuteDirectory = false\n\n"
+            "EnteredCurrentStatus = 1705608983\n\nEnvironment = \"\"\n\n"
+            "Err = \"_condor_stderr\"\n\nExecutableSize = 17\n\n"
+            "ExecutableSize_RAW = 16\n\nExitBySignal = false\n\nExitCode = 0"
+            "\n\nExitStatus = 0\n\nGlobalJobId = \"alict-ce-01.ct.infn.it#"
+            "1538415.0#1705608982\"\n\nHoldReason = undefined\n\nHoldReasonCode"
+            " = undefined\n\nImageSize = 17\n\nImageSize_RAW = 16\n\nIn = "
+            "\"/dev/null\"\n\nIwd = \"/var/lib/condor-ce/spool/8415/0/"
+            "cluster1538415.proc0.subproc0\"\n\nJobCurrentStartDate = "
+            "1705930179\n\nJobCurrentStartExecutingDate = 1705930180\n\n"
+            "JobFinishedHookDone = 1705930203\n\nJobLeaseDuration = 2400\n\n"
+            "JobNotification = 0\n\nJobPrio = 0\n\nJobRunCount = 1\n\n"
+            "JobStartDate = 1705930179\n\nJobStatus = 4\n\nJobUniverse = 5\n\n"
+            "LastHoldReason = \"Spooling input data files\"\n\n"
+            "LastHoldReasonCode = 16\n\nLastJobStatus = 1\n\n"
+            "LastSuspensionTime = 0\n\nLeaveJobInQueue = JobStatus == 4 && ("
+            "CompletionDate =?= undefined \\u2758\\u2758 CompletionDate == 0 "
+            "\\u2758\\u2758 ((time() - CompletionDate) < 864000))\n\nManaged = "
+            "\"ScheddDone\"\n\nManagedManager = \"\"\n\nMaxHosts = 1\n\n"
+            "MemoryUsage = ((ResidentSetSize + 1023) / 1024)\n\nMinHosts = 1"
+            "\n\nMyType = \"Job\"\n\nNumCkpts = 0\n\nNumCkpts_RAW = 0\n\n"
+            "NumJobCompletions = 0\n\nNumJobMatches = 1\n\nNumJobStarts = 1\n\n"
+            "NumRestarts = 0\n\nNumShadowStarts = 1\n\nNumSystemHolds = 0\n\n"
+            "OnExitHold = false\n\nOnExitRemove = true\n\nOut = "
+            "\"_condor_stdout\"\n\nOwner = \"ops008\"\n\nPeriodicHold = false"
+            "\n\nPeriodicRelease = false\n\nPeriodicRemove = false\n\nProcId ="
+            " 0\n\nQDate = 1705608981\n\nRank = 0.0\n\nReleaseReason = "
+            "\"Data files spooled\"\n\nRemoteSysCpu = 0.0\n\nRemoteUserCpu = "
+            "0.0\n\nRemoteWallClockTime = 2.0\n\nRequestCpus = 1\n\nRequestDisk"
+            " = DiskUsage\n\nRequestMemory = ifthenelse(MemoryUsage =!= "
+            "undefined,MemoryUsage,(ImageSize + 1023) / 1024)\n\n"
+            "Requirements = (TARGET.Arch == \"X86_64\") && (TARGET.OpSys == "
+            "\"LINUX\") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= "
+            "RequestMemory) && (TARGET.HasFileTransfer)\n\nResidentSetSize = 0"
+            "\n\nResidentSetSize_RAW = 0\n\nRootDir = \"/\"\n\n"
+            "RoutedToJobId = \"1537363.0\"\n\nScratchDirFileCount = 10\n\n"
+            "ServerTime = 1705932987\n\nShouldTransferFiles = \"YES\"\n\n"
+            "SpooledOutputFiles = \"\"\n\nStageInFinish = 1705608982\n\n"
+            "StageInStart = 1705608982\n\nStreamErr = false\n\nStreamOut = "
+            "false\n\nSUBMIT_Cmd = \"/var/lib/gridprobes/ops/scondor/"
+            "alict-ce-01.ct.infn.it/hostname\"\n\nSUBMIT_Iwd = \"/var/lib/"
+            "gridprobes/ops/scondor/alict-ce-01.ct.infn.it\"\n\n"
+            "SUBMIT_TransferOutputRemaps = \"_condor_stdout=/var/lib/"
+            "gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/gridjob.out;"
+            "_condor_stderr=/var/lib/gridprobes/ops/scondor/alict-ce-01.ct."
+            "infn.it/out/gridjob.err\"\n\nSUBMIT_UserLog = \"/var/lib/"
+            "gridprobes/ops/scondor/alict-ce-01.ct.infn.it/out/gridjob.log\""
+            "\n\nSUBMIT_x509userproxy = \"/etc/sensu/certs/userproxy.pem\"\n\n"
+            "TargetType = \"Machine\"\n\nTotalSubmitProcs = 1\n\n"
+            "TotalSuspensions = 0\n\nTransferIn = false\n\nTransferInputSizeMB "
+            "= 0\n\nTransferOutputRemaps = undefined\n\nUser = \"ops008@T2HTC\""
+            "\n\nUserLog = \"gridjob.log\"\n\nUserLogUseXML = true\n\n"
+            "WantCheckpoint = false\n\nWantRemoteIO = true\n\n"
+            "WantRemoteSyscalls = false\n\nWhenToTransferOutput = \"ON_EXIT\""
+            "\n\nx509userproxy = \"userproxy.pem\"\n\nx509UserProxyEmail = "
+            "\"argo-egi@cro-ngi.hr\"\n\nx509UserProxyExpiration = 1705651369"
+            "\n\nx509UserProxyFirstFQAN = \"/ops/Role=NULL/Capability=NULL\"\n"
+            "\nx509UserProxyFQAN = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+            "Robot:argo-egi@cro-ngi.hr,/ops/Role=NULL/Capability=NULL\"\n\n"
+            "x509userproxysubject = \"/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN="
+            "Robot:argo-egi@cro-ngi.hr\"\n\nx509UserProxyVOName = \"ops\""
+            "\n\n\n\n\n=== Last job status:\nArguments = \"\"\n\nBytesRecvd = "
+            "15784.0\n\nBytesSent = 24.0\n\nClusterId = 1538415\n\nCmd = "
+            "\"hostname\"\n\nCommittedSlotTime = 0\n\nCommittedSuspensionTime "
+            "= 0\n\nCommittedTime = 0\n\nCompletionDate = 1705930181\n\n"
+            "CondorPlatform = \"$CondorPlatform: x86_64_CentOS7 $\"\n\n"
+            "CondorVersion = \"$CondorVersion: 9.0.20 Nov 15 2023 BuildID: "
+            "690225 PackageID: 9.0.20-1 $\"\n\nCoreSize = 0\n\n"
+            "CumulativeRemoteSysCpu = 0.0\n\nCumulativeRemoteUserCpu = 0.0\n\n"
+            "CumulativeSlotTime = 0\n\nCumulativeSuspensionTime = 0\n\n"
+            "CurrentHosts = 0\n\nDiskUsage = 40\n\nDiskUsage_RAW = 40\n\n"
+            "EncryptExecuteDirectory = false\n\nEnteredCurrentStatus = "
+            "1705608983\n\nEnvironment = \"\"\n\nErr = \"_condor_stderr\"\n\n"
+            "ExecutableSize = 17\n\nExecutableSize_RAW = 16\n\nExitBySignal = "
+            "false\n\nExitCode = 0\n\nExitStatus = 0\n\nGlobalJobId = "
+            "\"alict-ce-01.ct.infn.it#1538415.0#1705608982\"\n\nHoldReason = "
+            "undefined\n\nHoldReasonCode = undefined\n\nImageSize = 17\n\n"
+            "ImageSize_RAW = 16\n\nIn = \"/dev/null\"\n\nIwd = \"/var/lib/"
+            "condor-ce/spool/8415/0/cluster1538415.proc0.subproc0\"\n\n"
+            "JobCurrentStartDate = 1705930179\n\nJobCurrentStartExecutingDate "
+            "= 1705930180\n\nJobFinishedHookDone = 1705930203\n\n"
+            "JobLeaseDuration = 2400\n\nJobNotification = 0\n\nJobPrio = 0"
+            "\n\nJobRunCount = 1\n\nJobStartDate = 1705930179\n\nJobStatus = 4"
+            "\n\nJobUniverse = 5\n\nLastHoldReason = \"Spooling input data "
+            "files\"\n\nLastHoldReasonCode = 16\n\nLastJobStatus = 1\n\n"
+            "LastSuspensionTime = 0\n\nLeaveJobInQueue = JobStatus == 4 && "
+            "(CompletionDate =?= undefined \\u2758\\u2758 CompletionDate == 0 "
+            "\\u2758\\u2758 ((time() - CompletionDate) < 864000))\n\nManaged = "
+            "\"ScheddDone\"\n\nManagedManager = \"\"\n\nMaxHosts = 1\n\n"
+            "MemoryUsage = ((ResidentSetSize + 1023) / 1024)\n\nMinHosts = 1"
+            "\n\nMyType = \"Job\"\n\nNumCkpts = 0\n\nNumCkpts_RAW = 0\n\n"
+            "NumJobCompletions = 0\n\nNumJobMatches = 1\n\nNumJobStarts = 1"
+            "\n\nNumRestarts = 0\n\nNumShadowStarts = 1\n\nNumSystemHolds = 0"
+            "\n\nOnExitHold = false\n\nOnExitRemove = true\n\nOut = "
+            "\"_condor_stdout\"\n\nOwner = \"ops008\"\n\nPeriodicHold = false"
+            "\n\nPeriodicRelease = false\n\nPeriodicRemove = false\n\nProcId "
+            "= 0\n\nQDate = 1705608981\n\nRank = 0.0\n\nReleaseReason = "
+            "\"Data files spooled\"\n\nRemoteSysCpu = 0.0\n\nRemoteUserCpu = "
+            "0.0\n\nRemoteWallClockTime = 2.0\n\nRequestCpus = 1\n\n"
+            "RequestDisk = DiskUsage\n\nRequestMemory = ifthenelse(MemoryUsage "
+            "=!= undefined,MemoryUsage,(ImageSize + 1023) / 1024)\n\n"
+            "Requirements = (TARGET.Arch == \"X86_64\") && (TARGET.OpSys == "
+            "\"LINUX\") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= "
+            "RequestMemory) && (TARGET.HasFileTransfer)\n\nResidentSetSize = 0"
+            "\n\nResidentSetSize_RAW = 0\n\nRootDir = \"/\"\n\nRoutedToJobId = "
+            "\"1537363.0\"\n\nScratchDirFileCount = 10\n\nServerTime = "
+            "1705932985\n\nShouldTransferFiles = \"YES\"\n\nSpooledOutputFiles "
+            "= \"\"\n\nStageInFinish = 1705608982\n\nStageInStart = 1705608982"
+            "\n\nStreamErr = false\n\nStreamOut = false\n\nSUBMIT_Cmd = "
+            "\"/var/lib/gridprobes/ops/scondor/alict-ce-01.ct.infn.it/hostname"
+            "\"\n\nSUBMIT_Iwd = \"/var/lib/gridprobes/ops/scondor/"
+            "alict-ce-01.ct.infn.it\"\n\nSUBMIT_TransferOutputRemaps = "
+            "\"_condor_stdout=/var/lib/gridprobes/ops/scondor/alict-ce-01.ct."
+            "infn.it/out/gridjob.out;_condor_stderr=/var/lib/gridprobes/ops/"
+            "scondor/alict-ce-01.ct.infn.it/out/gridjob.err\"\n\n"
+            "SUBMIT_UserLog = \"/var/lib/gridprobes/ops/scondor/alict-ce-01."
+            "ct.infn.it/out/gridjob.log\"\n\nSUBMIT_x509userproxy = \"/etc/"
+            "sensu/certs/userproxy.pem\"\n\nTargetType = \"Machine\"\n\n"
+            "TotalSubmitProcs = 1\n\nTotalSuspensions = 0\n\nTransferIn = false"
+            "\n\nTransferInputSizeMB = 0\n\nTransferOutputRemaps = undefined"
+            "\n\nUser = \"ops008@T2HTC\"\n\nUserLog = \"gridjob.log\"\n\n"
+            "UserLogUseXML = true\n\nWantCheckpoint = false\n\nWantRemoteIO = "
+            "true\n\nWantRemoteSyscalls = false\n\nWhenToTransferOutput = "
+            "\"ON_EXIT\"\n\nx509userproxy = \"userproxy.pem\"\n\n"
+            "x509UserProxyEmail = \"argo-egi@cro-ngi.hr\"\n\n"
+            "x509UserProxyExpiration = 1705651369\n\nx509UserProxyFirstFQAN = "
+            "\"/ops/Role=NULL/Capability=NULL\"\n\nx509UserProxyFQAN = \"/DC=EU"
+            "/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr,/ops/"
+            "Role=NULL/Capability=NULL\"\n\nx509userproxysubject = \"/DC=EU/DC="
+            "EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr\"\n\n"
+            "x509UserProxyVOName = \"ops\"\n\n\n\n\nCOMPLETED\n\n = \"/etc/"
+            "sensu/certs/userproxy.pem\"\n\nTargetType = \"Machine\"\n\n"
+            "TotalSubmitProcs = 1\n\nTotalSuspensions = 0\n\nTransferIn = false"
+            "\n\nTransferInputSizeMB = 0\n\nTransferOutputRemaps = undefined"
+            "\n\nUser = \"ops048@cern.ch\"\n\nUserLog = \"gridjob.log\"\n\n"
+            "UserLogUseXML = true\n\nWantCheckpoint = false\n\nWantRemoteIO = "
+            "true\n\nWantRemoteSyscalls = false\n\nWhenToTransferOutput = "
+            "\"ON_EXIT\"\n\nx509userproxy = \"userproxy.pem\"\n\n"
+            "x509UserProxyEmail = \"argo-egi@cro-ngi.hr\"\n\n"
+            "x509UserProxyExpiration = 1705968173\n\nx509UserProxyFirstFQAN = "
+            "\"/ops/Role=NULL/Capability=NULL\"\n\nx509UserProxyFQAN = \"/DC=EU"
+            "/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr,/ops/"
+            "Role=NULL/Capability=NULL\"\n\nx509userproxysubject = \"/DC=EU/"
+            "DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr\"\n\n"
+            "x509UserProxyVOName = \"ops\"\n\n\n\n\nCOMPLETED"
+        )
 
     def test_get_summary(self):
         self.assertEqual(self.output.get_summary(), "TEXT OUTPUT")
@@ -6866,6 +7587,10 @@ class MetricOutputTests(unittest.TestCase):
         )
         self.assertEqual(
             self.output_multiline_no_perfdata.get_summary(), "TEXT OUTPUT"
+        )
+        self.assertEqual(
+            self.output_multiline_with_breaks.get_summary(),
+            "OK - Job successfully completed"
         )
 
     def test_get_perfdata(self):
@@ -7503,6 +8228,34 @@ class SensuCtlTests(unittest.TestCase):
                 "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
                 "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
                 "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events_multiline_output(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_multiline_ctl).encode("utf-8")
+        events = self.sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Entity                                         "
+                "Metric                                Status    "
+                "Executed             Output",
+                "_______________________________________________"
+                "_________________________________________________"
+                "_____________________________",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "argo.certificate.validity-htcondorce  OK        "
+                "2024-01-09 21:32:24  "
+                "OK - HTCondorCE certificate valid until Jul 11 10:51:04 2024 "
+                "UTC (expires in 183 days)",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "ch.cern.HTCondorCE-JobState           OK        "
+                "2024-01-10 09:16:29  "
+                "OK - Job was successfully submitted (93770287)",
+                "org.opensciencegrid.htcondorce__ce503.cern.ch  "
+                "ch.cern.HTCondorCE-JobSubmit          OK        "
+                "2024-01-10 04:16:25  OK - Job successfully completed"
             ]
         )
 

@@ -1,128 +1,195 @@
 import os
 import unittest
 
-from argo_scg.config import Config
+from argo_scg.config import Config, AgentConfig
 from argo_scg.exceptions import ConfigException
 
-config_file_ok = """
-[GENERAL]\n
-sensu_url = http://sensu.mock.url/\n
-sensu_token = s3ns8t0k3n\n
-webapi_url = https://web-api.mock.url/\n
-\n
-[TENANT1]\n
-poem_url = https://tenant1.poem.mock.url/\n
-poem_token = p03mtok3n\n
-webapi_token = w3b4p1t0k3n\n
+config_file_ok = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
+
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
 topology_groups_filter = type=NGI&tags=certification:Certified
 topology_endpoints_filter = tags=monitored:1
-attributes = /path/to/attributes1\n
-metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
-topology = /path/to/topology1\n
-secrets = /path/to/secrets\n
-publish = true\n
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
-\n
-[TENANT2]\n
-poem_url = https://tenant2.poem.mock.url/\n
-poem_token = p03mtok3n22\n
-webapi_token = w3b4p1t0k3n2\n
-attributes = /path/to/attributes2\n
-metricprofiles = PROFILE4\n
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+agents_configuration = /path/to/config-file
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
 publish = false
 subscription = hostname_with_id
+skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
 """
 
-config_file_missing_section = """
-[TENANT1]\n
-poem_url = https://tenant1.poem.mock.url/\n
-poem_token = p03mtok3n\n
-webapi_token = w3b4p1t0k3n\n
-attributes = /path/to/attributes1\n
-metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
-topology = /path/to/topology1\n
-publish = true\n
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
-\n
-[TENANT2]\n
-poem_url = https://tenant2.poem.mock.url/\n
-poem_token = p03mtok3n22\n
-webapi_token = w3b4p1t0k3n2\n
-attributes = /path/to/attributes2\n
-metricprofiles = PROFILE4\n
-publish = false
-"""
+config_file_ok_hostname_service_sub = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
 
-config_file_missing_option_general = """
-[GENERAL]\n
-mock_option = http://sensu.mock.url/\n
-\n
-[TENANT1]\n
-poem_url = https://tenant1.poem.mock.url/\n
-poem_token = p03mtok3n\n
-webapi_token = w3b4p1t0k3n\n
-attributes = /path/to/attributes1\n
-metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
-topology = /path/to/topology1\n
-publish = true\n
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
-\n
-[TENANT2]\n
-poem_url = https://tenant2.poem.mock.url/\n
-poem_token = p03mtok3n22\n
-webapi_token = w3b4p1t0k3n2\n
-attributes = /path/to/attributes2\n
-metricprofiles = PROFILE4\n
-publish = false
-"""
-
-config_file_missing_option_tenant = """
-[GENERAL]\n
-sensu_url = http://sensu.mock.url/\n
-sensu_token = s3ns8t0k3n\n
-webapi_url = https://web-api.mock.url/\n
-\n
-[TENANT1]\n
-mock_option = yes
-\n
-[TENANT2]\n
-poem_url = https://tenant2.poem.mock.url/\n
-poem_token = p03mtok3n22\n
-webapi_token = w3b4p1t0k3n2\n
-attributes = /path/to/attributes2\n
-metricprofiles = PROFILE4\n
-publish = false
-"""
-
-config_file_wrong_subscription_entry = """
-[GENERAL]\n
-sensu_url = http://sensu.mock.url/\n
-sensu_token = s3ns8t0k3n\n
-webapi_url = https://web-api.mock.url/\n
-\n
-[TENANT1]\n
-poem_url = https://tenant1.poem.mock.url/\n
-poem_token = p03mtok3n\n
-webapi_token = w3b4p1t0k3n\n
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
 topology_groups_filter = type=NGI&tags=certification:Certified
 topology_endpoints_filter = tags=monitored:1
-attributes = /path/to/attributes1\n
-metricprofiles = PROFILE1, PROFILE2,PROFILE3\n
-topology = /path/to/topology1\n
-secrets = /path/to/secrets\n
-publish = true\n
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics\n
-\n
-[TENANT2]\n
-poem_url = https://tenant2.poem.mock.url/\n
-poem_token = p03mtok3n22\n
-webapi_token = w3b4p1t0k3n2\n
-attributes = /path/to/attributes2\n
-metricprofiles = PROFILE4\n
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+agents_configuration = /path/to/config-file
+subscription = servicetype
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+subscription = hostname
+"""
+
+config_file_ok_entity_sub = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
+
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
+topology_groups_filter = type=NGI&tags=certification:Certified
+topology_endpoints_filter = tags=monitored:1
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+agents_configuration = /path/to/config-file
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+subscription = entity
+"""
+
+config_file_missing_section = """[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+"""
+
+config_file_missing_option_general = """[GENERAL]
+mock_option = http://sensu.mock.url/
+
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+"""
+
+config_file_missing_option_tenant = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
+
+[TENANT1]
+mock_option = yes
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+"""
+
+config_file_wrong_subscription_entry = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
+
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
+topology_groups_filter = type=NGI&tags=certification:Certified
+topology_endpoints_filter = tags=monitored:1
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
 publish = false
 subscription = nonexisting
 """
 
+agents_config_ok = """[AGENTS]
+sensu-agent1.argo.eu = webdav, xrootd
+sensu-agent2.argo.eu = ARC-CE
+"""
+
+agents_config_missing_agents_section = """[TEST]
+sensu-agent1.argo.eu = webdav, xrootd
+"""
+
+agents_config_empty_file = """
+"""
 
 config_file_name = "test.conf"
 
@@ -443,6 +510,30 @@ class ConfigTests(unittest.TestCase):
             }
         )
 
+    def test_get_subscriptions_hostname_servicetype(self):
+        with open(config_file_name, "w") as f:
+            f.write(config_file_ok_hostname_service_sub)
+
+        config = Config(config_file=config_file_name)
+
+        self.assertEqual(
+            config.get_subscriptions(), {
+                "TENANT1": "servicetype", "TENANT2": "hostname"
+            }
+        )
+
+    def test_get_subscriptions_entity(self):
+        with open(config_file_name, "w") as f:
+            f.write(config_file_ok_entity_sub)
+
+        config = Config(config_file=config_file_name)
+
+        self.assertEqual(
+            config.get_subscriptions(), {
+                "TENANT1": "hostname", "TENANT2": "entity"
+            }
+        )
+
     def test_get_subscriptions_with_wrong_entry(self):
         with open(config_file_name, "w") as f:
             f.write(config_file_wrong_subscription_entry)
@@ -457,3 +548,62 @@ class ConfigTests(unittest.TestCase):
             "Configuration file error: Unacceptable value 'nonexisting' for "
             "option: 'subscription' in section: 'TENANT2'"
         )
+
+    def test_get_agents_configurations(self):
+        self.assertEqual(
+            self.config.get_agents_configurations(), {
+                "TENANT1": "/path/to/config-file", "TENANT2": ""
+            }
+        )
+
+    def test_get_skipped_metrics(self):
+        self.assertEqual(
+            self.config.get_skipped_metrics(), {
+                "TENANT1": [],
+                "TENANT2": ["eudat.b2safe.irods-crud", "argo.connectors.check"]
+            }
+        )
+
+
+class AgentConfigTests(unittest.TestCase):
+    def setUp(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_ok)
+
+        self.config = AgentConfig(file=config_file_name)
+
+    def tearDown(self):
+        if os.path.isfile(config_file_name):
+            os.remove(config_file_name)
+
+    def test_config_nonexisting_file(self):
+        with self.assertRaises(ConfigException) as context:
+            AgentConfig(file="nonexisting.conf")
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Configuration file error: "
+            "File nonexisting.conf does not exist"
+        )
+
+    def test_get_custom_subs(self):
+        self.assertEqual(
+            self.config.get_custom_subs(), {
+                "sensu-agent1.argo.eu": ["webdav", "xrootd"],
+                "sensu-agent2.argo.eu": ["ARC-CE"]
+            }
+        )
+
+    def test_get_custom_subs_if_missing_agents_section(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_missing_agents_section)
+
+        config = AgentConfig(file=config_file_name)
+        self.assertEqual(config.get_custom_subs(), None)
+
+    def test_get_custom_subs_if_empty_file(self):
+        with open(config_file_name, "w") as f:
+            f.write(agents_config_empty_file)
+
+        config = AgentConfig(file=config_file_name)
+        self.assertEqual(config.get_custom_subs(), None)

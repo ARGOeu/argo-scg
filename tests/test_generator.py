@@ -319,6 +319,40 @@ mock_metrics = [
         }
     },
     {
+        "egi.xrootd.readonly": {
+            "tags": [
+                "htc",
+                "storage",
+                "xrootd"
+            ],
+            "probe": "xrootd_probe.py",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "300",
+                "path": "/usr/lib64/nagios/plugins/xrootd",
+                "interval": "60",
+                "retryInterval": "15"
+            },
+            "flags": {},
+            "dependency": {},
+            "attribute": {
+                "ARGO_XROOTD_OPS_URL": "-E",
+                "X509_USER_PROXY": "-X",
+                "ARGO_XROOTD_SKIP_LS_DIR": "--skip-ls-dir"
+            },
+            "parameter": {
+                "--read-only": "",
+                "-p": "egi.xrootd.readonly"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl":
+                "https://github.com/EGI-Federation/nagios-plugins-xrootd/blob/"
+                "main/README.md"
+        }
+    },
+    {
         "egi.xrootd.readwrite": {
             "tags": [
                 "htc",
@@ -2791,6 +2825,24 @@ mock_topology = [
             "production": "1",
             "scope": "EGI"
         }
+    },
+    {
+        "date": "2024-01-15",
+        "group": "XROOTD-READONLY",
+        "type": "SITES",
+        "service": "eu.egi.readonly.xrootd",
+        "hostname": "xrootd01.readonly.eu",
+        "notifications": {},
+        "tags": {
+            "info_ID": "xxxxx",
+            "info_ext_ARGO_XROOTD_OPS_URL":
+                "root://xrootd01.readonly.eu:1094/ops/xrootd_tests",
+            "info_service_endpoint_URL":
+                "root://xrootd01.readonly.eu:1094/ops/xrootd_tests",
+            "monitored": "1",
+            "production": "1",
+            "scope": "EGI, wlcg, tier2, atlas, cms, lhcb"
+        }
     }
 ]
 
@@ -3622,6 +3674,90 @@ mock_metric_profiles = [
                 ]
             }
         ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-03",
+        "name": "ARGO_TEST51",
+        "description": "Profile for testing subscription generation",
+        "services": [
+            {
+                "service": "argo.webui",
+                "metrics": [
+                    "generic.http.ar-argoui-ni4os",
+                    "generic.tcp.connect"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.certificate.validity"
+                ]
+            },
+            {
+                "service": "SRM",
+                "metrics": [
+                    "eu.egi.SRM-All"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-03",
+        "name": "ARGO_TEST52",
+        "description":
+            "Profile for testing subscription generation with hostname ids",
+        "services": [
+            {
+                "service": "eu.eosc.generic.oai-pmh",
+                "metrics": [
+                    "generic.oai-pmh.validity"
+                ]
+            },
+            {
+                "service": "eu.eosc.portal.services.url",
+                "metrics": [
+                    "generic.http.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-15",
+        "name": "ARGO_TEST53",
+        "description": "Profile for testing non-fallback attributes defined in "
+                       "all endpoints",
+        "services": [
+            {
+                "service": "eu.egi.readonly.xrootd",
+                "metrics": [
+                    "egi.xrootd.readonly"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-01-16",
+        "name": "ARGO_TEST54",
+        "description":
+            "Profile for testing situations with _SERVICEVO_FQAN variable",
+        "services": [
+            {
+                "service": "ARC-CE",
+                "metrics": [
+                    "org.nordugrid.ARC-CE-SRM-submit"
+                ]
+            },
+            {
+                "service": "argo.test",
+                "metrics": [
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
     }
 ]
 
@@ -3704,6 +3840,30 @@ mock_topology_with_hostname_in_tag = [
             "hostname": "hostname3.argo.eu",
             "info_ID": "test.id",
             "info_URL": "http://hostname3.argo.eu/"
+        }
+    },
+    {
+        "date": "2024-01-03",
+        "group": "srce",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.generic.oai-pmh",
+        "hostname": "dabar.srce.hr_dabar_id",
+        "tags": {
+            "hostname": "dabar.srce.hr",
+            "info_ID": "dabar_id",
+            "info_URL": "https://dabar.srce.hr/oai?verb=Identify"
+        }
+    },
+    {
+        "date": "2024-01-03",
+        "group": "srce",
+        "type": "SERVICEGROUPS",
+        "service": "eu.eosc.generic.oai-pmh",
+        "hostname": "hrcak.srce.hr_hrcak.id",
+        "tags": {
+            "hostname": "hrcak.srce.hr",
+            "info_ID": "hrcak.id",
+            "info_URL": "https://hrcak.srce.hr/oai?verb=Identify"
         }
     }
 ]
@@ -5033,9 +5193,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
                                "-H {{ .labels.hostname }} "
                                "--job-tag dist-stage-srm --termination-service "
-                               "org.nordugrid.ARC-CE-SRM-result-"
-                               "$_SERVICEVO_FQAN$ --test dist-stage-srm "
-                               "-O service_suffix=-$_SERVICEVO_FQAN$ "
+                               "org.nordugrid.ARC-CE-SRM-result-test"
+                               " --test dist-stage-srm "
+                               "-O service_suffix=-test "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios -O good_ses_file="
                                "/var/lib/gridprobes/ops/GoodSEs --voms test "
@@ -5077,11 +5237,11 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
                                "-H {{ .labels.hostname }} "
                                "--termination-service "
-                               "org.nordugrid.ARC-CE-result-"
-                               "$_SERVICEVO_FQAN$ --test dist-caversion --test "
+                               "org.nordugrid.ARC-CE-result-test"
+                               " --test dist-caversion --test "
                                "dist-sw-csh --test dist-sw-gcc "
                                "--test dist-sw-python --test dist-sw-perl "
-                               "-O service_suffix=-$_SERVICEVO_FQAN$ "
+                               "-O service_suffix=-test "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --voms test "
                                "--user-proxy /etc/sensu/certs/userproxy.pem "
@@ -5611,9 +5771,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_arcce_submit "
                                "-H {{ .labels.hostname }} "
                                "--job-tag dist-stage-srm --termination-service "
-                               "org.nordugrid.ARC-CE-SRM-result-"
-                               "$_SERVICEVO_FQAN$ --test dist-stage-srm "
-                               "-O service_suffix=-$_SERVICEVO_FQAN$ "
+                               "org.nordugrid.ARC-CE-SRM-result-test"
+                               " --test dist-stage-srm "
+                               "-O service_suffix=-test "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios "
                                "-O good_ses_file=/var/lib/gridprobes/ops/"
@@ -5950,7 +6110,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 },
                 {
                     "command": "/usr/lib64/nagios/plugins/check_arcce_monitor "
-                               "-O service_suffix=-$_SERVICEVO_FQAN$ -O "
+                               "-O service_suffix=-test -O "
                                "lfc_host=dummy -O se_host=dummy --timeout 900 "
                                "--command-file /var/nagios/rw/nagios.cmd "
                                "--how-invoked nagios --user-proxy "
@@ -6818,66 +6978,6 @@ class CheckConfigurationTests(unittest.TestCase):
                     "hostname1.argo.com",
                     "hostname2.argo.eu",
                     "hostname3.argo.eu"
-                ],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.connect",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_connect == "
-                        "'generic.http.connect'"
-                    ]
-                },
-            }]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_check_if_hostname_in_tags_use_ids(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            checks = generator.generate_checks(
-                publish=True, namespace="mockspace"
-            )
-        self.assertEqual(
-            checks, [{
-                "command":
-                    "/usr/lib64/nagios/plugins/check_http "
-                    "-H {{ .labels.hostname }} -t 60 --link "
-                    "--onredirect follow {{ .labels.ssl | default \" \" }} "
-                    "{{ .labels.generic_http_connect_port | default \" \" }} "
-                    "{{ .labels.generic_http_connect_path | default \" \" }}",
-                "subscriptions": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id"
                 ],
                 "handlers": [],
                 "interval": 300,
@@ -9096,6 +9196,717 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_with_hostname_with_id_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_http "
+                    "-H {{ .labels.hostname }} -t 60 --link "
+                    "--onredirect follow {{ .labels.ssl | default \" \" }} "
+                    "{{ .labels.generic_http_connect_port | default \" \" }} "
+                    "{{ .labels.generic_http_connect_path | default \" \" }}",
+                "subscriptions": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id"
+                ],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_with_servicetype_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_http "
+                    "-H {{ .labels.hostname }} -t 30 -r argo.eu "
+                    "-u /ni4os/report-ar/Critical/NGI?accept=csv --ssl "
+                    "--onredirect follow",
+                "subscriptions": ["argo.test", "argo.webui"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.ar-argoui-ni4os",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_ar_argoui_ni4os == "
+                        "'generic.http.ar-argoui-ni4os'"
+                    ]
+                }
+            }, {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.webui"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_with_entity_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_http "
+                    "-H {{ .labels.hostname }} -t 30 -r argo.eu "
+                    "-u /ni4os/report-ar/Critical/NGI?accept=csv --ssl "
+                    "--onredirect follow",
+                "subscriptions": [
+                    "argo.test__argo.ni4os.eu",
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu"
+                ],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.ar-argoui-ni4os",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_ar_argoui_ni4os == "
+                        "'generic.http.ar-argoui-ni4os'"
+                    ]
+                }
+            }, {
+                "command": "/usr/lib64/nagios/plugins/check_tcp "
+                           "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": [
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu"
+                ],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_with_non_fallback_attribute_in_every_endpoint(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST53"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            checks, [{
+                "command":
+                    "/usr/lib64/nagios/plugins/xrootd/xrootd_probe.py "
+                    "-H {{ .labels.hostname }} -t 300 --read-only "
+                    "-p egi.xrootd.readonly "
+                    "-E {{ .labels.argo_xrootd_ops_url }} "
+                    "-X /etc/sensu/certs/userproxy.pem "
+                    "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
+                    "default \"\" }}",
+                "subscriptions": ["xrootd01.readonly.eu"],
+                "handlers": [],
+                "interval": 3600,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "egi.xrootd.readonly",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.egi_xrootd_readonly == "
+                        "'egi.xrootd.readonly'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_ARC_CE_check_with_set_VO_FQAN(self):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/sensu/certs/userproxy.pem"
+                    },
+                    {
+                        "attribute": "VONAME",
+                        "value": "test"
+                    },
+                    {
+                        "attribute": "ARC_GOOD_SES",
+                        "value": "good_ses_file=/var/lib/gridprobes/ops/GoodSEs"
+                    },
+                    {
+                        "attribute": "VO_FQAN",
+                        "value": "ops"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST54"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_tcp "
+                    "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.ni4os.eu"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }}, {
+                "command":
+                    "/usr/lib64/nagios/plugins/check_arcce_submit "
+                    "-H {{ .labels.hostname }} --job-tag dist-stage-srm "
+                    "--termination-service org.nordugrid.ARC-CE-SRM-result-ops"
+                    " --test dist-stage-srm -O service_suffix=-ops "
+                    "--command-file /var/nagios/rw/nagios.cmd "
+                    "--how-invoked nagios "
+                    "-O good_ses_file=/var/lib/gridprobes/ops/GoodSEs "
+                    "--voms test --fqan ops "
+                    "--user-proxy /etc/sensu/certs/userproxy.pem "
+                    "{{ .labels.memory_limit__arc_ce_memory_limit "
+                    "| default \"\" }}",
+                "subscriptions": [
+                    "alien.spacescience.ro",
+                    "gridarcce01.mesocentre.uca.fr"
+                ],
+                "handlers": [],
+                "interval": 3600,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "org.nordugrid.ARC-CE-SRM-submit",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "2"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.org_nordugrid_arc_ce_srm_submit == "
+                        "'org.nordugrid.ARC-CE-SRM-submit'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_ARC_CE_check_without_VONAME(self):
+        attributes = {
+            "local": {
+                "global_attributes": [
+                    {
+                        "attribute": "X509_USER_PROXY",
+                        "value": "/etc/sensu/certs/userproxy.pem"
+                    }
+                ],
+                "host_attributes": [],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST54"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
+                "command":
+                    "/usr/lib64/nagios/plugins/check_tcp "
+                    "-H {{ .labels.hostname }} -t 120 -p 443",
+                "subscriptions": ["argo.ni4os.eu"],
+                "handlers": [],
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.tcp.connect",
+                    "namespace": "mockspace",
+                    "annotations": {
+                        "attempts": "3"
+                    }
+                },
+                "round_robin": False,
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_tcp_connect == "
+                        "'generic.tcp.connect'"
+                    ]
+                }
+            }]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Skipping check "
+            f"org.nordugrid.ARC-CE-SRM-submit: VONAME not defined"
+        ])
+
+    def test_generate_check_configuration_if_skipped_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=[
+                "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
+            ],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "cloudinfo.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_infoprovider == "
+                            "'eu.egi.cloud.InfoProvider'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.InfoProvider",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "novaprobe.py -t 300 -v "
+                               "--access-token /etc/sensu/certs/oidc "
+                               "--appdb-image xxxx "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--cert /etc/sensu/certs/userproxy.pem "
+                               "{{ .labels.region__os_region | default \"\" }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_vm == "
+                            "'eu.egi.cloud.OpenStack-VM'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-VM",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_skipped_metric_missing(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=["org.nagios.Keystone-TCP", "argo.mock.metric"],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "cloudinfo.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_infoprovider == "
+                            "'eu.egi.cloud.InfoProvider'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.InfoProvider",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "swiftprobe.py -t 300 "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--access-token /etc/sensu/certs/oidc",
+                    "subscriptions": [
+                        "identity.cloud.muni.cz"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_swift == "
+                            "'eu.egi.cloud.OpenStack-Swift'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-Swift",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/fedcloud/"
+                               "novaprobe.py -t 300 -v "
+                               "--access-token /etc/sensu/certs/oidc "
+                               "--appdb-image xxxx "
+                               "--endpoint {{ .labels.os_keystone_url }} "
+                               "--cert /etc/sensu/certs/userproxy.pem "
+                               "{{ .labels.region__os_region | default \"\" }}",
+                    "subscriptions": [
+                        "cloud-api-pub.cr.cnaf.infn.it",
+                        "egi-cloud.pd.infn.it"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.eu_egi_cloud_openstack_vm == "
+                            "'eu.egi.cloud.OpenStack-VM'"
+                        ]
+                    },
+                    "interval": 3600,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "eu.egi.cloud.OpenStack-VM",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration_with_servicetype_subscriptions(self):
@@ -10935,81 +11746,6 @@ class EntityConfigurationTests(unittest.TestCase):
                         }
                     },
                     "subscriptions": ["hostname3.argo.eu"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_hostname_in_tags_use_ids(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname1.argo.com_hostname1_id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "generic_http_connect_path": "-u /path",
-                            "ssl": "-S --sni",
-                            "info_url":
-                                "https://hostname1.argo.com/path",
-                            "hostname": "hostname1.argo.com",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test1"
-                        }
-                    },
-                    "subscriptions": ["hostname1.argo.com_hostname1_id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname2.argo.eu_second.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "https://hostname2.argo.eu",
-                            "hostname": "hostname2.argo.eu",
-                            "ssl": "-S --sni",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test2.test"
-                        }
-                    },
-                    "subscriptions": ["hostname2.argo.eu_second.id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname3.argo.eu_test.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "http://hostname3.argo.eu/",
-                            "generic_http_connect_path": "-u /",
-                            "hostname": "hostname3.argo.eu",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "group3"
-                        }
-                    },
-                    "subscriptions": ["hostname3.argo.eu_test.id"]
                 }
             ]
         )
@@ -12939,6 +13675,340 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entity_with_hostname_with_id_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname1.argo.com_hostname1_id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "generic_http_connect_path": "-u /path",
+                            "ssl": "-S --sni",
+                            "info_url":
+                                "https://hostname1.argo.com/path",
+                            "hostname": "hostname1.argo.com",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test1"
+                        }
+                    },
+                    "subscriptions": ["hostname1.argo.com_hostname1_id"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname2.argo.eu_second.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "https://hostname2.argo.eu",
+                            "hostname": "hostname2.argo.eu",
+                            "ssl": "-S --sni",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "test2.test"
+                        }
+                    },
+                    "subscriptions": ["hostname2.argo.eu_second.id"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.eosc.portal.services.url__"
+                                "hostname3.argo.eu_test.id",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_connect": "generic.http.connect",
+                            "info_url": "http://hostname3.argo.eu/",
+                            "generic_http_connect_path": "-u /",
+                            "hostname": "hostname3.argo.eu",
+                            "service": "eu.eosc.portal.services.url",
+                            "site": "group3"
+                        }
+                    },
+                    "subscriptions": ["hostname3.argo.eu_test.id"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_servicetype_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "info_url": "https://argo.ni4os.eu",
+                            "hostname": "argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "info_url": "https://argo.ni4os.eu",
+                            "hostname": "argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_with_entity_subscription(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "info_url": "https://argo.ni4os.eu",
+                            "hostname": "argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test__argo.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui__argo-devel.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "info_url": "https://argo.ni4os.eu",
+                            "hostname": "argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui__argo.ni4os.eu"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entity_if_non_fallback_attribute_in_every_endpoint(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST53"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            entities,
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eu.egi.readonly.xrootd__xrootd01.readonly.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "egi_xrootd_readonly": "egi.xrootd.readonly",
+                            "argo_xrootd_ops_url":
+                                "root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "e__argo_xrootd_ops_url":
+                                "-E root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "endpoint_url":
+                                "root://xrootd01.readonly.eu:1094/ops/"
+                                "xrootd_tests",
+                            "hostname": "xrootd01.readonly.eu",
+                            "service": "eu.egi.readonly.xrootd",
+                            "site": "XROOTD-READONLY"
+                        }
+                    },
+                    "subscriptions": ["xrootd01.readonly.eu"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_skipped_metrics(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST13"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            skipped_metrics=[
+                "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
+            ],
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__"
+                                "cloud-api-pub.cr.cnaf.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_url":
+                                "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
+                            "os_keystone_port": "5000",
+                            "os_keystone_host": "cloud-api-pub.cr.cnaf.infn.it",
+                            "hostname": "cloud-api-pub.cr.cnaf.infn.it",
+                            "region__os_region": "--region sdds",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-CLOUD-CNAF"
+                        }
+                    },
+                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "org.openstack.nova__egi-cloud.pd.infn.it",
+                        "namespace": "default",
+                        "labels": {
+                            "eu_egi_cloud_infoprovider":
+                                "eu.egi.cloud.InfoProvider",
+                            "eu_egi_cloud_openstack_vm":
+                                "eu.egi.cloud.OpenStack-VM",
+                            "info_url": "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_url":
+                                "https://egi-cloud.pd.infn.it:443/v3",
+                            "os_keystone_port": "443",
+                            "os_keystone_host": "egi-cloud.pd.infn.it",
+                            "hostname": "egi-cloud.pd.infn.it",
+                            "service": "org.openstack.nova",
+                            "site": "INFN-PADOVA-STACK"
+                        }
+                    },
+                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_subscriptions(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -12954,8 +14024,72 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions),
-            ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
+            subscriptions, {
+                "default": ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_custom_agents_subs(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST51"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={
+                    "sensu-agent1": ["argo.test"],
+                    "sensu-agent2": ["argo.webui"]
+                }
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dcache-se-cms.desy.de", "dcache.arnes.si",
+                    "dcache6-shadow.iihe.ac.be", "internals"
+                ],
+                "sensu-agent1": ["argo.ni4os.eu", "internals"],
+                "sensu-agent2": ["argo-devel.ni4os.eu", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_custom_agents_subs_if_missing_service(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST51"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={
+                    "sensu-agent1": ["web.check"],
+                }
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo-devel.ni4os.eu", "argo.ni4os.eu",
+                    "dcache-se-cms.desy.de", "dcache.arnes.si",
+                    "dcache6-shadow.iihe.ac.be", "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -12974,10 +14108,68 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), [
-                "hostname1.argo.com", "hostname2.argo.eu", "hostname3.argo.eu",
-                "internals"
-            ]
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_hostnames_without_id_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "internals"
+                ],
+                "sensu-agent1": ["dabar.srce.hr", "hrcak.srce.hr", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_hostnames_without_id_custom_agnt_missing_serv(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dabar.srce.hr", "hostname1.argo.com", "hostname2.argo.eu",
+                    "hostname3.argo.eu", "hrcak.srce.hr", "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -12997,12 +14189,81 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), [
-                "hostname1.argo.com_hostname1_id",
-                "hostname2.argo.eu_second.id",
-                "hostname3.argo.eu_test.id",
-                "internals"
-            ]
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_hostnames_with_id_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "internals"
+                ],
+                "sensu-agent1": [
+                    "dabar.srce.hr_dabar_id", "hrcak.srce.hr_hrcak.id",
+                    "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_hostnames_with_id_custom_agent_missing_service(
+            self
+    ):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST52"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="hostname_with_id"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "dabar.srce.hr_dabar_id",
+                    "hostname1.argo.com_hostname1_id",
+                    "hostname2.argo.eu_second.id",
+                    "hostname3.argo.eu_test.id",
+                    "hrcak.srce.hr_hrcak.id",
+                    "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -13022,7 +14283,145 @@ class EntityConfigurationTests(unittest.TestCase):
             _log_dummy()
             subscriptions = generator.generate_subscriptions()
         self.assertEqual(
-            sorted(subscriptions), ["eu.eosc.portal.services.url", "internals"]
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_servicetypes_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"],
+                "sensu-agent1": ["eu.eosc.generic.oai-pmh", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_servicetypes_custom_agent_missing_service(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST30"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology_with_hostname_in_tag,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="servicetype"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": ["eu.eosc.portal.services.url", "internals"],
+                "sensu-agent1": ["argo.test", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_entity_sub(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions()
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.test__argo.ni4os.eu",
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subscriptions_for_entity_subs_custom_agent(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["argo.test"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ],
+                "sensu-agent1": ["argo.test__argo.ni4os.eu", "internals"]
+            }
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_subs_for_entity_subs_custom_agent_missing_service(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            subscription="entity"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            subscriptions = generator.generate_subscriptions(
+                custom_subs={"sensu-agent1": ["eu.eosc.portal.services.url"]}
+            )
+        self.assertEqual(
+            subscriptions, {
+                "default": [
+                    "argo.test__argo.ni4os.eu",
+                    "argo.webui__argo-devel.ni4os.eu",
+                    "argo.webui__argo.ni4os.eu",
+                    "internals"
+                ],
+                "sensu-agent1": ["internals"]
+            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 

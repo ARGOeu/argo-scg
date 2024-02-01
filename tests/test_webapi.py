@@ -1,3 +1,4 @@
+import logging
 import unittest
 from unittest.mock import patch, call
 
@@ -203,6 +204,14 @@ mock_topology_groups = [
     }
 ]
 
+LOGNAME = "argo-scg.webapi"
+DUMMY_LOGGER = logging.getLogger(LOGNAME)
+DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
+
+
+def _log_dummy():
+    DUMMY_LOGGER.info("dummy")
+
 
 def mock_webapi_requests(*args, **kwargs):
     if args[0].endswith("metric_profiles"):
@@ -392,15 +401,10 @@ class WebApiTests(unittest.TestCase):
     def test_get_metric_profiles(self, mock_request):
         mock_request.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             data = self.webapi.get_metric_profiles()
         self.assertEqual(data, mock_metric_profiles)
-        self.assertEqual(
-            log.output,
-            [
-                "INFO:argo-scg.webapi:MOCK_TENANT: Metric profiles fetched "
-                "successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_error_fetching_metricprofiles_with_msg(self, mock_get):
@@ -408,13 +412,11 @@ class WebApiTests(unittest.TestCase):
         with self.assertRaises(WebApiException) as context:
             with self.assertLogs(self.logname) as log:
                 self.webapi.get_metric_profiles()
-
         self.assertEqual(
             context.exception.__str__(),
             "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
             "400 BAD REQUEST: There has been an error."
         )
-
         self.assertEqual(
             log.output,
             [
@@ -430,7 +432,6 @@ class WebApiTests(unittest.TestCase):
         with self.assertRaises(WebApiException) as context:
             with self.assertLogs(self.logname) as log:
                 self.webapi.get_metric_profiles()
-
         self.assertEqual(
             context.exception.__str__(),
             "WebApi error: MOCK_TENANT: Metric profiles fetch error: "
@@ -447,15 +448,10 @@ class WebApiTests(unittest.TestCase):
     def test_get_topology(self, mock_request):
         mock_request.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             topology = self.webapi.get_topology()
-
         self.assertEqual(topology, mock_topology_endpoints)
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_error_fetching_topology_with_msg(self, mock_get):
@@ -463,7 +459,6 @@ class WebApiTests(unittest.TestCase):
         with self.assertRaises(WebApiException) as context:
             with self.assertLogs(self.logname) as log:
                 self.webapi.get_topology()
-
         self.assertEqual(
             context.exception.__str__(),
             "WebApi error: MOCK_TENANT: Topology endpoints fetch error: "
@@ -483,13 +478,11 @@ class WebApiTests(unittest.TestCase):
         with self.assertRaises(WebApiException) as context:
             with self.assertLogs(self.logname) as log:
                 self.webapi.get_topology()
-
         self.assertEqual(
             context.exception.__str__(),
             "WebApi error: MOCK_TENANT: "
             "Topology endpoints fetch error: 400 BAD REQUEST"
         )
-
         self.assertEqual(
             log.output, [
                 f"ERROR:{self.logname}:MOCK_TENANT: "
@@ -501,10 +494,9 @@ class WebApiTests(unittest.TestCase):
     def test_get_topology_with_groups_filter(self, mock_get):
         mock_get.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             topology = self.webapi_filtered_groups.get_topology()
-
         self.assertEqual(mock_get.call_count, 2)
-
         mock_get.assert_has_calls([
             call(
                 "https://web-api.com/api/v2/topology/groups?tags=certification"
@@ -523,7 +515,6 @@ class WebApiTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
         self.assertEqual(
             topology, [
                 mock_topology_endpoints[0], mock_topology_endpoints[1],
@@ -531,22 +522,14 @@ class WebApiTests(unittest.TestCase):
                 mock_topology_endpoints[6]
             ]
         )
-
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
-                f"successfully",
-                f"INFO:{self.logname}:MOCK_TENANT: Topology groups fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_topology_with_endpoints_filter(self, mock_get):
         mock_get.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             topology = self.webapi_filtered_endpoints.get_topology()
-
         mock_get.assert_called_once_with(
             "https://web-api.com/api/v2/topology/endpoints?"
             "tags=monitored:1",
@@ -556,24 +539,16 @@ class WebApiTests(unittest.TestCase):
                 "x-api-key": "W3b4p1t0k3n"
             }
         )
-
         self.assertEqual(topology, mock_topology_endpoints[1:])
-
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
     def test_get_topology_with_groups_and_endpoints_filter(self, mock_get):
         mock_get.side_effect = mock_webapi_requests
         with self.assertLogs(self.logname) as log:
+            _log_dummy()
             topology = self.webapi_filtered_both.get_topology()
-
         self.assertEqual(mock_get.call_count, 2)
-
         mock_get.assert_has_calls([
             call(
                 "https://web-api.com/api/v2/topology/groups?tags=certification"
@@ -593,19 +568,10 @@ class WebApiTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
         self.assertEqual(
             topology, [
                 mock_topology_endpoints[1], mock_topology_endpoints[3],
                 mock_topology_endpoints[4], mock_topology_endpoints[6]
             ]
         )
-
-        self.assertEqual(
-            log.output, [
-                f"INFO:{self.logname}:MOCK_TENANT: Topology endpoints fetched "
-                f"successfully",
-                f"INFO:{self.logname}:MOCK_TENANT: Topology groups fetched "
-                f"successfully"
-            ]
-        )
+        self.assertEqual(log.output, DUMMY_LOG)

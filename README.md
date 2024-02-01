@@ -36,24 +36,49 @@ webapi_url = https://api.devel.argo.grnet.gr
 poem_url = https://tenant2.poem.devel.argo.grnet.gr
 poem_token = tenant2-poem-token
 webapi_token = tenant2-webapi-token
-attributes = /etc/argo-scg/attributes/attributes-tenant2.conf
 metricprofiles = PROFILE1, PROFILE2
 publish = true
 publisher_queue = /var/spool/argo-nagios-ams-publisher/metrics
+topology = /path/to/topology1
+topology_groups_filter = type=NGI&tags=certification:Certified
+topology_endpoints_filter = tags=monitored:1
+attributes = /etc/argo-scg/attributes/attributes-tenant2.conf
+secrets = /path/to/secrets
 subscription = servicetype
+agents_configuration = /path/to/config-file
+skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
 ```
 
-* `poem_url` - POEM URL for the given tenant,
-* `poem_token` - POEM token for the given tenant,
-* `webapi_token` - Web-API token for the given tenant,
-* `attributes` - path to the file containing the attributes for the given tenant,
-* `metricprofile` - comma separated list of metric profiles for the given tenant,
-* `publish` - flag that marks if the metrics results should be sent to publisher,
-* `publisher_queue` - publisher queue; this entry can be left out if `publish` is set to `False`,
-* `subscription` - type of subscription to use. There are three possible values:
+* `poem_url` - POEM URL for the given tenant (mandatory),
+* `poem_token` - POEM token for the given tenant (mandatory),
+* `webapi_token` - Web-API token for the given tenant (mandatory),
+* `metricprofile` - comma separated list of metric profiles for the given tenant (mandatory),
+* `publish` - flag that marks if the metrics results should be sent to publisher (mandatory),
+* `publisher_queue` - publisher queue; this entry can be left out if `publish` is set to `False` (mandatory if `publish` is set to `True`),
+* `topology` - path to file containing topology in .json format (optional) - in practice only used for internal monitoring, because all the other tenants have topology available in Web-API,
+* `topology_groups_filter ` - query parameter(s) used when fetching topology groups from Web-API (optional),
+* `topology_endpoints_filter ` - query parameter(s) used when fetching topology endpoints from Web-API (optional),
+* `attributes` - path to the file containing the attributes for the given tenant (optional),
+* `secrets` - path to file containing sensitive attributes (e.g. passwords, tokens) (optional),
+* `subscription` - type of subscription to use (optional; if not set, it uses the default value). There are three possible values:
+  * `entity` - entity name is used as subscription,
   * `hostname` - hostname is used as a subscription (this is a default value),
+  * `hostname_with_id` - hostname with id is used as subscription,
   * `servicetype` - service types are used as subscription,
-  * `hostname_with_id` - hostname with id is used as subscription.
+* `agents_configuration` - path to configuration file for custom agents' subscriptions (optional),
+* `skipped_metrics` - list of metrics that should not be run on Sensu agent (optional). These metrics would then be skipped when doing the configuration for the Sensu agent, even if they do exist in the metric profile.
+
+#### Agents configuration
+
+If `agents_configuration` setting exists, `scg-reload.py` tool will use only subscription set in the configuration file for the agents listed in the file. The configuration file must have the following form:
+
+```
+[AGENTS]
+sensu-agent1.argo.eu = webdav, xrootd
+sensu-agent2.argo.eu = ARC-CE
+```
+
+The configuration file has only one section, `[AGENTS]`. The options are simply agents' names, and values are service types which are to be tested on listed agents. All the other service types are going to be run on remaining agents, and they do not need to be listed explicitly.
 
 ## Tools
 
@@ -71,16 +96,11 @@ ARGO-SCG consists of several tools:
 
 ```
 # scg-reload.py 
-INFO - Configuration file /etc/argo-scg/scg.conf read successfully
-INFO - default: Metrics fetched successfully
-INFO - default: Metric profiles fetched successfully
-INFO - default: Metric overrides fetched successfully
-INFO - default: Default ports fetched successfully
-INFO - TENANT: Topology endpoints fetched successfully
-INFO - TENANT: Metrics fetched successfully
-INFO - TENANT: Metric profiles fetched successfully
-INFO - TENANT: Metric overrides fetched successfully
-INFO - TENANT: Default ports fetched successfully
+INFO - Started
+INFO - default: Check argo.scg.check updated
+INFO - default: All synced!
+INFO - TENANT: Check generic.http.connect updated
+INFO - TENANT: All synced!
 INFO - Done
 ```
 
@@ -88,12 +108,9 @@ If you wish to run `scg-reload.py` script for a single tenant, you can do it by 
 
 ```
 # scg-reload.py -t TENANT
-INFO - Configuration file /etc/argo-scg/scg.conf read successfully
-INFO - TENANT: Topology endpoints fetched successfully
-INFO - TENANT: Metrics fetched successfully
-INFO - TENANT: Metric profiles fetched successfully
-INFO - TENANT: Metric overrides fetched successfully
-INFO - TENANT: Default ports fetched successfully
+INFO - Started
+INFO - TENANT: Check generic.http.connect updated
+INFO - TENANT: All synced!
 INFO - Done
 ```
 

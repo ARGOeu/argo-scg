@@ -689,7 +689,13 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                new_subscriptions = subscriptions + [
+                if agent["metadata"]["name"] in subscriptions.keys():
+                    subs = subscriptions[agent["metadata"]["name"]]
+
+                else:
+                    subs = subscriptions["default"]
+
+                new_subscriptions = subs + [
                     item for item in agent["subscriptions"] if
                     agent["metadata"]["name"] in item
                 ]
@@ -1297,7 +1303,7 @@ class MetricOutput:
         return status
 
     def _get_output(self):
-        return self.data["check"]["output"]
+        return self.data["check"]["output"].replace("\\n", "\n")
 
     def _get_output_lines(self):
         return self._get_output().split("\n")
@@ -1403,11 +1409,13 @@ class SensuCtl:
 
             executed = datetime.datetime.fromtimestamp(item["timestamp"])
             metric_output = item["check"]["output"].split("|")[0].strip()
+            single_line_output = (
+                metric_output.split("\n")[0].split("\\n")[0].strip())
 
             output_list.append(
                 f"{entity.ljust(entities_len)}{metric.ljust(metric_len)}"
                 f"{status.ljust(10)}{executed.strftime('%Y-%m-%d %H:%M:%S')}  "
-                f"{metric_output}"
+                f"{single_line_output}"
             )
 
         return output_list
@@ -1425,8 +1433,12 @@ class SensuCtl:
             return servicetype in [service.strip() for service in services]
 
         else:
-            return (item["entity"]["metadata"]["labels"]["service"] ==
-                    servicetype)
+            try:
+                return (item["entity"]["metadata"]["labels"]["service"] ==
+                        servicetype)
+
+            except KeyError:
+                return False
 
     def filter_events(self, status=None, service_type=None, agent=False):
         events = self._get_events()

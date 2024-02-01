@@ -26,6 +26,11 @@ class ConfigException(MyException):
         return f"Configuration file error: {str(self.msg)}"
 
 
+class AgentConfigException(MyException):
+    def __str__(self):
+        return f"Agent configuration file error: {str(self.msg)}"
+
+
 class GeneratorException(MyException):
     def __str__(self):
         return str(self.msg)

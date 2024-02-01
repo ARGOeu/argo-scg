@@ -3,12 +3,11 @@ import configparser
 from argo_scg.exceptions import ConfigException
 
 
-class Config:
-    def __init__(self, config_file):
-        self.file = config_file
+class _Config:
+    def __init__(self, file):
+        self.file = file
         self._check_file_exists()
         self.conf = self._read()
-        self.tenants = self._get_tenants()
 
     def _check_file_exists(self):
         conf = configparser.ConfigParser()
@@ -23,6 +22,12 @@ class Config:
         config = configparser.ConfigParser()
         config.read(self.file)
         return config
+
+
+class Config(_Config):
+    def __init__(self, config_file):
+        super().__init__(config_file)
+        self.tenants = self._get_tenants()
 
     @staticmethod
     def _remove_trailing_slash(url):
@@ -204,7 +209,9 @@ class Config:
             try:
                 value = self.conf.get(tenant, "subscription")
 
-                if value not in ["hostname", "hostname_with_id", "servicetype"]:
+                if value not in [
+                    "entity", "hostname", "hostname_with_id", "servicetype"
+                ]:
                     raise ConfigException(
                         f"Unacceptable value '{value}' for option: "
                         f"'subscription' in section: '{tenant}'"
@@ -216,3 +223,50 @@ class Config:
             subscriptions.update({tenant: value})
 
         return subscriptions
+
+    def get_agents_configurations(self):
+        configurations = dict()
+
+        for tenant in self.tenants:
+            try:
+                configuration = self.conf.get(tenant, "agents_configuration")
+
+            except configparser.NoOptionError:
+                configuration = ""
+
+            configurations.update({tenant: configuration})
+
+        return configurations
+
+    def get_skipped_metrics(self):
+        skipped_metrics = dict()
+        for tenant in self.tenants:
+            try:
+                metrics = self.conf.get(tenant, "skipped_metrics").split(",")
+                skipped_metrics.update({tenant: [m.strip() for m in metrics]})
+
+            except configparser.NoOptionError:
+                skipped_metrics.update({tenant: []})
+
+        return skipped_metrics
+
+
+class AgentConfig(_Config):
+    def get_custom_subs(self):
+        custom = dict()
+        try:
+            agents = self.conf.items("AGENTS")
+
+            for agent in agents:
+                custom.update({
+                    agent[0]: [item.strip() for item in agent[1].split(",")]
+                })
+
+        except configparser.NoSectionError:
+            pass
+
+        if custom:
+            return custom
+
+        else:
+            return None

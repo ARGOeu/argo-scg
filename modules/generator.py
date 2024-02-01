@@ -52,7 +52,7 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            subscription="hostname"
+            skipped_metrics=None, subscription="hostname"
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -66,6 +66,12 @@ class ConfigurationGenerator:
                 for metric in service["metrics"]:
                     metrics_in_profiles_set.add(metric)
 
+        if not skipped_metrics:
+            self.skipped_metrics = []
+
+        else:
+            self.skipped_metrics = skipped_metrics
+
         self.global_attributes = self._read_global_attributes(attributes)
         self.servicetypes = self._get_servicetypes()
 
@@ -73,6 +79,7 @@ class ConfigurationGenerator:
 
         self.hostalias_var = "$HOSTALIAS$"
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
+        self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
         self.internal_metrics_subscription = "internals"
 
@@ -359,23 +366,23 @@ class ConfigurationGenerator:
 
         return metrics
 
+    def _get_hostname(self, item):
+        if self.subscription == "hostname_with_id":
+            return item["hostname"]
+
+        elif "hostname" in item["tags"]:
+            return item["tags"]["hostname"]
+
+        else:
+            return item["hostname"]
+
     def _get_hostnames4metrics(self):
-        def get_hostname(item):
-            if self.subscription == "hostname_with_id":
-                return item["hostname"]
-
-            elif "hostname" in item["tags"]:
-                return item["tags"]["hostname"]
-
-            else:
-                return item["hostname"]
-
         hostnames4metrics = dict()
         for metric, servicetypes in self.servicetypes4metrics.items():
             hostnames = list()
             for servicetype in servicetypes:
                 hostnames.extend([
-                    get_hostname(item) for item in self.topology
+                    self._get_hostname(item) for item in self.topology
                     if item["service"] == servicetype
                 ])
 
@@ -383,6 +390,52 @@ class ConfigurationGenerator:
             hostnames4metrics.update({metric: hostnames})
 
         return hostnames4metrics
+
+    def _get_entities4metrics(self):
+        entities4metrics = dict()
+        for metric, servicetypes in self.servicetypes4metrics.items():
+            entities = list()
+            for servicetype in servicetypes:
+                entities.extend([
+                    f"{servicetype}__{item['hostname']}"
+                    for item in self.topology if
+                    item["service"] == servicetype
+                ])
+
+            entities = sorted(list(set(entities)))
+            entities4metrics.update({metric: entities})
+
+        return entities4metrics
+
+    def _get_hostnames4servicetypes(self):
+        hostnames4servicetypes = dict()
+
+        for servicetype in self.servicetypes:
+            hostnames = [
+                self._get_hostname(item) for item in self.topology
+                if item["service"] == servicetype
+            ]
+
+            hostnames4servicetypes.update({
+                servicetype: sorted(list(set(hostnames)))
+            })
+
+        return hostnames4servicetypes
+
+    def _get_entities4servicetypes(self):
+        entities4servicetypes = dict()
+
+        for servicetype in self.servicetypes:
+            entities = [
+                f"{servicetype}__{item['hostname']}" for item in self.topology
+                if item["service"] == servicetype
+            ]
+
+            entities4servicetypes.update({
+                servicetype: sorted(list(set(entities)))
+            })
+
+        return entities4servicetypes
 
     def _get_extensions(self):
         extensions = set()
@@ -586,11 +639,23 @@ class ConfigurationGenerator:
     def _is_servicesite_name_present(self, value):
         return self.servicesite_name_var in value
 
+    def _is_servicevo_fqan_present(self, value):
+        return self.servicevo_fqan_var in value
+
     def _create_hostalias_value(self, value, hostname):
         return value.replace(self.hostalias_var, hostname)
 
     def _create_servicesite_name_value(self, value, site):
         return value.replace(self.servicesite_name_var, site)
+
+    def _create_servicevo_fqan_value(self, value):
+        if "VO_FQAN" in self.global_attributes:
+            vo_fqan = self.global_attributes["VO_FQAN"]
+
+        else:
+            vo_fqan = self.global_attributes["VONAME"]
+
+        return value.replace(self.servicevo_fqan_var, vo_fqan)
 
     @staticmethod
     def _is_passive(configuration):
@@ -599,6 +664,9 @@ class ConfigurationGenerator:
     def _generate_metric_subscriptions(self, name):
         if self.subscription == "servicetype":
             subscriptions = self._get_servicetypes4metrics()[name]
+
+        elif self.subscription == "entity":
+            subscriptions = self._get_entities4metrics()[name]
 
         else:
             subscriptions = self._get_hostnames4metrics()[name]
@@ -636,6 +704,18 @@ class ConfigurationGenerator:
 
                     else:
                         continue
+
+                elif self._is_servicevo_fqan_present(value):
+                    try:
+                        value = self._create_servicevo_fqan_value(value)
+
+                    except KeyError:
+                        self.logger.warning(
+                            f"{self.tenant}: Skipping check {name}: "
+                            f"VONAME not defined"
+                        )
+
+                        return None
 
                 elif (
                         self._is_hostalias_present(value) or
@@ -761,31 +841,29 @@ class ConfigurationGenerator:
 
         for metric in self.metrics:
             for name, configuration in metric.items():
-                if self._is_passive(configuration=configuration):
-                    check = {
-                        "command": "PASSIVE",
-                        "subscriptions":
-                            self._generate_metric_subscriptions(name),
-                        "handlers": ["publisher-handler"],
-                        "pipelines": [],
-                        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
-                        "timeout": 900,
-                        "publish": False,
-                        "metadata": {
-                            "name": name,
-                            "namespace": namespace,
-                        },
-                        "round_robin": False
-                    }
+                if name not in self.skipped_metrics:
+                    if self._is_passive(configuration=configuration):
+                        check = {
+                            "command": "PASSIVE",
+                            "subscriptions":
+                                self._generate_metric_subscriptions(name),
+                            "handlers": ["publisher-handler"],
+                            "pipelines": [],
+                            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                            "timeout": 900,
+                            "publish": False,
+                            "metadata": {"name": name, "namespace": namespace},
+                            "round_robin": False
+                        }
 
-                else:
-                    check = self._generate_active_check(
-                        name=name, configuration=configuration,
-                        publish=publish, namespace=namespace
-                    )
+                    else:
+                        check = self._generate_active_check(
+                            name=name, configuration=configuration,
+                            publish=publish, namespace=namespace
+                        )
 
-                if check:
-                    checks.append(check)
+                    if check:
+                        checks.append(check)
 
         for metric in self.metrics_without_configuration:
             self.logger.warning(
@@ -799,7 +877,10 @@ class ConfigurationGenerator:
         service_types = set()
         for mp in self.metric_profiles:
             for service in mp["services"]:
-                service_types.add(service["service"])
+                if len(
+                        set(service["metrics"]).difference(self.skipped_metrics)
+                ) > 0:
+                    service_types.add(service["service"])
 
         return service_types
 
@@ -1049,7 +1130,8 @@ class ConfigurationGenerator:
                         key = create_label(metric)
 
                         if key not in labels and \
-                                metric not in missing_metrics_endpoint_url:
+                                metric not in missing_metrics_endpoint_url and \
+                                metric not in self.skipped_metrics:
                             labels.update({key: metric})
 
                     for o in metric_parameter_overrides:
@@ -1140,6 +1222,10 @@ class ConfigurationGenerator:
                         })
 
                     if tag.startswith("info_ext_"):
+                        present_in_all = \
+                            self._is_extension_present_all_endpoints(
+                                services=[item["service"]], extension=tag
+                            )
                         if tag.lower() == "info_ext_port":
                             labels.update({"port": value})
 
@@ -1149,12 +1235,11 @@ class ConfigurationGenerator:
                                     create_label(tag[9:]): value
                                 })
 
-                            elif tag[9:] in non_fallback_urls_created:
+                            elif (tag[9:] in non_fallback_urls_created and
+                                  not present_in_all):
                                 continue
 
-                            elif self._is_extension_present_all_endpoints(
-                                services=[item["service"]], extension=tag
-                            ) or tag.endswith("_URL"):
+                            elif present_in_all or tag.endswith("_URL"):
                                 if value in ["0", "1"]:
                                     value = ""
 
@@ -1252,6 +1337,9 @@ class ConfigurationGenerator:
                     elif self.subscription == "hostname_with_id":
                         subscriptions = [item["hostname"]]
 
+                    elif self.subscription == "entity":
+                        subscriptions = [entity_name]
+
                     else:
                         subscriptions = [hostname]
 
@@ -1282,19 +1370,66 @@ class ConfigurationGenerator:
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
 
-    def generate_subscriptions(self):
+    def _generate_hostname_subscriptions(self, servicetypes):
         subscriptions = list()
 
+        for servicetype in servicetypes:
+            if servicetype != self.internal_metrics_subscription:
+                try:
+                    if self.subscription == "entity":
+                        subscriptions.extend(
+                            self._get_entities4servicetypes()[servicetype]
+                        )
+
+                    else:
+                        subscriptions.extend(
+                            self._get_hostnames4servicetypes()[servicetype]
+                        )
+
+                except KeyError:
+                    continue
+
+        return sorted(list(set(subscriptions)))
+
+    def generate_subscriptions(self, custom_subs=None):
+        if custom_subs is None:
+            custom_subs = dict()
+
+        subscriptions = dict()
+        remaining_servicetypes = self.servicetypes
+        remaining_hostnames = set(
+            self._generate_hostname_subscriptions(list(remaining_servicetypes))
+        )
+
+        used_hostnames = set()
+        for key, values in custom_subs.items():
+            remaining_servicetypes = remaining_servicetypes.difference(
+                set(values)
+            )
+
+            if self.subscription == "servicetype":
+                subs_values = set(values)
+
+            else:
+                subs_values = self._generate_hostname_subscriptions(values)
+                subs_values = set(subs_values).difference(used_hostnames)
+                used_hostnames.update(subs_values)
+
+            subs_values.add(self.internal_metrics_subscription)
+            subscriptions.update({key: sorted(list(subs_values))})
+
         if self.subscription == "servicetype":
-            subscriptions.extend(self.servicetypes)
+            remaining_servicetypes.add(self.internal_metrics_subscription)
+            subscriptions.update({
+                "default": sorted(list(remaining_servicetypes))
+            })
 
         else:
-            for metric, hostnames in self._get_hostnames4metrics().items():
-                subscriptions.extend(hostnames)
+            subs = remaining_hostnames.difference(used_hostnames)
+            subs.add(self.internal_metrics_subscription)
+            subscriptions.update({"default": sorted(list(subs))})
 
-        subscriptions.append(self.internal_metrics_subscription)
-
-        return list(set(subscriptions))
+        return subscriptions
 
     def generate_internal_services(self):
         services = list()

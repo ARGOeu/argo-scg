@@ -18,7 +18,7 @@ class WebApi:
 
     def get_metric_profiles(self):
         response = requests.get(
-            "{}/api/v2/metric_profiles".format(self.url),
+            f"{self.url}/api/v2/metric_profiles",
             headers={"Accept": "application/json", "x-api-key": self.token}
         )
 
@@ -37,9 +37,6 @@ class WebApi:
 
         else:
             mps = response.json()["data"]
-            self.logger.info(
-                f"{self.tenant}: Metric profiles fetched successfully"
-            )
 
             return mps
 
@@ -72,9 +69,6 @@ class WebApi:
 
         else:
             groups = response.json()["data"]
-            self.logger.info(
-                f"{self.tenant}: Topology groups fetched successfully"
-            )
 
             return groups
 
@@ -106,9 +100,6 @@ class WebApi:
 
         else:
             endpoints = response.json()["data"]
-            self.logger.info(
-                f"{self.tenant}: Topology endpoints fetched successfully"
-            )
 
             return endpoints
 
