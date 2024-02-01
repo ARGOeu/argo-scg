@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.4.1
+Version:       0.5.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,16 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 1 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.0-1%{?dist}
+- ARGO-4465 Option to exclude some metrics from running
+- ARGO-4464 Improve message sent to AMS from Sensu
+- ARGO-4463 Error filtering events by service type
+- ARGO-4460 Handle variable _SERVICEVO_FQAN in metric configuration
+- ARGO-4459 Fix wrong label for attribute if it exists in all endpoints
+- ARGO-4453 Improve messages that are being logged
+- ARGO-4455 Beautify sensu-events output
+- ARGO-4454 Add entity as subscription option
+- ARGO-4452 Dedicate agents to certain service type
 * Wed Jan 3 2024 Katarina Zailac <kzailac@srce.hr> - 0.4.1-1%{?dist}
 - ARGO-4449 Add multiple subscription options
 - ARGO-4450 Do not use URL for webdav/xrootd checks
