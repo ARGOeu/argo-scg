@@ -13,6 +13,7 @@ class Sensu:
     def __init__(self, url, token):
         self.url = url
         self.token = token
+        self.non_poem_checks = ["sensu.cpu.usage", "sensu.memory.usage"]
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
@@ -560,6 +561,11 @@ class Sensu:
         ).difference(set(
             [check["metadata"]["name"] for check in checks]
         ))))
+
+        checks_tobedeleted = [
+            item for item in checks_tobedeleted if
+            item not in self.non_poem_checks
+        ]
 
         if len(checks_tobedeleted) > 0:
             self._delete_checks(checks=checks_tobedeleted, namespace=namespace)

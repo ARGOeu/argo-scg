@@ -345,6 +345,80 @@ mock_checks = [
         },
         "secrets": None,
         "pipelines": []
+    },
+    {
+        "command": "check-cpu-usage -w 85 -c 90",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 300,
+        "low_flap_threshold": 0,
+        "publish": True,
+        "runtime_assets": [
+            "check-cpu-usage"
+        ],
+        "subscriptions": [
+            "internals"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "sensu.cpu.usage",
+            "namespace": "TENANT1",
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    },
+    {
+        "command": "check-memory-usage -w 85 -c 90",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 300,
+        "low_flap_threshold": 0,
+        "publish": True,
+        "runtime_assets": [
+            "check-memory-usage"
+        ],
+        "subscriptions": [
+            "internals"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "sensu.memory.usage",
+            "namespace": "TENANT1",
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
     }
 ]
 
@@ -3594,9 +3668,10 @@ class SensuCheckTests(unittest.TestCase):
             mock_delete_events, mock_put
     ):
         checks2 = [
-            mock_checks[0], mock_checks[1], mock_checks[2], self.checks[2]
+            mock_checks[0], mock_checks[1], mock_checks[2], mock_checks[3],
+            mock_checks[4], self.checks[2]
         ]
-        checks3 = [checks2[0], checks2[2], checks2[3]]
+        checks3 = [checks2[0], checks2[2], checks2[3], checks2[4], checks2[5]]
         mock_get_checks.side_effect = [mock_checks, checks2, checks3]
         mock_get_events.return_value = mock_events
         mock_delete_checks.side_effect = mock_delete_response
@@ -7118,7 +7193,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_cpu_check(self, mock_get, mock_post):
-        mock_get.return_value = mock_checks
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_cpu_check(namespace="TENANT1")
@@ -7139,7 +7215,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_cpu_check_with_error_with_message(self, mock_get, mock_post):
-        mock_get.return_value = mock_checks
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -7170,7 +7247,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     def test_add_cpu_check_with_error_without_message(
             self, mock_get, mock_post
     ):
-        mock_get.return_value = mock_checks
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -7202,45 +7280,7 @@ class SensuUsageChecksTests(unittest.TestCase):
     def test_add_cpu_check_if_exists_and_same(
             self, mock_get, mock_post, mock_put
     ):
-        mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
-            "command": "check-cpu-usage -w 85 -c 90",
-            "handlers": [],
-            "high_flap_threshold": 0,
-            "interval": 300,
-            "low_flap_threshold": 0,
-            "publish": True,
-            "runtime_assets": [
-              "check-cpu-usage"
-            ],
-            "subscriptions": [
-              "internals"
-            ],
-            "proxy_entity_name": "",
-            "check_hooks": None,
-            "stdin": False,
-            "subdue": None,
-            "ttl": 0,
-            "timeout": 900,
-            "round_robin": False,
-            "output_metric_format": "",
-            "output_metric_handlers": None,
-            "env_vars": None,
-            "metadata": {
-              "name": "sensu.cpu.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
-            },
-            "secrets": None,
-            "pipelines": [
-                {
-                    "name": "reduce_alerts",
-                    "type": "Pipeline",
-                    "api_version": "core/v2"
-                }
-            ]
-        })
-        mock_get.return_value = mock_checks_copy
+        mock_get.return_value = mock_checks
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.add_cpu_check(namespace="TENANT1")
@@ -7256,7 +7296,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[3] = {
             "command": "check-cpu-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7292,7 +7332,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
@@ -7321,7 +7361,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[3] = {
             "command": "check-cpu-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7357,7 +7397,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
@@ -7393,7 +7433,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[3] = {
             "command": "check-cpu-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7429,7 +7469,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
@@ -7461,7 +7501,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_memory_check(self, mock_get, mock_post):
-        mock_get.return_value = mock_checks
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_memory_check(namespace="TENANT1")
@@ -7484,7 +7525,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     def test_add_memory_check_with_error_with_message(
             self, mock_get, mock_post
     ):
-        mock_get.return_value = mock_checks
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -7515,7 +7557,8 @@ class SensuUsageChecksTests(unittest.TestCase):
     def test_add_memory_check_with_error_without_message(
             self, mock_get, mock_post
     ):
-        mock_get.return_value = mock_checks
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -7547,45 +7590,7 @@ class SensuUsageChecksTests(unittest.TestCase):
     def test_add_memory_check_if_exists_and_same(
             self, mock_get, mock_post, mock_put
     ):
-        mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
-            "command": "check-memory-usage -w 85 -c 90",
-            "handlers": [],
-            "high_flap_threshold": 0,
-            "interval": 300,
-            "low_flap_threshold": 0,
-            "publish": True,
-            "runtime_assets": [
-              "check-memory-usage"
-            ],
-            "subscriptions": [
-              "internals"
-            ],
-            "proxy_entity_name": "",
-            "check_hooks": None,
-            "stdin": False,
-            "subdue": None,
-            "ttl": 0,
-            "timeout": 900,
-            "round_robin": False,
-            "output_metric_format": "",
-            "output_metric_handlers": None,
-            "env_vars": None,
-            "metadata": {
-              "name": "sensu.memory.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
-            },
-            "secrets": None,
-            "pipelines": [
-                {
-                    "name": "reduce_alerts",
-                    "type": "Pipeline",
-                    "api_version": "core/v2"
-                }
-            ]
-        })
-        mock_get.return_value = mock_checks_copy
+        mock_get.return_value = mock_checks
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.add_memory_check(namespace="TENANT1")
@@ -7601,7 +7606,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[4] = {
             "command": "check-memory-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7637,7 +7642,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
@@ -7666,7 +7671,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[4] = {
             "command": "check-memory-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7702,7 +7707,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
@@ -7738,7 +7743,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             self, mock_get, mock_post, mock_put
     ):
         mock_checks_copy = mock_checks.copy()
-        mock_checks_copy.append({
+        mock_checks_copy[4] = {
             "command": "check-memory-usage -w 75 -c 90",
             "handlers": [],
             "high_flap_threshold": 0,
@@ -7774,7 +7779,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                     "api_version": "core/v2"
                 }
             ]
-        })
+        }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
