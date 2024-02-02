@@ -1166,7 +1166,7 @@ class Sensu:
             "round_robin": False,
             "metadata": {
                 "name": name,
-                "namespace": "TENANT1"
+                "namespace": namespace
             },
             "pipelines": [
                 {
