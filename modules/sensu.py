@@ -6,13 +6,14 @@ import subprocess
 import requests
 from argo_scg.exceptions import SensuException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret
+    is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
 
 
 class Sensu:
     def __init__(self, url, token):
         self.url = url
         self.token = token
+        self.non_poem_checks = ["sensu.cpu.usage", "sensu.memory.usage"]
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
@@ -112,7 +113,7 @@ class Sensu:
         response = requests.get(
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             }
         )
@@ -560,6 +561,11 @@ class Sensu:
         ).difference(set(
             [check["metadata"]["name"] for check in checks]
         ))))
+
+        checks_tobedeleted = [
+            item for item in checks_tobedeleted if
+            item not in self.non_poem_checks
+        ]
 
         if len(checks_tobedeleted) > 0:
             self._delete_checks(checks=checks_tobedeleted, namespace=namespace)
@@ -1142,6 +1148,101 @@ class Sensu:
         self._add_pipeline(
             name="hard_state", workflows=workflows, namespace=namespace
         )
+
+    def _add_asset_check(self, name, namespace):
+        checks = self._get_checks(namespace=namespace)
+        checks_names = [check["metadata"]["name"] for check in checks]
+
+        assets = {
+            "sensu.cpu.usage": "check-cpu-usage",
+            "sensu.memory.usage": "check-memory-usage"
+        }
+
+        data = {
+            "command": f"{assets[name]} -w 85 -c 90",
+            "interval": 300,
+            "publish": True,
+            "runtime_assets": [
+                assets[name]
+            ],
+            "subscriptions": [
+                INTERNAL_METRICS_SUBSCRIPTION
+            ],
+            "timeout": 900,
+            "round_robin": False,
+            "metadata": {
+                "name": name,
+                "namespace": namespace
+            },
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+
+        response = None
+        added = False
+        if name not in checks_names:
+            added = True
+            response = requests.post(
+                f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
+                data=json.dumps(data),
+                headers={
+                    "Authorization": f"Key {self.token}",
+                    "Content-Type": "application/json"
+                }
+            )
+
+        else:
+            cpu_check = [
+                check for check in checks if check["metadata"]["name"] == name
+            ][0]
+            if cpu_check["command"] != data["command"] or \
+                    cpu_check["interval"] != data["interval"] \
+                    or cpu_check["runtime_assets"] != data["runtime_assets"] \
+                    or cpu_check["subscriptions"] != data["subscriptions"] \
+                    or cpu_check["timeout"] != data["timeout"] \
+                    or cpu_check["pipelines"] != data["pipelines"]:
+                response = requests.put(
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
+                    f"{name}",
+                    data=json.dumps(data),
+                    headers={
+                        "Authorization": f"Key {self.token}",
+                        "Content-Type": "application/json"
+                    }
+                )
+
+        if response:
+            if added:
+                operation = "created"
+            else:
+                operation = "updated"
+
+            if response.ok:
+                self.logger.info(f"{namespace}: Check {name} {operation}")
+
+            else:
+                msg = f"{namespace}: Check {name} not {operation}: " \
+                      f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = f"{msg}: {response.json()['message']}"
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                self.logger.error(msg)
+                raise SensuException(msg)
+
+    def add_cpu_check(self, namespace="default"):
+        self._add_asset_check(name="sensu.cpu.usage",  namespace=namespace)
+
+    def add_memory_check(self, namespace="default"):
+        self._add_asset_check(name="sensu.memory.usage", namespace=namespace)
 
     def _get_check(self, check, namespace):
         try:

@@ -345,6 +345,80 @@ mock_checks = [
         },
         "secrets": None,
         "pipelines": []
+    },
+    {
+        "command": "check-cpu-usage -w 85 -c 90",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 300,
+        "low_flap_threshold": 0,
+        "publish": True,
+        "runtime_assets": [
+            "check-cpu-usage"
+        ],
+        "subscriptions": [
+            "internals"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "sensu.cpu.usage",
+            "namespace": "TENANT1",
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    },
+    {
+        "command": "check-memory-usage -w 85 -c 90",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 300,
+        "low_flap_threshold": 0,
+        "publish": True,
+        "runtime_assets": [
+            "check-memory-usage"
+        ],
+        "subscriptions": [
+            "internals"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "sensu.memory.usage",
+            "namespace": "TENANT1",
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "reduce_alerts",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
     }
 ]
 
@@ -3594,9 +3668,10 @@ class SensuCheckTests(unittest.TestCase):
             mock_delete_events, mock_put
     ):
         checks2 = [
-            mock_checks[0], mock_checks[1], mock_checks[2], self.checks[2]
+            mock_checks[0], mock_checks[1], mock_checks[2], mock_checks[3],
+            mock_checks[4], self.checks[2]
         ]
-        checks3 = [checks2[0], checks2[2], checks2[3]]
+        checks3 = [checks2[0], checks2[2], checks2[3], checks2[4], checks2[5]]
         mock_get_checks.side_effect = [mock_checks, checks2, checks3]
         mock_get_events.return_value = mock_events
         mock_delete_checks.side_effect = mock_delete_response
@@ -7061,6 +7136,677 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.assert_called_once_with(namespace="TENANT1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
+
+
+class SensuUsageChecksTests(unittest.TestCase):
+    def setUp(self):
+        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.cpu_check = {
+            "command": "check-cpu-usage -w 85 -c 90",
+            "interval": 300,
+            "publish": True,
+            "runtime_assets": [
+                "check-cpu-usage"
+            ],
+            "subscriptions": [
+                "internals"
+            ],
+            "timeout": 900,
+            "round_robin": False,
+            "metadata": {
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1"
+            },
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        self.memory_check = {
+            "command": "check-memory-usage -w 85 -c 90",
+            "interval": 300,
+            "publish": True,
+            "runtime_assets": [
+                "check-memory-usage"
+            ],
+            "subscriptions": [
+                "internals"
+            ],
+            "timeout": 900,
+            "round_robin": False,
+            "metadata": {
+                "name": "sensu.memory.usage",
+                "namespace": "TENANT1"
+            },
+            "pipelines": [
+                {
+                    "name": "reduce_alerts",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check(self, mock_get, mock_post):
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: Check sensu.cpu.usage created"]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_with_error_with_message(self, mock_get, mock_post):
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.cpu.usage not created: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not created: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_with_error_without_message(
+            self, mock_get, mock_post
+    ):
+        copy_mock_checks = mock_checks.copy()[0:3]
+        mock_get.return_value = copy_mock_checks
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.cpu.usage not created: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not created: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_if_exists_and_same(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_get.return_value = mock_checks
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        self.assertFalse(mock_put.called)
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_cpu_check_if_exists_and_different(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[3] = {
+            "command": "check-cpu-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-cpu-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.cpu.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.cpu.usage",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output, [
+                f"INFO:{LOGNAME}:TENANT1: Check sensu.cpu.usage updated"
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_update_cpu_check_error_with_message(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[3] = {
+            "command": "check-cpu-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-cpu-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.cpu.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.cpu.usage",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.cpu.usage not updated: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not updated: "
+                f"400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_update_cpu_check_error_without_message(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[3] = {
+            "command": "check-cpu-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-cpu-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.cpu.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_cpu_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.cpu.usage",
+            data=json.dumps(self.cpu_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.cpu.usage not updated: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not updated: "
+                f"400 BAD REQUEST"
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_memory_check(self, mock_get, mock_post):
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
+        mock_post.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output,
+            [f"INFO:{LOGNAME}:TENANT1: Check sensu.memory.usage created"]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_memory_check_with_error_with_message(
+            self, mock_get, mock_post
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
+        mock_post.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.memory.usage not created: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"created: 400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_memory_check_with_error_without_message(
+            self, mock_get, mock_post
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_get.return_value = mock_checks_copy[0:3]
+        mock_post.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        mock_post.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.memory.usage not created: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"created: 400 BAD REQUEST"
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_memory_check_if_exists_and_same(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_get.return_value = mock_checks
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        self.assertFalse(mock_put.called)
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_add_memory_check_if_exists_and_different(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[4] = {
+            "command": "check-memory-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-memory-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.memory.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.memory.usage",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            log.output, [
+                f"INFO:{LOGNAME}:TENANT1: Check sensu.memory.usage updated"
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_update_memory_check_error_with_message(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[4] = {
+            "command": "check-memory-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-memory-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.memory.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.memory.usage",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.memory.usage not updated: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"updated: 400 BAD REQUEST: Something went wrong."
+            ]
+        )
+
+    @patch("argo_scg.sensu.requests.put")
+    @patch("argo_scg.sensu.requests.post")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_update_memory_check_error_without_message(
+            self, mock_get, mock_post, mock_put
+    ):
+        mock_checks_copy = mock_checks.copy()
+        mock_checks_copy[4] = {
+            "command": "check-memory-usage -w 75 -c 90",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": [
+              "check-memory-usage"
+            ],
+            "subscriptions": [
+              "internals"
+            ],
+            "proxy_entity_name": "",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "round_robin": False,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+              "name": "sensu.memory.usage",
+              "namespace": "TENANT1",
+              "created_by": "admin"
+            },
+            "secrets": None,
+            "pipelines": [
+                {
+                    "name": "slack",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        }
+        mock_get.return_value = mock_checks_copy
+        mock_put.side_effect = mock_post_response_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            with self.assertLogs(LOGNAME) as log:
+                self.sensu.add_memory_check(namespace="TENANT1")
+        mock_get.assert_called_once_with(namespace="TENANT1")
+        self.assertFalse(mock_post.called)
+        mock_put.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "sensu.memory.usage",
+            data=json.dumps(self.memory_check),
+            headers={
+                "Authorization": "Key t0k3n",
+                "Content-Type": "application/json"
+            }
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: TENANT1: Check sensu.memory.usage not updated: "
+            "400 BAD REQUEST"
+        )
+        self.assertEqual(
+            log.output, [
+                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"updated: 400 BAD REQUEST"
+            ]
+        )
 
 
 class MetricOutputTests(unittest.TestCase):
