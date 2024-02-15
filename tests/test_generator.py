@@ -8690,14 +8690,23 @@ class CheckConfigurationTests(unittest.TestCase):
                         "dcache.arnes.si",
                         "dcache6-shadow.iihe.ac.be"
                     ],
-                    "handlers": ["publisher-handler"],
-                    "pipelines": [],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                     "timeout": 900,
                     "publish": False,
                     "metadata": {
                         "name": "eu.egi.SRM-VOGet",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False
                 },
@@ -8708,14 +8717,23 @@ class CheckConfigurationTests(unittest.TestCase):
                         "dcache.arnes.si",
                         "dcache6-shadow.iihe.ac.be"
                     ],
-                    "handlers": ["publisher-handler"],
-                    "pipelines": [],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
                     "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                     "timeout": 900,
                     "publish": False,
                     "metadata": {
                         "name": "eu.egi.SRM-VOLsDir",
-                        "namespace": "mockspace"
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "4"
+                        }
                     },
                     "round_robin": False
                 }

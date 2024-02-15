@@ -13,6 +13,12 @@ hardcoded_attributes = {
 
 INTERNAL_METRICS_SUBSCRIPTION = "internals"
 
+HARD_STATE_PIPELINE = {
+    "name": "hard_state",
+    "type": "Pipeline",
+    "api_version": "core/v2"
+}
+
 
 def create_attribute_env(item):
     return item.upper().replace(".", "_").replace("-", "_")
@@ -785,13 +791,7 @@ class ConfigurationGenerator:
 
             if publish and "NOPUBLISH" not in configuration["flags"]:
                 check.update({
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ]
+                    "pipelines": [HARD_STATE_PIPELINE]
                 })
 
             elif not publish or "internal" in configuration["tags"]:
@@ -845,16 +845,26 @@ class ConfigurationGenerator:
             for name, configuration in metric.items():
                 if name not in self.skipped_metrics:
                     if self._is_passive(configuration=configuration):
+                        attempts = [
+                            item for item in self.metrics if
+                            configuration["parent"] in item
+                        ][0][configuration["parent"]]["config"][
+                            "maxCheckAttempts"
+                        ]
                         check = {
                             "command": "PASSIVE",
                             "subscriptions":
                                 self._generate_metric_subscriptions(name),
-                            "handlers": ["publisher-handler"],
-                            "pipelines": [],
+                            "handlers": [],
+                            "pipelines": [HARD_STATE_PIPELINE],
                             "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
                             "timeout": 900,
                             "publish": False,
-                            "metadata": {"name": name, "namespace": namespace},
+                            "metadata": {
+                                "name": name,
+                                "namespace": namespace,
+                                "annotations": {"attempts": attempts}
+                            },
                             "round_robin": False
                         }
 
