@@ -845,28 +845,36 @@ class ConfigurationGenerator:
             for name, configuration in metric.items():
                 if name not in self.skipped_metrics:
                     if self._is_passive(configuration=configuration):
-                        attempts = [
-                            item for item in self.metrics if
-                            configuration["parent"] in item
-                        ][0][configuration["parent"]]["config"][
-                            "maxCheckAttempts"
-                        ]
-                        check = {
-                            "command": "PASSIVE",
-                            "subscriptions":
-                                self._generate_metric_subscriptions(name),
-                            "handlers": [],
-                            "pipelines": [HARD_STATE_PIPELINE],
-                            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
-                            "timeout": 900,
-                            "publish": False,
-                            "metadata": {
-                                "name": name,
-                                "namespace": namespace,
-                                "annotations": {"attempts": attempts}
-                            },
-                            "round_robin": False
-                        }
+                        try:
+                            attempts = [
+                                item for item in self.metrics if
+                                configuration["parent"] in item
+                            ][0][configuration["parent"]]["config"][
+                                "maxCheckAttempts"
+                            ]
+                            check = {
+                                "command": "PASSIVE",
+                                "subscriptions":
+                                    self._generate_metric_subscriptions(name),
+                                "handlers": [],
+                                "pipelines": [HARD_STATE_PIPELINE],
+                                "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                                "timeout": 900,
+                                "publish": False,
+                                "metadata": {
+                                    "name": name,
+                                    "namespace": namespace,
+                                    "annotations": {"attempts": attempts}
+                                },
+                                "round_robin": False
+                            }
+
+                        except IndexError:
+                            self.logger.warning(
+                                f"{self.tenant}: Skipping check generation for "
+                                f"{name} - missing parent"
+                            )
+                            continue
 
                     else:
                         check = self._generate_active_check(

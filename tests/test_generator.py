@@ -1339,6 +1339,26 @@ mock_metrics = [
         }
     },
     {
+        "org.apel.APEL-Pub": {
+            "tags": [
+                "apel"
+            ],
+            "probe": "",
+            "config": {},
+            "flags": {
+                "OBSESS": "1",
+                "PASSIVE": "1"
+            },
+            "dependency": {},
+            "attribute": {},
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": ""
+        }
+    },
+    {
         "org.bdii.Entries": {
             "tags": [],
             "probe": "check_bdii_entries",
@@ -3755,6 +3775,23 @@ mock_metric_profiles = [
                 "service": "argo.test",
                 "metrics": [
                     "generic.tcp.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-02-19",
+        "name": "ARGO_TEST55",
+        "description": "Profile for testing generation of passive metrics with "
+                       "missing parent",
+        "services": [
+            {
+                "service": "APEL",
+                "metrics": [
+                    "argo.APEL-Pub",
+                    "argo.APEL-Sync",
+                    "org.apel.APEL-Pub"
                 ]
             }
         ]
@@ -8740,6 +8777,104 @@ class CheckConfigurationTests(unittest.TestCase):
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_passive_check_configuration_if_parent_missing(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST55"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_pub_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_pub == 'argo.APEL-Pub'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Pub",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/http_parser/"
+                               "check_http_parser -t 120 "
+                               "-H goc-accounting.grid-support.ac.uk "
+                               "-u {{ .labels.argo_apel_sync_u }} "
+                               "--warning-search WARN --critical-search ERROR "
+                               "--ok-search OK --case-sensitive",
+                    "subscriptions": [
+                        "apel.grid1.example.com",
+                        "apel.grid2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.argo_apel_sync == 'argo.APEL-Sync'"
+                        ]
+                    },
+                    "interval": 43200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.APEL-Sync",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, [
+            f"WARNING:{LOGNAME}:MOCK_TENANT: Skipping check generation for "
+            f"org.apel.APEL-Pub - missing parent"
+        ])
 
     def test_generate_check_configuration_if_info_bdii_tag(self):
         generator = ConfigurationGenerator(
