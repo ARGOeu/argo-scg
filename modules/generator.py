@@ -11,6 +11,14 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
+INTERNAL_METRICS_SUBSCRIPTION = "internals"
+
+HARD_STATE_PIPELINE = {
+    "name": "hard_state",
+    "type": "Pipeline",
+    "api_version": "core/v2"
+}
+
 
 def create_attribute_env(item):
     return item.upper().replace(".", "_").replace("-", "_")
@@ -81,7 +89,7 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.internal_metrics_subscription = "internals"
+        self.internal_metrics_subscription = INTERNAL_METRICS_SUBSCRIPTION
 
         metrics_list = list()
         internal_metrics = list()
@@ -783,13 +791,7 @@ class ConfigurationGenerator:
 
             if publish and "NOPUBLISH" not in configuration["flags"]:
                 check.update({
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ]
+                    "pipelines": [HARD_STATE_PIPELINE]
                 })
 
             elif not publish or "internal" in configuration["tags"]:
@@ -843,18 +845,36 @@ class ConfigurationGenerator:
             for name, configuration in metric.items():
                 if name not in self.skipped_metrics:
                     if self._is_passive(configuration=configuration):
-                        check = {
-                            "command": "PASSIVE",
-                            "subscriptions":
-                                self._generate_metric_subscriptions(name),
-                            "handlers": ["publisher-handler"],
-                            "pipelines": [],
-                            "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
-                            "timeout": 900,
-                            "publish": False,
-                            "metadata": {"name": name, "namespace": namespace},
-                            "round_robin": False
-                        }
+                        try:
+                            attempts = [
+                                item for item in self.metrics if
+                                configuration["parent"] in item
+                            ][0][configuration["parent"]]["config"][
+                                "maxCheckAttempts"
+                            ]
+                            check = {
+                                "command": "PASSIVE",
+                                "subscriptions":
+                                    self._generate_metric_subscriptions(name),
+                                "handlers": [],
+                                "pipelines": [HARD_STATE_PIPELINE],
+                                "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+                                "timeout": 900,
+                                "publish": False,
+                                "metadata": {
+                                    "name": name,
+                                    "namespace": namespace,
+                                    "annotations": {"attempts": attempts}
+                                },
+                                "round_robin": False
+                            }
+
+                        except IndexError:
+                            self.logger.warning(
+                                f"{self.tenant}: Skipping check generation for "
+                                f"{name} - missing parent"
+                            )
+                            continue
 
                     else:
                         check = self._generate_active_check(
