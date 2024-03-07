@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.5.0
+Version:       0.5.1
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 7 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.1-1%{?dist}
+- ARGO-4480 Take into account parent's maxCheckAttempts for passive metrics
+- ARGO-4467 Create checks for CPU and memory
 * Thu Feb 1 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.0-1%{?dist}
 - ARGO-4465 Option to exclude some metrics from running
 - ARGO-4464 Improve message sent to AMS from Sensu
