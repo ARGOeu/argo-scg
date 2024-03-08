@@ -53,6 +53,46 @@ pipeline {
                         junit '**/junit.xml'
                     }
                 }
+                stage ('Build Rocky 9 RPM') {
+                    agent {
+                        docker {
+                            image 'argo.registry:5000/epel-9-ams'
+                            args '-u jenkins:jenkins'
+                        }
+                    }
+                    steps {
+                        echo 'Building Rpm...'
+                        withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-rpm-repo', usernameVariable: 'REPOUSER', \
+                                                                    keyFileVariable: 'REPOKEY')]) {
+                            sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d rocky9 -p ${PROJECT_DIR} -s ${REPOKEY}"
+                        }
+                        archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+                stage ('Execute tests on Rocky 9') {
+                    agent {
+                        docker {
+                            image 'argo.registry:5000/epel-9-ams'
+                            args '-u jenkins:jenkins -v /dev/log:/dev/log'
+                        }
+                    }
+                    steps {
+                        sh '''
+                            cd $WORKSPACE/$PROJECT_DIR/
+                            rm -f tests/argo_scg
+                            ln -s $PWD/modules/ tests/argo_scg
+                            coverage run -m xmlrunner discover --output-file junit.xml -v tests/
+                            coverage xml
+                        '''
+                        cobertura coberturaReportFile: '**/coverage.xml'
+                        junit '**/junit.xml'
+                    }
+                }
             }
         }
     }
