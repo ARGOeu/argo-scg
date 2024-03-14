@@ -1172,7 +1172,10 @@ class Sensu:
             "round_robin": False,
             "metadata": {
                 "name": name,
-                "namespace": namespace
+                "namespace": namespace,
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             "pipelines": [
                 {
