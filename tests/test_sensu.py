@@ -372,6 +372,9 @@ mock_checks = [
         "metadata": {
             "name": "sensu.cpu.usage",
             "namespace": "TENANT1",
+            "annotations": {
+                "attempts": "3"
+            },
             "created_by": "admin"
         },
         "secrets": None,
@@ -409,6 +412,9 @@ mock_checks = [
         "metadata": {
             "name": "sensu.memory.usage",
             "namespace": "TENANT1",
+            "annotations": {
+                "attempts": "3"
+            },
             "created_by": "admin"
         },
         "secrets": None,
@@ -7328,9 +7334,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.cpu.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7396,9 +7399,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.cpu.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7471,9 +7471,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.cpu.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7647,9 +7644,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.memory.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7715,9 +7709,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.memory.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7790,9 +7781,6 @@ class SensuUsageChecksTests(unittest.TestCase):
             "metadata": {
                 "name": "sensu.memory.usage",
                 "namespace": "TENANT1",
-                "annotations": {
-                    "attempts": "3"
-                },
                 "created_by": "admin"
             },
             "secrets": None,
