@@ -372,6 +372,9 @@ mock_checks = [
         "metadata": {
             "name": "sensu.cpu.usage",
             "namespace": "TENANT1",
+            "annotations": {
+                "attempts": "3"
+            },
             "created_by": "admin"
         },
         "secrets": None,
@@ -409,6 +412,9 @@ mock_checks = [
         "metadata": {
             "name": "sensu.memory.usage",
             "namespace": "TENANT1",
+            "annotations": {
+                "attempts": "3"
+            },
             "created_by": "admin"
         },
         "secrets": None,
@@ -7155,7 +7161,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "round_robin": False,
             "metadata": {
                 "name": "sensu.cpu.usage",
-                "namespace": "TENANT1"
+                "namespace": "TENANT1",
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             "pipelines": [
                 {
@@ -7179,7 +7188,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "round_robin": False,
             "metadata": {
                 "name": "sensu.memory.usage",
-                "namespace": "TENANT1"
+                "namespace": "TENANT1",
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             "pipelines": [
                 {
@@ -7304,10 +7316,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-cpu-usage"
+                "check-cpu-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7320,9 +7332,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.cpu.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [
@@ -7369,10 +7381,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-cpu-usage"
+                "check-cpu-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7385,9 +7397,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.cpu.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [
@@ -7441,10 +7453,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-cpu-usage"
+                "check-cpu-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7457,9 +7469,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.cpu.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.cpu.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [
@@ -7614,10 +7626,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-memory-usage"
+                "check-memory-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7630,9 +7642,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.memory.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.memory.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [
@@ -7679,10 +7691,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-memory-usage"
+                "check-memory-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7695,9 +7707,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.memory.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.memory.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [
@@ -7751,10 +7763,10 @@ class SensuUsageChecksTests(unittest.TestCase):
             "low_flap_threshold": 0,
             "publish": True,
             "runtime_assets": [
-              "check-memory-usage"
+                "check-memory-usage"
             ],
             "subscriptions": [
-              "internals"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -7767,9 +7779,9 @@ class SensuUsageChecksTests(unittest.TestCase):
             "output_metric_handlers": None,
             "env_vars": None,
             "metadata": {
-              "name": "sensu.memory.usage",
-              "namespace": "TENANT1",
-              "created_by": "admin"
+                "name": "sensu.memory.usage",
+                "namespace": "TENANT1",
+                "created_by": "admin"
             },
             "secrets": None,
             "pipelines": [

@@ -1172,7 +1172,10 @@ class Sensu:
             "round_robin": False,
             "metadata": {
                 "name": name,
-                "namespace": namespace
+                "namespace": namespace,
+                "annotations": {
+                    "attempts": "3"
+                }
             },
             "pipelines": [
                 {
@@ -1197,15 +1200,18 @@ class Sensu:
             )
 
         else:
-            cpu_check = [
+            check = [
                 check for check in checks if check["metadata"]["name"] == name
             ][0]
-            if cpu_check["command"] != data["command"] or \
-                    cpu_check["interval"] != data["interval"] \
-                    or cpu_check["runtime_assets"] != data["runtime_assets"] \
-                    or cpu_check["subscriptions"] != data["subscriptions"] \
-                    or cpu_check["timeout"] != data["timeout"] \
-                    or cpu_check["pipelines"] != data["pipelines"]:
+            if check["command"] != data["command"] or \
+                    check["interval"] != data["interval"] \
+                    or check["runtime_assets"] != data["runtime_assets"] \
+                    or check["subscriptions"] != data["subscriptions"] \
+                    or check["timeout"] != data["timeout"] \
+                    or check["pipelines"] != data["pipelines"] \
+                    or "annotations" not in check["metadata"] \
+                    or check["metadata"]["annotations"] != \
+                    data["metadata"]["annotations"]:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
                     f"{name}",
