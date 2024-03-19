@@ -2705,6 +2705,505 @@ mock_events_multiline_ctl = [
     }
 ]
 
+mock_events_ctl_with_unknowns = [
+    {
+        'check': {
+            'command': '/usr/lib64/nagios/plugins/check_aris -H '
+                       'hostname1.example.com -t 120 --if-no-queues OK '
+                       '--cluster-test arc5-test --if-no-clusters UNKNOWN',
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 3600,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                "sub1", "sub2", "sub3"
+            ],
+            'proxy_entity_name': 'ARC-CE__hostname1.example.com',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.eu_egi_sec_arc_ce_5 == 'eu.egi.sec.ARC-CE-5'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 1.096049347,
+            'executed': 1710771245,
+            'history': [
+                {'status': 0, 'executed': 1710717244},
+                {'status': 0, 'executed': 1710720844},
+                {'status': 0, 'executed': 1710724444},
+                {'status': 0, 'executed': 1710728044}
+            ],
+            'issued': 1710771245,
+            'output': '1 cluster (nordugrid-arc-6.15.1), 3 queues (active, '
+                      'active, active)\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1710771245,
+            'occurrences': 1940,
+            'occurrences_watermark': 1940,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'eu.egi.sec.ARC-CE-5',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '2'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent1',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]},
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ARC-CE__hostname1.example.com'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'ARC-CE__hostname1.example.com',
+                'namespace': 'EGI',
+                'labels': {
+                    'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
+                    'hostname': 'hostname1.example.com',
+                    'org_nordugrid_arc_ce_aris': 'org.nordugrid.ARC-CE-ARIS',
+                    'org_nordugrid_arc_ce_igtf': 'org.nordugrid.ARC-CE-IGTF',
+                    'org_nordugrid_arc_ce_result':
+                        'org.nordugrid.ARC-CE-result',
+                    'org_nordugrid_arc_ce_srm': 'org.nordugrid.ARC-CE-srm',
+                    'org_nordugrid_arc_ce_srm_result':
+                        'org.nordugrid.ARC-CE-SRM-result',
+                    'org_nordugrid_arc_ce_srm_submit':
+                        'org.nordugrid.ARC-CE-SRM-submit',
+                    'org_nordugrid_arc_ce_submit':
+                        'org.nordugrid.ARC-CE-submit',
+                    'org_nordugrid_arc_ce_sw_csh':
+                        'org.nordugrid.ARC-CE-sw-csh',
+                    'org_nordugrid_arc_ce_sw_gcc':
+                        'org.nordugrid.ARC-CE-sw-gcc',
+                    'org_nordugrid_arc_ce_sw_perl':
+                        'org.nordugrid.ARC-CE-sw-perl',
+                    'org_nordugrid_arc_ce_sw_python':
+                        'org.nordugrid.ARC-CE-sw-python',
+                    'service': 'ARC-CE',
+                    'site': 'SITE1'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state',
+            'type': 'Pipeline',
+            'api_version': 'core/v2'
+        }],
+        'sequence': 74037,
+        'timestamp': 1710771246
+    }, {
+        'check': {
+            'command': '/usr/lib64/nagios/plugins/check_aris -H '
+                       'hostname1.example.com -t 60 --queue-test '
+                       'dist-queue-active',
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 1800,
+            'low_flap_threshold': 0,
+            'publish': True,
+            'runtime_assets': None,
+            'subscriptions': [
+                "sub1", "sub2", "sub3"
+            ],
+            'proxy_entity_name': 'ARC-CE__hostname1.example.com',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 900,
+            'proxy_requests': {
+                'entity_attributes': [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.org_nordugrid_arc_ce_aris == "
+                    "'org.nordugrid.ARC-CE-ARIS'"
+                ],
+                'splay': False,
+                'splay_coverage': 0
+            },
+            'round_robin': False,
+            'duration': 1.171800921,
+            'executed': 1710770788,
+            'history': [
+                {'status': 0, 'executed': 1710752788},
+                {'status': 0, 'executed': 1710752788},
+                {'status': 0, 'executed': 1710754588},
+                {'status': 0, 'executed': 1710754588},
+                {'status': 0, 'executed': 1710756388}
+            ],
+            'issued': 1710770788,
+            'output': '1 cluster (nordugrid-arc-6.15.1), 3 queues (active, '
+                      'active, active)\n',
+            'state': 'passing',
+            'status': 0,
+            'total_state_change': 0,
+            'last_ok': 1710770788,
+            'occurrences': 4220,
+            'occurrences_watermark': 4220,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'org.nordugrid.ARC-CE-ARIS',
+                'namespace': 'EGI',
+                'annotations': {'attempts': '3'}
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'processed_by': 'sensu-agent-1',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ARC-CE__hostname1.example.com'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'ARC-CE__hostname1.example.com',
+                'namespace': 'EGI',
+                'labels': {
+                    'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
+                    'hostname': 'hostname1.example.com',
+                    'org_nordugrid_arc_ce_aris': 'org.nordugrid.ARC-CE-ARIS',
+                    'org_nordugrid_arc_ce_igtf': 'org.nordugrid.ARC-CE-IGTF',
+                    'org_nordugrid_arc_ce_result':
+                        'org.nordugrid.ARC-CE-result',
+                    'org_nordugrid_arc_ce_srm': 'org.nordugrid.ARC-CE-srm',
+                    'org_nordugrid_arc_ce_srm_result':
+                        'org.nordugrid.ARC-CE-SRM-result',
+                    'org_nordugrid_arc_ce_srm_submit':
+                        'org.nordugrid.ARC-CE-SRM-submit',
+                    'org_nordugrid_arc_ce_submit':
+                        'org.nordugrid.ARC-CE-submit',
+                    'org_nordugrid_arc_ce_sw_csh':
+                        'org.nordugrid.ARC-CE-sw-csh',
+                    'org_nordugrid_arc_ce_sw_gcc':
+                        'org.nordugrid.ARC-CE-sw-gcc',
+                    'org_nordugrid_arc_ce_sw_perl':
+                        'org.nordugrid.ARC-CE-sw-perl',
+                    'org_nordugrid_arc_ce_sw_python':
+                        'org.nordugrid.ARC-CE-sw-python',
+                    'service': 'ARC-CE',
+                    'site': 'SITE1'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxxx',
+        'metadata': {'namespace': 'EGI'},
+        'pipelines': [{
+            'name': 'hard_state',
+            'type': 'Pipeline',
+            'api_version': 'core/v2'
+        }],
+        'sequence': 150531,
+        'timestamp': 1710770789
+    }, {
+        'check': {
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 0,
+            'low_flap_threshold': 0,
+            'publish': False,
+            'runtime_assets': None,
+            'subscriptions': [],
+            'proxy_entity_name': '',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 0,
+            'round_robin': False,
+            'executed': 0,
+            'history': [
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0}
+            ],
+            'issued': 0,
+            'output': 'Missing directory $X509_CERT_DIR (/etc/grid-security/'
+                      'certificates).',
+            'state': 'failing',
+            'status': 127,
+            'total_state_change': 0,
+            'last_ok': 0,
+            'occurrences': 615,
+            'occurrences_watermark': 615,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'org.nordugrid.ARC-CE-IGTF',
+                'namespace': 'EGI',
+                'created_by': 'admin'
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ["sub1"],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'ARC-CE__hostname2.example.com',
+                'namespace': 'EGI',
+                'labels': {
+                    'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
+                    'hostname': 'hostname2.example.com',
+                    'org_nordugrid_arc_ce_aris': 'org.nordugrid.ARC-CE-ARIS',
+                    'org_nordugrid_arc_ce_igtf': 'org.nordugrid.ARC-CE-IGTF',
+                    'org_nordugrid_arc_ce_result':
+                        'org.nordugrid.ARC-CE-result',
+                    'org_nordugrid_arc_ce_srm': 'org.nordugrid.ARC-CE-srm',
+                    'org_nordugrid_arc_ce_srm_result':
+                        'org.nordugrid.ARC-CE-SRM-result',
+                    'org_nordugrid_arc_ce_srm_submit':
+                        'org.nordugrid.ARC-CE-SRM-submit',
+                    'org_nordugrid_arc_ce_submit':
+                        'org.nordugrid.ARC-CE-submit',
+                    'org_nordugrid_arc_ce_sw_csh':
+                        'org.nordugrid.ARC-CE-sw-csh',
+                    'org_nordugrid_arc_ce_sw_gcc':
+                        'org.nordugrid.ARC-CE-sw-gcc',
+                    'org_nordugrid_arc_ce_sw_perl':
+                        'org.nordugrid.ARC-CE-sw-perl',
+                    'org_nordugrid_arc_ce_sw_python':
+                        'org.nordugrid.ARC-CE-sw-python',
+                    'service': 'ARC-CE',
+                    'site': 'SITE2'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxxx',
+        'metadata': {'created_by': 'admin'},
+        'pipelines': None,
+        'sequence': 0,
+        'timestamp': 1710712879
+    }, {
+        'check': {
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 0,
+            'low_flap_threshold': 0,
+            'publish': False,
+            'runtime_assets': None,
+            'subscriptions': [],
+            'proxy_entity_name': '',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 0,
+            'round_robin': False,
+            'executed': 0,
+            'history': [
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0},
+                {'status': 3, 'executed': 0}
+            ],
+            'issued': 0,
+            'output': 'Missing directory $X509_CERT_DIR (/etc/grid-security/'
+                      'certificates).',
+            'state': 'failing',
+            'status': 3,
+            'total_state_change': 0,
+            'last_ok': 0,
+            'occurrences': 566,
+            'occurrences_watermark': 566,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'org.nordugrid.ARC-CE-IGTF',
+                'namespace': 'EGI',
+                'created_by': 'admin'
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ARC-CE__hostname2.example.com'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'ARC-CE__hostname2.example.com',
+                'namespace': 'EGI',
+                'labels': {
+                    'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
+                    'hostname': 'hostname2.example.com',
+                    'org_nordugrid_arc_ce_aris': 'org.nordugrid.ARC-CE-ARIS',
+                    'org_nordugrid_arc_ce_igtf': 'org.nordugrid.ARC-CE-IGTF',
+                    'org_nordugrid_arc_ce_result':
+                        'org.nordugrid.ARC-CE-result',
+                    'org_nordugrid_arc_ce_srm': 'org.nordugrid.ARC-CE-srm',
+                    'org_nordugrid_arc_ce_srm_result':
+                        'org.nordugrid.ARC-CE-SRM-result',
+                    'org_nordugrid_arc_ce_srm_submit':
+                        'org.nordugrid.ARC-CE-SRM-submit',
+                    'org_nordugrid_arc_ce_submit':
+                        'org.nordugrid.ARC-CE-submit',
+                    'org_nordugrid_arc_ce_sw_csh':
+                        'org.nordugrid.ARC-CE-sw-csh',
+                    'org_nordugrid_arc_ce_sw_gcc':
+                        'org.nordugrid.ARC-CE-sw-gcc',
+                    'org_nordugrid_arc_ce_sw_perl':
+                        'org.nordugrid.ARC-CE-sw-perl',
+                    'org_nordugrid_arc_ce_sw_python':
+                        'org.nordugrid.ARC-CE-sw-python',
+                    'service': 'ARC-CE',
+                    'site': 'SITE2'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxxx',
+        'metadata': {'created_by': 'admin'},
+        'pipelines': None,
+        'sequence': 0,
+        'timestamp': 1710712883
+    }, {
+        'check': {
+            'handlers': [],
+            'high_flap_threshold': 0,
+            'interval': 0,
+            'low_flap_threshold': 0,
+            'publish': False,
+            'runtime_assets': None,
+            'subscriptions': [],
+            'proxy_entity_name': '',
+            'check_hooks': None,
+            'stdin': False,
+            'subdue': None,
+            'ttl': 0,
+            'timeout': 0,
+            'round_robin': False,
+            'executed': 0,
+            'history': [
+                {'status': 1, 'executed': 0},
+                {'status': 1, 'executed': 0},
+                {'status': 1, 'executed': 0}
+            ],
+            'issued': 0,
+            'output': 'IGTF-1.128, 7 days old, found 77 CAs from 1.127',
+            'state': 'failing',
+            'status': 1,
+            'total_state_change': 0,
+            'last_ok': 0,
+            'occurrences': 31,
+            'occurrences_watermark': 31,
+            'output_metric_format': '',
+            'output_metric_handlers': None,
+            'env_vars': None,
+            'metadata': {
+                'name': 'org.nordugrid.ARC-CE-IGTF',
+                'namespace': 'EGI',
+                'created_by': 'admin'
+            },
+            'secrets': None,
+            'is_silenced': False,
+            'scheduler': '',
+            'pipelines': [{
+                'name': 'hard_state',
+                'type': 'Pipeline',
+                'api_version': 'core/v2'
+            }]
+        },
+        'entity': {
+            'entity_class': 'proxy',
+            'subscriptions': ['ARC-CE__hostname3.example.com'],
+            'last_seen': 0,
+            'deregister': False,
+            'deregistration': {},
+            'metadata': {
+                'name': 'ARC-CE__hostname3.example.com',
+                'namespace': 'EGI',
+                'labels': {
+                    'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
+                    'hostname': 'hostname3.example.com',
+                    'org_nordugrid_arc_ce_aris': 'org.nordugrid.ARC-CE-ARIS',
+                    'org_nordugrid_arc_ce_igtf': 'org.nordugrid.ARC-CE-IGTF',
+                    'org_nordugrid_arc_ce_result':
+                        'org.nordugrid.ARC-CE-result',
+                    'org_nordugrid_arc_ce_srm':
+                        'org.nordugrid.ARC-CE-srm',
+                    'org_nordugrid_arc_ce_srm_result':
+                        'org.nordugrid.ARC-CE-SRM-result',
+                    'org_nordugrid_arc_ce_srm_submit':
+                        'org.nordugrid.ARC-CE-SRM-submit',
+                    'org_nordugrid_arc_ce_submit':
+                        'org.nordugrid.ARC-CE-submit',
+                    'org_nordugrid_arc_ce_sw_csh':
+                        'org.nordugrid.ARC-CE-sw-csh',
+                    'org_nordugrid_arc_ce_sw_gcc':
+                        'org.nordugrid.ARC-CE-sw-gcc',
+                    'org_nordugrid_arc_ce_sw_perl':
+                        'org.nordugrid.ARC-CE-sw-perl',
+                    'org_nordugrid_arc_ce_sw_python':
+                        'org.nordugrid.ARC-CE-sw-python',
+                    'service': 'ARC-CE',
+                    'site': 'SITE3'
+                }
+            },
+            'sensu_agent_version': ''
+        },
+        'id': 'xxxxxx',
+        'metadata': {'created_by': 'admin'},
+        'pipelines': None,
+        'sequence': 0,
+        'timestamp': 1710730711
+    }
+]
+
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
 DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
@@ -9054,6 +9553,29 @@ class SensuCtlTests(unittest.TestCase):
                 "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
                 "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
                 "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_filter_events_by_unknown_status(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl_with_unknowns).encode("utf-8")
+        events = self.sensuctl.filter_events(status=3)
+        self.assertEqual(
+            events, [
+                "Entity                         "
+                "Metric                     Status    Executed           "
+                "  Output",
+                "_____________________________________________________"
+                "_____________________________________________",
+                "ARC-CE__hostname2.example.com  "
+                "org.nordugrid.ARC-CE-IGTF  UNKNOWN   2024-03-17 22:01:19  "
+                "Missing directory $X509_CERT_DIR (/etc/grid-security/"
+                "certificates).",
+                "ARC-CE__hostname2.example.com  "
+                "org.nordugrid.ARC-CE-IGTF  UNKNOWN   2024-03-17 22:01:23  "
+                "Missing directory $X509_CERT_DIR (/etc/grid-security/"
+                "certificates)."
             ]
         )
 
