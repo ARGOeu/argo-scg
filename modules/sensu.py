@@ -1557,9 +1557,15 @@ class SensuCtl:
             ]
 
         if status is not None:
-            events = [
-                item for item in events if item["check"]["status"] == status
-            ]
+            if status == 3:
+                events = [
+                    item for item in events if item["check"]["status"] >= 3
+                ]
+
+            else:
+                events = [
+                    item for item in events if item["check"]["status"] == status
+                ]
 
         if service_type:
             events = [
