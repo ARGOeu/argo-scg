@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.5.1
+Version:       0.5.2
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -55,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 4 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.2-1%{?dist}
+- ARGO-4523 Change filtering of Sensu events
+- ARGO-4509 Add attempts annotation to sensu.cpu.usage and sensu.memory.usage checks
+- AO-919 Prepare argo-scg Jenkinsfile for Rocky 9
 * Thu Mar 7 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.1-1%{?dist}
 - ARGO-4480 Take into account parent's maxCheckAttempts for passive metrics
 - ARGO-4467 Create checks for CPU and memory
