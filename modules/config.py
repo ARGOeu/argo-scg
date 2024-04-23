@@ -63,6 +63,19 @@ class Config(_Config):
     def get_tenants(self):
         return self.tenants
 
+    def get_namespaces(self):
+        namespaces = dict()
+        for tenant in self.tenants:
+            try:
+                value = self.conf.get(tenant, "namespace")
+
+            except configparser.NoOptionError:
+                value = tenant
+
+            namespaces.update({tenant: value})
+
+        return namespaces
+
     def get_poem_urls(self):
         try:
             urls = dict()
