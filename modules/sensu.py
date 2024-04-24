@@ -204,18 +204,18 @@ class Sensu:
 
     def _delete_check(self, check, namespace):
         response = requests.delete(
-            "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                self.url, namespace, check
-            ),
-            headers={"Authorization": "Key {}".format(self.token)}
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks/{check}",
+            headers={"Authorization": f"Key {self.token}"}
         )
         return response
 
-    def delete_check(self, check, namespace="default"):
-        response = self._delete_check(check=check, namespace=namespace)
+    def delete_check(self, check, tenant="default"):
+        response = self._delete_check(
+            check=check, namespace=self.namespaces[tenant]
+        )
 
         if not response.ok:
-            msg = f"{namespace}: Check {check} not removed: " \
+            msg = f"{tenant}: Check {check} not removed: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -226,12 +226,14 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def _delete_checks(self, checks, namespace):
+    def _delete_checks(self, checks, tenant):
         for check in checks:
-            response = self._delete_check(check=check, namespace=namespace)
+            response = self._delete_check(
+                check=check, namespace=self.namespaces[tenant]
+            )
 
             if not response.ok:
-                msg = f"{namespace}: Check {check} not removed: " \
+                msg = f"{tenant}: Check {check} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -244,7 +246,7 @@ class Sensu:
                 continue
 
             else:
-                self.logger.info(f"{namespace}: Check {check} removed")
+                self.logger.info(f"{tenant}: Check {check} removed")
 
     def _delete_event(self, entity, check, namespace):
         response = requests.delete(
@@ -504,7 +506,7 @@ class Sensu:
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
             f"{check['metadata']['name']}",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             },
             data=json.dumps(check)
@@ -512,11 +514,13 @@ class Sensu:
 
         return response
 
-    def put_check(self, check, namespace="default"):
-        response = self._put_check(check=check, namespace=namespace)
+    def put_check(self, check, tenant="default"):
+        response = self._put_check(
+            check=check, namespace=self.namespaces[tenant]
+        )
 
         if not response.ok:
-            msg = f"{namespace}: " \
+            msg = f"{tenant}: " \
                   f"Check {check['metadata']['name']} not created: " \
                   f"{response.status_code} {response.reason}"
             try:
@@ -527,7 +531,9 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def handle_checks(self, checks, namespace="default"):
+    def handle_checks(self, checks, tenant="default"):
+        namespace = self.namespaces[tenant]
+
         existing_checks = self._get_checks(namespace=namespace)
 
         for check in checks:
@@ -547,7 +553,7 @@ class Sensu:
                 response = self._put_check(check=check, namespace=namespace)
 
                 if not response.ok:
-                    msg = f"{namespace}: " \
+                    msg = f"{tenant}: " \
                           f"Check {check['metadata']['name']} not {word}: " \
                           f"{response.status_code} {response.reason}"
                     try:
@@ -560,7 +566,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Check {check['metadata']['name']} {word}"
+                        f"{tenant}: Check {check['metadata']['name']} {word}"
                     )
 
         updated_existing_checks = self._get_checks(namespace=namespace)
@@ -576,7 +582,7 @@ class Sensu:
         ]
 
         if len(checks_tobedeleted) > 0:
-            self._delete_checks(checks=checks_tobedeleted, namespace=namespace)
+            self._delete_checks(checks=checks_tobedeleted, tenant=tenant)
 
             after_delete_checks = [
                 check["metadata"]["name"] for check in self._get_checks(
@@ -584,7 +590,7 @@ class Sensu:
                 )
             ]
             try:
-                existing_events = self._fetch_events(namespace=namespace)
+                existing_events = self._fetch_events(tenant=tenant)
                 events_tobedeleted = dict()
                 for event in existing_events:
                     check = event["check"]["metadata"]["name"]
@@ -598,9 +604,7 @@ class Sensu:
                             entity_checks.append(check)
                             events_tobedeleted.update({entity: entity_checks})
 
-                self._delete_events(
-                    events=events_tobedeleted, namespace=namespace
-                )
+                self._delete_events(events=events_tobedeleted, tenant=tenant)
 
             except SensuException:
                 pass

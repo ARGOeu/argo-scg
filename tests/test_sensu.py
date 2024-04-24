@@ -3799,7 +3799,15 @@ class SensuNamespaceTests(unittest.TestCase):
 
 class SensuCheckTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.checks = [
             {
                 "command": "/usr/lib64/nagios/plugins/check_http "
@@ -3982,26 +3990,26 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.http.connect",
                     "generic.certificate.validity"
                 ],
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4029,20 +4037,20 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4069,20 +4077,20 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4104,10 +4112,10 @@ class SensuCheckTests(unittest.TestCase):
     def test_delete_single_check(self, mock_delete):
         mock_delete.side_effect = mock_delete_response
         self.sensu.delete_check(
-            check="generic.tcp.connect", namespace="TENANT1"
+            check="generic.tcp.connect", tenant="TENANT1"
         )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4121,11 +4129,11 @@ class SensuCheckTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_check(
-                check="generic.tcp.connect", namespace="TENANT1"
+                check="generic.tcp.connect", tenant="TENANT1"
             )
 
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4142,11 +4150,11 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete.return_value = MockResponse(None, status_code=400)
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_check(
-                check="generic.tcp.connect", namespace="TENANT1"
+                check="generic.tcp.connect", tenant="TENANT1"
             )
 
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4179,25 +4187,25 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4206,7 +4214,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4255,17 +4263,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -4362,17 +4370,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
                 "generic.http.ar-argoui-ni4os",
                 "generic.http.status-argoui-ni4os",
                 "generic.tcp.connect"
             ],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
@@ -4384,12 +4392,12 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.tcp.connect"
                 ]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/org.activemq.OpenWireSSL",
                 data=json.dumps(checks[0]),
                 headers={
@@ -4398,7 +4406,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/org.nagiosexchange.Broker-BDII",
                 data=json.dumps(checks[1]),
                 headers={
@@ -4494,18 +4502,18 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
                 "generic.http.ar-argoui-ni4os",
                 "generic.http.status-argoui-ni4os",
                 "generic.tcp.connect"
             ],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
@@ -4517,12 +4525,12 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.tcp.connect"
                 ]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/eudat.b2access.unity.login-local",
                 data=json.dumps(checks[0]),
                 headers={
@@ -4531,7 +4539,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/pl.plgrid.QCG-Computing",
                 data=json.dumps(checks[1]),
                 headers={
@@ -4605,23 +4613,23 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks([no_proxy_checks[0]], namespace="TENANT1")
+            self.sensu.handle_checks([no_proxy_checks[0]], tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.ar-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.ar-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(no_proxy_checks[0]),
             headers={
@@ -4666,17 +4674,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -4725,15 +4733,15 @@ class SensuCheckTests(unittest.TestCase):
         checks = self.checks + [passive_check]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "eu.egi.SRM-VOGet",
             data=json.dumps(passive_check),
             headers={
@@ -4812,10 +4820,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4846,25 +4854,25 @@ class SensuCheckTests(unittest.TestCase):
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4873,7 +4881,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4916,25 +4924,25 @@ class SensuCheckTests(unittest.TestCase):
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4943,7 +4951,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4983,9 +4991,9 @@ class SensuCheckTests(unittest.TestCase):
             "round_robin": False
         }
 
-        self.sensu.put_check(check=check, namespace="TENANT1")
+        self.sensu.put_check(check=check, tenant="TENANT1")
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={
@@ -5017,10 +5025,10 @@ class SensuCheckTests(unittest.TestCase):
         }
 
         with self.assertRaises(SensuException) as context:
-            self.sensu.put_check(check=check, namespace="TENANT1")
+            self.sensu.put_check(check=check, tenant="TENANT1")
 
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={
@@ -5056,10 +5064,10 @@ class SensuCheckTests(unittest.TestCase):
         }
 
         with self.assertRaises(SensuException) as context:
-            self.sensu.put_check(check=check, namespace="TENANT1")
+            self.sensu.put_check(check=check, tenant="TENANT1")
 
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={

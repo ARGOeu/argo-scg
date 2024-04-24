@@ -130,7 +130,7 @@ def main():
                     checks=generator.generate_checks(
                         publish=publish_bool[namespace], namespace=namespace
                     ),
-                    namespace=namespace
+                    tenant=tenant
                 )
                 sensu.add_cpu_check(namespace=namespace)
                 sensu.add_memory_check(namespace=namespace)
