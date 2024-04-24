@@ -24,8 +24,8 @@ def main():
         "-c", "--check", dest="check", type=str, required=True, help="check"
     )
     parser.add_argument(
-        "-n", "--namespace", dest="namespace", type=str, default="default",
-        help="namespace"
+        "-t", "--tenant", dest="tenant", type=str, default="default",
+        help="tenant"
     )
     parser.add_argument(
         "--config", type=str, dest="config", help="configuration file",
@@ -42,6 +42,7 @@ def main():
         config = Config(config_file=args.config)
         url = config.get_sensu_url()
         token = config.get_sensu_token()
+        namespace = config.get_namespaces()[args.tenant]
 
     except ConfigException as err:
         print(err)
@@ -50,7 +51,7 @@ def main():
     try:
         sensu = Sensu(url=url, token=token)
         command, timeout = sensu.get_check_run(
-            entity=args.entity, check=args.check, namespace=args.namespace
+            entity=args.entity, check=args.check, namespace=namespace
         )
 
     except SensuException as err:
@@ -60,21 +61,22 @@ def main():
     else:
         if args.execute:
             try:
-                agent = sensu.get_agents(namespace=args.namespace)[0]
+                agent = sensu.get_agents(namespace=namespace)[0]
                 if sensu.is_entity_agent(
-                        entity=args.entity, namespace=args.namespace
+                        entity=args.entity, namespace=namespace
                 ):
                     check_name = args.check
 
                 else:
                     subscriptions = sensu.get_check_subscriptions(
-                        check=args.check, namespace=args.namespace
+                        check=args.check, namespace=namespace
                     )
                     check = generate_adhoc_check(
-                        command=command, subscriptions=subscriptions,
-                        namespace=args.namespace
+                        command=command,
+                        subscriptions=subscriptions,
+                        namespace=namespace
                     )
-                    sensu.put_check(check=check, namespace=args.namespace)
+                    sensu.put_check(check=check, namespace=namespace)
                     adhoc_generated = True
                     check_name = check["metadata"]["name"]
 
@@ -83,7 +85,7 @@ def main():
                 sys.exit(2)
 
             response = requests.post(
-                f"{url}/api/core/v2/namespaces/{args.namespace}/checks/"
+                f"{url}/api/core/v2/namespaces/{namespace}/checks/"
                 f"{check_name}/execute",
                 headers={
                     "Authorization": f"Key {token}",
@@ -104,7 +106,7 @@ def main():
                         event_output = sensu.get_event_output(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            namespace=args.namespace
+                            namespace=namespace
                         )
                         break
 
@@ -117,23 +119,23 @@ def main():
                 print(event_output)
 
             else:
-                print(f"{args.namespace}: Error executing ad-hoc check")
+                print(f"{args.tenant}: Error executing ad-hoc check")
 
             if not sensu.is_entity_agent(
-                    entity=args.entity, namespace=args.namespace
+                    entity=args.entity, namespace=namespace
             ):
                 try:
                     if event_executed:
                         sensu.delete_event(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            namespace=args.namespace
+                            namespace=namespace
                         )
 
                     if adhoc_generated:
                         sensu.delete_check(
                             check=check_name,
-                            namespace=args.namespace
+                            namespace=namespace
                         )
 
                 except SensuException as err:
