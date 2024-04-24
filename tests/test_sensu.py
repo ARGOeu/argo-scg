@@ -5850,16 +5850,24 @@ class SensuEntityTests(unittest.TestCase):
 
 class SensuAgentsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
 
     @patch("requests.get")
     def test_get_agents(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            agents = self.sensu._get_agents(namespace="TENANT1")
+            agents = self.sensu._get_agents(tenant="TENANT1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5876,10 +5884,10 @@ class SensuAgentsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_agents(namespace="TENANT1")
+                self.sensu._get_agents(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5904,10 +5912,10 @@ class SensuAgentsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_agents(namespace="TENANT1")
+                self.sensu._get_agents(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5939,13 +5947,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -5961,7 +5969,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6011,13 +6019,13 @@ class SensuAgentsTests(unittest.TestCase):
                         "internals"
                     ]
                 },
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6033,7 +6041,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6081,13 +6089,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6103,7 +6111,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6152,13 +6160,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6174,7 +6182,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6228,13 +6236,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6257,7 +6265,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6310,14 +6318,14 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
                 ]},
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
 
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6342,7 +6350,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6386,14 +6394,14 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu"
                 ]},
                 services="argo.mon,argo.test",
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
 
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6414,7 +6422,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [

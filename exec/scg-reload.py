@@ -152,7 +152,7 @@ def main():
                     subscriptions=generator.generate_subscriptions(
                         custom_subs=custom_subs
                     ),
-                    namespace=namespace
+                    tenant=tenant
                 )
                 logger.info(f"{namespace}: All synced!")
 

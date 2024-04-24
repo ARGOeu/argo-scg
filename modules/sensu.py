@@ -413,12 +413,12 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "proxy"
         ]
 
-    def _get_agents(self, namespace):
+    def _get_agents(self, tenant):
         try:
-            data = self._get_entities(namespace=namespace)
+            data = self._get_entities(namespace=self.namespaces[tenant])
 
         except SensuException as e:
-            msg = f"{namespace}: Error fetching agents: " \
+            msg = f"{tenant}: Error fetching agents: " \
                   f"{str(e).strip('Sensu error: ')}"
             self.logger.error(msg)
             raise SensuException(msg)
@@ -670,7 +670,7 @@ class Sensu:
             metric_parameters_overrides=None,
             host_attributes_overrides=None,
             services="internals",
-            namespace="default"
+            tenant="default"
     ):
         if metric_parameters_overrides is None:
             metric_parameters_overrides = []
@@ -701,7 +701,7 @@ class Sensu:
             return host_labels
 
         try:
-            agents = self._get_agents(namespace=namespace)
+            agents = self._get_agents(tenant =tenant)
 
             for agent in agents:
                 send_data = dict()
@@ -734,7 +734,8 @@ class Sensu:
 
                 if send_data:
                     response = requests.patch(
-                        f"{self.url}/api/core/v2/namespaces/{namespace}/"
+                        f"{self.url}/api/core/v2/namespaces/"
+                        f"{self.namespaces[tenant]}/"
                         f"entities/{agent['metadata']['name']}",
                         data=json.dumps(send_data),
                         headers={
@@ -744,7 +745,7 @@ class Sensu:
                     )
 
                     if not response.ok:
-                        msg = f"{namespace}: {agent['metadata']['name']} " \
+                        msg = f"{tenant}: {agent['metadata']['name']} " \
                               f"not updated: " \
                               f"{response.status_code} {response.reason}"
                         try:
@@ -758,18 +759,18 @@ class Sensu:
                     else:
                         if "subscriptions" in send_data:
                             self.logger.info(
-                                f"{namespace}: {agent['metadata']['name']} "
+                                f"{tenant}: {agent['metadata']['name']} "
                                 f"subscriptions updated"
                             )
 
                         if "metadata" in send_data:
                             self.logger.info(
-                                f"{namespace}: {agent['metadata']['name']} "
+                                f"{tenant}: {agent['metadata']['name']} "
                                 f"labels updated"
                             )
 
         except SensuException:
-            self.logger.warning(f"{namespace}: Agents not handled...")
+            self.logger.warning(f"{tenant}: Agents not handled...")
 
     def _get_handlers(self, namespace):
         response = requests.get(
