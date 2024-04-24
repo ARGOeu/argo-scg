@@ -6,7 +6,7 @@ ARGO-SCG is a component of ARGO monitoring engine that creates configuration for
 
 ## Installation
 
-Component is supported on CentOS 7. RPM package and its dependencies are available in ARGO repositories, and it is simply installed using yum:
+Component is supported on CentOS 7 and Rocky 9. RPM package and its dependencies are available in ARGO repositories, and it is simply installed using yum:
 
 ```
 yum install -y argo-scg
@@ -120,12 +120,11 @@ Tool's logs are written to the file `/var/log/argo-scg/argo-scg.log`.
 
 This tool is used to acknowledge an event, and it does not return any output. The event will be silenced until it is resolved, after that it will send notifications normally without any user input. 
 
-The tool takes two required arguments: check name `-c`, and entity name `-e`. By default, it uses the `default` namespace, you can override that with the namespace argument (`-n`). You can also override the configuration file it uses, by default it uses configuration file `/etc/argo-scg/scg.conf`.
+The tool takes two required arguments: check name `-c`, and entity name `-e`. By default, it uses the `default` tenant, you can override that with the tenant argument (`-t`). You can also override the configuration file it uses, by default it uses configuration file `/etc/argo-scg/scg.conf`.
 
 ```
 # scg-ack.py -h
-usage: Acknowledge an event so it does not send any more notifications
-       [-h] -c CHECK -e ENTITY [-n NAMESPACE] [--conf CONF]
+usage: Acknowledge an event so it does not send any more notifications [-h] -c CHECK -e ENTITY [-t TENANT] [--conf CONF]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -133,28 +132,24 @@ optional arguments:
                         check name
   -e ENTITY, --entity ENTITY
                         entity name
-  -n NAMESPACE, --namespace NAMESPACE
-                        namespace
+  -t TENANT, --tenant TENANT
+                        tenant
   --conf CONF           configuration file
-
 ```
 
 Example:
 
 ```
-scg-ack.py -c argo.POEM-CERT-MON -e argo.poem__poem.argo.grnet.gr -n internal
+scg-ack.py -c argo.POEM-CERT-MON -e argo.poem__poem.argo.grnet.gr -t internal
 ```
 
 ### `scg-run-check`
 
-This tool is used to check how the given check is called for given entity. You should supply entity name, check name and namespace as input arguments, and the tool will return how exactly the check is run for the given entity:
+This tool is used to check how the given check is called for given entity. You should supply entity name, check name and tenant as input arguments, and the tool will return how exactly the check is run for the given entity:
 
 ```
 # scg-run-check -h
-usage: Check how the probe is invoked for a given entity [-h] -e ENTITY -c
-                                                         CHECK [-n NAMESPACE]
-                                                         [--config CONFIG]
-                                                         [--execute]
+usage: Check how the probe is invoked for a given entity [-h] -e ENTITY -c CHECK [-t TENANT] [--config CONFIG] [--execute]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -162,8 +157,8 @@ optional arguments:
                         entity
   -c CHECK, --check CHECK
                         check
-  -n NAMESPACE, --namespace NAMESPACE
-                        namespace
+  -t TENANT, --tenant TENANT
+                        tenant
   --config CONFIG       configuration file
   --execute             run the command
 ```
@@ -171,7 +166,7 @@ optional arguments:
 Example: 
 
 ```
-# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -n internal
+# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -t internal
 Executing command:
 /usr/lib64/nagios/plugins/check_ssl_cert -H neanias.ui.argo.grnet.gr -t 60 -w 30 -c 0 -N --altnames --rootcert-dir /etc/grid-security/certificates --rootcert-file /etc/pki/tls/certs/ca-bundle.crt -C /etc/sensu/certs/hostcert.pem -K /etc/sensu/certs/hostkey.pem
 ```
@@ -179,7 +174,7 @@ Executing command:
 It is also possible to include `--execute` flag, in which case the check will be run, and the result will be printed to terminal:
 
 ```
-# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -n internal --execute
+# scg-run-check -e argo.webui__neanias.ui.argo.grnet.gr -c generic.certificate.validity -t internal --execute
 Executing command:
 /usr/lib64/nagios/plugins/check_ssl_cert -H neanias.ui.argo.grnet.gr -t 60 -w 30 -c 0 -N --altnames --rootcert-dir /etc/grid-security/certificates --rootcert-file /etc/pki/tls/certs/ca-bundle.crt -C /etc/sensu/certs/hostcert.pem -K /etc/sensu/certs/hostkey.pem
 
@@ -188,21 +183,23 @@ SSL_CERT OK - x509 certificate '*.devel.argo.grnet.gr' (neanias.ui.argo.grnet.gr
 
 ### `sensu-events`
 
-This tool is used to display events that have been run. It takes four optional arguments. The one that has a default value, `--namespace`, to denote for which namespace you wish events displayed (`default` namespace by default). The other three (`--status`, `--service` and `--agent`) are used for view filtering. If none of the arguments used for filtering is used, all the events are shown for the given namespace.
+This tool is used to display events that have been run. It takes four optional arguments. The one that has a default value, `-t` (`--tenant`), to denote for which tenant you wish events displayed (`default` tenant by default). The other three (`-S`, `-s` and `--agent`) are used for view filtering. If none of the arguments used for filtering is used, all the events are shown for the given tenant.
 
 ```
-sensu-events -h
-usage: Get event data [-h] [--namespace NAMESPACE] [--status STATUS]
-                      [--service SERVICE_TYPE] [--agent]
+# sensu-events -h
+usage: Get event data [-h] [-t TENANT] [-S STATUS] [-s SERVICE_TYPE] [--agent] [-c CONFIG]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --namespace NAMESPACE
-                        namespace
-  --status STATUS       status to filter; must be integer code 0, 1, 2 or 3
-  --service SERVICE_TYPE
+  -t TENANT, --tenant TENANT
+                        tenant
+  -S STATUS, --status STATUS
+                        status to filter; must be integer code 0, 1, 2 or 3
+  -s SERVICE_TYPE, --service SERVICE_TYPE
                         service type to filter
   --agent               show only agent events
+  -c CONFIG, --config CONFIG
+                        configuration file
 ```
 
 Example with all the events:
@@ -234,9 +231,9 @@ sensu-devel.cro-ngi.hr  srce.certificate.validity-sensu-backend  OK        2023-
 
 The three arguments used for filtering are as follows:
 
-* `--status` - used for filtering events by status. E.g. if you wish to see only events with `CRITICAL` status, you would call the tool as `sensu-events --status 2`.
-* `--service` - used for filtering events by service type. E.g. if you wish to see only events run for service type `argo.mon`, you would call the tool as `sensu-events --service argo.mon`.
-* `--agent` - the flag used for filtering events run for Sensu agent. E.g., if you want to display only events run for Sensu agent on the given tenant: `sensu-events --namespace INTERNAL --agent`.
+* `-S` (`--status`) - used for filtering events by status. E.g. if you wish to see only events with `CRITICAL` status, you would call the tool as `sensu-events -S 2`.
+* `-s` (`--service`) - used for filtering events by service type. E.g. if you wish to see only events run for service type `argo.mon`, you would call the tool as `sensu-events -s argo.mon`.
+* `--agent` - the flag used for filtering events run for Sensu agent. E.g., if you want to display only events run for Sensu agent on the given tenant: `sensu-events --tenant internal --agent`.
 
 All the arguments used for filtering can also be combined.
 
@@ -248,7 +245,7 @@ All the arguments used for filtering can also be combined.
 
 ### Namespaces
 
-Multi-tenancy in Sensu is achieved by using namespaces - each tenant has its own namespace with isolated definitions of checks (metrics), entities (endpoints), events, handlers, filters, and pipelines. For each tenant defined in the configuration file, the `scg-reload.py` tool creates namespace if it does not exist. Also, if a namespace exists for which there is no tenant definition in the configuration file, that namespace is deleted.
+Multi-tenancy in Sensu is achieved by using namespaces - each tenant has its own namespace with isolated definitions of checks (metrics), entities (endpoints), events, handlers, filters, and pipelines. For each tenant defined in the configuration file, the `scg-reload.py` tool creates a namespace (with the same name as tenant) if it does not exist. Also, if a namespace exists for which there is no tenant definition in the configuration file, that namespace is deleted.
 
 ### Entities
 

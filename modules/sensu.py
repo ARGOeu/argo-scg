@@ -46,12 +46,11 @@ class Sensu:
                 namespace["name"] not in exceptions
             ]
 
-    def handle_namespaces(self, tenants):
-        namespaces = self._get_namespaces()
-        for tenant in tenants:
-            namespace = tenant
+    def handle_namespaces(self, namespaces):
+        existing_namespaces = self._get_namespaces()
 
-            if namespace not in namespaces:
+        for tenant, namespace in namespaces.items():
+            if namespace not in existing_namespaces:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}",
                     headers={
@@ -78,21 +77,23 @@ class Sensu:
                 else:
                     self.logger.info(f"Namespace {namespace} created")
 
-        for tenant in set(namespaces).difference(set(tenants)):
+        for namespace in set(existing_namespaces).difference(
+                set(namespaces.values())
+        ):
             try:
                 subprocess.check_output(
                     f"sensuctl dump "
                     f"entities,events,assets,checks,filters,handlers "
-                    f"--namespace {tenant} | sensuctl delete", shell=True
+                    f"--namespace {namespace} | sensuctl delete", shell=True
                 )
-                self.logger.info(f"Namespace {tenant} emptied")
+                self.logger.info(f"Namespace {namespace} emptied")
                 response = requests.delete(
-                    f"{self.url}/api/core/v2/namespaces/{tenant}",
+                    f"{self.url}/api/core/v2/namespaces/{namespace}",
                     headers={"Authorization": f"Key {self.token}"}
                 )
 
                 if response.ok:
-                    self.logger.info(f"Namespace {tenant} deleted")
+                    self.logger.info(f"Namespace {namespace} deleted")
 
                 else:
                     msg = f"{response.status_code} {response.reason}"
@@ -102,11 +103,11 @@ class Sensu:
                     except (ValueError, KeyError, TypeError):
                         pass
 
-                    self.logger.error(f"Error deleting {tenant}: {msg}")
+                    self.logger.error(f"Error deleting {namespace}: {msg}")
 
             except subprocess.CalledProcessError as err:
                 self.logger.error(
-                    f"Error cleaning namespace {tenant}: {err.output}"
+                    f"Error cleaning namespace {namespace}: {err.output}"
                 )
 
     def _get_checks(self, namespace):
