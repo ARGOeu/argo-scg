@@ -10,10 +10,11 @@ from argo_scg.generator import create_attribute_env, create_label, \
 
 
 class Sensu:
-    def __init__(self, url, token):
+    def __init__(self, url, token, namespaces):
         self.url = url
         self.token = token
         self.non_poem_checks = ["sensu.cpu.usage", "sensu.memory.usage"]
+        self.namespaces = namespaces
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
@@ -46,10 +47,10 @@ class Sensu:
                 namespace["name"] not in exceptions
             ]
 
-    def handle_namespaces(self, namespaces):
+    def handle_namespaces(self):
         existing_namespaces = self._get_namespaces()
 
-        for tenant, namespace in namespaces.items():
+        for tenant, namespace in self.namespaces.items():
             if namespace not in existing_namespaces:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}",
@@ -78,7 +79,7 @@ class Sensu:
                     self.logger.info(f"Namespace {namespace} created")
 
         for namespace in set(existing_namespaces).difference(
-                set(namespaces.values())
+                set(self.namespaces.values())
         ):
             try:
                 subprocess.check_output(

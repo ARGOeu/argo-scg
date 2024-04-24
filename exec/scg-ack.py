@@ -35,7 +35,9 @@ def main():
         namespaces = config.get_namespaces()
 
         sensu = Sensu(
-            url=config.get_sensu_url(), token=config.get_sensu_token()
+            url=config.get_sensu_url(),
+            token=config.get_sensu_token(),
+            namespaces=namespaces
         )
 
         sensu.create_silencing_entry(

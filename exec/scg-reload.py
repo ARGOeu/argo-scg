@@ -61,10 +61,10 @@ def main():
             else:
                 tenants = [args.tenant]
 
-        sensu = Sensu(url=sensu_url, token=sensu_token)
+        sensu = Sensu(url=sensu_url, token=sensu_token, namespaces=namespaces)
 
         if not args.tenant:
-            sensu.handle_namespaces(namespaces=namespaces)
+            sensu.handle_namespaces()
 
         for tenant in tenants:
             namespace = namespaces[tenant]

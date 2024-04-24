@@ -49,7 +49,7 @@ def main():
         sys.exit(2)
 
     try:
-        sensu = Sensu(url=url, token=token)
+        sensu = Sensu(url=url, token=token, namespaces=config.get_namespaces())
         command, timeout = sensu.get_check_run(
             entity=args.entity, check=args.check, namespace=namespace
         )
