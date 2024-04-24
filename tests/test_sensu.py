@@ -3502,7 +3502,12 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                namespaces={
+                    "Tenant1": "Tenant1",
+                    "Tenant2": "Tenant2",
+                    "Tenant3": "TeNAnT3",
+                    "TENANT4": "tenant4"
+                }
             )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
@@ -3540,7 +3545,12 @@ class SensuNamespaceTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_namespaces(
-                    tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                    namespaces={
+                        "Tenant1": "Tenant1",
+                        "Tenant2": "Tenant2",
+                        "Tenant3": "TeNAnT3",
+                        "TENANT4": "tenant4"
+                    }
                 )
         mock_put.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
@@ -3573,7 +3583,12 @@ class SensuNamespaceTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_namespaces(
-                    tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                    namespaces={
+                        "Tenant1": "Tenant1",
+                        "Tenant2": "Tenant2",
+                        "Tenant3": "TeNAnT3",
+                        "TENANT4": "tenant4"
+                    }
                 )
         mock_put.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
@@ -3608,7 +3623,12 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                namespaces={
+                    "Tenant1": "Tenant1",
+                    "Tenant2": "Tenant2",
+                    "Tenant3": "TeNAnT3",
+                    "TENANT4": "tenant4"
+                }
             )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
@@ -3661,7 +3681,12 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                namespaces={
+                    "Tenant1": "Tenant1",
+                    "Tenant2": "Tenant2",
+                    "Tenant3": "TeNAnT3",
+                    "TENANT4": "tenant4"
+                }
             )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
@@ -3711,7 +3736,12 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                namespaces = {
+                    "Tenant1": "Tenant1",
+                    "Tenant2": "Tenant2",
+                    "Tenant3": "TeNAnT3",
+                    "TENANT4": "tenant4"
+                }
             )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
@@ -3763,7 +3793,12 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
+                namespaces = {
+                    "Tenant1": "Tenant1",
+                    "Tenant2": "Tenant2",
+                    "Tenant3": "TeNAnT3",
+                    "TENANT4": "tenant4"
+                }
             )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([

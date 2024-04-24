@@ -51,6 +51,7 @@ def main():
         agents_configurations = config.get_agents_configurations()
 
         tenants = config.get_tenants()
+        namespaces = config.get_namespaces()
 
         if args.tenant:
             if args.tenant not in tenants:
@@ -63,10 +64,10 @@ def main():
         sensu = Sensu(url=sensu_url, token=sensu_token)
 
         if not args.tenant:
-            sensu.handle_namespaces(tenants=tenants)
+            sensu.handle_namespaces(namespaces=namespaces)
 
         for tenant in tenants:
-            namespace = tenant
+            namespace = namespaces[tenant]
 
             try:
                 webapi = WebApi(
