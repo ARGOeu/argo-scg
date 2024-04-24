@@ -5077,14 +5077,22 @@ class SensuCheckTests(unittest.TestCase):
 
 class SensuEventsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
 
     @patch("requests.get")
     def test_fetch_events(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._fetch_events(namespace="TENANT1")
+            checks = self.sensu._fetch_events(tenant="TENANT1")
         self.assertEqual(checks, mock_events)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -5094,10 +5102,10 @@ class SensuEventsTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._fetch_events(namespace="TENANT1")
+                self.sensu._fetch_events(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5122,10 +5130,10 @@ class SensuEventsTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._fetch_events(namespace="TENANT1")
+                self.sensu._fetch_events(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5155,27 +5163,27 @@ class SensuEventsTests(unittest.TestCase):
                     ],
                     "argo-devel.ni4os.eu": ["generic.certificate.validation"]
                 },
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo-devel.ni4os.eu/generic.certificate.validation",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5208,20 +5216,20 @@ class SensuEventsTests(unittest.TestCase):
                         "generic.http.connect"
                     ]
                 },
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5253,20 +5261,20 @@ class SensuEventsTests(unittest.TestCase):
                         "generic.http.connect"
                     ]
                 },
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5289,10 +5297,10 @@ class SensuEventsTests(unittest.TestCase):
         mock_delete.side_effect = mock_delete_response
         self.sensu.delete_event(
             entity="argo.ni4os.eu", check="generic.tcp.connect",
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5307,10 +5315,10 @@ class SensuEventsTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
                 entity="argo.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5328,10 +5336,10 @@ class SensuEventsTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
                 entity="argo.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                tenant="TENANT1"
             )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5347,8 +5355,9 @@ class SensuEventsTests(unittest.TestCase):
     def test_get_event_output(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         output = self.sensu.get_event_output(
-            entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-            namespace="TENANT1"
+            entity="gocdb.ni4os.eu",
+            check="generic.tcp.connect",
+            tenant="TENANT1"
         )
         self.assertEqual(
             output,
@@ -5361,8 +5370,9 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="gocdb.ni4os.eu",
+                check="generic.tcp.connect",
+                tenant="TENANT1"
             )
 
         self.assertEqual(
@@ -5376,8 +5386,9 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="gocdb.ni4os.eu",
+                check="generic.tcp.connect",
+                tenant="TENANT1"
             )
 
         self.assertEqual(
@@ -5390,8 +5401,9 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="mock.entity.com", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="mock.entity.com",
+                check="generic.tcp.connect",
+                tenant="TENANT1"
             )
 
         self.assertEqual(

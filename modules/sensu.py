@@ -138,21 +138,21 @@ class Sensu:
 
     def _get_events(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/events".format(
-                self.url, namespace
-            ),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/events",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             }
         )
         return response
 
-    def _get_event(self, entity, check, namespace):
+    def _get_event(self, entity, check, tenant):
+        namespace = self.namespaces[tenant]
+
         response = self._get_events(namespace=namespace)
 
         if not response.ok:
-            msg = f"{namespace}: Events fetch error: " \
+            msg = f"{tenant}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -173,19 +173,21 @@ class Sensu:
 
             except IndexError:
                 raise SensuException(
-                    f"{namespace}: No event for entity {entity} and check "
+                    f"{tenant}: No event for entity {entity} and check "
                     f"{check}"
                 )
 
-    def get_event_output(self, entity, check, namespace="default"):
-        event = self._get_event(entity=entity, check=check, namespace=namespace)
+    def get_event_output(self, entity, check, tenant="default"):
+        event = self._get_event(entity=entity, check=check, tenant=tenant)
         return event["check"]["output"]
 
-    def _fetch_events(self, namespace):
+    def _fetch_events(self, tenant):
+        namespace = self.namespaces[tenant]
+
         response = self._get_events(namespace=namespace)
 
         if not response.ok:
-            msg = f"{namespace}: Events fetch error: " \
+            msg = f"{tenant}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -254,13 +256,15 @@ class Sensu:
         )
         return response
 
-    def delete_event(self, entity, check, namespace="default"):
+    def delete_event(self, entity, check, tenant="default"):
+        namespace = self.namespaces[tenant]
+
         response = self._delete_event(
             entity=entity, check=check, namespace=namespace
         )
 
         if not response.ok:
-            msg = f"{namespace}: Event {entity}/{check} not removed: " \
+            msg = f"{tenant}: Event {entity}/{check} not removed: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -271,7 +275,9 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def _delete_events(self, events, namespace):
+    def _delete_events(self, events, tenant):
+        namespace = self.namespaces[tenant]
+
         for entity, checks in events.items():
             for check in checks:
                 response = self._delete_event(
@@ -279,7 +285,7 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Event " \
+                    msg = f"{tenant}: Event " \
                           f"{entity}/{check} not removed: " \
                           f"{response.status_code} {response.reason}"
 
@@ -293,7 +299,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Event {entity}/{check} removed"
+                        f"{tenant}: Event {entity}/{check} removed"
                     )
 
     @staticmethod
