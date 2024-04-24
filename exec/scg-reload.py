@@ -140,7 +140,7 @@ def main():
                         entities=generator.generate_entities(
                             namespace=namespace
                         ),
-                        namespace=namespace
+                        tenant=tenant
                     )
 
                 sensu.handle_agents(

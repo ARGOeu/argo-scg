@@ -399,12 +399,12 @@ class Sensu:
         else:
             return response.json()
 
-    def _get_proxy_entities(self, namespace):
+    def _get_proxy_entities(self, tenant):
         try:
-            data = self._get_entities(namespace=namespace)
+            data = self._get_entities(namespace=self.namespaces[tenant])
 
         except SensuException as e:
-            msg = f"{namespace}: Error fetching proxy entities: " \
+            msg = f"{tenant}: Error fetching proxy entities: " \
                   f"{str(e).strip('Sensu error: ')}"
             self.logger.error(msg)
             raise SensuException(msg)
@@ -456,17 +456,16 @@ class Sensu:
         else:
             return False
 
-    def _delete_entities(self, entities, namespace):
+    def _delete_entities(self, entities, tenant):
         for entity in entities:
             response = requests.delete(
-                "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                    self.url, namespace, entity
-                ),
+                f"{self.url}/api/core/v2/namespaces/"
+                f"{self.namespaces[tenant]}/entities/{entity}",
                 headers={"Authorization": f"Key {self.token}"}
             )
 
             if not response.ok:
-                msg = f"{namespace}: Entity {entity} not removed: " \
+                msg = f"{tenant}: Entity {entity} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -478,7 +477,7 @@ class Sensu:
                 self.logger.warning(msg)
 
             else:
-                self.logger.info(f"{namespace}: Entity {entity} removed")
+                self.logger.info(f"{tenant}: Entity {entity} removed")
 
     @staticmethod
     def _compare_entities(entity1, entity2):
@@ -609,8 +608,8 @@ class Sensu:
             except SensuException:
                 pass
 
-    def handle_proxy_entities(self, entities, namespace="default"):
-        existing_entities = self._get_proxy_entities(namespace=namespace)
+    def handle_proxy_entities(self, entities, tenant="default"):
+        existing_entities = self._get_proxy_entities(tenant=tenant)
         for entity in entities:
             existing_entity = [
                 ent for ent in existing_entities if
@@ -626,18 +625,18 @@ class Sensu:
             if len(existing_entity) == 0 or \
                     not self._compare_entities(entity, existing_entity[0]):
                 response = requests.put(
-                    "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                        self.url, namespace, entity["metadata"]["name"]
-                    ),
+                    f"{self.url}/api/core/v2/namespaces/"
+                    f"{self.namespaces[tenant]}/entities/"
+                    f"{entity['metadata']['name']}",
                     data=json.dumps(entity),
                     headers={
-                        "Authorization": "Key {}".format(self.token),
+                        "Authorization": f"Key {self.token}",
                         "Content-Type": "application/json"
                     }
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Proxy entity " \
+                    msg = f"{tenant}: Proxy entity " \
                           f"{entity['metadata']['name']} not {word}: " \
                           f"{response.status_code} {response.reason}"
 
@@ -651,8 +650,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Entity {entity['metadata']['name']} "
-                        f"{word}"
+                        f"{tenant}: Entity {entity['metadata']['name']} {word}"
                     )
 
         entities_tobedeleted = list(set(
@@ -663,7 +661,7 @@ class Sensu:
 
         if len(entities_tobedeleted):
             self._delete_entities(
-                entities=entities_tobedeleted, namespace=namespace
+                entities=entities_tobedeleted, tenant=tenant
             )
 
     def handle_agents(

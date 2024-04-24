@@ -5423,7 +5423,15 @@ class SensuEventsTests(unittest.TestCase):
 
 class SensuEntityTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.entities = [
             {
                 "entity_class": "proxy",
@@ -5479,9 +5487,9 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            entities = self.sensu._get_proxy_entities(namespace="TENANT1")
+            entities = self.sensu._get_proxy_entities(tenant="TENANT1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5499,10 +5507,10 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_proxy_entities(namespace="TENANT1")
+                self.sensu._get_proxy_entities(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5527,10 +5535,10 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_proxy_entities(namespace="TENANT1")
+                self.sensu._get_proxy_entities(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5556,26 +5564,26 @@ class SensuEntityTests(unittest.TestCase):
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, tenant="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5600,26 +5608,26 @@ class SensuEntityTests(unittest.TestCase):
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, tenant="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5645,26 +5653,26 @@ class SensuEntityTests(unittest.TestCase):
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, tenant="TENANT1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5693,14 +5701,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, tenant="TENANT1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(tenant="TENANT1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5709,7 +5717,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5721,7 +5729,7 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
 
         self.assertEqual(
@@ -5746,14 +5754,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, tenant="TENANT1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(tenant="TENANT1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5762,7 +5770,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5774,7 +5782,7 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
 
         self.assertEqual(
@@ -5800,14 +5808,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, tenant="TENANT1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(tenant="TENANT1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5816,7 +5824,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5828,7 +5836,7 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            tenant="TENANT1"
         )
 
         self.assertEqual(
