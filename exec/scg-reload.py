@@ -61,10 +61,10 @@ def main():
             else:
                 tenants = [args.tenant]
 
-        sensu = Sensu(url=sensu_url, token=sensu_token)
+        sensu = Sensu(url=sensu_url, token=sensu_token, namespaces=namespaces)
 
         if not args.tenant:
-            sensu.handle_namespaces(namespaces=namespaces)
+            sensu.handle_namespaces()
 
         for tenant in tenants:
             namespace = namespaces[tenant]
@@ -130,7 +130,7 @@ def main():
                     checks=generator.generate_checks(
                         publish=publish_bool[namespace], namespace=namespace
                     ),
-                    namespace=namespace
+                    tenant=tenant
                 )
                 sensu.add_cpu_check(namespace=namespace)
                 sensu.add_memory_check(namespace=namespace)
@@ -140,7 +140,7 @@ def main():
                         entities=generator.generate_entities(
                             namespace=namespace
                         ),
-                        namespace=namespace
+                        tenant=tenant
                     )
 
                 sensu.handle_agents(
@@ -152,7 +152,7 @@ def main():
                     subscriptions=generator.generate_subscriptions(
                         custom_subs=custom_subs
                     ),
-                    namespace=namespace
+                    tenant=tenant
                 )
                 logger.info(f"{namespace}: All synced!")
 

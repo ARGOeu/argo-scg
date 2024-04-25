@@ -4184,6 +4184,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4218,6 +4221,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4280,6 +4286,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4313,6 +4322,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4369,6 +4381,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4421,6 +4436,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "default"
                         }
                     },
                     "round_robin": False,
@@ -4448,6 +4466,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "default"
                         }
                     },
                     "round_robin": False,
@@ -4509,6 +4530,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4543,6 +4567,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4604,6 +4631,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4644,6 +4674,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4677,6 +4710,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4706,6 +4742,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4767,6 +4806,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4807,6 +4849,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4836,6 +4881,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4899,6 +4947,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4966,6 +5017,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5002,6 +5056,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5037,6 +5094,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5099,6 +5159,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5138,6 +5201,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5199,6 +5265,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5266,6 +5335,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5311,6 +5383,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5370,6 +5445,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5411,6 +5489,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5469,6 +5550,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5504,6 +5588,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5543,6 +5630,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5579,6 +5669,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5640,6 +5733,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5703,6 +5799,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5777,6 +5876,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5845,6 +5947,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5904,6 +6009,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5965,6 +6073,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6024,6 +6135,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6085,6 +6199,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6141,6 +6258,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6172,6 +6292,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6259,6 +6382,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6294,6 +6420,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6330,6 +6459,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6416,6 +6548,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6451,6 +6586,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6484,6 +6622,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6573,6 +6714,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6609,6 +6753,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6642,6 +6789,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6721,6 +6871,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6768,6 +6921,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "1"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6808,6 +6964,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6879,6 +7038,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -6967,6 +7129,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7025,6 +7190,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7094,6 +7262,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7177,6 +7348,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7235,6 +7409,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7308,6 +7485,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7382,6 +7562,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7440,6 +7623,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7474,6 +7660,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7553,6 +7742,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7587,6 +7779,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7660,6 +7855,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7694,6 +7892,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7769,6 +7970,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7803,6 +8007,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7874,6 +8081,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7908,6 +8118,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7967,6 +8180,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8025,6 +8241,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8093,6 +8312,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8163,6 +8385,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8249,6 +8474,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8277,6 +8505,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8336,6 +8567,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8373,6 +8607,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8448,6 +8685,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8485,6 +8725,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8549,6 +8792,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8592,6 +8838,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8654,6 +8903,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8716,6 +8968,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8743,6 +8998,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8770,6 +9028,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8828,6 +9089,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8865,6 +9129,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8931,6 +9198,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8996,6 +9266,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9059,6 +9332,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9120,6 +9396,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9161,6 +9440,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9238,6 +9520,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9279,6 +9564,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9341,6 +9629,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9388,6 +9679,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9443,6 +9737,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9473,6 +9770,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9532,6 +9832,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9565,6 +9868,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9622,6 +9928,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9698,6 +10007,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9740,6 +10052,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9803,6 +10118,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9880,6 +10198,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9919,6 +10240,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9978,6 +10302,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10013,6 +10340,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10052,6 +10382,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False

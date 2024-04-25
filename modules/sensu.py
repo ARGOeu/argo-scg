@@ -10,10 +10,11 @@ from argo_scg.generator import create_attribute_env, create_label, \
 
 
 class Sensu:
-    def __init__(self, url, token):
+    def __init__(self, url, token, namespaces):
         self.url = url
         self.token = token
         self.non_poem_checks = ["sensu.cpu.usage", "sensu.memory.usage"]
+        self.namespaces = namespaces
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
@@ -46,10 +47,10 @@ class Sensu:
                 namespace["name"] not in exceptions
             ]
 
-    def handle_namespaces(self, namespaces):
+    def handle_namespaces(self):
         existing_namespaces = self._get_namespaces()
 
-        for tenant, namespace in namespaces.items():
+        for tenant, namespace in self.namespaces.items():
             if namespace not in existing_namespaces:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}",
@@ -78,7 +79,7 @@ class Sensu:
                     self.logger.info(f"Namespace {namespace} created")
 
         for namespace in set(existing_namespaces).difference(
-                set(namespaces.values())
+                set(self.namespaces.values())
         ):
             try:
                 subprocess.check_output(
@@ -137,21 +138,21 @@ class Sensu:
 
     def _get_events(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/events".format(
-                self.url, namespace
-            ),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/events",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             }
         )
         return response
 
-    def _get_event(self, entity, check, namespace):
+    def _get_event(self, entity, check, tenant):
+        namespace = self.namespaces[tenant]
+
         response = self._get_events(namespace=namespace)
 
         if not response.ok:
-            msg = f"{namespace}: Events fetch error: " \
+            msg = f"{tenant}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -172,19 +173,21 @@ class Sensu:
 
             except IndexError:
                 raise SensuException(
-                    f"{namespace}: No event for entity {entity} and check "
+                    f"{tenant}: No event for entity {entity} and check "
                     f"{check}"
                 )
 
-    def get_event_output(self, entity, check, namespace="default"):
-        event = self._get_event(entity=entity, check=check, namespace=namespace)
+    def get_event_output(self, entity, check, tenant="default"):
+        event = self._get_event(entity=entity, check=check, tenant=tenant)
         return event["check"]["output"]
 
-    def _fetch_events(self, namespace):
+    def _fetch_events(self, tenant):
+        namespace = self.namespaces[tenant]
+
         response = self._get_events(namespace=namespace)
 
         if not response.ok:
-            msg = f"{namespace}: Events fetch error: " \
+            msg = f"{tenant}: Events fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -201,18 +204,18 @@ class Sensu:
 
     def _delete_check(self, check, namespace):
         response = requests.delete(
-            "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                self.url, namespace, check
-            ),
-            headers={"Authorization": "Key {}".format(self.token)}
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks/{check}",
+            headers={"Authorization": f"Key {self.token}"}
         )
         return response
 
-    def delete_check(self, check, namespace="default"):
-        response = self._delete_check(check=check, namespace=namespace)
+    def delete_check(self, check, tenant="default"):
+        response = self._delete_check(
+            check=check, namespace=self.namespaces[tenant]
+        )
 
         if not response.ok:
-            msg = f"{namespace}: Check {check} not removed: " \
+            msg = f"{tenant}: Check {check} not removed: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -223,12 +226,14 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def _delete_checks(self, checks, namespace):
+    def _delete_checks(self, checks, tenant):
         for check in checks:
-            response = self._delete_check(check=check, namespace=namespace)
+            response = self._delete_check(
+                check=check, namespace=self.namespaces[tenant]
+            )
 
             if not response.ok:
-                msg = f"{namespace}: Check {check} not removed: " \
+                msg = f"{tenant}: Check {check} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -241,7 +246,7 @@ class Sensu:
                 continue
 
             else:
-                self.logger.info(f"{namespace}: Check {check} removed")
+                self.logger.info(f"{tenant}: Check {check} removed")
 
     def _delete_event(self, entity, check, namespace):
         response = requests.delete(
@@ -253,13 +258,15 @@ class Sensu:
         )
         return response
 
-    def delete_event(self, entity, check, namespace="default"):
+    def delete_event(self, entity, check, tenant="default"):
+        namespace = self.namespaces[tenant]
+
         response = self._delete_event(
             entity=entity, check=check, namespace=namespace
         )
 
         if not response.ok:
-            msg = f"{namespace}: Event {entity}/{check} not removed: " \
+            msg = f"{tenant}: Event {entity}/{check} not removed: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -270,7 +277,9 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def _delete_events(self, events, namespace):
+    def _delete_events(self, events, tenant):
+        namespace = self.namespaces[tenant]
+
         for entity, checks in events.items():
             for check in checks:
                 response = self._delete_event(
@@ -278,7 +287,7 @@ class Sensu:
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Event " \
+                    msg = f"{tenant}: Event " \
                           f"{entity}/{check} not removed: " \
                           f"{response.status_code} {response.reason}"
 
@@ -292,7 +301,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Event {entity}/{check} removed"
+                        f"{tenant}: Event {entity}/{check} removed"
                     )
 
     @staticmethod
@@ -390,12 +399,12 @@ class Sensu:
         else:
             return response.json()
 
-    def _get_proxy_entities(self, namespace):
+    def _get_proxy_entities(self, tenant):
         try:
-            data = self._get_entities(namespace=namespace)
+            data = self._get_entities(namespace=self.namespaces[tenant])
 
         except SensuException as e:
-            msg = f"{namespace}: Error fetching proxy entities: " \
+            msg = f"{tenant}: Error fetching proxy entities: " \
                   f"{str(e).strip('Sensu error: ')}"
             self.logger.error(msg)
             raise SensuException(msg)
@@ -404,12 +413,12 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "proxy"
         ]
 
-    def _get_agents(self, namespace):
+    def _get_agents(self, tenant):
         try:
-            data = self._get_entities(namespace=namespace)
+            data = self._get_entities(namespace=self.namespaces[tenant])
 
         except SensuException as e:
-            msg = f"{namespace}: Error fetching agents: " \
+            msg = f"{tenant}: Error fetching agents: " \
                   f"{str(e).strip('Sensu error: ')}"
             self.logger.error(msg)
             raise SensuException(msg)
@@ -431,15 +440,15 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
-    def is_entity_agent(self, entity, namespace="default"):
+    def is_entity_agent(self, entity, tenant="default"):
         try:
             entity_configuration = [
-                e for e in self._get_entities(namespace=namespace)
+                e for e in self._get_entities(namespace=self.namespaces[tenant])
                 if e["metadata"]["name"] == entity
             ][0]
 
         except IndexError:
-            raise SensuException(f"No entity {entity} in namespace {namespace}")
+            raise SensuException(f"No entity {entity} for tenant {tenant}")
 
         if entity_configuration["entity_class"] == "agent":
             return True
@@ -447,17 +456,16 @@ class Sensu:
         else:
             return False
 
-    def _delete_entities(self, entities, namespace):
+    def _delete_entities(self, entities, tenant):
         for entity in entities:
             response = requests.delete(
-                "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                    self.url, namespace, entity
-                ),
+                f"{self.url}/api/core/v2/namespaces/"
+                f"{self.namespaces[tenant]}/entities/{entity}",
                 headers={"Authorization": f"Key {self.token}"}
             )
 
             if not response.ok:
-                msg = f"{namespace}: Entity {entity} not removed: " \
+                msg = f"{tenant}: Entity {entity} not removed: " \
                       f"{response.status_code} {response.reason}"
 
                 try:
@@ -469,7 +477,7 @@ class Sensu:
                 self.logger.warning(msg)
 
             else:
-                self.logger.info(f"{namespace}: Entity {entity} removed")
+                self.logger.info(f"{tenant}: Entity {entity} removed")
 
     @staticmethod
     def _compare_entities(entity1, entity2):
@@ -497,7 +505,7 @@ class Sensu:
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
             f"{check['metadata']['name']}",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             },
             data=json.dumps(check)
@@ -505,11 +513,13 @@ class Sensu:
 
         return response
 
-    def put_check(self, check, namespace="default"):
-        response = self._put_check(check=check, namespace=namespace)
+    def put_check(self, check, tenant="default"):
+        response = self._put_check(
+            check=check, namespace=self.namespaces[tenant]
+        )
 
         if not response.ok:
-            msg = f"{namespace}: " \
+            msg = f"{tenant}: " \
                   f"Check {check['metadata']['name']} not created: " \
                   f"{response.status_code} {response.reason}"
             try:
@@ -520,7 +530,9 @@ class Sensu:
 
             raise SensuException(msg)
 
-    def handle_checks(self, checks, namespace="default"):
+    def handle_checks(self, checks, tenant="default"):
+        namespace = self.namespaces[tenant]
+
         existing_checks = self._get_checks(namespace=namespace)
 
         for check in checks:
@@ -540,7 +552,7 @@ class Sensu:
                 response = self._put_check(check=check, namespace=namespace)
 
                 if not response.ok:
-                    msg = f"{namespace}: " \
+                    msg = f"{tenant}: " \
                           f"Check {check['metadata']['name']} not {word}: " \
                           f"{response.status_code} {response.reason}"
                     try:
@@ -553,7 +565,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Check {check['metadata']['name']} {word}"
+                        f"{tenant}: Check {check['metadata']['name']} {word}"
                     )
 
         updated_existing_checks = self._get_checks(namespace=namespace)
@@ -569,7 +581,7 @@ class Sensu:
         ]
 
         if len(checks_tobedeleted) > 0:
-            self._delete_checks(checks=checks_tobedeleted, namespace=namespace)
+            self._delete_checks(checks=checks_tobedeleted, tenant=tenant)
 
             after_delete_checks = [
                 check["metadata"]["name"] for check in self._get_checks(
@@ -577,7 +589,7 @@ class Sensu:
                 )
             ]
             try:
-                existing_events = self._fetch_events(namespace=namespace)
+                existing_events = self._fetch_events(tenant=tenant)
                 events_tobedeleted = dict()
                 for event in existing_events:
                     check = event["check"]["metadata"]["name"]
@@ -591,15 +603,13 @@ class Sensu:
                             entity_checks.append(check)
                             events_tobedeleted.update({entity: entity_checks})
 
-                self._delete_events(
-                    events=events_tobedeleted, namespace=namespace
-                )
+                self._delete_events(events=events_tobedeleted, tenant=tenant)
 
             except SensuException:
                 pass
 
-    def handle_proxy_entities(self, entities, namespace="default"):
-        existing_entities = self._get_proxy_entities(namespace=namespace)
+    def handle_proxy_entities(self, entities, tenant="default"):
+        existing_entities = self._get_proxy_entities(tenant=tenant)
         for entity in entities:
             existing_entity = [
                 ent for ent in existing_entities if
@@ -615,18 +625,18 @@ class Sensu:
             if len(existing_entity) == 0 or \
                     not self._compare_entities(entity, existing_entity[0]):
                 response = requests.put(
-                    "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                        self.url, namespace, entity["metadata"]["name"]
-                    ),
+                    f"{self.url}/api/core/v2/namespaces/"
+                    f"{self.namespaces[tenant]}/entities/"
+                    f"{entity['metadata']['name']}",
                     data=json.dumps(entity),
                     headers={
-                        "Authorization": "Key {}".format(self.token),
+                        "Authorization": f"Key {self.token}",
                         "Content-Type": "application/json"
                     }
                 )
 
                 if not response.ok:
-                    msg = f"{namespace}: Proxy entity " \
+                    msg = f"{tenant}: Proxy entity " \
                           f"{entity['metadata']['name']} not {word}: " \
                           f"{response.status_code} {response.reason}"
 
@@ -640,8 +650,7 @@ class Sensu:
 
                 else:
                     self.logger.info(
-                        f"{namespace}: Entity {entity['metadata']['name']} "
-                        f"{word}"
+                        f"{tenant}: Entity {entity['metadata']['name']} {word}"
                     )
 
         entities_tobedeleted = list(set(
@@ -652,7 +661,7 @@ class Sensu:
 
         if len(entities_tobedeleted):
             self._delete_entities(
-                entities=entities_tobedeleted, namespace=namespace
+                entities=entities_tobedeleted, tenant=tenant
             )
 
     def handle_agents(
@@ -661,7 +670,7 @@ class Sensu:
             metric_parameters_overrides=None,
             host_attributes_overrides=None,
             services="internals",
-            namespace="default"
+            tenant="default"
     ):
         if metric_parameters_overrides is None:
             metric_parameters_overrides = []
@@ -692,7 +701,7 @@ class Sensu:
             return host_labels
 
         try:
-            agents = self._get_agents(namespace=namespace)
+            agents = self._get_agents(tenant =tenant)
 
             for agent in agents:
                 send_data = dict()
@@ -725,7 +734,8 @@ class Sensu:
 
                 if send_data:
                     response = requests.patch(
-                        f"{self.url}/api/core/v2/namespaces/{namespace}/"
+                        f"{self.url}/api/core/v2/namespaces/"
+                        f"{self.namespaces[tenant]}/"
                         f"entities/{agent['metadata']['name']}",
                         data=json.dumps(send_data),
                         headers={
@@ -735,7 +745,7 @@ class Sensu:
                     )
 
                     if not response.ok:
-                        msg = f"{namespace}: {agent['metadata']['name']} " \
+                        msg = f"{tenant}: {agent['metadata']['name']} " \
                               f"not updated: " \
                               f"{response.status_code} {response.reason}"
                         try:
@@ -749,18 +759,18 @@ class Sensu:
                     else:
                         if "subscriptions" in send_data:
                             self.logger.info(
-                                f"{namespace}: {agent['metadata']['name']} "
+                                f"{tenant}: {agent['metadata']['name']} "
                                 f"subscriptions updated"
                             )
 
                         if "metadata" in send_data:
                             self.logger.info(
-                                f"{namespace}: {agent['metadata']['name']} "
+                                f"{tenant}: {agent['metadata']['name']} "
                                 f"labels updated"
                             )
 
         except SensuException:
-            self.logger.warning(f"{namespace}: Agents not handled...")
+            self.logger.warning(f"{tenant}: Agents not handled...")
 
     def _get_handlers(self, namespace):
         response = requests.get(
@@ -1251,27 +1261,28 @@ class Sensu:
     def add_memory_check(self, namespace="default"):
         self._add_asset_check(name="sensu.memory.usage", namespace=namespace)
 
-    def _get_check(self, check, namespace):
+    def _get_check(self, check, tenant):
         try:
             return [
-                c for c in self._get_checks(namespace=namespace) if
-                c["metadata"]["name"] == check
+                c for c in self._get_checks(namespace=self.namespaces[tenant])
+                if c["metadata"]["name"] == check
             ][0]
 
         except IndexError:
-            raise SensuException(f"No check {check} in namespace {namespace}")
+            raise SensuException(f"No check {check} for tenant {tenant}")
 
-    def get_check_run(self, entity, check, namespace="default"):
-        check_configuration = self._get_check(check=check, namespace=namespace)
+    def get_check_run(self, entity, check, tenant="default"):
+        check_configuration = self._get_check(check=check, tenant=tenant)
 
         try:
             entity_configuration = [
-                e for e in self._get_entities(namespace=namespace) if
-                e["metadata"]["name"] == entity
+                e for e in self._get_entities(
+                    namespace=self.namespaces[tenant]
+                ) if e["metadata"]["name"] == entity
             ][0]
 
         except IndexError:
-            raise SensuException(f"No entity {entity} in namespace {namespace}")
+            raise SensuException(f"No entity {entity} for tenant {tenant}")
 
         is_check_run = \
             entity_configuration["entity_class"] == "agent" and \
@@ -1282,8 +1293,8 @@ class Sensu:
 
         if not is_check_run:
             raise SensuException(
-                f"No event with entity {entity} and check {check} in "
-                f"namespace {namespace}"
+                f"No event with entity {entity} and check {check} for "
+                f"tenant {tenant}"
             )
 
         list_command = []
@@ -1333,14 +1344,14 @@ class Sensu:
 
         return output_command, timeout
 
-    def get_check_subscriptions(self, check, namespace="default"):
-        return self._get_check(check=check, namespace=namespace)[
+    def get_check_subscriptions(self, check, tenant="default"):
+        return self._get_check(check=check, tenant=tenant)[
             "subscriptions"
         ]
 
-    def create_silencing_entry(self, check, entity, namespace="default"):
+    def create_silencing_entry(self, check, entity, tenant="default"):
         try:
-            self._get_event(entity=entity, check=check, namespace=namespace)
+            self._get_event(entity=entity, check=check, tenant=tenant)
 
         except SensuException as err:
             raise SensuException(
@@ -1349,6 +1360,7 @@ class Sensu:
             )
 
         else:
+            namespace = self.namespaces[tenant]
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
                 data=json.dumps({
@@ -1367,7 +1379,7 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Silencing entry {entity}/{check} create " \
+                msg = f"{tenant}: Silencing entry {entity}/{check} create " \
                       f"error: {response.status_code} {response.reason}"
 
                 try:
