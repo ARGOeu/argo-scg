@@ -111,10 +111,9 @@ class Sensu:
                     f"Error cleaning namespace {namespace}: {err.output}"
                 )
 
-    def _get_checks(self, tenant):
+    def _get_checks(self, namespace):
         response = requests.get(
-            f"{self.url}/api/core/v2/namespaces/"
-            f"{self.namespaces[tenant]}/checks",
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
             headers={
                 "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
@@ -122,7 +121,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{tenant}: Checks fetch error: " \
+            msg = f"{namespace}: Checks fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -534,7 +533,7 @@ class Sensu:
     def handle_checks(self, checks, tenant="default"):
         namespace = self.namespaces[tenant]
 
-        existing_checks = self._get_checks(tenant=tenant)
+        existing_checks = self._get_checks(namespace=namespace)
 
         for check in checks:
             existing_check = [
@@ -569,7 +568,7 @@ class Sensu:
                         f"{tenant}: Check {check['metadata']['name']} {word}"
                     )
 
-        updated_existing_checks = self._get_checks(tenant=tenant)
+        updated_existing_checks = self._get_checks(namespace=namespace)
         checks_tobedeleted = sorted(list(set(
             [check["metadata"]["name"] for check in updated_existing_checks]
         ).difference(set(
@@ -586,7 +585,7 @@ class Sensu:
 
             after_delete_checks = [
                 check["metadata"]["name"] for check in self._get_checks(
-                    tenant=tenant
+                    namespace=namespace
                 )
             ]
             try:
@@ -1265,8 +1264,8 @@ class Sensu:
     def _get_check(self, check, tenant):
         try:
             return [
-                c for c in self._get_checks(tenant=tenant) if
-                c["metadata"]["name"] == check
+                c for c in self._get_checks(namespace=self.namespaces[tenant])
+                if c["metadata"]["name"] == check
             ][0]
 
         except IndexError:

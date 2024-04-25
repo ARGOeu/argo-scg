@@ -3912,7 +3912,7 @@ class SensuCheckTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._get_checks(tenant="TENANT1")
+            checks = self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
@@ -3931,7 +3931,7 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(tenant="TENANT1")
+                self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
@@ -3943,12 +3943,12 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Checks fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Checks fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3959,7 +3959,7 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(tenant="TENANT1")
+                self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
@@ -3971,11 +3971,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Checks fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Checks fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -4190,7 +4190,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4372,7 +4372,7 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
@@ -4505,7 +4505,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
@@ -4616,7 +4616,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks([no_proxy_checks[0]], tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.ar-argoui-ni4os"],
@@ -4677,7 +4677,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4736,7 +4736,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4823,7 +4823,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4857,7 +4857,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4927,7 +4927,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(tenant="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
