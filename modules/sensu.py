@@ -1350,9 +1350,9 @@ class Sensu:
             "subscriptions"
         ]
 
-    def create_silencing_entry(self, check, entity, namespace="default"):
+    def create_silencing_entry(self, check, entity, tenant="default"):
         try:
-            self._get_event(entity=entity, check=check, namespace=namespace)
+            self._get_event(entity=entity, check=check, tenant=tenant)
 
         except SensuException as err:
             raise SensuException(
@@ -1361,6 +1361,7 @@ class Sensu:
             )
 
         else:
+            namespace = self.namespaces[tenant]
             response = requests.post(
                 f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
                 data=json.dumps({
@@ -1379,7 +1380,7 @@ class Sensu:
             )
 
             if not response.ok:
-                msg = f"{namespace}: Silencing entry {entity}/{check} create " \
+                msg = f"{tenant}: Silencing entry {entity}/{check} create " \
                       f"error: {response.status_code} {response.reason}"
 
                 try:

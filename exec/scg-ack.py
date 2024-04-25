@@ -43,7 +43,7 @@ def main():
         sensu.create_silencing_entry(
             check=args.check,
             entity=args.entity,
-            namespace=namespaces[args.tenant]
+            tenant=args.tenant
         )
 
         print(f"Created silencing entry for {args.entity}/{args.check}")

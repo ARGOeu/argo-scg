@@ -9383,7 +9383,15 @@ class SensuCheckCallTests(unittest.TestCase):
 
 class SensuSilencingEntryTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://mock.url.com",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
 
     @patch("argo_scg.sensu.Sensu._get_events")
     @patch("requests.post")
@@ -9393,15 +9401,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
             mock_events, status_code=200
         )
         self.sensu.create_silencing_entry(
-            check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-            namespace="TENANT1"
+            check="generic.tcp.connect",
+            entity="gocdb.ni4os.eu",
+            tenant="TENANT1"
         )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9426,15 +9435,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.tcp.connect",
+                entity="gocdb.ni4os.eu",
+                tenant="TENANT1"
             )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9463,15 +9473,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.tcp.connect",
+                entity="gocdb.ni4os.eu",
+                tenant="TENANT1"
             )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9499,8 +9510,9 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.http.connect", entity="argo.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.http.connect",
+                entity="argo.ni4os.eu",
+                tenant="TENANT1"
             )
         self.assertEqual(mock_post.call_count, 0)
 
