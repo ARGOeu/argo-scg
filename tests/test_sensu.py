@@ -3912,10 +3912,10 @@ class SensuCheckTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._get_checks(namespace="TENANT1")
+            checks = self.sensu._get_checks(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3931,10 +3931,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(namespace="TENANT1")
+                self.sensu._get_checks(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3959,10 +3959,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(namespace="TENANT1")
+                self.sensu._get_checks(tenant="TENANT1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -4190,7 +4190,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4372,7 +4372,7 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
@@ -4505,7 +4505,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=[
@@ -4616,7 +4616,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks([no_proxy_checks[0]], tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.ar-argoui-ni4os"],
@@ -4677,7 +4677,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4736,7 +4736,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4823,7 +4823,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4857,7 +4857,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -4927,7 +4927,7 @@ class SensuCheckTests(unittest.TestCase):
             self.sensu.handle_checks(checks=self.checks, tenant="TENANT1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_checks.assert_called_with(tenant="TENANT1")
         mock_get_events.assert_called_once_with(tenant="TENANT1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
@@ -6456,7 +6456,15 @@ class SensuAgentsTests(unittest.TestCase):
 
 class SensuHandlersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.publisher_handler = {
             "metadata": {
                 "name": "publisher-handler",
@@ -6938,7 +6946,15 @@ class SensuHandlersTests(unittest.TestCase):
 
 class SensuFiltersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.daily = {
             "metadata": {
                 "name": "daily",
@@ -7308,7 +7324,15 @@ class SensuFiltersTests(unittest.TestCase):
 
 class SensuPipelinesTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.reduce_alerts = {
             "metadata": {
                 "name": "reduce_alerts",
@@ -7676,7 +7700,15 @@ class SensuPipelinesTests(unittest.TestCase):
 
 class SensuUsageChecksTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.cpu_check = {
             "command": "check-cpu-usage -w 85 -c 90",
             "interval": 300,
@@ -8901,7 +8933,15 @@ class MetricOutputTests(unittest.TestCase):
 
 class SensuCheckCallTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://mock.url.com",
+            token="t0k3n",
+            namespaces={
+                "default": "default",
+                "TENANT1": "tenant1",
+                "TENANT2": "tenant2"
+            }
+        )
         self.checks = [
             {
                 "command": "/usr/lib64/nagios/plugins/check_http "
@@ -9224,7 +9264,7 @@ class SensuCheckCallTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: No check generic.certificate.validity in namespace "
+            "Sensu error: No check generic.certificate.validity for tenant "
             "default"
         )
 
@@ -9242,7 +9282,7 @@ class SensuCheckCallTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: No entity argo.egi.eu in namespace default"
+            "Sensu error: No entity argo.egi.eu for tenant default"
         )
 
     @patch("argo_scg.sensu.Sensu._get_entities")
@@ -9276,7 +9316,7 @@ class SensuCheckCallTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: No event with entity sensu-agent1 and check "
-            "generic.http.connect in namespace default"
+            "generic.http.connect for tenant default"
         )
 
     @patch("argo_scg.sensu.Sensu._get_entities")
@@ -9294,7 +9334,7 @@ class SensuCheckCallTests(unittest.TestCase):
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: No event with entity argo2.ni4os.eu and check "
-            "generic.tcp.connect in namespace default"
+            "generic.tcp.connect for tenant default"
         )
 
     @patch("argo_scg.sensu.Sensu._get_checks")
@@ -9318,12 +9358,12 @@ class SensuCheckCallTests(unittest.TestCase):
         return_entities.return_value = self.entities
         self.assertTrue(
             self.sensu.is_entity_agent(
-                entity="sensu-agent1", namespace="default"
+                entity="sensu-agent1", tenant="default"
             )
         )
         self.assertFalse(
             self.sensu.is_entity_agent(
-                entity="argo2.ni4os.eu", namespace="default"
+                entity="argo2.ni4os.eu", tenant="default"
             )
         )
 
@@ -9332,12 +9372,12 @@ class SensuCheckCallTests(unittest.TestCase):
         return_entities.return_value = self.entities
         with self.assertRaises(SensuException) as context:
             self.sensu.is_entity_agent(
-                entity="nonexisting-entity", namespace="default"
+                entity="nonexisting-entity", tenant="default"
             )
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: No entity nonexisting-entity in namespace default"
+            "Sensu error: No entity nonexisting-entity for tenant default"
         )
 
 

@@ -51,7 +51,7 @@ def main():
     try:
         sensu = Sensu(url=url, token=token, namespaces=config.get_namespaces())
         command, timeout = sensu.get_check_run(
-            entity=args.entity, check=args.check, namespace=namespace
+            entity=args.entity, check=args.check, tenant=args.tenant
         )
 
     except SensuException as err:
@@ -63,13 +63,13 @@ def main():
             try:
                 agent = sensu.get_agents(namespace=namespace)[0]
                 if sensu.is_entity_agent(
-                        entity=args.entity, namespace=namespace
+                        entity=args.entity, tenant=args.tenant
                 ):
                     check_name = args.check
 
                 else:
                     subscriptions = sensu.get_check_subscriptions(
-                        check=args.check, namespace=namespace
+                        check=args.check, tenant=args.tenant
                     )
                     check = generate_adhoc_check(
                         command=command,
@@ -122,7 +122,7 @@ def main():
                 print(f"{args.tenant}: Error executing ad-hoc check")
 
             if not sensu.is_entity_agent(
-                    entity=args.entity, namespace=namespace
+                    entity=args.entity, tenant=args.tenant
             ):
                 try:
                     if event_executed:

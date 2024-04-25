@@ -111,9 +111,10 @@ class Sensu:
                     f"Error cleaning namespace {namespace}: {err.output}"
                 )
 
-    def _get_checks(self, namespace):
+    def _get_checks(self, tenant):
         response = requests.get(
-            f"{self.url}/api/core/v2/namespaces/{namespace}/checks",
+            f"{self.url}/api/core/v2/namespaces/"
+            f"{self.namespaces[tenant]}/checks",
             headers={
                 "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
@@ -121,7 +122,7 @@ class Sensu:
         )
 
         if not response.ok:
-            msg = f"{namespace}: Checks fetch error: " \
+            msg = f"{tenant}: Checks fetch error: " \
                   f"{response.status_code} {response.reason}"
 
             try:
@@ -440,15 +441,15 @@ class Sensu:
             entity for entity in data if entity["entity_class"] == "agent"
         ]
 
-    def is_entity_agent(self, entity, namespace="default"):
+    def is_entity_agent(self, entity, tenant="default"):
         try:
             entity_configuration = [
-                e for e in self._get_entities(namespace=namespace)
+                e for e in self._get_entities(namespace=self.namespaces[tenant])
                 if e["metadata"]["name"] == entity
             ][0]
 
         except IndexError:
-            raise SensuException(f"No entity {entity} in namespace {namespace}")
+            raise SensuException(f"No entity {entity} for tenant {tenant}")
 
         if entity_configuration["entity_class"] == "agent":
             return True
@@ -533,7 +534,7 @@ class Sensu:
     def handle_checks(self, checks, tenant="default"):
         namespace = self.namespaces[tenant]
 
-        existing_checks = self._get_checks(namespace=namespace)
+        existing_checks = self._get_checks(tenant=tenant)
 
         for check in checks:
             existing_check = [
@@ -568,7 +569,7 @@ class Sensu:
                         f"{tenant}: Check {check['metadata']['name']} {word}"
                     )
 
-        updated_existing_checks = self._get_checks(namespace=namespace)
+        updated_existing_checks = self._get_checks(tenant=tenant)
         checks_tobedeleted = sorted(list(set(
             [check["metadata"]["name"] for check in updated_existing_checks]
         ).difference(set(
@@ -585,7 +586,7 @@ class Sensu:
 
             after_delete_checks = [
                 check["metadata"]["name"] for check in self._get_checks(
-                    namespace=namespace
+                    tenant=tenant
                 )
             ]
             try:
@@ -1261,27 +1262,28 @@ class Sensu:
     def add_memory_check(self, namespace="default"):
         self._add_asset_check(name="sensu.memory.usage", namespace=namespace)
 
-    def _get_check(self, check, namespace):
+    def _get_check(self, check, tenant):
         try:
             return [
-                c for c in self._get_checks(namespace=namespace) if
+                c for c in self._get_checks(tenant=tenant) if
                 c["metadata"]["name"] == check
             ][0]
 
         except IndexError:
-            raise SensuException(f"No check {check} in namespace {namespace}")
+            raise SensuException(f"No check {check} for tenant {tenant}")
 
-    def get_check_run(self, entity, check, namespace="default"):
-        check_configuration = self._get_check(check=check, namespace=namespace)
+    def get_check_run(self, entity, check, tenant="default"):
+        check_configuration = self._get_check(check=check, tenant=tenant)
 
         try:
             entity_configuration = [
-                e for e in self._get_entities(namespace=namespace) if
-                e["metadata"]["name"] == entity
+                e for e in self._get_entities(
+                    namespace=self.namespaces[tenant]
+                ) if e["metadata"]["name"] == entity
             ][0]
 
         except IndexError:
-            raise SensuException(f"No entity {entity} in namespace {namespace}")
+            raise SensuException(f"No entity {entity} for tenant {tenant}")
 
         is_check_run = \
             entity_configuration["entity_class"] == "agent" and \
@@ -1292,8 +1294,8 @@ class Sensu:
 
         if not is_check_run:
             raise SensuException(
-                f"No event with entity {entity} and check {check} in "
-                f"namespace {namespace}"
+                f"No event with entity {entity} and check {check} for "
+                f"tenant {tenant}"
             )
 
         list_command = []
@@ -1343,8 +1345,8 @@ class Sensu:
 
         return output_command, timeout
 
-    def get_check_subscriptions(self, check, namespace="default"):
-        return self._get_check(check=check, namespace=namespace)[
+    def get_check_subscriptions(self, check, tenant="default"):
+        return self._get_check(check=check, tenant=tenant)[
             "subscriptions"
         ]
 
