@@ -76,7 +76,7 @@ def main():
                         subscriptions=subscriptions,
                         namespace=namespace
                     )
-                    sensu.put_check(check=check, namespace=namespace)
+                    sensu.put_check(check=check, tenant=args.tenant)
                     adhoc_generated = True
                     check_name = check["metadata"]["name"]
 
@@ -106,7 +106,7 @@ def main():
                         event_output = sensu.get_event_output(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            namespace=namespace
+                            tenant=args.tenant
                         )
                         break
 
@@ -129,13 +129,13 @@ def main():
                         sensu.delete_event(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            namespace=namespace
+                            tenant=args.tenant
                         )
 
                     if adhoc_generated:
                         sensu.delete_check(
                             check=check_name,
-                            namespace=namespace
+                            tenant=args.tenant
                         )
 
                 except SensuException as err:
