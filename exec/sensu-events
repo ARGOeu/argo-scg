@@ -5,6 +5,7 @@ import sys
 from argo_scg.config import Config
 from argo_scg.exceptions import ConfigException
 from argo_scg.sensu import SensuCtl
+from argo_scg.utils import namespace4tenant
 
 CONFFILE = "/etc/argo-scg/scg.conf"
 
@@ -36,7 +37,7 @@ def main():
 
     try:
         config = Config(config_file=args.config)
-        namespace = config.get_namespaces()[args.tenant]
+        namespace = namespace4tenant(args.tenant, config.get_namespaces())
 
     except ConfigException as e:
         print(str(e))

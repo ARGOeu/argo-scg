@@ -9,6 +9,7 @@ from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, ConfigException
 from argo_scg.generator import generate_adhoc_check
 from argo_scg.sensu import Sensu
+from argo_scg.utils import namespace4tenant
 
 CONFFILE = "/etc/argo-scg/scg.conf"
 
@@ -42,16 +43,17 @@ def main():
         config = Config(config_file=args.config)
         url = config.get_sensu_url()
         token = config.get_sensu_token()
-        namespace = config.get_namespaces()[args.tenant]
+        namespaces = config.get_namespaces()
+        namespace = namespace4tenant(args.tenant, namespaces)
 
     except ConfigException as err:
         print(err)
         sys.exit(2)
 
     try:
-        sensu = Sensu(url=url, token=token, namespaces=config.get_namespaces())
+        sensu = Sensu(url=url, token=token, namespaces=namespaces)
         command, timeout = sensu.get_check_run(
-            entity=args.entity, check=args.check, tenant=args.tenant
+            entity=args.entity, check=args.check, namespace=namespace
         )
 
     except SensuException as err:
@@ -63,20 +65,20 @@ def main():
             try:
                 agent = sensu.get_agents(namespace=namespace)[0]
                 if sensu.is_entity_agent(
-                        entity=args.entity, tenant=args.tenant
+                        entity=args.entity, namespace=namespace
                 ):
                     check_name = args.check
 
                 else:
                     subscriptions = sensu.get_check_subscriptions(
-                        check=args.check, tenant=args.tenant
+                        check=args.check, namespace=namespace
                     )
                     check = generate_adhoc_check(
                         command=command,
                         subscriptions=subscriptions,
                         namespace=namespace
                     )
-                    sensu.put_check(check=check, tenant=args.tenant)
+                    sensu.put_check(check=check, namespace=namespace)
                     adhoc_generated = True
                     check_name = check["metadata"]["name"]
 
@@ -106,7 +108,7 @@ def main():
                         event_output = sensu.get_event_output(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            tenant=args.tenant
+                            namespace=namespace
                         )
                         break
 
@@ -122,20 +124,20 @@ def main():
                 print(f"{args.tenant}: Error executing ad-hoc check")
 
             if not sensu.is_entity_agent(
-                    entity=args.entity, tenant=args.tenant
+                    entity=args.entity, namespace=namespace
             ):
                 try:
                     if event_executed:
                         sensu.delete_event(
                             entity=agent["metadata"]["name"],
                             check=check_name,
-                            tenant=args.tenant
+                            namespace=namespace
                         )
 
                     if adhoc_generated:
                         sensu.delete_check(
                             check=check_name,
-                            tenant=args.tenant
+                            namespace=namespace
                         )
 
                 except SensuException as err:

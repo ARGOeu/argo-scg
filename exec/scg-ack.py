@@ -4,6 +4,7 @@ import argparse
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, ConfigException
 from argo_scg.sensu import Sensu
+from argo_scg.utils import namespace4tenant
 
 CONFFILE = "/etc/argo-scg/scg.conf"
 
@@ -43,7 +44,7 @@ def main():
         sensu.create_silencing_entry(
             check=args.check,
             entity=args.entity,
-            tenant=args.tenant
+            namespace=namespace4tenant(args.tenant, namespaces)
         )
 
         print(f"Created silencing entry for {args.entity}/{args.check}")

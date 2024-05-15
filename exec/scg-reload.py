@@ -10,6 +10,7 @@ from argo_scg.generator import ConfigurationGenerator
 from argo_scg.logger import get_logger
 from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
+from argo_scg.utils import namespace4tenant
 from argo_scg.webapi import WebApi
 
 CONFFILE = "/etc/argo-scg/scg.conf"
@@ -59,7 +60,7 @@ def main():
                 sys.exit(2)
 
             else:
-                tenants = {args.tenant: tenants[args.tenant]}
+                tenants = [args.tenant]
 
         sensu = Sensu(url=sensu_url, token=sensu_token, namespaces=namespaces)
 
@@ -67,7 +68,7 @@ def main():
             sensu.handle_namespaces()
 
         for tenant in tenants:
-            namespace = namespaces[tenant]
+            namespace = namespace4tenant(tenant, namespaces)
 
             try:
                 webapi = WebApi(
@@ -128,9 +129,10 @@ def main():
 
                 sensu.handle_checks(
                     checks=generator.generate_checks(
-                        publish=publish_bool[namespace], namespace=namespace
+                        publish=publish_bool[namespace],
+                        namespace=namespace
                     ),
-                    tenant=tenant
+                    namespace=namespace
                 )
                 sensu.add_cpu_check(namespace=namespace)
                 sensu.add_memory_check(namespace=namespace)
@@ -140,7 +142,7 @@ def main():
                         entities=generator.generate_entities(
                             namespace=namespace
                         ),
-                        tenant=tenant
+                        namespace=namespace
                     )
 
                 sensu.handle_agents(
@@ -152,7 +154,7 @@ def main():
                     subscriptions=generator.generate_subscriptions(
                         custom_subs=custom_subs
                     ),
-                    tenant=tenant
+                    namespace=namespace
                 )
                 logger.info(f"{namespace}: All synced!")
 
