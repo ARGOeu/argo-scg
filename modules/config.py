@@ -61,10 +61,7 @@ class Config(_Config):
         return tenants
 
     def get_tenants(self):
-        return self.tenants
-
-    def get_namespaces(self):
-        namespaces = dict()
+        tenants = dict()
         for tenant in self.tenants:
             try:
                 value = self.conf.get(tenant, "namespace")
@@ -72,7 +69,23 @@ class Config(_Config):
             except configparser.NoOptionError:
                 value = tenant
 
-            namespaces.update({tenant: value})
+            tenants.update({tenant: value})
+
+        return tenants
+
+    def get_namespaces(self):
+        tenants = self.get_tenants()
+        namespaces = dict()
+
+        for tenant, namespace in tenants.items():
+            if namespace not in namespaces:
+                namespaces.update({namespace: [tenant]})
+
+            else:
+                temp = namespaces[namespace]
+                temp.append(tenant)
+
+                namespaces.update({namespace: sorted(temp)})
 
         return namespaces
 

@@ -59,7 +59,7 @@ def main():
                 sys.exit(2)
 
             else:
-                tenants = [args.tenant]
+                tenants = {args.tenant: tenants[args.tenant]}
 
         sensu = Sensu(url=sensu_url, token=sensu_token, namespaces=namespaces)
 
