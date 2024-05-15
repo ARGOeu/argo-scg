@@ -285,25 +285,7 @@ class ConfigTests(unittest.TestCase):
         )
 
     def test_get_tenants(self):
-        self.assertEqual(
-            self.config.get_tenants(), {
-                "TENANT1": "TENANT1",
-                "TENANT2": "TENANT2"
-            }
-        )
-
-    def test_get_tenants_if_custom(self):
-        with open(config_file_name, "w") as f:
-            f.write(config_file_ok_custom_namespace)
-
-        config = Config(config_file=config_file_name)
-
-        self.assertEqual(
-            config.get_tenants(), {
-                "TENANT1": "custom",
-                "TENANT2": "TENANT2"
-            }
-        )
+        self.assertEqual(self.config.get_tenants(), ["TENANT1", "TENANT2"])
 
     def test_get_namespaces(self):
         self.assertEqual(
