@@ -1484,10 +1484,22 @@ class ConfigurationMerger:
                     )
                     subs = merged_checks[check_index]["subscriptions"]
 
+                    tenants = [
+                        item.strip() for item in merged_checks[check_index][
+                            "metadata"
+                        ]["labels"]["tenant"].split(",")
+                    ]
+
+                    tenants.append(check["metadata"]["labels"]["tenant"])
+
                     subs.extend(check["subscriptions"])
 
                     merged_checks[check_index]["subscriptions"] = sorted(
                         list(set(subs))
                     )
+
+                    merged_checks[check_index]["metadata"]["labels"][
+                        "tenant"
+                    ] = ",".join(sorted(tenants))
 
         return merged_checks

@@ -15100,6 +15100,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "3"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15140,6 +15143,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "2"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15168,6 +15174,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "4"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15205,6 +15214,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "3"
+                            },
+                            "labels": {
+                                "tenant": "TENANT2"
                             }
                         },
                         "round_robin": False
@@ -15233,6 +15245,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "4"
+                            },
+                            "labels": {
+                                "tenant": "TENANT2"
                             }
                         },
                         "round_robin": False
@@ -15267,6 +15282,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15307,6 +15325,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15346,6 +15367,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15381,6 +15405,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15389,6 +15416,7 @@ class ConfigurationMergerTests(unittest.TestCase):
         )
 
     def test_merge_checks_if_duplicate_with_different_subscriptions(self):
+        self.maxDiff = None
         merger = ConfigurationMerger(
             checks={
                 "TENANT1": [
@@ -15427,6 +15455,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "3"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15467,6 +15498,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "2"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15495,6 +15529,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "4"
+                            },
+                            "labels": {
+                                "tenant": "TENANT1"
                             }
                         },
                         "round_robin": False
@@ -15532,6 +15569,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "3"
+                            },
+                            "labels": {
+                                "tenant": "TENANT2"
                             }
                         },
                         "round_robin": False
@@ -15560,6 +15600,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "4"
+                            },
+                            "labels": {
+                                "tenant": "TENANT2"
                             }
                         },
                         "round_robin": False
@@ -15599,6 +15642,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "namespace": "test",
                             "annotations": {
                                 "attempts": "3"
+                            },
+                            "labels": {
+                                "tenant": "TENANT2"
                             }
                         },
                         "round_robin": False
@@ -15633,6 +15679,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15673,6 +15722,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15714,6 +15766,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15749,6 +15804,9 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "namespace": "test",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenant": "TENANT2"
                         }
                     },
                     "round_robin": False
