@@ -1461,3 +1461,19 @@ class ConfigurationGenerator:
             services.extend(self.servicetypes4metrics[metric])
 
         return ",".join(sorted(list(set(services))))
+
+
+class ConfigurationMerger:
+    def __init__(self, checks):
+        self.checks = checks
+
+    def merge_checks(self):
+        merged_checks = list()
+
+        for tenant, checks in self.checks.items():
+            checks_names = [item["metadata"]["name"] for item in merged_checks]
+            for check in checks:
+                if check["metadata"]["name"] not in checks_names:
+                    merged_checks.append(check)
+
+        return merged_checks
