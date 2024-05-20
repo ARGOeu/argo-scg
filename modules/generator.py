@@ -1464,8 +1464,9 @@ class ConfigurationGenerator:
 
 
 class ConfigurationMerger:
-    def __init__(self, checks):
+    def __init__(self, checks, entities):
         self.checks = checks
+        self.entities = entities
 
     def merge_checks(self):
         merged_checks = list()
@@ -1503,3 +1504,13 @@ class ConfigurationMerger:
                     ] = ",".join(sorted(tenants))
 
         return merged_checks
+
+    def merge_entities(self):
+        merged_entities = list()
+
+        for tenant, entities in self.entities.items():
+            for entity in entities:
+                if entity["metadata"]["name"] not in merged_entities:
+                    merged_entities.append(entity)
+
+        return sorted(merged_entities, key=lambda e: e["metadata"]["name"])
