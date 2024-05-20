@@ -1476,4 +1476,18 @@ class ConfigurationMerger:
                 if check["metadata"]["name"] not in checks_names:
                     merged_checks.append(check)
 
+                else:
+                    check_index = next(
+                        (index for (index, d) in enumerate(merged_checks) if
+                         d["metadata"]["name"] == check["metadata"]["name"]),
+                        None
+                    )
+                    subs = merged_checks[check_index]["subscriptions"]
+
+                    subs.extend(check["subscriptions"])
+
+                    merged_checks[check_index]["subscriptions"] = sorted(
+                        list(set(subs))
+                    )
+
         return merged_checks

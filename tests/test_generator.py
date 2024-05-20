@@ -15061,8 +15061,8 @@ class AdHocCheckTests(unittest.TestCase):
 
 
 class ConfigurationMergerTests(unittest.TestCase):
-    def setUp(self):
-        self.merger = ConfigurationMerger(
+    def test_merge_checks(self):
+        merger = ConfigurationMerger(
             checks={
                 "TENANT1": [
                     {
@@ -15240,9 +15240,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                 ]
             }
         )
-
-    def test_merge_checks(self):
-        checks = self.merger.merge_checks()
+        checks = merger.merge_checks()
         self.assertEqual(
             sorted(checks, key=lambda c: c["metadata"]["name"]), [
                 {
@@ -15324,6 +15322,374 @@ class ConfigurationMergerTests(unittest.TestCase):
                     "subscriptions": [
                         "hostname1.example.com",
                         "hostname2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/xml/check_xml "
+                               "-t 30 -u {{ .labels.endpoint_url}} "
+                               "-x /aris/partition/state_up --ok up",
+                    "subscriptions": [
+                        "hostname3.example.com",
+                        "hostname4.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_xml_check == "
+                            "'generic.xml.check'"
+                        ]
+                    },
+                    "interval": 1800,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.xml.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+
+    def test_merge_checks_if_duplicate_with_different_subscriptions(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": [
+                    {
+                        "command": "/usr/lib64/nagios/plugins/check_http "
+                                   "-H {{ .labels.hostname }} -t 60 --link "
+                                   "--onredirect follow {{ .labels.ssl | "
+                                   "default " " }} {{ .labels."
+                                   "generic_http_connect_port | default " " }} "
+                                   "{{ .labels.generic_http_connect_path | "
+                                   "default " " }}",
+                        "subscriptions": [
+                            "hostname1.example.com",
+                            "hostname2.example.com"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "hard_state",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "proxy_requests": {
+                            "entity_attributes": [
+                                "entity.entity_class == 'proxy'",
+                                "entity.labels.generic_http_connect == "
+                                "'generic.http.connect'"
+                            ]
+                        },
+                        "interval": 300,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "generic.http.connect",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "3"
+                            }
+                        },
+                        "round_robin": False
+                    },
+                    {
+                        "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                                   "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                                   "-N --altnames --rootcert-dir "
+                                   "/etc/grid-security/certificates "
+                                   "--rootcert-file /etc/pki/tls/certs/"
+                                   "ca-bundle.crt "
+                                   "-C /etc/sensu/certs/hostcert.pem "
+                                   "-K /etc/sensu/certs/hostkey.pem",
+                        "subscriptions": [
+                            "hostname1.example.com",
+                            "hostname2.example.com"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "hard_state",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "proxy_requests": {
+                            "entity_attributes": [
+                                "entity.entity_class == 'proxy'",
+                                "entity.labels.generic_certificate_validity == "
+                                "'generic.certificate.validity'"
+                            ]
+                        },
+                        "interval": 14400,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "generic.certificate.validity",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "2"
+                            }
+                        },
+                        "round_robin": False
+                    },
+                    {
+                        "command": "/usr/libexec/argo/probes/argo_tools/"
+                                   "check_log -t 120 --file /var/log/"
+                                   "argo-poem-tools/argo-poem-tools.log "
+                                   "--age 2 --app argo-poem-packages",
+                        "subscriptions": [
+                            "internals"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "reduce_alerts",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "interval": 7200,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "argo.poem-tools.check",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "4"
+                            }
+                        },
+                        "round_robin": False
+                    }
+                ],
+                "TENANT2": [
+                    {
+                        "command": "/usr/libexec/argo/probes/xml/check_xml "
+                                   "-t 30 -u {{ .labels.endpoint_url}} "
+                                   "-x /aris/partition/state_up --ok up",
+                        "subscriptions": [
+                            "hostname3.example.com",
+                            "hostname4.example.com"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "hard_state",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "proxy_requests": {
+                            "entity_attributes": [
+                                "entity.entity_class == 'proxy'",
+                                "entity.labels.generic_xml_check == "
+                                "'generic.xml.check'"
+                            ]
+                        },
+                        "interval": 1800,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "generic.xml.check",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "3"
+                            }
+                        },
+                        "round_robin": False
+                    },
+                    {
+                        "command": "/usr/libexec/argo/probes/argo_tools/"
+                                   "check_log -t 120 --file /var/log/"
+                                   "argo-poem-tools/argo-poem-tools.log "
+                                   "--age 2 --app argo-poem-packages",
+                        "subscriptions": [
+                            "internals"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "reduce_alerts",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "interval": 7200,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "argo.poem-tools.check",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "4"
+                            }
+                        },
+                        "round_robin": False
+                    },
+                    {
+                        "command": "/usr/lib64/nagios/plugins/check_http "
+                                   "-H {{ .labels.hostname }} -t 60 --link "
+                                   "--onredirect follow {{ .labels.ssl | "
+                                   "default " " }} {{ .labels."
+                                   "generic_http_connect_port | default " " }} "
+                                   "{{ .labels.generic_http_connect_path | "
+                                   "default " " }}",
+                        "subscriptions": [
+                            "hostname3.example.com",
+                            "hostname5.example.com"
+                        ],
+                        "handlers": [],
+                        "pipelines": [
+                            {
+                                "name": "hard_state",
+                                "type": "Pipeline",
+                                "api_version": "core/v2"
+                            }
+                        ],
+                        "proxy_requests": {
+                            "entity_attributes": [
+                                "entity.entity_class == 'proxy'",
+                                "entity.labels.generic_http_connect == "
+                                "'generic.http.connect'"
+                            ]
+                        },
+                        "interval": 300,
+                        "timeout": 900,
+                        "publish": True,
+                        "metadata": {
+                            "name": "generic.http.connect",
+                            "namespace": "test",
+                            "annotations": {
+                                "attempts": "3"
+                            }
+                        },
+                        "round_robin": False
+                    }
+                ]
+            }
+        )
+        checks = merger.merge_checks()
+        self.assertEqual(
+            sorted(checks, key=lambda c: c["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/argo_tools/"
+                               "check_log -t 120 --file /var/log/"
+                               "argo-poem-tools/argo-poem-tools.log "
+                               "--age 2 --app argo-poem-packages",
+                    "subscriptions": [
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 7200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.poem-tools.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "4"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                               "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                               "-N --altnames --rootcert-dir "
+                               "/etc/grid-security/certificates "
+                               "--rootcert-file /etc/pki/tls/certs/"
+                               "ca-bundle.crt "
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity == "
+                            "'generic.certificate.validity'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 60 --link "
+                               "--onredirect follow {{ .labels.ssl | "
+                               "default " " }} {{ .labels."
+                               "generic_http_connect_port | default " " }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default " " }}",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com",
+                        "hostname3.example.com",
+                        "hostname5.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
