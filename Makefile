@@ -11,9 +11,10 @@ rpm: dist
 
 dist:
 	rm -rf dist
-	which python3
 	python3 setup.py sdist
-	ls dist
+	which python3
+	python3 --version
+	ls dist/*
 	mv dist/${PKGNAME}-${PKGVERSION}.tar.gz .
 	rm -rf dist
 
