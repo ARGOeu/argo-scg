@@ -11,7 +11,7 @@ pipeline {
 
     }
     stages {
-        stage ('Building and testing...'){
+        stage ('Building and testing...') {
             parallel {
                 stage('CentOS 7') {
                     agent {
