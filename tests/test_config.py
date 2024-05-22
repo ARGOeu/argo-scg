@@ -122,6 +122,46 @@ publish = false
 subscription = hostname_with_id
 """
 
+config_file_ok_custom_namespace_multiple_tenants = """[GENERAL]
+sensu_url = http://sensu.mock.url/
+sensu_token = s3ns8t0k3n
+webapi_url = https://web-api.mock.url/
+
+[TENANT1]
+poem_url = https://tenant1.poem.mock.url/
+poem_token = p03mtok3n
+webapi_token = w3b4p1t0k3n
+topology_groups_filter = type=NGI&tags=certification:Certified
+topology_endpoints_filter = tags=monitored:1
+attributes = /path/to/attributes1
+metricprofiles = PROFILE1, PROFILE2,PROFILE3
+topology = /path/to/topology1
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
+namespace = custom
+
+[TENANT2]
+poem_url = https://tenant2.poem.mock.url/
+poem_token = p03mtok3n22
+webapi_token = w3b4p1t0k3n2
+attributes = /path/to/attributes2
+metricprofiles = PROFILE4
+publish = false
+subscription = hostname_with_id
+
+[TENANT3]
+poem_url = https://tenant3.poem.mock.url/
+poem_token = p03mtok3n3
+webapi_token = w3b4p1t0k3n3
+attributes = /path/to/attributes3
+metricprofiles = PROFILE
+secrets = /path/to/secrets
+publish = true
+publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant3_metrics
+namespace = custom
+"""
+
 config_file_missing_section = """[TENANT1]
 poem_url = https://tenant1.poem.mock.url/
 poem_token = p03mtok3n
@@ -250,8 +290,8 @@ class ConfigTests(unittest.TestCase):
     def test_get_namespaces(self):
         self.assertEqual(
             self.config.get_namespaces(), {
-                "TENANT1": "TENANT1",
-                "TENANT2": "TENANT2"
+                "TENANT1": ["TENANT1"],
+                "TENANT2": ["TENANT2"]
             }
         )
 
@@ -263,8 +303,21 @@ class ConfigTests(unittest.TestCase):
 
         self.assertEqual(
             config.get_namespaces(), {
-                "TENANT1": "custom",
-                "TENANT2": "TENANT2"
+                "custom": ["TENANT1"],
+                "TENANT2": ["TENANT2"]
+            }
+        )
+
+    def test_get_namespaces_if_multiple_tenants(self):
+        with open(config_file_name, "w") as f:
+            f.write(config_file_ok_custom_namespace_multiple_tenants)
+
+        config = Config(config_file=config_file_name)
+
+        self.assertEqual(
+            config.get_namespaces(), {
+                "custom": ["TENANT1", "TENANT3"],
+                "TENANT2": ["TENANT2"]
             }
         )
 

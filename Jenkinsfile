@@ -11,12 +11,13 @@ pipeline {
 
     }
     stages {
-        stage ('Building and testing...'){
-            stages {
+        stage ('Building and testing...') {
+            parallel {
                 stage('CentOS 7') {
                     agent {
                         docker {
                             image 'argo.registry:5000/epel-7-ams'
+                            alwaysPull true
                             args '-u jenkins:jenkins'
                         }
                     }
@@ -51,6 +52,7 @@ pipeline {
                     agent {
                         docker {
                             image 'argo.registry:5000/epel-9-ams'
+                            alwaysPull true
                             args '-u jenkins:jenkins'
                         }
                     }
