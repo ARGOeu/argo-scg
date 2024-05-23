@@ -15061,198 +15061,290 @@ class AdHocCheckTests(unittest.TestCase):
 
 
 class ConfigurationMergerTests(unittest.TestCase):
+    def setUp(self):
+        self.checks1 = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 60 --link "
+                           "--onredirect follow {{ .labels.ssl | "
+                           "default " " }} {{ .labels."
+                           "generic_http_connect_port | default " " }} "
+                           "{{ .labels.generic_http_connect_path | "
+                           "default " " }}",
+                "subscriptions": [
+                    "hostname1.example.com",
+                    "hostname2.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                           "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                           "-N --altnames --rootcert-dir "
+                           "/etc/grid-security/certificates "
+                           "--rootcert-file /etc/pki/tls/certs/"
+                           "ca-bundle.crt "
+                           "-C /etc/sensu/certs/hostcert.pem "
+                           "-K /etc/sensu/certs/hostkey.pem",
+                "subscriptions": [
+                    "hostname1.example.com",
+                    "hostname2.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_certificate_validity == "
+                        "'generic.certificate.validity'"
+                    ]
+                },
+                "interval": 14400,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.certificate.validity",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "2"
+                    },
+                    "labels": {
+                        "tenant": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/libexec/argo/probes/argo_tools/"
+                           "check_log -t 120 --file /var/log/"
+                           "argo-poem-tools/argo-poem-tools.log "
+                           "--age 2 --app argo-poem-packages",
+                "subscriptions": [
+                    "internals"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "interval": 7200,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "argo.poem-tools.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "4"
+                    },
+                    "labels": {
+                        "tenant": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            }
+        ]
+        self.checks2 = [
+            {
+                "command": "/usr/libexec/argo/probes/xml/check_xml "
+                           "-t 30 -u {{ .labels.endpoint_url}} "
+                           "-x /aris/partition/state_up --ok up",
+                "subscriptions": [
+                    "hostname3.example.com",
+                    "hostname4.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_xml_check == "
+                        "'generic.xml.check'"
+                    ]
+                },
+                "interval": 1800,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.xml.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
+                    },
+                    "labels": {
+                        "tenant": "TENANT2"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/libexec/argo/probes/argo_tools/"
+                           "check_log -t 120 --file /var/log/"
+                           "argo-poem-tools/argo-poem-tools.log "
+                           "--age 2 --app argo-poem-packages",
+                "subscriptions": [
+                    "internals"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "interval": 7200,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "argo.poem-tools.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "4"
+                    },
+                    "labels": {
+                        "tenant": "TENANT2"
+                    }
+                },
+                "round_robin": False
+            }
+        ]
+        self.entities1 = [
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.test__argo.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "hostname": "argo.ni4os.eu",
+                        "info_url": "https://argo.ni4os.eu",
+                        "service": "argo.test",
+                        "site": "GRNET"
+                    }
+                },
+                "subscriptions": ["argo.test"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.webui__argo-devel.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo-devel.ni4os.eu",
+                        "info_url": "http://argo-devel.ni4os.eu",
+                        "service": "argo.webui",
+                        "site": "GRNET"
+                    }
+                },
+                "subscriptions": ["argo.webui"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.webui__argo.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo.ni4os.eu",
+                        "info_url": "https://argo.ni4os.eu",
+                        "service": "argo.webui",
+                        "site": "GRNET"
+                    }
+                },
+                "subscriptions": ["argo.webui"]
+            }
+        ]
+        self.entities2 = [
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.mon__argo-mon-devel.egi.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_certificate_validity":
+                            "generic.certificate.validity",
+                        "hostname": "argo-mon-devel.egi.eu",
+                        "service": "argo.mon",
+                        "site": "SRCE"
+                    }
+                },
+                "subscriptions": ["argo-mon-devel.egi.eu"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_certificate_validity":
+                            "generic.certificate.validity",
+                        "hostname": "argo-mon-devel.ni4os.eu",
+                        "service": "argo.mon",
+                        "site": "SRCE"
+                    }
+                },
+                "subscriptions": ["argo-mon-devel.ni4os.eu"]
+            }
+        ]
+
     def test_merge_checks(self):
         merger = ConfigurationMerger(
             checks={
-                "TENANT1": [
-                    {
-                        "command": "/usr/lib64/nagios/plugins/check_http "
-                                   "-H {{ .labels.hostname }} -t 60 --link "
-                                   "--onredirect follow {{ .labels.ssl | "
-                                   "default " " }} {{ .labels."
-                                   "generic_http_connect_port | default " " }} "
-                                   "{{ .labels.generic_http_connect_path | "
-                                   "default " " }}",
-                        "subscriptions": [
-                            "hostname1.example.com",
-                            "hostname2.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_http_connect == "
-                                "'generic.http.connect'"
-                            ]
-                        },
-                        "interval": 300,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.http.connect",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "3"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
-                                   "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
-                                   "-N --altnames --rootcert-dir "
-                                   "/etc/grid-security/certificates "
-                                   "--rootcert-file /etc/pki/tls/certs/"
-                                   "ca-bundle.crt "
-                                   "-C /etc/sensu/certs/hostcert.pem "
-                                   "-K /etc/sensu/certs/hostkey.pem",
-                        "subscriptions": [
-                            "hostname1.example.com",
-                            "hostname2.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_certificate_validity == "
-                                "'generic.certificate.validity'"
-                            ]
-                        },
-                        "interval": 14400,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.certificate.validity",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "2"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/libexec/argo/probes/argo_tools/"
-                                   "check_log -t 120 --file /var/log/"
-                                   "argo-poem-tools/argo-poem-tools.log "
-                                   "--age 2 --app argo-poem-packages",
-                        "subscriptions": [
-                            "internals"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "reduce_alerts",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "interval": 7200,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "argo.poem-tools.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "4"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
-                    }
-                ],
-                "TENANT2": [
-                    {
-                        "command": "/usr/libexec/argo/probes/xml/check_xml "
-                                   "-t 30 -u {{ .labels.endpoint_url}} "
-                                   "-x /aris/partition/state_up --ok up",
-                        "subscriptions": [
-                            "hostname3.example.com",
-                            "hostname4.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_xml_check == "
-                                "'generic.xml.check'"
-                            ]
-                        },
-                        "interval": 1800,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.xml.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "3"
-                            },
-                            "labels": {
-                                "tenant": "TENANT2"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/libexec/argo/probes/argo_tools/"
-                                   "check_log -t 120 --file /var/log/"
-                                   "argo-poem-tools/argo-poem-tools.log "
-                                   "--age 2 --app argo-poem-packages",
-                        "subscriptions": [
-                            "internals"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "reduce_alerts",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "interval": 7200,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "argo.poem-tools.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "4"
-                            },
-                            "labels": {
-                                "tenant": "TENANT2"
-                            }
-                        },
-                        "round_robin": False
-                    }
-                ]
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
             }
         )
         checks = merger.merge_checks()
@@ -15416,240 +15508,59 @@ class ConfigurationMergerTests(unittest.TestCase):
         )
 
     def test_merge_checks_if_duplicate_with_different_subscriptions(self):
-        self.maxDiff = None
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": [
+        checks2 = self.checks2.copy()
+        checks2.append(
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 60 --link "
+                           "--onredirect follow {{ .labels.ssl | "
+                           "default " " }} {{ .labels."
+                           "generic_http_connect_port | default " " }} "
+                           "{{ .labels.generic_http_connect_path | "
+                           "default " " }}",
+                "subscriptions": [
+                    "hostname3.example.com",
+                    "hostname5.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
                     {
-                        "command": "/usr/lib64/nagios/plugins/check_http "
-                                   "-H {{ .labels.hostname }} -t 60 --link "
-                                   "--onredirect follow {{ .labels.ssl | "
-                                   "default " " }} {{ .labels."
-                                   "generic_http_connect_port | default " " }} "
-                                   "{{ .labels.generic_http_connect_path | "
-                                   "default " " }}",
-                        "subscriptions": [
-                            "hostname1.example.com",
-                            "hostname2.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_http_connect == "
-                                "'generic.http.connect'"
-                            ]
-                        },
-                        "interval": 300,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.http.connect",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "3"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
-                                   "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
-                                   "-N --altnames --rootcert-dir "
-                                   "/etc/grid-security/certificates "
-                                   "--rootcert-file /etc/pki/tls/certs/"
-                                   "ca-bundle.crt "
-                                   "-C /etc/sensu/certs/hostcert.pem "
-                                   "-K /etc/sensu/certs/hostkey.pem",
-                        "subscriptions": [
-                            "hostname1.example.com",
-                            "hostname2.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_certificate_validity == "
-                                "'generic.certificate.validity'"
-                            ]
-                        },
-                        "interval": 14400,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.certificate.validity",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "2"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/libexec/argo/probes/argo_tools/"
-                                   "check_log -t 120 --file /var/log/"
-                                   "argo-poem-tools/argo-poem-tools.log "
-                                   "--age 2 --app argo-poem-packages",
-                        "subscriptions": [
-                            "internals"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "reduce_alerts",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "interval": 7200,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "argo.poem-tools.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "4"
-                            },
-                            "labels": {
-                                "tenant": "TENANT1"
-                            }
-                        },
-                        "round_robin": False
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
                     }
                 ],
-                "TENANT2": [
-                    {
-                        "command": "/usr/libexec/argo/probes/xml/check_xml "
-                                   "-t 30 -u {{ .labels.endpoint_url}} "
-                                   "-x /aris/partition/state_up --ok up",
-                        "subscriptions": [
-                            "hostname3.example.com",
-                            "hostname4.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_xml_check == "
-                                "'generic.xml.check'"
-                            ]
-                        },
-                        "interval": 1800,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.xml.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "3"
-                            },
-                            "labels": {
-                                "tenant": "TENANT2"
-                            }
-                        },
-                        "round_robin": False
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
                     },
-                    {
-                        "command": "/usr/libexec/argo/probes/argo_tools/"
-                                   "check_log -t 120 --file /var/log/"
-                                   "argo-poem-tools/argo-poem-tools.log "
-                                   "--age 2 --app argo-poem-packages",
-                        "subscriptions": [
-                            "internals"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "reduce_alerts",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "interval": 7200,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "argo.poem-tools.check",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "4"
-                            },
-                            "labels": {
-                                "tenant": "TENANT2"
-                            }
-                        },
-                        "round_robin": False
-                    },
-                    {
-                        "command": "/usr/lib64/nagios/plugins/check_http "
-                                   "-H {{ .labels.hostname }} -t 60 --link "
-                                   "--onredirect follow {{ .labels.ssl | "
-                                   "default " " }} {{ .labels."
-                                   "generic_http_connect_port | default " " }} "
-                                   "{{ .labels.generic_http_connect_path | "
-                                   "default " " }}",
-                        "subscriptions": [
-                            "hostname3.example.com",
-                            "hostname5.example.com"
-                        ],
-                        "handlers": [],
-                        "pipelines": [
-                            {
-                                "name": "hard_state",
-                                "type": "Pipeline",
-                                "api_version": "core/v2"
-                            }
-                        ],
-                        "proxy_requests": {
-                            "entity_attributes": [
-                                "entity.entity_class == 'proxy'",
-                                "entity.labels.generic_http_connect == "
-                                "'generic.http.connect'"
-                            ]
-                        },
-                        "interval": 300,
-                        "timeout": 900,
-                        "publish": True,
-                        "metadata": {
-                            "name": "generic.http.connect",
-                            "namespace": "test",
-                            "annotations": {
-                                "attempts": "3"
-                            },
-                            "labels": {
-                                "tenant": "TENANT2"
-                            }
-                        },
-                        "round_robin": False
+                    "labels": {
+                        "tenant": "TENANT2"
                     }
-                ]
+                },
+                "round_robin": False
+            }
+        )
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
             }
         )
         checks = merger.merge_checks()
@@ -15810,6 +15721,103 @@ class ConfigurationMergerTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False
+                }
+            ]
+        )
+
+    def test_merge_entities(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            }
+        )
+        entities = merger.merge_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda e: e["metadata"]["name"]), [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.egi.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.ni4os.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
                 }
             ]
         )
