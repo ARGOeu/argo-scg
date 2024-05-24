@@ -14931,7 +14931,7 @@ class EntityConfigurationTests(unittest.TestCase):
 
 
 class OverridesTests(unittest.TestCase):
-    def test_get_metric_parameter_overrides(self):
+    def test_metricoverrides4host(self):
         attributes = {
             "local": {
                 "global_attributes": [],
@@ -14961,7 +14961,7 @@ class OverridesTests(unittest.TestCase):
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            overrides = generator.get_metric_parameter_overrides()
+            overrides = generator.metricoverrides4host(host="argo.ni4os.eu")
 
         self.assertEqual(
             overrides, [{
@@ -14970,12 +14970,6 @@ class OverridesTests(unittest.TestCase):
                 "parameter": "-p",
                 "label": "generic_tcp_connect_p",
                 "value": "80"
-            }, {
-                "metric": "generic.tcp.connect",
-                "hostname": "argo-devel.ni4os.eu",
-                "parameter": "-p",
-                "label": "generic_tcp_connect_p",
-                "value": "90"
             }]
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -14993,6 +14987,10 @@ class OverridesTests(unittest.TestCase):
                     "hostname": "argo.ni4os.eu",
                     "attribute": "NAGIOS_FRESHNESS_PASSWORD",
                     "value": "NI4OS_NAGIOS_FRESHNESS_PASSWORD"
+                }, {
+                    "hostname": "argo-devel.ni4os.eu",
+                    "attribute": "ATTRIBUTE",
+                    "value": "new_value"
                 }],
                 "metric_parameters": []
             }
@@ -15009,7 +15007,7 @@ class OverridesTests(unittest.TestCase):
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            overrides = generator.get_host_attribute_overrides()
+            overrides = generator.attributeoverrides4host(host="argo.ni4os.eu")
 
         self.assertEqual(
             sorted(overrides, key=lambda m: m["attribute"]),
