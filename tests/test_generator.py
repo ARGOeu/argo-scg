@@ -15350,6 +15350,26 @@ class ConfigurationMergerTests(unittest.TestCase):
             "parameter": "-f",
             "value": "/some/custom/path/to/robotcert.pem"
         }]
+        self.attribute_overrides1 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["generic.certificate.validity-robot"]
+        }]
+        self.attribute_overrides2 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }, {
+            "hostname": "agent1",
+            "attribute": "ROBOT_KEY",
+            "label": "robot_key",
+            "value": "/etc/sensu/certs/robotkey.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }]
 
     def test_merge_checks(self):
         merger = ConfigurationMerger(
@@ -15937,4 +15957,84 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "parameter": "-f",
                 "value": "/some/custom/path/to/robotcert.pem"
             }]
+        )
+
+    def test_merge_attribute_overrides(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            attributeoverrides4agents={
+                "TENANT1": self.attribute_overrides1,
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robotcert.pem",
+                "metrics": [
+                    "generic.certificate.validity-robot",
+                    "srce.gridproxy.get"
+                ]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+
+    def test_merge_attribute_overrides_if_diff(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            attributeoverrides4agents={
+                "TENANT1": [{
+                    "hostname": "agent1",
+                    "attribute": "ROBOT_CERT",
+                    "label": "robot_cert",
+                    "value": "/etc/sensu/certs/robot.cert",
+                    "metrics": ["generic.certificate.validity-robot"]
+                }],
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robot.cert",
+                "metrics": ["generic.certificate.validity-robot"]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
+                f"agent1/ROBOT_CERT host attribute override"
+            ]
         )

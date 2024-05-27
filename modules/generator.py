@@ -1468,10 +1468,17 @@ class ConfigurationGenerator:
 
 
 class ConfigurationMerger:
-    def __init__(self, checks, entities, metricoverrides4agents=None):
+    def __init__(
+            self,
+            checks,
+            entities,
+            metricoverrides4agents=None,
+            attributeoverrides4agents=None
+    ):
         self.checks = checks
         self.entities = entities
         self.metric_overrides = metricoverrides4agents
+        self.attribute_overrides = attributeoverrides4agents
         self.logger = logging.getLogger("argo-scg.generator")
 
     def merge_checks(self):
@@ -1566,3 +1573,58 @@ class ConfigurationMerger:
                         merged_overrides.append(override)
 
         return merged_overrides
+
+    @staticmethod
+    def _attribute_present(override, merged):
+        return len([
+            item for item in merged if (
+                item["hostname"] == override["hostname"] and
+                item["attribute"] == override["attribute"]
+            )
+        ]) == 1
+
+    @staticmethod
+    def _attribute_identical(override, merged):
+        return len([
+            item for item in merged if (
+                    item["hostname"] == override["hostname"] and
+                    item["attribute"] == override["attribute"] and
+                    item["value"] == override["value"]
+            )
+        ]) == 1
+
+    def merge_attribute_overrides(self):
+        merged_attributes = list()
+        if self.attribute_overrides:
+            for tenant, overrides in self.attribute_overrides.items():
+                for override in overrides:
+                    if self._attribute_present(override, merged_attributes):
+                        if self._attribute_identical(
+                                override, merged_attributes
+                        ):
+                            merged_attribute = [
+                                item for item in merged_attributes if (
+                                        item["hostname"] == override["hostname"]
+                                        and item["attribute"] == override[
+                                            "attribute"
+                                        ]
+                                )
+                            ][0]
+                            metrics = merged_attribute["metrics"]
+                            metrics.extend(override["metrics"])
+                            merged_attributes[
+                                merged_attributes.index(merged_attribute)
+                            ]["metrics"] = sorted(metrics)
+
+                        else:
+                            self.logger.warning(
+                                f"{tenant}: Discrepancy in "
+                                f"{override['hostname']}/"
+                                f"{override['attribute']} host attribute "
+                                f"override"
+                            )
+
+                    else:
+                        merged_attributes.append(override)
+
+        return merged_attributes
