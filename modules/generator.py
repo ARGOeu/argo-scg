@@ -1472,13 +1472,15 @@ class ConfigurationMerger:
             self,
             checks,
             entities,
+            subscriptions,
             metricoverrides4agents=None,
-            attributeoverrides4agents=None
+            attributeoverrides4agents=None,
     ):
         self.checks = checks
         self.entities = entities
         self.metric_overrides = metricoverrides4agents
         self.attribute_overrides = attributeoverrides4agents
+        self.subscriptions = subscriptions
         self.logger = logging.getLogger("argo-scg.generator")
 
     def merge_checks(self):
@@ -1628,3 +1630,18 @@ class ConfigurationMerger:
                         merged_attributes.append(override)
 
         return merged_attributes
+
+    def merge_subscriptions(self):
+        subs = dict()
+        for tenant, subs_dict in self.subscriptions.items():
+            for host, subscriptions in subs_dict.items():
+                if host not in subs:
+                    subs.update({host: subscriptions})
+
+                else:
+                    host_subs = subs[host]
+                    host_subs.extend(subscriptions)
+                    subs[host] = sorted(list(set(host_subs)))
+
+        return subs
+
