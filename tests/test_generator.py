@@ -15381,6 +15381,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -15606,6 +15610,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -15788,6 +15796,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -15894,6 +15906,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -15920,6 +15936,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             },
             subscriptions={
                 "TENANT1": {
@@ -15974,6 +15994,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -16023,6 +16047,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -16066,6 +16094,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             },
             subscriptions={
                 "TENANT1": {
@@ -16121,6 +16153,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             subscriptions={
                 "TENANT1": {
                     "default": ["sub1", "sub2", "sub3"],
@@ -16138,3 +16174,30 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "agent1": ["sub1", "sub4"]
             }
         )
+
+    def test_merge_internal_services(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            }
+        )
+        internals = merger.merge_internal_services()
+        self.assertEqual(internals, "service1,service2,service3,service4")
