@@ -1468,9 +1468,11 @@ class ConfigurationGenerator:
 
 
 class ConfigurationMerger:
-    def __init__(self, checks, entities):
+    def __init__(self, checks, entities, metricoverrides4agents=None):
         self.checks = checks
         self.entities = entities
+        self.metric_overrides = metricoverrides4agents
+        self.logger = logging.getLogger("argo-scg.generator")
 
     def merge_checks(self):
         merged_checks = list()
@@ -1518,3 +1520,49 @@ class ConfigurationMerger:
                     merged_entities.append(entity)
 
         return sorted(merged_entities, key=lambda e: e["metadata"]["name"])
+
+    @staticmethod
+    def _metric_parameter_override_exists(override, merged):
+        return len([
+            item for item in merged if (
+                    item["metric"] == override["metric"] and
+                    item["hostname"] == override["hostname"] and
+                    item["parameter"] == override["parameter"]
+            )
+        ]) == 1
+
+    @staticmethod
+    def _metric_parameter_override_identical(override, merged):
+        return len([
+            item for item in merged if (
+                    item["metric"] == override["metric"] and
+                    item["hostname"] == override["hostname"] and
+                    item["parameter"] == override["parameter"] and
+                    item["value"] == override["value"]
+            )
+        ]) == 1
+
+    def merge_metric_parameter_overrides(self):
+        merged_overrides = list()
+        if self.metric_overrides:
+            for tenant, overrides in self.metric_overrides.items():
+                for override in overrides:
+                    if self._metric_parameter_override_exists(
+                            override, merged_overrides
+                    ):
+                        if self._metric_parameter_override_identical(
+                            override, merged_overrides
+                        ):
+                            continue
+
+                        else:
+                            self.logger.warning(
+                                f"{tenant}: Discrepancy in "
+                                f"{override['hostname']}/{override['metric']} "
+                                f"metric parameter override"
+                            )
+
+                    else:
+                        merged_overrides.append(override)
+
+        return merged_overrides
