@@ -284,15 +284,11 @@ class ConfigurationGenerator:
 
         return host_attribute_overrides
 
-    def metricoverrides4host(self, host):
-        return [
-            o for o in self.metric_parameter_overrides if o["hostname"] == host
-        ]
+    def get_metric_parameter_overrides(self):
+        return self.metric_parameter_overrides
 
-    def attributeoverrides4host(self, host):
-        return [
-            o for o in self.host_attribute_overrides if o["hostname"] == host
-        ]
+    def get_host_attribute_overrides(self):
+        return self.host_attribute_overrides
 
     def _get_single_endpoint_url(self, url):
         if "," in url:
