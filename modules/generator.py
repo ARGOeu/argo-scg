@@ -1303,7 +1303,9 @@ class ConfigurationGenerator:
                                             })
 
                 labels.update({
-                    "service": item["service"], "site": item["group"]
+                    "service": item["service"],
+                    "site": item["group"],
+                    "tenants": self.tenant
                 })
 
                 site_entries = [
