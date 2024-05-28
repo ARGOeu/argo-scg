@@ -15335,6 +15335,43 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "subscriptions": ["argo-mon-devel.ni4os.eu"]
             }
         ]
+        self.metric_overrides1 = [{
+            "metric": "argo.poem-tools.check",
+            "hostname": "agent1",
+            "parameter": "--age",
+            "value": "3"
+        }]
+        self.metric_overrides2 = [{
+            "metric": "argo.poem-tools.check",
+            "hostname": "agent1",
+            "parameter": "--age",
+            "value": "3"
+        }, {
+            "metric": "generic.certificate.validity-robot",
+            "hostname": "agent1",
+            "parameter": "-f",
+            "value": "/some/custom/path/to/robotcert.pem"
+        }]
+        self.attribute_overrides1 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["generic.certificate.validity-robot"]
+        }]
+        self.attribute_overrides2 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }, {
+            "hostname": "agent1",
+            "attribute": "ROBOT_KEY",
+            "label": "robot_key",
+            "value": "/etc/sensu/certs/robotkey.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }]
 
     def test_merge_checks(self):
         merger = ConfigurationMerger(
@@ -15345,6 +15382,19 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
             }
         )
         checks = merger.merge_checks()
@@ -15561,6 +15611,19 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
             }
         )
         checks = merger.merge_checks()
@@ -15734,6 +15797,19 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
             }
         )
         entities = merger.merge_entities()
@@ -15821,3 +15897,309 @@ class ConfigurationMergerTests(unittest.TestCase):
                 }
             ]
         )
+
+    def test_merge_metric_parameter_overrides(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": self.metric_overrides1,
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(override, self.metric_overrides2)
+
+    def test_merge_metric_parameter_overrides_if_diff(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": [{
+                    "metric": "argo.poem-tools.check",
+                    "hostname": "agent1",
+                    "parameter": "--age",
+                    "value": "4"
+                }],
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(
+            override, [{
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--age",
+                "value": "4"
+            }, {
+                "metric": "generic.certificate.validity-robot",
+                "hostname": "agent1",
+                "parameter": "-f",
+                "value": "/some/custom/path/to/robotcert.pem"
+            }]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
+                f"agent1/argo.poem-tools.check metric parameter override"
+            ]
+        )
+
+    def test_merge_metric_parameter_overrides_if_same_metric_different_param(
+            self
+    ):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": [{
+                    "metric": "argo.poem-tools.check",
+                    "hostname": "agent1",
+                    "parameter": "--file",
+                    "value": "/path/to/file"
+                }],
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(
+            override, [{
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--file",
+                "value": "/path/to/file"
+            }, {
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--age",
+                "value": "3"
+            }, {
+                "metric": "generic.certificate.validity-robot",
+                "hostname": "agent1",
+                "parameter": "-f",
+                "value": "/some/custom/path/to/robotcert.pem"
+            }]
+        )
+
+    def test_merge_attribute_overrides(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            attributeoverrides4agents={
+                "TENANT1": self.attribute_overrides1,
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robotcert.pem",
+                "metrics": [
+                    "generic.certificate.validity-robot",
+                    "srce.gridproxy.get"
+                ]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+
+    def test_merge_attribute_overrides_if_diff(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            attributeoverrides4agents={
+                "TENANT1": [{
+                    "hostname": "agent1",
+                    "attribute": "ROBOT_CERT",
+                    "label": "robot_cert",
+                    "value": "/etc/sensu/certs/robot.cert",
+                    "metrics": ["generic.certificate.validity-robot"]
+                }],
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robot.cert",
+                "metrics": ["generic.certificate.validity-robot"]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
+                f"agent1/ROBOT_CERT host attribute override"
+            ]
+        )
+
+    def test_merge_subscriptions(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        subs = merger.merge_subscriptions()
+        self.assertEqual(
+            subs, {
+                "default": ["sub1", "sub2", "sub3", "sub6"],
+                "agent1": ["sub1", "sub4"]
+            }
+        )
+
+    def test_merge_internal_services(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            }
+        )
+        internals = merger.merge_internal_services()
+        self.assertEqual(internals, "service1,service2,service3,service4")
