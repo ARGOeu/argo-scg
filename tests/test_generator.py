@@ -15241,7 +15241,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "TENANT1"
+                        "tenants": "TENANT1"
                     }
                 },
                 "round_robin": False
@@ -15284,7 +15284,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "2"
                     },
                     "labels": {
-                        "tenant": "TENANT1"
+                        "tenants": "TENANT1"
                     }
                 },
                 "round_robin": False
@@ -15315,7 +15315,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "4"
                     },
                     "labels": {
-                        "tenant": "TENANT1"
+                        "tenants": "TENANT1"
                     }
                 },
                 "round_robin": False
@@ -15355,7 +15355,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "TENANT2"
+                        "tenants": "TENANT2"
                     }
                 },
                 "round_robin": False
@@ -15386,7 +15386,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "4"
                     },
                     "labels": {
-                        "tenant": "TENANT2"
+                        "tenants": "TENANT2"
                     }
                 },
                 "round_robin": False
@@ -15404,7 +15404,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "hostname": "argo.ni4os.eu",
                         "info_url": "https://argo.ni4os.eu",
                         "service": "argo.test",
-                        "site": "GRNET"
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
                     }
                 },
                 "subscriptions": ["argo.test"]
@@ -15421,7 +15422,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "hostname": "argo-devel.ni4os.eu",
                         "info_url": "http://argo-devel.ni4os.eu",
                         "service": "argo.webui",
-                        "site": "GRNET"
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
                     }
                 },
                 "subscriptions": ["argo.webui"]
@@ -15438,7 +15440,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "hostname": "argo.ni4os.eu",
                         "info_url": "https://argo.ni4os.eu",
                         "service": "argo.webui",
-                        "site": "GRNET"
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
                     }
                 },
                 "subscriptions": ["argo.webui"]
@@ -15455,7 +15458,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "generic.certificate.validity",
                         "hostname": "argo-mon-devel.egi.eu",
                         "service": "argo.mon",
-                        "site": "SRCE"
+                        "site": "SRCE",
+                        "tenants": "TENANT2"
                     }
                 },
                 "subscriptions": ["argo-mon-devel.egi.eu"]
@@ -15470,7 +15474,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "generic.certificate.validity",
                         "hostname": "argo-mon-devel.ni4os.eu",
                         "service": "argo.mon",
-                        "site": "SRCE"
+                        "site": "SRCE",
+                        "tenants": "TENANT2"
                     }
                 },
                 "subscriptions": ["argo-mon-devel.ni4os.eu"]
@@ -15567,7 +15572,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "TENANT1,TENANT2"
+                            "tenants": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15610,7 +15615,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "TENANT1"
+                            "tenants": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15652,7 +15657,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "TENANT1"
+                            "tenants": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15690,7 +15695,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "TENANT2"
+                            "tenants": "TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15738,7 +15743,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "TENANT2"
+                        "tenants": "TENANT2"
                     }
                 },
                 "round_robin": False
@@ -15796,7 +15801,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "TENANT1,TENANT2"
+                            "tenants": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15839,7 +15844,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "TENANT1"
+                            "tenants": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -15883,7 +15888,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "TENANT1,TENANT2"
+                            "tenants": "TENANT1,TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15921,7 +15926,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "TENANT2"
+                            "tenants": "TENANT2"
                         }
                     },
                     "round_robin": False
@@ -15966,7 +15971,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "hostname": "argo-mon-devel.egi.eu",
                             "service": "argo.mon",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
                         }
                     },
                     "subscriptions": ["argo-mon-devel.egi.eu"]
@@ -15981,7 +15987,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "hostname": "argo-mon-devel.ni4os.eu",
                             "service": "argo.mon",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
                         }
                     },
                     "subscriptions": ["argo-mon-devel.ni4os.eu"]
@@ -15997,7 +16004,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
                         }
                     },
                     "subscriptions": ["argo.test"]
@@ -16014,7 +16022,8 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
                         }
                     },
                     "subscriptions": ["argo.webui"]
@@ -16031,10 +16040,125 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
                         }
                     },
                     "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
+    def test_merge_entities_if_duplicates(self):
+        self.maxDiff = None
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": [
+                    {
+                        "entity_class": "proxy",
+                        "metadata": {
+                            "name": "argo.test__argo.ni4os.eu",
+                            "namespace": "default",
+                            "labels": {
+                                "generic_http_ar_argoui_ni4os":
+                                    "generic.http.ar-argoui-ni4os",
+                                "hostname": "argo.ni4os.eu",
+                                "info_url": "https://argo.ni4os.eu",
+                                "service": "argo.test",
+                                "site": "GRNET",
+                                "tenants": "TENANT1"
+                            }
+                        },
+                        "subscriptions": ["argo.test"]
+                    },
+                    {
+                        "entity_class": "proxy",
+                        "metadata": {
+                            "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                            "namespace": "default",
+                            "labels": {
+                                "generic_http_connect": "generic.http.connect",
+                                "hostname": "argo-mon-devel.ni4os.eu",
+                                "service": "argo.mon",
+                                "site": "GRNET",
+                                "tenants": "TENANT1"
+                            }
+                        },
+                        "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
+                ],
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        entities = merger.merge_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda e: e["metadata"]["name"]), [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.egi.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "generic_http_connect": "generic.http.connect",
+                            "hostname": "argo-mon-devel.ni4os.eu",
+                            "service": "argo.mon",
+                            "site": "GRNET,SRCE",
+                            "tenants": "TENANT1,TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
                 }
             ]
         )
