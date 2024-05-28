@@ -786,7 +786,7 @@ class ConfigurationGenerator:
                         "attempts": configuration["config"]["maxCheckAttempts"]
                     },
                     "labels": {
-                        "tenant": self.tenant
+                        "tenants": self.tenant
                     }
                 },
                 "round_robin": False
@@ -868,7 +868,7 @@ class ConfigurationGenerator:
                                     "name": name,
                                     "namespace": namespace,
                                     "annotations": {"attempts": attempts},
-                                    "labels": {"tenant": self.tenant}
+                                    "labels": {"tenants": self.tenant}
                                 },
                                 "round_robin": False
                             }

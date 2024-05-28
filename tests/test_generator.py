@@ -4187,7 +4187,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4224,7 +4224,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4289,7 +4289,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4325,7 +4325,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4384,7 +4384,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4439,7 +4439,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "default"
+                            "tenants": "default"
                         }
                     },
                     "round_robin": False,
@@ -4469,7 +4469,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "default"
+                            "tenants": "default"
                         }
                     },
                     "round_robin": False,
@@ -4533,7 +4533,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4570,7 +4570,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4634,7 +4634,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4677,7 +4677,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4713,7 +4713,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4745,7 +4745,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4809,7 +4809,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4852,7 +4852,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4884,7 +4884,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4950,7 +4950,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -5020,7 +5020,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5059,7 +5059,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5097,7 +5097,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5162,7 +5162,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5204,7 +5204,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5268,7 +5268,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5338,7 +5338,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5386,7 +5386,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5448,7 +5448,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5492,7 +5492,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5553,7 +5553,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5591,7 +5591,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5633,7 +5633,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5672,7 +5672,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5736,7 +5736,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5802,7 +5802,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5879,7 +5879,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5950,7 +5950,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6012,7 +6012,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6076,7 +6076,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6138,7 +6138,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6202,7 +6202,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6261,7 +6261,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6295,7 +6295,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6385,7 +6385,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6423,7 +6423,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6462,7 +6462,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6551,7 +6551,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6589,7 +6589,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6625,7 +6625,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6717,7 +6717,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6756,7 +6756,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6792,7 +6792,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6874,7 +6874,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6924,7 +6924,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "1"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6967,7 +6967,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7041,7 +7041,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "2"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7132,7 +7132,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "2"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7193,7 +7193,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7265,7 +7265,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7351,7 +7351,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7412,7 +7412,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7488,7 +7488,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7565,7 +7565,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7626,7 +7626,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7663,7 +7663,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7745,7 +7745,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7782,7 +7782,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7858,7 +7858,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7895,7 +7895,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7973,7 +7973,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8010,7 +8010,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8084,7 +8084,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8121,7 +8121,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8183,7 +8183,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8244,7 +8244,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8315,7 +8315,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8388,7 +8388,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8477,7 +8477,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8508,7 +8508,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8570,7 +8570,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8610,7 +8610,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8688,7 +8688,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8728,7 +8728,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8795,7 +8795,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8841,7 +8841,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8906,7 +8906,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8971,7 +8971,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9001,7 +9001,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9031,7 +9031,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "4"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9092,7 +9092,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9132,7 +9132,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9201,7 +9201,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9269,7 +9269,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9335,7 +9335,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9399,7 +9399,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9443,7 +9443,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9523,7 +9523,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9567,7 +9567,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9632,7 +9632,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9682,7 +9682,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9740,7 +9740,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9773,7 +9773,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9835,7 +9835,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9871,7 +9871,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9931,7 +9931,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -10010,7 +10010,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -10055,7 +10055,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "2"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -10121,7 +10121,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "attempts": "3"
                     },
                     "labels": {
-                        "tenant": "MOCK_TENANT"
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -10201,7 +10201,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10243,7 +10243,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10305,7 +10305,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10343,7 +10343,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10385,7 +10385,7 @@ class CheckConfigurationTests(unittest.TestCase):
                             "attempts": "2"
                         },
                         "labels": {
-                            "tenant": "MOCK_TENANT"
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
