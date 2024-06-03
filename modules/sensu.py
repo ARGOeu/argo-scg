@@ -329,10 +329,10 @@ class Sensu:
 
             return interval_equal
 
-        def annotations_equality(c1, c2):
-            annotations_equal = False
+        def _equality_2lvl(c1, c2, key):
+            _equal = False
             key1 = "metadata"
-            key2 = "annotations"
+            key2 = key
             condition1 = key2 in c1[key1] and key2 in c2[key1]
             condition2 = key2 not in c1[key1] and key2 not in c2[key1]
 
@@ -341,25 +341,32 @@ class Sensu:
                 condition3 = c1[key1][key2] == c2[key1][key2]
 
             if (condition1 and condition3) or condition2:
-                annotations_equal = True
+                _equal = True
 
-            return annotations_equal
+            return _equal
+
+        def annotations_equality(c1, c2):
+            return _equality_2lvl(c1, c2, key="annotations")
+
+        def labels_equality(c1, c2):
+            return _equality_2lvl(c1, c2, key="labels")
 
         equal = False
-        if check1["command"] == check2["command"] and \
-                sorted(check1["subscriptions"]) == \
-                sorted(check2["subscriptions"]) and \
-                sorted(check1["handlers"]) == sorted(check2["handlers"]) and \
-                proxy_equality(check1, check2) and \
-                interval_equality(check1, check2) and \
-                check1["timeout"] == check2["timeout"] and \
-                check1["publish"] == check2["publish"] and \
-                check1["metadata"]["name"] == check2["metadata"]["name"] and \
-                check1["metadata"]["namespace"] == \
-                check2["metadata"]["namespace"] and \
-                check1["round_robin"] == check2["round_robin"] and \
-                check1["pipelines"] == check2["pipelines"] and \
-                annotations_equality(check1, check2):
+        if ((check1["command"] == check2["command"] and
+                sorted(check1["subscriptions"]) ==
+                sorted(check2["subscriptions"]) and
+                sorted(check1["handlers"]) == sorted(check2["handlers"]) and
+                proxy_equality(check1, check2) and
+                interval_equality(check1, check2) and
+                check1["timeout"] == check2["timeout"] and
+                check1["publish"] == check2["publish"] and
+                check1["metadata"]["name"] == check2["metadata"]["name"] and
+                check1["metadata"]["namespace"] ==
+                check2["metadata"]["namespace"] and
+                check1["round_robin"] == check2["round_robin"] and
+                check1["pipelines"] == check2["pipelines"] and
+                annotations_equality(check1, check2)) and
+                labels_equality(check1, check2)):
             equal = True
 
         return equal

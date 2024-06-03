@@ -4776,6 +4776,86 @@ class SensuCheckTests(unittest.TestCase):
     @patch("argo_scg.sensu.Sensu._delete_checks")
     @patch("argo_scg.sensu.Sensu._fetch_events")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_if_changing_labels(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        copied_mock_checks = [copy.deepcopy(item) for item in mock_checks]
+        copied_mock_checks[0]["metadata"].pop("labels")
+        copied_mock_checks[2]["metadata"]["labels"]["tenants"] = "TENANT2"
+        checks2 = [
+            mock_checks[0], mock_checks[1], mock_checks[2], mock_checks[3],
+            mock_checks[4], self.checks[2]
+        ]
+        checks3 = [checks2[0], checks2[2], checks2[3], checks2[4], checks2[5]]
+        mock_get_checks.side_effect = [copied_mock_checks, checks2, checks3]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_checks(self.checks, namespace="tenant1")
+
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.status-argoui-ni4os"],
+            namespace="tenant1"
+        )
+        mock_delete_events.assert_called_once_with(
+            events={
+                "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
+            },
+            namespace="tenant1"
+        )
+        self.assertEqual(mock_put.call_count, 3)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.http.ar-argoui-ni4os",
+                data=json.dumps(self.checks[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.certificate.validity",
+                data=json.dumps(self.checks[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.tcp.connect",
+                data=json.dumps(self.checks[1]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Check generic.certificate.validity "
+                f"created",
+                f"INFO:{LOGNAME}:tenant1: Check generic.http.ar-argoui-ni4os "
+                f"updated",
+                f"INFO:{LOGNAME}:tenant1: Check generic.tcp.connect updated"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_handle_passive_check_if_new(
             self, mock_get_checks, mock_get_events, mock_delete_checks,
             mock_delete_events, mock_put
@@ -5773,6 +5853,114 @@ class SensuEntityTests(unittest.TestCase):
             self, mock_get_entities, mock_delete_entities, mock_put
     ):
         mock_get_entities.return_value = mock_entities[:-2]
+        mock_delete_entities.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_proxy_entities(
+                entities=self.entities, namespace="tenant1"
+            )
+
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-devel.ni4os.eu",
+                data=json.dumps(self.entities[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-mon.ni4os.eu",
+                data=json.dumps(self.entities[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+
+        mock_delete_entities.assert_called_once_with(
+            entities=["gocdb.ni4os.eu"],
+            namespace="tenant1"
+        )
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_entities")
+    @patch("argo_scg.sensu.Sensu._get_proxy_entities")
+    def test_handle_proxy_entities_if_different_labels(
+            self, mock_get_entities, mock_delete_entities, mock_put
+    ):
+        copied_mock_entities = [
+            copy.deepcopy(item) for item in mock_entities[:-2]
+        ]
+        copied_mock_entities[0]["metadata"]["labels"]["tenants"] = "TENANT2"
+        mock_get_entities.return_value = copied_mock_entities
+        mock_delete_entities.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_proxy_entities(
+                entities=self.entities, namespace="tenant1"
+            )
+
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-devel.ni4os.eu",
+                data=json.dumps(self.entities[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-mon.ni4os.eu",
+                data=json.dumps(self.entities[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+
+        mock_delete_entities.assert_called_once_with(
+            entities=["gocdb.ni4os.eu"],
+            namespace="tenant1"
+        )
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_entities")
+    @patch("argo_scg.sensu.Sensu._get_proxy_entities")
+    def test_handle_proxy_entities_if_missing_labels(
+            self, mock_get_entities, mock_delete_entities, mock_put
+    ):
+        copied_mock_entities = [
+            copy.deepcopy(item) for item in mock_entities[:-2]
+        ]
+        copied_mock_entities[0]["metadata"]["labels"].pop("tenants")
+        mock_get_entities.return_value = copied_mock_entities
         mock_delete_entities.side_effect = mock_delete_response
         mock_put.side_effect = mock_post_response
 
