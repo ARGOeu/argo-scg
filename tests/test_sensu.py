@@ -8949,6 +8949,17 @@ class MetricOutputTests(unittest.TestCase):
              ",/ops/Role=NULL/Capability=NULL\"\n\\nx509userproxysubject = \""
              "/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr\""
              "\n\\nx509UserProxyVOName = \"ops\"\n\\n\n\\n\\nCOMPLETED\\n")
+        sample_output_multi_tenant_check = copy.deepcopy(sample_output)
+        sample_output_multi_tenant_check["check"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT,TENANT2"
+        sample_output_multi_tenant_check_entity = copy.deepcopy(sample_output)
+        sample_output_multi_tenant_check_entity["check"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT1,TENANT2"
+        sample_output_multi_tenant_check_entity["entity"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT1, TENANT2, TENANT3"
         self.output = MetricOutput(data=sample_output)
         self.output_oneline = MetricOutput(data=sample_output_one_line)
         self.output_oneline_perfdata = MetricOutput(
@@ -8959,6 +8970,12 @@ class MetricOutputTests(unittest.TestCase):
         )
         self.output_multiline_with_breaks = MetricOutput(
             data=sample_output_multiline_with_breaks
+        )
+        self.output_multitenant_check = MetricOutput(
+            data=sample_output_multi_tenant_check
+        )
+        self.output_multitenant_check_entity = MetricOutput(
+            data=sample_output_multi_tenant_check_entity
         )
 
     def test_get_service(self):
@@ -9193,6 +9210,16 @@ class MetricOutputTests(unittest.TestCase):
 
     def test_get_namespace(self):
         self.assertEqual(self.output.get_namespace(), "tenant")
+
+    def test_get_tenants(self):
+        self.assertEqual(self.output.get_tenants(), ["TENANT"])
+        self.assertEqual(
+            self.output_multitenant_check.get_tenants(), ["TENANT"]
+        )
+        self.assertEqual(
+            self.output_multitenant_check_entity.get_tenants(),
+            ["TENANT1", "TENANT2"]
+        )
 
 
 class SensuCheckCallTests(unittest.TestCase):
