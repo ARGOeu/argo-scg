@@ -6,7 +6,7 @@ import sys
 from argo_scg.config import Config, AgentConfig
 from argo_scg.exceptions import SensuException, ConfigException, \
     PoemException, WebApiException, GeneratorException
-from argo_scg.generator import ConfigurationGenerator
+from argo_scg.generator import ConfigurationGenerator, ConfigurationMerger
 from argo_scg.logger import get_logger
 from argo_scg.poem import Poem
 from argo_scg.sensu import Sensu
@@ -51,70 +51,151 @@ def main():
         skipped_metrics = config.get_skipped_metrics()
         agents_configurations = config.get_agents_configurations()
 
-        tenants = config.get_tenants()
         namespaces = config.get_namespaces()
 
         if args.tenant:
-            if args.tenant not in tenants:
+            if args.tenant not in config.get_tenants():
                 parser.error(f"Tenant {args.tenant} does not exist")
                 sys.exit(2)
 
             else:
-                tenants = [args.tenant]
+                namespaces = {
+                    namespace4tenant(args.tenant, namespaces): [args.tenant]
+                }
 
         sensu = Sensu(url=sensu_url, token=sensu_token, namespaces=namespaces)
 
         if not args.tenant:
             sensu.handle_namespaces()
 
-        for tenant in tenants:
-            namespace = namespace4tenant(tenant, namespaces)
-
+        for namespace, tenants in namespaces.items():
             try:
-                webapi = WebApi(
-                    url=webapi_url,
-                    token=webapi_tokens[tenant],
-                    tenant=tenant,
-                    topo_groups_filter=topo_groups_filter[tenant] if
-                    topo_groups_filter[tenant] else None,
-                    topo_endpoints_filter=topo_endpoints_filter[tenant] if
-                    topo_endpoints_filter[tenant] else None
-                )
+                namespace_secrets = ""
+                namespace_publish_bool = False
+                tenants_checks = dict()
+                tenants_entities = dict()
+                tenants_internal_services = dict()
+                tenants_subscriptions = dict()
+                tenants_metric_overrides = dict()
+                tenants_attribute_overrides = dict()
+                for tenant in tenants:
+                    if publish_bool[tenant]:
+                        namespace_publish_bool = publish_bool[tenant]
 
-                poem = Poem(
-                    url=poem_urls[tenant],
-                    token=poem_tokens[tenant],
-                    tenant=tenant
-                )
+                    if namespace_secrets:
+                        if secrets[tenant] != namespace_secrets:
+                            logger.warning(
+                                f"{namespace}: Secrets file not unique across "
+                                f"tenants"
+                            )
 
-                if local_topology[tenant]:
-                    with open(local_topology[tenant]) as f:
-                        topology = json.load(f)
+                    else:
+                        namespace_secrets = secrets[tenant]
 
-                else:
-                    topology = webapi.get_topology()
-
-                if agents_configurations[tenant]:
-                    agent_config = AgentConfig(
-                        file=agents_configurations[tenant]
+                    webapi = WebApi(
+                        url=webapi_url,
+                        token=webapi_tokens[tenant],
+                        tenant=tenant,
+                        topo_groups_filter=topo_groups_filter[tenant] if
+                        topo_groups_filter[tenant] else None,
+                        topo_endpoints_filter=topo_endpoints_filter[tenant] if
+                        topo_endpoints_filter[tenant] else None
                     )
-                    custom_subs = agent_config.get_custom_subs()
+
+                    poem = Poem(
+                        url=poem_urls[tenant],
+                        token=poem_tokens[tenant],
+                        tenant=tenant
+                    )
+
+                    if local_topology[tenant]:
+                        with open(local_topology[tenant]) as f:
+                            topology = json.load(f)
+
+                    else:
+                        topology = webapi.get_topology()
+
+                    if agents_configurations[tenant]:
+                        agent_config = AgentConfig(
+                            file=agents_configurations[tenant]
+                        )
+                        custom_subs = agent_config.get_custom_subs()
+
+                    else:
+                        custom_subs = None
+
+                    generator = ConfigurationGenerator(
+                        metrics=poem.get_metrics_configurations(),
+                        profiles=metricprofiles[tenant],
+                        metric_profiles=webapi.get_metric_profiles(),
+                        topology=topology,
+                        attributes=poem.get_metric_overrides(),
+                        secrets_file=secrets[tenant],
+                        default_ports=poem.get_default_ports(),
+                        tenant=tenant,
+                        skipped_metrics=skipped_metrics[tenant],
+                        subscription=subscriptions[tenant]
+                    )
+
+                    tenants_checks.update({
+                        tenant: generator.generate_checks(
+                            publish=publish_bool[tenant],
+                            namespace=namespace
+                        )
+                    })
+
+                    tenants_entities.update({
+                        tenant: generator.generate_entities(namespace=namespace)
+                    })
+
+                    tenants_internal_services.update({
+                        tenant: generator.generate_internal_services()
+                    })
+
+                    tenants_subscriptions.update({
+                        tenant: generator.generate_subscriptions(
+                            custom_subs=custom_subs
+                        )
+                    })
+
+                    tenants_metric_overrides.update({
+                        tenant: generator.get_metric_parameter_overrides()
+                    })
+
+                    tenants_attribute_overrides.update({
+                        tenant: generator.get_host_attribute_overrides()
+                    })
+
+                if len(tenants) > 1:
+                    merger = ConfigurationMerger(
+                        checks=tenants_checks,
+                        entities=tenants_entities,
+                        internal_services=tenants_internal_services,
+                        subscriptions=tenants_subscriptions,
+                        metricoverrides4agents=tenants_metric_overrides,
+                        attributeoverrides4agents=tenants_attribute_overrides
+                    )
+
+                    checks = merger.merge_checks()
+                    entities = merger.merge_entities()
+                    metric_parameter_overrides = \
+                        merger.merge_metric_parameter_overrides()
+                    host_attribute_overrides = \
+                        merger.merge_attribute_overrides()
+                    internal_services = merger.merge_internal_services()
+                    subs = merger.merge_subscriptions()
 
                 else:
-                    custom_subs = None
-
-                generator = ConfigurationGenerator(
-                    metrics=poem.get_metrics_configurations(),
-                    profiles=metricprofiles[tenant],
-                    metric_profiles=webapi.get_metric_profiles(),
-                    topology=topology,
-                    attributes=poem.get_metric_overrides(),
-                    secrets_file=secrets[namespace],
-                    default_ports=poem.get_default_ports(),
-                    tenant=tenant,
-                    skipped_metrics=skipped_metrics[namespace],
-                    subscription=subscriptions[namespace]
-                )
+                    checks = tenants_checks[tenants[0]]
+                    entities = tenants_entities[tenants[0]]
+                    metric_parameter_overrides = tenants_metric_overrides[
+                        tenants[0]
+                    ]
+                    host_attribute_overrides = tenants_attribute_overrides[
+                        tenants[0]
+                    ]
+                    internal_services = tenants_internal_services[tenants[0]]
+                    subs = tenants_subscriptions[tenants[0]]
 
                 sensu.add_daily_filter(namespace=namespace)
                 sensu.handle_slack_handler(
@@ -122,40 +203,28 @@ def main():
                 )
                 sensu.add_reduce_alerts_pipeline(namespace=namespace)
 
-                if publish_bool[namespace]:
+                if namespace_publish_bool:
                     sensu.handle_publisher_handler(namespace=namespace)
                     sensu.add_hard_state_filter(namespace=namespace)
                     sensu.add_hard_state_pipeline(namespace=namespace)
 
-                sensu.handle_checks(
-                    checks=generator.generate_checks(
-                        publish=publish_bool[namespace],
-                        namespace=namespace
-                    ),
-                    namespace=namespace
-                )
+                sensu.handle_checks(checks=checks, namespace=namespace)
                 sensu.add_cpu_check(namespace=namespace)
                 sensu.add_memory_check(namespace=namespace)
 
                 if namespace != "default":
                     sensu.handle_proxy_entities(
-                        entities=generator.generate_entities(
-                            namespace=namespace
-                        ),
-                        namespace=namespace
+                        entities=entities, namespace=namespace
                     )
 
                 sensu.handle_agents(
-                    metric_parameters_overrides=generator.
-                    get_metric_parameter_overrides(),
-                    host_attributes_overrides=generator.
-                    get_host_attribute_overrides(),
-                    services=generator.generate_internal_services(),
-                    subscriptions=generator.generate_subscriptions(
-                        custom_subs=custom_subs
-                    ),
+                    metric_parameters_overrides=metric_parameter_overrides,
+                    host_attributes_overrides=host_attribute_overrides,
+                    services=internal_services,
+                    subscriptions=subs,
                     namespace=namespace
                 )
+
                 logger.info(f"{namespace}: All synced!")
 
             except json.decoder.JSONDecodeError as e:

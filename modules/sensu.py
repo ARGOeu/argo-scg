@@ -1461,8 +1461,17 @@ class MetricOutput:
     def get_site(self):
         return self.data["entity"]["metadata"]["labels"]["site"]
 
-    def get_namespace(self):
-        return self.data["check"]["metadata"]["namespace"]
+    def get_tenants(self):
+        check_tenants = set([
+            item.strip() for item in
+            self.data["check"]["metadata"]["labels"]["tenants"].split(",")
+        ])
+        entity_tenants = set([
+            item.strip() for item in
+            self.data["entity"]["metadata"]["labels"]["tenants"].split(",")
+        ])
+
+        return sorted(list(entity_tenants.intersection(check_tenants)))
 
 
 class SensuCtl:

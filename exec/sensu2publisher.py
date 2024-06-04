@@ -38,7 +38,7 @@ def main():
     try:
         with timeout(seconds=10, error_message="Timeout when reading stdin"):
             output = MetricOutput(data=json.load(sys.stdin))
-            namespace = output.get_namespace()
+            tenants = output.get_tenants()
 
     except TimeoutError as err:
         logger.error(err)
@@ -54,16 +54,7 @@ def main():
 
     try:
         config = Config(config_file="/etc/argo-scg/scg.conf")
-        publisher_queue = config.get_publisher_queue()[namespace]
 
-    except (
-            configparser.ParsingError, configparser.NoOptionError,
-            configparser.NoSectionError
-    ) as err:
-        logger.error(f"Error parsing config file: {err}")
-        sys.exit(1)
-
-    try:
         service = output.get_service()
         hostname = output.get_hostname()
         metric_name = output.get_metric_name()
@@ -72,18 +63,31 @@ def main():
         summary = output.get_summary()
         message = output.get_message()
 
-        ams_m2q_call = [
-            "ams-metric-to-queue", "--servicestatetype", "HARD",
-            "--queue", publisher_queue, "--service", service,
-            "--hostname", hostname, "--metric", metric_name,
-            "--status", status, "--summary", summary, "--message", repr(message)
-        ]
-        if perfdata:
-            ams_m2q_call.extend(["--actual_data", perfdata])
+        for tenant in tenants:
+            publisher_queue = config.get_publisher_queue()[tenant]
 
-        subprocess.call(ams_m2q_call)
+            ams_m2q_call = [
+                "ams-metric-to-queue", "--servicestatetype", "HARD",
+                "--queue", publisher_queue, "--service", service,
+                "--hostname", hostname, "--metric", metric_name,
+                "--status", status, "--summary", summary,
+                "--message", repr(message)
+            ]
+            if perfdata:
+                ams_m2q_call.extend(["--actual_data", perfdata])
 
-        logger.info(f"Command '{' '.join(ams_m2q_call)}' called successfully")
+            subprocess.call(ams_m2q_call)
+
+            logger.info(
+                f"Command '{' '.join(ams_m2q_call)}' called successfully"
+            )
+
+    except (
+            configparser.ParsingError, configparser.NoOptionError,
+            configparser.NoSectionError
+    ) as err:
+        logger.error(f"Error parsing config file: {err}")
+        sys.exit(1)
 
     except subprocess.CalledProcessError as err:
         logger.error(f"Error executing command: {err}")
