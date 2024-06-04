@@ -1461,9 +1461,6 @@ class MetricOutput:
     def get_site(self):
         return self.data["entity"]["metadata"]["labels"]["site"]
 
-    def get_namespace(self):
-        return self.data["check"]["metadata"]["namespace"]
-
     def get_tenants(self):
         check_tenants = set([
             item.strip() for item in

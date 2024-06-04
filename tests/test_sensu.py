@@ -9208,9 +9208,6 @@ class MetricOutputTests(unittest.TestCase):
     def test_get_site(self):
         self.assertEqual(self.output.get_site(), "site-name")
 
-    def test_get_namespace(self):
-        self.assertEqual(self.output.get_namespace(), "tenant")
-
     def test_get_tenants(self):
         self.assertEqual(self.output.get_tenants(), ["TENANT"])
         self.assertEqual(
