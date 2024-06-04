@@ -786,7 +786,7 @@ class ConfigurationGenerator:
                         "attempts": configuration["config"]["maxCheckAttempts"]
                     },
                     "labels": {
-                        "tenant": self.tenant
+                        "tenants": self.tenant
                     }
                 },
                 "round_robin": False
@@ -868,7 +868,7 @@ class ConfigurationGenerator:
                                     "name": name,
                                     "namespace": namespace,
                                     "annotations": {"attempts": attempts},
-                                    "labels": {"tenant": self.tenant}
+                                    "labels": {"tenants": self.tenant}
                                 },
                                 "round_robin": False
                             }
@@ -1303,7 +1303,9 @@ class ConfigurationGenerator:
                                             })
 
                 labels.update({
-                    "service": item["service"], "site": item["group"]
+                    "service": item["service"],
+                    "site": item["group"],
+                    "tenants": self.tenant
                 })
 
                 site_entries = [
@@ -1501,10 +1503,10 @@ class ConfigurationMerger:
                     tenants = [
                         item.strip() for item in merged_checks[check_index][
                             "metadata"
-                        ]["labels"]["tenant"].split(",")
+                        ]["labels"]["tenants"].split(",")
                     ]
 
-                    tenants.append(check["metadata"]["labels"]["tenant"])
+                    tenants.append(check["metadata"]["labels"]["tenants"])
 
                     subs.extend(check["subscriptions"])
 
@@ -1513,18 +1515,55 @@ class ConfigurationMerger:
                     )
 
                     merged_checks[check_index]["metadata"]["labels"][
-                        "tenant"
+                        "tenants"
                     ] = ",".join(sorted(tenants))
 
         return merged_checks
 
     def merge_entities(self):
         merged_entities = list()
-
         for tenant, entities in self.entities.items():
+            entities_names = [
+                item["metadata"]["name"] for item in merged_entities
+            ]
             for entity in entities:
-                if entity["metadata"]["name"] not in merged_entities:
+                if entity["metadata"]["name"] not in entities_names:
                     merged_entities.append(entity)
+
+                else:
+                    entity_index = next(
+                        (index for (index, d) in enumerate(merged_entities) if
+                         d["metadata"]["name"] == entity["metadata"]["name"]),
+                        None
+                    )
+
+                    for key, value in entity["metadata"]["labels"].items():
+                        if key not in merged_entities[entity_index]["metadata"][
+                            "labels"
+                        ]:
+                            merged_entities[entity_index]["metadata"][
+                                "labels"
+                            ].update({key: value})
+
+                    site = [
+                        item.strip() for item in merged_entities[entity_index][
+                            "metadata"
+                        ]["labels"]["site"].split(",")
+                    ]
+                    tenants = [
+                        item.strip() for item in merged_entities[entity_index][
+                            "metadata"
+                        ]["labels"]["tenants"].split(",")
+                    ]
+                    site.append(entity["metadata"]["labels"]["site"])
+                    tenants.append(entity["metadata"]["labels"]["tenants"])
+
+                    merged_entities[entity_index]["metadata"]["labels"][
+                        "site"
+                    ] = ",".join(sorted(site))
+                    merged_entities[entity_index]["metadata"]["labels"][
+                        "tenants"
+                    ] = ",".join(sorted(tenants))
 
         return sorted(merged_entities, key=lambda e: e["metadata"]["name"])
 
