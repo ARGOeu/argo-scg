@@ -47,26 +47,28 @@ secrets = /path/to/secrets
 subscription = servicetype
 agents_configuration = /path/to/config-file
 skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
+namespace = tenant2_namespace
 ```
 
-* `poem_url` - POEM URL for the given tenant (mandatory),
-* `poem_token` - POEM token for the given tenant (mandatory),
-* `webapi_token` - Web-API token for the given tenant (mandatory),
-* `metricprofile` - comma separated list of metric profiles for the given tenant (mandatory),
-* `publish` - flag that marks if the metrics results should be sent to publisher (mandatory),
-* `publisher_queue` - publisher queue; this entry can be left out if `publish` is set to `False` (mandatory if `publish` is set to `True`),
-* `topology` - path to file containing topology in .json format (optional) - in practice only used for internal monitoring, because all the other tenants have topology available in Web-API,
-* `topology_groups_filter ` - query parameter(s) used when fetching topology groups from Web-API (optional),
-* `topology_endpoints_filter ` - query parameter(s) used when fetching topology endpoints from Web-API (optional),
-* `attributes` - path to the file containing the attributes for the given tenant (optional),
-* `secrets` - path to file containing sensitive attributes (e.g. passwords, tokens) (optional),
+* `poem_url` - POEM URL for the given tenant (mandatory);
+* `poem_token` - POEM token for the given tenant (mandatory);
+* `webapi_token` - Web-API token for the given tenant (mandatory);
+* `metricprofile` - comma separated list of metric profiles for the given tenant (mandatory);
+* `publish` - flag that marks if the metrics results should be sent to publisher (mandatory);
+* `publisher_queue` - publisher queue; this entry can be left out if `publish` is set to `False` (mandatory if `publish` is set to `True`);
+* `topology` - path to file containing topology in .json format (optional) - in practice only used for internal monitoring, because all the other tenants have topology available in Web-API;
+* `topology_groups_filter ` - query parameter(s) used when fetching topology groups from Web-API (optional);
+* `topology_endpoints_filter ` - query parameter(s) used when fetching topology endpoints from Web-API (optional);
+* `attributes` - path to the file containing the attributes for the given tenant (optional);
+* `secrets` - path to file containing sensitive attributes (e.g. passwords, tokens) (optional);
 * `subscription` - type of subscription to use (optional; if not set, it uses the default value). There are three possible values:
   * `entity` - entity name is used as subscription,
   * `hostname` - hostname is used as a subscription (this is a default value),
   * `hostname_with_id` - hostname with id is used as subscription,
   * `servicetype` - service types are used as subscription,
-* `agents_configuration` - path to configuration file for custom agents' subscriptions (optional),
-* `skipped_metrics` - list of metrics that should not be run on Sensu agent (optional). These metrics would then be skipped when doing the configuration for the Sensu agent, even if they do exist in the metric profile.
+* `agents_configuration` - path to configuration file for custom agents' subscriptions (optional);
+* `skipped_metrics` - list of metrics that should not be run on Sensu agent (optional). These metrics would then be skipped when doing the configuration for the Sensu agent, even if they do exist in the metric profile;
+* `namespace` - Sensu namespace to which the tenant is going to be associated (optional). If not set, tenant is associated to the namespace with the same name as tenant.
 
 #### Agents configuration
 
@@ -517,3 +519,8 @@ In addition to `slack` handler, there is also `daily` filter, which takes care t
 
 This pipeline, in addition to filter and handler defined by the tool, uses two built-in filters. `is_incident` filter allows non-ok (1, 2, 3) statuses and resolution events to be processed. That way the events with OK status are not passed to the handler (only in case of resolution). There is also `not_silenced` filter - that one allows only events which have not been silenced.
 
+### Multiple tenants in single namespace
+
+Normally, each namespace is used for a single tenant. It is possible, though, to configure the namespace to be able to handle multiple tenants. This should only be used for tenants with small number of checks and entities. In case of multiple tenants, from the user's point of view, it is only necessary to define the namespace explicitly for the tenants that are going to be run in the same namespace. `scg-reload.py` tool will then automatically configure the namespace with information from multiple tenants. 
+
+The step with fetching data from the web-api and POEM are tenant-specific, so this is done in a loop. After the data have been fetched, they are merged together, taking into account duplicate checks or entities, and then they are created in the namespace. Filters, handlers and pipelines are created only once per namespace. When running the checks, `sensu2publisher.py` handler also takes into account possible multiple tenants, and fetches the appropriate AMS Publisher queue from the configuration file. If there are any discrepancies, the tool will inform the user to make the necessary adjustments.
