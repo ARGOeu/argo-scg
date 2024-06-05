@@ -199,7 +199,7 @@ def main():
 
                 sensu.add_daily_filter(namespace=namespace)
                 sensu.handle_slack_handler(
-                    secrets_file=secrets[namespace], namespace=namespace
+                    secrets_file=namespace_secrets, namespace=namespace
                 )
                 sensu.add_reduce_alerts_pipeline(namespace=namespace)
 
