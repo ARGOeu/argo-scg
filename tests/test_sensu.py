@@ -1416,12 +1416,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1456,7 +1456,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.mon__argo-mon-devel.ni4os.eu",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1466,14 +1466,14 @@ mock_events_ctl = [
                     "info_url": "https://argo-mon-devel.ni4os.eu",
                     "service": "argo.mon",
                     "site": "SRCE",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1622,12 +1622,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.http.connect-nagios-ui",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "3"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1662,7 +1662,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.mon__argo-mon-devel.ni4os.eu",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1672,14 +1672,14 @@ mock_events_ctl = [
                     "info_url": "https://argo-mon-devel.ni4os.eu",
                     "service": "argo.mon",
                     "site": "SRCE",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1768,12 +1768,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "grnet.agora.healthcheck",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "3"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1808,21 +1808,21 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "grnet_agora_healthcheck": "grnet.agora.healthcheck",
                     "hostname": "agora.ni4os.eu",
                     "info_url": "agora.ni4os.eu",
                     "service": "eu.eudat.itsm.spmt",
                     "site": "GRNET",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1934,12 +1934,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1974,7 +1974,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1986,14 +1986,14 @@ mock_events_ctl = [
                     "service": "eu.ni4os.repo.publication",
                     "site": "RCUB",
                     "ssl": "-S --sni",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2098,12 +2098,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2138,7 +2138,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.ni4os.repo.publication__videolectures.net",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -2149,14 +2149,14 @@ mock_events_ctl = [
                     "service": "eu.ni4os.repo.publication",
                     "site": "JSI",
                     "ssl": "",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2245,12 +2245,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "argo.poem-tools.check",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "4"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2295,18 +2295,18 @@ mock_events_ctl = [
             "user": "agent",
             "metadata": {
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
                     "services": "argo.mon,argo.test",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2388,12 +2388,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "hr.srce.CertLifetime-Local",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
                 },
                 "labels": {
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2438,18 +2438,18 @@ mock_events_ctl = [
             "user": "agent",
             "metadata": {
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
-                "namespace": "ni4os",
+                "namespace": "default",
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
                     "services": "argo.mon",
-                    "tenants": "NI4OS"
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "ni4os"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2518,10 +2518,10 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'argo.certificate.validity-htcondorce',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'annotations': {'attempts': '2'},
                 "labels": {
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'secrets': None,
@@ -2542,7 +2542,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2558,13 +2558,13 @@ mock_events_multiline_ctl = [
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
                     'site_bdii': 'site-bdii.cern.ch',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxx',
-        'metadata': {'namespace': 'egi'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
         }],
@@ -2629,9 +2629,9 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'ch.cern.HTCondorCE-JobState',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'annotations': {'attempts': '2'},
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2651,7 +2651,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2667,13 +2667,13 @@ mock_events_multiline_ctl = [
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
                     'site_bdii': 'site-bdii.cern.ch',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxx',
-        'metadata': {'namespace': 'egi'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
         }],
@@ -2718,9 +2718,9 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'ch.cern.HTCondorCE-JobSubmit',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'created_by': 'admin',
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2735,7 +2735,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2751,7 +2751,7 @@ mock_events_multiline_ctl = [
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
                     'site_bdii': 'site-bdii.cern.ch',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -2816,9 +2816,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'eu.egi.sec.ARC-CE-5',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'annotations': {'attempts': '2'},
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2837,7 +2837,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname1.example.com',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname1.example.com',
@@ -2862,13 +2862,13 @@ mock_events_ctl_with_unknowns = [
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
                     'site': 'SITE1',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxxx',
-        'metadata': {'namespace': 'egi'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state',
             'type': 'Pipeline',
@@ -2929,9 +2929,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-ARIS',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'annotations': {'attempts': '3'},
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2951,7 +2951,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname1.example.com',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname1.example.com',
@@ -2976,13 +2976,13 @@ mock_events_ctl_with_unknowns = [
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
                     'site': 'SITE1',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxxx',
-        'metadata': {'namespace': 'egi'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state',
             'type': 'Pipeline',
@@ -3028,9 +3028,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'created_by': 'admin',
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -3049,7 +3049,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname2.example.com',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname2.example.com',
@@ -3074,7 +3074,7 @@ mock_events_ctl_with_unknowns = [
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
                     'site': 'SITE2',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3122,9 +3122,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'created_by': 'admin',
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -3143,7 +3143,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname2.example.com',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname2.example.com',
@@ -3168,7 +3168,7 @@ mock_events_ctl_with_unknowns = [
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
                     'site': 'SITE2',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3213,9 +3213,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'created_by': 'admin',
-                "labels": {"tenants": "EGI"}
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -3234,7 +3234,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname3.example.com',
-                'namespace': 'egi',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname3.example.com',
@@ -3260,7 +3260,7 @@ mock_events_ctl_with_unknowns = [
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
                     'site': 'SITE3',
-                    "tenants": "EGI"
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3272,6 +3272,134 @@ mock_events_ctl_with_unknowns = [
         'timestamp': 1710730711
     }
 ]
+
+mock_events_ctl_multiple_tenants = [
+    {
+        "check": {
+            "command": "/usr/lib64/nagios/plugins/check_http -H "
+                       "hostname.test.eu -t 60 --link --onredirect follow -S "
+                       "--sni -u /meh/",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "lists.submerse.eu",
+                "submerse.eu",
+                "www.grnet.gr"
+            ],
+            "proxy_entity_name": "WebService__hostname.test.eu_id_3",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_http_connect == "
+                    "'generic.http.connect'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 0.34235994,
+            "executed": 1717576405,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1717573405
+                },
+                {
+                    "status": 0,
+                    "executed": 1717573705
+                },
+                {
+                    "status": 0,
+                    "executed": 1717573705
+                }
+            ],
+            "issued": 1717576405,
+            "output":
+                "<A HREF=\"https://hostname.test.eu:443/meh/\" target="
+                "\"_blank\">HTTP OK: HTTP/1.1 200 OK - 9743 bytes in 0.339 "
+                "second response time </A>|time=0.339263s;;;"
+                "0.000000 size=9743B;;;0 \n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1717576405,
+            "occurrences": 14,
+            "occurrences_watermark": 14,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.http.connect",
+                "namespace": "default",
+                "labels": {
+                    "tenants": "tenant2"
+                },
+                "annotations": {
+                    "attempts": "3"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-poc-devel-el9.cro-ngi.hr",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "subscriptions": [
+                "lists.submerse.eu"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "WebService__hostname.test.eu_id_3",
+                "namespace": "default",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect": "generic.http.connect",
+                    "generic_http_connect_path": "-u /meh/",
+                    "hostname": "hostname.test.eu",
+                    "info_url": "https://hostname.test.eu/meh/",
+                    "service": "WebService",
+                    "site": "SITE1",
+                    "ssl": "-S --sni",
+                    "tenants": "tenant2"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "default"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 100,
+        "timestamp": 1717576405
+    }
+] + mock_events_ctl
 
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
@@ -9822,7 +9950,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
 
 class SensuCtlTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensuctl = SensuCtl(namespace="default")
+        self.sensuctl = SensuCtl(tenant="ni4os", namespace="default")
 
     @patch("argo_scg.sensu.subprocess.check_output")
     def test_get_events(self, mock_subprocess):
@@ -9863,6 +9991,74 @@ class SensuCtlTests(unittest.TestCase):
                 "  OK - The run finished successfully.",
                 "sensu-agent-ni4os-devel.cro-ngi                  "
                 "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events_if_multiple_tenants(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl_multiple_tenants).encode("utf-8")
+        sensuctl = SensuCtl(tenant="tenant2", namespace="default")
+        events = self.sensuctl.get_events()
+        events2 = sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Entity                                           "
+                "Metric                          Status    Executed           "
+                "  Output",
+                "_________________________________________________"
+                "_____________________________________________________________"
+                "___________",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
+                "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
+                "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time",
+                "eu.eudat.itsm.spmt__agora.ni4os.eu               "
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
+                "  OK - Agora is up.",
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
+                "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
+                "88 days)",
+                "eu.ni4os.repo.publication__videolectures.net     "
+                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:31"
+                "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "argo.poem-tools.check           OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+        self.assertEqual(
+            events2, [
+                "Entity                             "
+                "Metric                      Status    Executed           "
+                "  Output",
+                "___________________________________"
+                "_________________________________________________________"
+                "___________",
+                "WebService__hostname.test.eu_id_3  "
+                "generic.http.connect        OK        2024-06-05 08:33:25"
+                "  <A HREF=\"https://hostname.test.eu:443/meh/\" target="
+                "\"_blank\">HTTP OK: HTTP/1.1 200 OK - 9743 bytes in 0.339 "
+                "second response time </A>",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "argo.poem-tools.check       OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "hr.srce.CertLifetime-Local  OK        2023-04-24 07:01:10"
                 "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
                 "(May  2 06:53:47 2024 GMT)"
             ]

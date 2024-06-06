@@ -1475,8 +1475,9 @@ class MetricOutput:
 
 
 class SensuCtl:
-    def __init__(self, namespace):
+    def __init__(self, tenant, namespace):
         self.namespace = namespace
+        self.tenant = tenant
 
     def _get_events(self):
         output = subprocess.check_output([
@@ -1541,7 +1542,19 @@ class SensuCtl:
 
     def get_events(self):
         data = self._get_events()
-        return self._format_events(data)
+        tenant_data = [
+            item for item in data if
+            (self.tenant in [
+                t.strip() for t in item["check"]["metadata"]["labels"][
+                    "tenants"
+                ].split(",")
+            ] and self.tenant in [
+                t.strip() for t in item["entity"]["metadata"]["labels"][
+                    "tenants"
+                ].split(",")
+            ]) or item["entity"]["entity_class"] == "agent"
+        ]
+        return self._format_events(tenant_data)
 
     @staticmethod
     def _is_servicetype(item, servicetype):
