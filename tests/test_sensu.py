@@ -2299,7 +2299,6 @@ mock_events_ctl = [
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
                     "services": "argo.mon,argo.test",
-                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
@@ -2441,8 +2440,7 @@ mock_events_ctl = [
                 "namespace": "default",
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
-                    "services": "argo.mon",
-                    "tenants": "ni4os"
+                    "services": "argo.mon"
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"

@@ -1544,6 +1544,7 @@ class SensuCtl:
         data = self._get_events()
         tenant_data = [
             item for item in data if
+            item["entity"]["entity_class"] == "agent" or
             (self.tenant in [
                 t.strip() for t in item["check"]["metadata"]["labels"][
                     "tenants"
@@ -1552,7 +1553,7 @@ class SensuCtl:
                 t.strip() for t in item["entity"]["metadata"]["labels"][
                     "tenants"
                 ].split(",")
-            ]) or item["entity"]["entity_class"] == "agent"
+            ])
         ]
         return self._format_events(tenant_data)
 
