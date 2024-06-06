@@ -39,6 +39,10 @@ def main():
         config = Config(config_file=args.config)
         namespace = namespace4tenant(args.tenant, config.get_namespaces())
 
+        if args.tenant not in config.get_tenants():
+            parser.error(f"Tenant {args.tenant} does not exist")
+            sys.exit(2)
+
     except ConfigException as e:
         print(str(e))
         sys.exit(2)
