@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.5.2
+Version:       0.6.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -14,14 +14,7 @@ Prefix:        %{_prefix}
 BuildArch:     noarch
 
 BuildRequires: python3-devel
-
-%if 0%{?el7}
-Requires:      python36-requests
-
-%else
 Requires:      python3-requests
-
-%endif
 
 
 %description
@@ -55,6 +48,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 17 2024 Katarina Zailac <kzailac@srce.hr> - 0.6.0-1%{?dist}
+- ARGO-4555 Display only events for the given tenant
+- ARGO-4663 Fix wrongly referenced variable
+- ARGO-4601 Implement the changes in the executables
+- ARGO-4618 Add tenant name in entity labels
+- ARGO-4616 Improve agent handling to include case with multiple tenants in single namespace
+- ARGO-4554 Create entities from multiple tenants in single namespace
+- ARGO-4553 Create checks from multiple tenants in single namespace
+- ARGO-4563 Fix error when trying to execute check on agent ad hoc
+- ARGO-4551 Add tenant name in check labels
+- ARGO-4550 Use tenant name instead of namespace in tools
 * Thu Apr 4 2024 Katarina Zailac <kzailac@srce.hr> - 0.5.2-1%{?dist}
 - ARGO-4523 Change filtering of Sensu events
 - ARGO-4509 Add attempts annotation to sensu.cpu.usage and sensu.memory.usage checks
