@@ -29,11 +29,12 @@ mock_entities = [
         "deregistration": {},
         "metadata": {
             "name": "argo-devel.ni4os.eu",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "sensu.io/managed_by": "sensuctl",
                 "hostname": "argo-devel.ni4os.eu",
-                "argo_webui": "argo.webui"
+                "argo_webui": "argo.webui",
+                "tenants": "TENANT1"
             }
         },
         "sensu_agent_version": ""
@@ -58,11 +59,12 @@ mock_entities = [
         "deregistration": {},
         "metadata": {
             "name": "argo.ni4os.eu",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "sensu.io/managed_by": "sensuctl",
                 "hostname": "argo.ni4os.eu",
-                "generic_http_connect": "generic.http.connect"
+                "generic_http_connect": "generic.http.connect",
+                "tenants": "TENANT1"
             }
         },
         "sensu_agent_version": ""
@@ -87,11 +89,12 @@ mock_entities = [
         "deregistration": {},
         "metadata": {
             "name": "gocdb.ni4os.eu",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "hostname": "gocdb.ni4os.eu",
                 "sensu.io/managed_by": "sensuctl",
-                "eu_ni4os_ops_gocdb": "eu.ni4os.ops.gocdb"
+                "eu_ni4os_ops_gocdb": "eu.ni4os.ops.gocdb",
+                "tenants": "TENANT1"
             }
         },
         "sensu_agent_version": ""
@@ -147,7 +150,7 @@ mock_entities = [
         ],
         "metadata": {
             "name": "sensu-agent1",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "hostname": "sensu-agent1",
                 "services": "internals"
@@ -207,7 +210,7 @@ mock_entities = [
         "metadata": {
             "name": "sensu-agent2",
             "services": "internals",
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         },
         "sensu_agent_version": "6.6.5"
     }
@@ -250,10 +253,13 @@ mock_checks = [
         "env_vars": None,
         "metadata": {
             "name": "generic.http.ar-argoui-ni4os",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "created_by": "root",
             "annotations": {
                 "attempts": "2"
+            },
+            "labels": {
+                "tenants": "TENANT1"
             }
         },
         "secrets": None,
@@ -295,10 +301,13 @@ mock_checks = [
         "env_vars": None,
         "metadata": {
             "name": "generic.http.status-argoui-ni4os",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "created_by": "root",
             "annotations": {
                 "attempts": "2"
+            },
+            "labels": {
+                "tenants": "TENANT1"
             }
         },
         "secrets": None,
@@ -337,10 +346,13 @@ mock_checks = [
         "env_vars": None,
         "metadata": {
             "name": "generic.tcp.connect",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "created_by": "root",
             "annotations": {
                 "attempts": "3"
+            },
+            "labels": {
+                "tenants": "TENANT1"
             }
         },
         "secrets": None,
@@ -371,7 +383,7 @@ mock_checks = [
         "env_vars": None,
         "metadata": {
             "name": "sensu.cpu.usage",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "annotations": {
                 "attempts": "3"
             },
@@ -411,7 +423,7 @@ mock_checks = [
         "env_vars": None,
         "metadata": {
             "name": "sensu.memory.usage",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "annotations": {
                 "attempts": "3"
             },
@@ -454,11 +466,12 @@ mock_events = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.ni4os.eu",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "labels": {
                     "generic_http_ar_argoui_ni4os":
                         "generic.http.ar-argoui-ni4os",
-                    "hostname": "argo.ni4os.eu"
+                    "hostname": "argo.ni4os.eu",
+                    "tenants": "TENANT1"
                 }
             },
             "sensu_agent_version": ""},
@@ -528,7 +541,10 @@ mock_events = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.http.ar-argoui-ni4os",
-                "namespace": "TENANT1"
+                "namespace": "tenant1",
+                "labels": {
+                    "tenants": "TENANT1"
+                }
             },
             "secrets": None,
             "is_silenced": False,
@@ -537,7 +553,7 @@ mock_events = [
             "pipelines": []
         },
         "metadata": {
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         }
     },
     {
@@ -563,11 +579,11 @@ mock_events = [
             "deregistration": {},
             "metadata": {
                 "name": "gocdb.ni4os.eu",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "labels": {
                     "generic_tcp_connect": "generic.tcp.connect",
-                    "hostname":
-                        "gocdb.ni4os.eu"
+                    "hostname": "gocdb.ni4os.eu",
+                    "tenants": "TENANT1"
                 }
             },
             "sensu_agent_version": ""
@@ -618,7 +634,10 @@ mock_events = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.tcp.connect",
-                "namespace": "TENANT1"
+                "namespace": "tenant1",
+                "labels": {
+                    "tenants": "TENANT1"
+                }
             },
             "secrets": None,
             "is_silenced": False,
@@ -627,7 +646,7 @@ mock_events = [
             "pipelines": []
         },
         "metadata": {
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         },
         "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
         "sequence": 1531
@@ -656,13 +675,14 @@ mock_events = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.ni4os.eu",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "labels": {
                     "hostname": "argo.ni4os.eu",
                     "generic_http_ar_argoui_ni4os":
                         "generic.http.ar-argoui-ni4os",
                     "generic_http_status_argoui_ni4os":
-                        "generic.http.status-argoui-ni4os"
+                        "generic.http.status-argoui-ni4os",
+                    "tenants": "TENANT1"
                 }
             },
             "sensu_agent_version": ""
@@ -716,7 +736,10 @@ mock_events = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.http.status-argoui-ni4os",
-                "namespace": "TENANT1"
+                "namespace": "tenant1",
+                "labels": {
+                    "tenants": "TENANT1"
+                }
             },
             "secrets": None,
             "is_silenced": False,
@@ -725,7 +748,7 @@ mock_events = [
             "pipelines": []
         },
         "metadata": {
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         },
         "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
     }
@@ -833,10 +856,10 @@ mock_namespaces = [
         "name": "default"
     },
     {
-        "name": "TENANT1"
+        "name": "tenant1"
     },
     {
-        "name": "TENANT2"
+        "name": "tenant2"
     },
     {
         "name": "sensu-system"
@@ -982,7 +1005,7 @@ mock_handlers1 = [
     {
         "metadata": {
             "name": "simple_handler",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "sensu.io/managed_by": "sensuctl"
             },
@@ -1005,7 +1028,7 @@ mock_handlers2 = [
     {
         "metadata": {
             "name": "simple_handler",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "sensu.io/managed_by": "sensuctl"
             },
@@ -1025,7 +1048,7 @@ mock_handlers2 = [
     {
         "metadata": {
             "name": "publisher-handler",
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         },
         "type": "pipe",
         "command": "/bin/sensu2publisher.py",
@@ -1039,7 +1062,7 @@ mock_handlers2 = [
     {
         "metadata": {
             "name": "slack",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "created_by": "root"
         },
         "type": "pipe",
@@ -1059,7 +1082,7 @@ mock_handlers3 = [
     {
         "metadata": {
             "name": "simple_handler",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "labels": {
                 "sensu.io/managed_by": "sensuctl"
             },
@@ -1079,7 +1102,7 @@ mock_handlers3 = [
     {
         "metadata": {
             "name": "publisher-handler",
-            "namespace": "TENANT1"
+            "namespace": "tenant1"
         },
         "type": "pipe",
         "command": "/bin/sensu2publisher.py >> /tmp/test",
@@ -1093,7 +1116,7 @@ mock_handlers3 = [
     {
         "metadata": {
             "name": "slack",
-            "namespace": "TENANT1",
+            "namespace": "tenant1",
             "created_by": "root"
         },
         "type": "pipe",
@@ -1393,9 +1416,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1430,7 +1456,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.mon__argo-mon-devel.ni4os.eu",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1439,14 +1465,15 @@ mock_events_ctl = [
                     "hostname": "argo-mon-devel.ni4os.eu",
                     "info_url": "https://argo-mon-devel.ni4os.eu",
                     "service": "argo.mon",
-                    "site": "SRCE"
+                    "site": "SRCE",
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1595,9 +1622,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.http.connect-nagios-ui",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "3"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1632,7 +1662,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "argo.mon__argo-mon-devel.ni4os.eu",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1641,14 +1671,15 @@ mock_events_ctl = [
                     "hostname": "argo-mon-devel.ni4os.eu",
                     "info_url": "https://argo-mon-devel.ni4os.eu",
                     "service": "argo.mon",
-                    "site": "SRCE"
+                    "site": "SRCE",
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1737,9 +1768,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "grnet.agora.healthcheck",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "3"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1774,20 +1808,21 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "grnet_agora_healthcheck": "grnet.agora.healthcheck",
                     "hostname": "agora.ni4os.eu",
                     "info_url": "agora.ni4os.eu",
                     "service": "eu.eudat.itsm.spmt",
-                    "site": "GRNET"
+                    "site": "GRNET",
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -1899,9 +1934,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -1936,7 +1974,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -1947,14 +1985,15 @@ mock_events_ctl = [
                     "port": "443",
                     "service": "eu.ni4os.repo.publication",
                     "site": "RCUB",
-                    "ssl": "-S --sni"
+                    "ssl": "-S --sni",
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2059,9 +2098,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "generic.certificate.validity",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2096,7 +2138,7 @@ mock_events_ctl = [
             "deregistration": {},
             "metadata": {
                 "name": "eu.ni4os.repo.publication__videolectures.net",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "generic_certificate_validity":
                         "generic.certificate.validity",
@@ -2106,14 +2148,15 @@ mock_events_ctl = [
                     "port": "80",
                     "service": "eu.ni4os.repo.publication",
                     "site": "JSI",
-                    "ssl": ""
+                    "ssl": "",
+                    "tenants": "ni4os"
                 }
             },
             "sensu_agent_version": ""
         },
         "id": "xxxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2202,9 +2245,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "argo.poem-tools.check",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "4"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2249,17 +2295,17 @@ mock_events_ctl = [
             "user": "agent",
             "metadata": {
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
-                    "services": "argo.mon,argo.test"
+                    "services": "argo.mon,argo.test",
                 }
             },
             "sensu_agent_version": "6.7.1+oss_el7"
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2341,9 +2387,12 @@ mock_events_ctl = [
             "env_vars": None,
             "metadata": {
                 "name": "hr.srce.CertLifetime-Local",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "annotations": {
                     "attempts": "2"
+                },
+                "labels": {
+                    "tenants": "ni4os"
                 }
             },
             "secrets": None,
@@ -2388,7 +2437,7 @@ mock_events_ctl = [
             "user": "agent",
             "metadata": {
                 "name": "sensu-agent-ni4os-devel.cro-ngi",
-                "namespace": "NI4OS",
+                "namespace": "default",
                 "labels": {
                     "hostname": "sensu-agent-ni4os-devel.cro-ngi",
                     "services": "argo.mon"
@@ -2398,7 +2447,7 @@ mock_events_ctl = [
         },
         "id": "xxx",
         "metadata": {
-            "namespace": "NI4OS"
+            "namespace": "default"
         },
         "pipelines": [
             {
@@ -2467,8 +2516,11 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'argo.certificate.validity-htcondorce',
-                'namespace': 'EGI',
-                'annotations': {'attempts': '2'}
+                'namespace': 'default',
+                'annotations': {'attempts': '2'},
+                "labels": {
+                    "tenants": "ni4os"
+                }
             },
             'secrets': None,
             'is_silenced': False,
@@ -2488,7 +2540,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2503,13 +2555,14 @@ mock_events_multiline_ctl = [
                     'hostname': 'ce503.cern.ch',
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
-                    'site_bdii': 'site-bdii.cern.ch'
+                    'site_bdii': 'site-bdii.cern.ch',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxx',
-        'metadata': {'namespace': 'EGI'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
         }],
@@ -2574,8 +2627,9 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'ch.cern.HTCondorCE-JobState',
-                'namespace': 'EGI',
-                'annotations': {'attempts': '2'}
+                'namespace': 'default',
+                'annotations': {'attempts': '2'},
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2595,7 +2649,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2610,13 +2664,14 @@ mock_events_multiline_ctl = [
                     'hostname': 'ce503.cern.ch',
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
-                    'site_bdii': 'site-bdii.cern.ch'
+                    'site_bdii': 'site-bdii.cern.ch',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxx',
-        'metadata': {'namespace': 'EGI'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state', 'type': 'Pipeline', 'api_version': 'core/v2'
         }],
@@ -2661,8 +2716,9 @@ mock_events_multiline_ctl = [
             'env_vars': None,
             'metadata': {
                 'name': 'ch.cern.HTCondorCE-JobSubmit',
-                'namespace': 'EGI',
-                'created_by': 'admin'
+                'namespace': 'default',
+                'created_by': 'admin',
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2677,7 +2733,7 @@ mock_events_multiline_ctl = [
             'deregistration': {},
             'metadata': {
                 'name': 'org.opensciencegrid.htcondorce__ce503.cern.ch',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'argo_certificate_validity_htcondorce':
                         'argo.certificate.validity-htcondorce',
@@ -2692,7 +2748,8 @@ mock_events_multiline_ctl = [
                     'hostname': 'ce503.cern.ch',
                     'service': 'org.opensciencegrid.htcondorce',
                     'site': 'CERN-PROD',
-                    'site_bdii': 'site-bdii.cern.ch'
+                    'site_bdii': 'site-bdii.cern.ch',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -2757,8 +2814,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'eu.egi.sec.ARC-CE-5',
-                'namespace': 'EGI',
-                'annotations': {'attempts': '2'}
+                'namespace': 'default',
+                'annotations': {'attempts': '2'},
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2777,7 +2835,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname1.example.com',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname1.example.com',
@@ -2801,13 +2859,14 @@ mock_events_ctl_with_unknowns = [
                     'org_nordugrid_arc_ce_sw_python':
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
-                    'site': 'SITE1'
+                    'site': 'SITE1',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxxx',
-        'metadata': {'namespace': 'EGI'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state',
             'type': 'Pipeline',
@@ -2868,8 +2927,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-ARIS',
-                'namespace': 'EGI',
-                'annotations': {'attempts': '3'}
+                'namespace': 'default',
+                'annotations': {'attempts': '3'},
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2889,7 +2949,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname1.example.com',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname1.example.com',
@@ -2913,13 +2973,14 @@ mock_events_ctl_with_unknowns = [
                     'org_nordugrid_arc_ce_sw_python':
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
-                    'site': 'SITE1'
+                    'site': 'SITE1',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
         },
         'id': 'xxxxx',
-        'metadata': {'namespace': 'EGI'},
+        'metadata': {'namespace': 'default'},
         'pipelines': [{
             'name': 'hard_state',
             'type': 'Pipeline',
@@ -2965,8 +3026,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'EGI',
-                'created_by': 'admin'
+                'namespace': 'default',
+                'created_by': 'admin',
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -2985,7 +3047,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname2.example.com',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname2.example.com',
@@ -3009,7 +3071,8 @@ mock_events_ctl_with_unknowns = [
                     'org_nordugrid_arc_ce_sw_python':
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
-                    'site': 'SITE2'
+                    'site': 'SITE2',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3057,8 +3120,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'EGI',
-                'created_by': 'admin'
+                'namespace': 'default',
+                'created_by': 'admin',
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -3077,7 +3141,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname2.example.com',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname2.example.com',
@@ -3101,7 +3165,8 @@ mock_events_ctl_with_unknowns = [
                     'org_nordugrid_arc_ce_sw_python':
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
-                    'site': 'SITE2'
+                    'site': 'SITE2',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3146,8 +3211,9 @@ mock_events_ctl_with_unknowns = [
             'env_vars': None,
             'metadata': {
                 'name': 'org.nordugrid.ARC-CE-IGTF',
-                'namespace': 'EGI',
-                'created_by': 'admin'
+                'namespace': 'default',
+                'created_by': 'admin',
+                "labels": {"tenants": "ni4os"}
             },
             'secrets': None,
             'is_silenced': False,
@@ -3166,7 +3232,7 @@ mock_events_ctl_with_unknowns = [
             'deregistration': {},
             'metadata': {
                 'name': 'ARC-CE__hostname3.example.com',
-                'namespace': 'EGI',
+                'namespace': 'default',
                 'labels': {
                     'eu_egi_sec_arc_ce_5': 'eu.egi.sec.ARC-CE-5',
                     'hostname': 'hostname3.example.com',
@@ -3191,7 +3257,8 @@ mock_events_ctl_with_unknowns = [
                     'org_nordugrid_arc_ce_sw_python':
                         'org.nordugrid.ARC-CE-sw-python',
                     'service': 'ARC-CE',
-                    'site': 'SITE3'
+                    'site': 'SITE3',
+                    "tenants": "ni4os"
                 }
             },
             'sensu_agent_version': ''
@@ -3203,6 +3270,134 @@ mock_events_ctl_with_unknowns = [
         'timestamp': 1710730711
     }
 ]
+
+mock_events_ctl_multiple_tenants = [
+    {
+        "check": {
+            "command": "/usr/lib64/nagios/plugins/check_http -H "
+                       "hostname.test.eu -t 60 --link --onredirect follow -S "
+                       "--sni -u /meh/",
+            "handlers": [],
+            "high_flap_threshold": 0,
+            "interval": 300,
+            "low_flap_threshold": 0,
+            "publish": True,
+            "runtime_assets": None,
+            "subscriptions": [
+                "lists.submerse.eu",
+                "submerse.eu",
+                "www.grnet.gr"
+            ],
+            "proxy_entity_name": "WebService__hostname.test.eu_id_3",
+            "check_hooks": None,
+            "stdin": False,
+            "subdue": None,
+            "ttl": 0,
+            "timeout": 900,
+            "proxy_requests": {
+                "entity_attributes": [
+                    "entity.entity_class == 'proxy'",
+                    "entity.labels.generic_http_connect == "
+                    "'generic.http.connect'"
+                ],
+                "splay": False,
+                "splay_coverage": 0
+            },
+            "round_robin": False,
+            "duration": 0.34235994,
+            "executed": 1717576405,
+            "history": [
+                {
+                    "status": 0,
+                    "executed": 1717573405
+                },
+                {
+                    "status": 0,
+                    "executed": 1717573705
+                },
+                {
+                    "status": 0,
+                    "executed": 1717573705
+                }
+            ],
+            "issued": 1717576405,
+            "output":
+                "<A HREF=\"https://hostname.test.eu:443/meh/\" target="
+                "\"_blank\">HTTP OK: HTTP/1.1 200 OK - 9743 bytes in 0.339 "
+                "second response time </A>|time=0.339263s;;;"
+                "0.000000 size=9743B;;;0 \n",
+            "state": "passing",
+            "status": 0,
+            "total_state_change": 0,
+            "last_ok": 1717576405,
+            "occurrences": 14,
+            "occurrences_watermark": 14,
+            "output_metric_format": "",
+            "output_metric_handlers": None,
+            "env_vars": None,
+            "metadata": {
+                "name": "generic.http.connect",
+                "namespace": "default",
+                "labels": {
+                    "tenants": "tenant2"
+                },
+                "annotations": {
+                    "attempts": "3"
+                }
+            },
+            "secrets": None,
+            "is_silenced": False,
+            "scheduler": "",
+            "processed_by": "sensu-agent-poc-devel-el9.cro-ngi.hr",
+            "pipelines": [
+                {
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }
+            ]
+        },
+        "entity": {
+            "entity_class": "proxy",
+            "subscriptions": [
+                "lists.submerse.eu"
+            ],
+            "last_seen": 0,
+            "deregister": False,
+            "deregistration": {},
+            "metadata": {
+                "name": "WebService__hostname.test.eu_id_3",
+                "namespace": "default",
+                "labels": {
+                    "generic_certificate_validity":
+                        "generic.certificate.validity",
+                    "generic_http_connect": "generic.http.connect",
+                    "generic_http_connect_path": "-u /meh/",
+                    "hostname": "hostname.test.eu",
+                    "info_url": "https://hostname.test.eu/meh/",
+                    "service": "WebService",
+                    "site": "SITE1",
+                    "ssl": "-S --sni",
+                    "tenants": "tenant2"
+                }
+            },
+            "sensu_agent_version": ""
+        },
+        "id": "xxxx",
+        "metadata": {
+            "namespace": "default"
+        },
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ],
+        "sequence": 100,
+        "timestamp": 1717576405
+    }
+] + mock_events_ctl
 
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
@@ -3425,7 +3620,16 @@ def mock_function(*args, **kwargs):
 
 class SensuNamespaceTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "Tenant1": ["Tenant1"],
+                "Tenant2": ["Tenant2"],
+                "TeNAnT3": ["Tenant3"],
+                "tenant4": ["TENANT4"]
+            }
+        )
 
     @patch("requests.get")
     def test_get_namespaces(self, mock_get):
@@ -3440,7 +3644,7 @@ class SensuNamespaceTests(unittest.TestCase):
                 "Content-Type": "application/json"
             }
         )
-        self.assertEqual(sorted(namespaces), ["TENANT1", "TENANT2", "default"])
+        self.assertEqual(sorted(namespaces), ["default", "tenant1", "tenant2"])
         self.assertEqual(log.output, [f"INFO:{LOGNAME}:dummy"])
 
     @patch("requests.get")
@@ -3501,9 +3705,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
         mock_namespace.return_value = ["Tenant1", "Tenant2"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-            )
+            self.sensu.handle_namespaces()
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
@@ -3539,9 +3741,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.handle_namespaces(
-                    tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-                )
+                self.sensu.handle_namespaces()
         mock_put.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
             headers={
@@ -3572,9 +3772,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.handle_namespaces(
-                    tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-                )
+                self.sensu.handle_namespaces()
         mock_put.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/TeNAnT3",
             headers={
@@ -3607,9 +3805,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_subprocess.side_effect = mock_function
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-            )
+            self.sensu.handle_namespaces()
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
@@ -3660,9 +3856,7 @@ class SensuNamespaceTests(unittest.TestCase):
         )
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-            )
+            self.sensu.handle_namespaces()
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
@@ -3710,9 +3904,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_subprocess.side_effect = mock_function
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-            )
+            self.sensu.handle_namespaces()
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
@@ -3762,9 +3954,7 @@ class SensuNamespaceTests(unittest.TestCase):
         mock_subprocess.side_effect = mock_function
         mock_namespace.return_value = ["Tenant1", "Tenant2", "Tenant5"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_namespaces(
-                tenants=["Tenant1", "Tenant2", "TeNAnT3", "tenant4"]
-            )
+            self.sensu.handle_namespaces()
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
@@ -3804,7 +3994,15 @@ class SensuNamespaceTests(unittest.TestCase):
 
 class SensuCheckTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.checks = [
             {
                 "command": "/usr/lib64/nagios/plugins/check_http "
@@ -3830,10 +4028,11 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.http.ar-argoui-ni4os",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "annotations": {
                         "attempts": "3"
-                    }
+                    },
+                    "labels": {"tenants": "TENANT1"}
                 },
                 "round_robin": True,
                 "pipelines": []
@@ -3858,10 +4057,11 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.tcp.connect",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "annotations": {
                         "attempts": "3"
-                    }
+                    },
+                    "labels": {"tenants": "TENANT1"}
                 },
                 "round_robin": True,
                 "pipelines": []
@@ -3894,10 +4094,11 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "metadata": {
                     "name": "generic.certificate.validity",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "annotations": {
                         "attempts": "2"
-                    }
+                    },
+                    "labels": {"tenants": "TENANT1"}
                 },
                 "round_robin": True,
                 "pipelines": []
@@ -3909,10 +4110,10 @@ class SensuCheckTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._get_checks(namespace="TENANT1")
+            checks = self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3928,10 +4129,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(namespace="TENANT1")
+                self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3940,12 +4141,12 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Checks fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Checks fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -3956,10 +4157,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_checks(namespace="TENANT1")
+                self.sensu._get_checks(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -3968,11 +4169,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Checks fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Checks fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Checks fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Checks fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -3987,26 +4188,26 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.http.connect",
                     "generic.certificate.validity"
                 ],
-                namespace="TENANT1"
+                namespace="tenant1"
             )
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4016,11 +4217,11 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: "
+                f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.tcp.connect removed",
-                f"INFO:{LOGNAME}:TENANT1: "
+                f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.http.connect removed",
-                f"INFO:{LOGNAME}:TENANT1: "
+                f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.certificate.validity removed"
             }
         )
@@ -4034,20 +4235,20 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4057,10 +4258,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGNAME}:TENANT1: "
+                f"WARNING:{LOGNAME}:tenant1: "
                 f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGNAME}:TENANT1: "
+                f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.http.connect removed"
             }
         )
@@ -4074,20 +4275,20 @@ class SensuCheckTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_checks(
                 checks=["generic.tcp.connect", "generic.http.connect"],
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -4097,10 +4298,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGNAME}:TENANT1: "
+                f"WARNING:{LOGNAME}:tenant1: "
                 f"Check generic.tcp.connect not removed: "
                 f"400 BAD REQUEST",
-                f"INFO:{LOGNAME}:TENANT1: "
+                f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.http.connect removed"
             }
         )
@@ -4109,10 +4310,10 @@ class SensuCheckTests(unittest.TestCase):
     def test_delete_single_check(self, mock_delete):
         mock_delete.side_effect = mock_delete_response
         self.sensu.delete_check(
-            check="generic.tcp.connect", namespace="TENANT1"
+            check="generic.tcp.connect", namespace="tenant1"
         )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4126,11 +4327,11 @@ class SensuCheckTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_check(
-                check="generic.tcp.connect", namespace="TENANT1"
+                check="generic.tcp.connect", namespace="tenant1"
             )
 
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4138,7 +4339,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check generic.tcp.connect not removed: "
+            "Sensu error: tenant1: Check generic.tcp.connect not removed: "
             "400 BAD REQUEST: Something went wrong"
         )
 
@@ -4147,11 +4348,11 @@ class SensuCheckTests(unittest.TestCase):
         mock_delete.return_value = MockResponse(None, status_code=400)
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_check(
-                check="generic.tcp.connect", namespace="TENANT1"
+                check="generic.tcp.connect", namespace="tenant1"
             )
 
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -4159,7 +4360,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check generic.tcp.connect not removed: "
+            "Sensu error: tenant1: Check generic.tcp.connect not removed: "
             "400 BAD REQUEST"
         )
 
@@ -4184,25 +4385,25 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(self.checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4211,7 +4412,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4223,9 +4424,9 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Check generic.certificate.validity "
+                f"INFO:{LOGNAME}:tenant1: Check generic.certificate.validity "
                 f"created",
-                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"INFO:{LOGNAME}:tenant1: Check generic.http.ar-argoui-ni4os "
                 f"updated"
             }
         )
@@ -4260,17 +4461,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -4281,7 +4482,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
+                f"INFO:{LOGNAME}:tenant1: Check generic.tcp.connect updated"
             ]
         )
 
@@ -4367,17 +4568,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=[
                 "generic.http.ar-argoui-ni4os",
                 "generic.http.status-argoui-ni4os",
                 "generic.tcp.connect"
             ],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
@@ -4389,12 +4590,12 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.tcp.connect"
                 ]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/org.activemq.OpenWireSSL",
                 data=json.dumps(checks[0]),
                 headers={
@@ -4403,7 +4604,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/org.nagiosexchange.Broker-BDII",
                 data=json.dumps(checks[1]),
                 headers={
@@ -4415,9 +4616,9 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Check org.activemq.OpenWireSSL "
+                f"INFO:{LOGNAME}:tenant1: Check org.activemq.OpenWireSSL "
                 f"created",
-                f"INFO:{LOGNAME}:TENANT1: Check org.nagiosexchange.Broker-BDII "
+                f"INFO:{LOGNAME}:tenant1: Check org.nagiosexchange.Broker-BDII "
                 f"created"
             }
         )
@@ -4499,18 +4700,18 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=[
                 "generic.http.ar-argoui-ni4os",
                 "generic.http.status-argoui-ni4os",
                 "generic.tcp.connect"
             ],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
@@ -4522,12 +4723,12 @@ class SensuCheckTests(unittest.TestCase):
                     "generic.tcp.connect"
                 ]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/eudat.b2access.unity.login-local",
                 data=json.dumps(checks[0]),
                 headers={
@@ -4536,7 +4737,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/pl.plgrid.QCG-Computing",
                 data=json.dumps(checks[1]),
                 headers={
@@ -4550,9 +4751,9 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Check "
+                f"INFO:{LOGNAME}:tenant1: Check "
                 f"eudat.b2access.unity.login-local created",
-                f"INFO:{LOGNAME}:TENANT1: Check pl.plgrid.QCG-Computing created"
+                f"INFO:{LOGNAME}:tenant1: Check pl.plgrid.QCG-Computing created"
             }
         )
 
@@ -4610,23 +4811,23 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks([no_proxy_checks[0]], namespace="TENANT1")
+            self.sensu.handle_checks([no_proxy_checks[0]], namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.ar-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.ar-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(no_proxy_checks[0]),
             headers={
@@ -4637,7 +4838,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
+                f"INFO:{LOGNAME}:tenant1: Check generic.tcp.connect updated"
             ]
         )
 
@@ -4671,17 +4872,17 @@ class SensuCheckTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "generic.tcp.connect",
             data=json.dumps(check2),
             headers={
@@ -4692,8 +4893,88 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check generic.tcp.connect updated"
+                f"INFO:{LOGNAME}:tenant1: Check generic.tcp.connect updated"
             ]
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_events")
+    @patch("argo_scg.sensu.Sensu._delete_checks")
+    @patch("argo_scg.sensu.Sensu._fetch_events")
+    @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_handle_check_if_changing_labels(
+            self, mock_get_checks, mock_get_events, mock_delete_checks,
+            mock_delete_events, mock_put
+    ):
+        copied_mock_checks = [copy.deepcopy(item) for item in mock_checks]
+        copied_mock_checks[0]["metadata"].pop("labels")
+        copied_mock_checks[2]["metadata"]["labels"]["tenants"] = "TENANT2"
+        checks2 = [
+            mock_checks[0], mock_checks[1], mock_checks[2], mock_checks[3],
+            mock_checks[4], self.checks[2]
+        ]
+        checks3 = [checks2[0], checks2[2], checks2[3], checks2[4], checks2[5]]
+        mock_get_checks.side_effect = [copied_mock_checks, checks2, checks3]
+        mock_get_events.return_value = mock_events
+        mock_delete_checks.side_effect = mock_delete_response
+        mock_delete_events.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_checks(self.checks, namespace="tenant1")
+
+        self.assertEqual(mock_get_checks.call_count, 3)
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
+        mock_delete_checks.assert_called_once_with(
+            checks=["generic.http.status-argoui-ni4os"],
+            namespace="tenant1"
+        )
+        mock_delete_events.assert_called_once_with(
+            events={
+                "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
+            },
+            namespace="tenant1"
+        )
+        self.assertEqual(mock_put.call_count, 3)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.http.ar-argoui-ni4os",
+                data=json.dumps(self.checks[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.certificate.validity",
+                data=json.dumps(self.checks[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.tcp.connect",
+                data=json.dumps(self.checks[1]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+        ], any_order=True)
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Check generic.certificate.validity "
+                f"created",
+                f"INFO:{LOGNAME}:tenant1: Check generic.http.ar-argoui-ni4os "
+                f"updated",
+                f"INFO:{LOGNAME}:tenant1: Check generic.tcp.connect updated"
+            }
         )
 
     @patch("requests.put")
@@ -4730,15 +5011,15 @@ class SensuCheckTests(unittest.TestCase):
         checks = self.checks + [passive_check]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "eu.egi.SRM-VOGet",
             data=json.dumps(passive_check),
             headers={
@@ -4749,7 +5030,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check eu.egi.SRM-VOGet created"
+                f"INFO:{LOGNAME}:tenant1: Check eu.egi.SRM-VOGet created"
             ]
         )
 
@@ -4817,10 +5098,10 @@ class SensuCheckTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.handle_checks(checks=checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 2)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
         self.assertFalse(mock_get_events.called)
         self.assertFalse(mock_delete_checks.called)
         self.assertFalse(mock_delete_events.called)
@@ -4851,25 +5132,25 @@ class SensuCheckTests(unittest.TestCase):
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=self.checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4878,7 +5159,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4890,10 +5171,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGNAME}:TENANT1: Check "
+                f"WARNING:{LOGNAME}:tenant1: Check "
                 f"generic.certificate.validity not created: "
                 f"400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"INFO:{LOGNAME}:tenant1: Check generic.http.ar-argoui-ni4os "
                 f"updated"
             }
         )
@@ -4921,25 +5202,25 @@ class SensuCheckTests(unittest.TestCase):
         ]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_checks(checks=self.checks, namespace="TENANT1")
+            self.sensu.handle_checks(checks=self.checks, namespace="tenant1")
 
         self.assertEqual(mock_get_checks.call_count, 3)
-        mock_get_checks.assert_called_with(namespace="TENANT1")
-        mock_get_events.assert_called_once_with(namespace="TENANT1")
+        mock_get_checks.assert_called_with(namespace="tenant1")
+        mock_get_events.assert_called_once_with(namespace="tenant1")
         mock_delete_checks.assert_called_once_with(
             checks=["generic.http.status-argoui-ni4os"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete_events.assert_called_once_with(
             events={
                 "argo.ni4os.eu": ["generic.http.status-argoui-ni4os"]
             },
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.http.ar-argoui-ni4os",
                 data=json.dumps(self.checks[0]),
                 headers={
@@ -4948,7 +5229,7 @@ class SensuCheckTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "checks/generic.certificate.validity",
                 data=json.dumps(self.checks[2]),
                 headers={
@@ -4960,10 +5241,10 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"WARNING:{LOGNAME}:TENANT1: Check "
+                f"WARNING:{LOGNAME}:tenant1: Check "
                 f"generic.certificate.validity not created: "
                 f"400 BAD REQUEST",
-                f"INFO:{LOGNAME}:TENANT1: Check generic.http.ar-argoui-ni4os "
+                f"INFO:{LOGNAME}:tenant1: Check generic.http.ar-argoui-ni4os "
                 f"updated"
             }
         )
@@ -4988,9 +5269,9 @@ class SensuCheckTests(unittest.TestCase):
             "round_robin": False
         }
 
-        self.sensu.put_check(check=check, namespace="TENANT1")
+        self.sensu.put_check(check=check, namespace="tenant1")
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={
@@ -5022,10 +5303,10 @@ class SensuCheckTests(unittest.TestCase):
         }
 
         with self.assertRaises(SensuException) as context:
-            self.sensu.put_check(check=check, namespace="TENANT1")
+            self.sensu.put_check(check=check, namespace="tenant1")
 
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={
@@ -5036,7 +5317,7 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "Sensu error: tenant1: Check adhoc-check not created: "
             "400 BAD REQUEST: Something went wrong"
         )
 
@@ -5061,10 +5342,10 @@ class SensuCheckTests(unittest.TestCase):
         }
 
         with self.assertRaises(SensuException) as context:
-            self.sensu.put_check(check=check, namespace="TENANT1")
+            self.sensu.put_check(check=check, namespace="tenant1")
 
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "adhoc-check",
             data=json.dumps(check),
             headers={
@@ -5075,21 +5356,29 @@ class SensuCheckTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check adhoc-check not created: "
+            "Sensu error: tenant1: Check adhoc-check not created: "
             "400 BAD REQUEST"
         )
 
 
 class SensuEventsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
 
     @patch("requests.get")
     def test_fetch_events(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            checks = self.sensu._fetch_events(namespace="TENANT1")
+            checks = self.sensu._fetch_events(namespace="tenant1")
         self.assertEqual(checks, mock_events)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -5099,10 +5388,10 @@ class SensuEventsTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._fetch_events(namespace="TENANT1")
+                self.sensu._fetch_events(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5111,12 +5400,12 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Events fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: Events fetch error: "
+                f"WARNING:{LOGNAME}:tenant1: Events fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -5127,10 +5416,10 @@ class SensuEventsTests(unittest.TestCase):
 
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._fetch_events(namespace="TENANT1")
+                self.sensu._fetch_events(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events",
             headers={
                 "Authorization": "Key t0k3n",
                 "Content-Type": "application/json"
@@ -5139,11 +5428,11 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Events fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: Events fetch error: "
+                f"WARNING:{LOGNAME}:tenant1: Events fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -5160,27 +5449,27 @@ class SensuEventsTests(unittest.TestCase):
                     ],
                     "argo-devel.ni4os.eu": ["generic.certificate.validation"]
                 },
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo-devel.ni4os.eu/generic.certificate.validation",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5190,11 +5479,11 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"INFO:{LOGNAME}:tenant1: Event "
                 f"argo-devel.ni4os.eu/generic.certificate.validation removed",
-                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"INFO:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.http.connect removed",
-                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"INFO:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.tcp.connect removed"
             }
         )
@@ -5213,20 +5502,20 @@ class SensuEventsTests(unittest.TestCase):
                         "generic.http.connect"
                     ]
                 },
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5236,9 +5525,9 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"INFO:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.tcp.connect removed",
-                f"WARNING:{LOGNAME}:TENANT1: Event "
+                f"WARNING:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.http.connect not removed: "
                 f"400 BAD REQUEST: Something went wrong."
             }
@@ -5258,20 +5547,20 @@ class SensuEventsTests(unittest.TestCase):
                         "generic.http.connect"
                     ]
                 },
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.tcp.connect",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "events/argo.ni4os.eu/generic.http.connect",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5281,9 +5570,9 @@ class SensuEventsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Event "
+                f"INFO:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.tcp.connect removed",
-                f"WARNING:{LOGNAME}:TENANT1: Event "
+                f"WARNING:{LOGNAME}:tenant1: Event "
                 f"argo.ni4os.eu/generic.http.connect not removed: "
                 f"400 BAD REQUEST"
             }
@@ -5294,10 +5583,10 @@ class SensuEventsTests(unittest.TestCase):
         mock_delete.side_effect = mock_delete_response
         self.sensu.delete_event(
             entity="argo.ni4os.eu", check="generic.tcp.connect",
-            namespace="TENANT1"
+            namespace="tenant1"
         )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5311,11 +5600,12 @@ class SensuEventsTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
-                entity="argo.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="argo.ni4os.eu",
+                check="generic.tcp.connect",
+                namespace="tenant1"
             )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5323,7 +5613,7 @@ class SensuEventsTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "Sensu error: tenant1: Event argo.ni4os.eu/generic.tcp.connect not "
             "removed: 400 BAD REQUEST: Something went wrong"
         )
 
@@ -5332,11 +5622,12 @@ class SensuEventsTests(unittest.TestCase):
         mock_delete.return_value = MockResponse(None, status_code=400)
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
-                entity="argo.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="argo.ni4os.eu",
+                check="generic.tcp.connect",
+                namespace="tenant1"
             )
         mock_delete.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/events/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/events/"
             "argo.ni4os.eu/generic.tcp.connect",
             headers={
                 "Authorization": "Key t0k3n"
@@ -5344,7 +5635,7 @@ class SensuEventsTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Event argo.ni4os.eu/generic.tcp.connect not "
+            "Sensu error: tenant1: Event argo.ni4os.eu/generic.tcp.connect not "
             "removed: 400 BAD REQUEST"
         )
 
@@ -5352,8 +5643,9 @@ class SensuEventsTests(unittest.TestCase):
     def test_get_event_output(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         output = self.sensu.get_event_output(
-            entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-            namespace="TENANT1"
+            entity="gocdb.ni4os.eu",
+            check="generic.tcp.connect",
+            namespace="tenant1"
         )
         self.assertEqual(
             output,
@@ -5366,13 +5658,14 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_events_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="gocdb.ni4os.eu",
+                check="generic.tcp.connect",
+                namespace="tenant1"
             )
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Events fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
 
@@ -5381,13 +5674,14 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_events_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="gocdb.ni4os.eu", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="gocdb.ni4os.eu",
+                check="generic.tcp.connect",
+                namespace="tenant1"
             )
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Events fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Events fetch error: 400 BAD REQUEST"
         )
 
     @patch("requests.get")
@@ -5395,26 +5689,35 @@ class SensuEventsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertRaises(SensuException) as context:
             self.sensu.get_event_output(
-                entity="mock.entity.com", check="generic.tcp.connect",
-                namespace="TENANT1"
+                entity="mock.entity.com",
+                check="generic.tcp.connect",
+                namespace="tenant1"
             )
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: No event for entity mock.entity.com and "
+            "Sensu error: tenant1: No event for entity mock.entity.com and "
             "check generic.tcp.connect"
         )
 
 
 class SensuEntityTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.entities = [
             {
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "argo-devel.ni4os.eu",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "labels": {
                         "generic_http_ar_argoui_ni4os":
                             "generic.http.ar-argoui-ni4os",
@@ -5422,7 +5725,8 @@ class SensuEntityTests(unittest.TestCase):
                         "generic_certificate_validity":
                             "generic.certificate.validity",
                         "generic_tcp_connect": "generic.tcp.connect",
-                        "hostname": "argo-devel.ni4os.eu"
+                        "hostname": "argo-devel.ni4os.eu",
+                        "tenants": "TENANT1"
                     },
                 },
                 "subscriptions": [
@@ -5433,10 +5737,11 @@ class SensuEntityTests(unittest.TestCase):
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "argo.ni4os.eu",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "labels": {
                         "generic_http_connect": "generic.http.connect",
-                        "hostname": "argo.ni4os.eu"
+                        "hostname": "argo.ni4os.eu",
+                        "tenants": "TENANT1"
                     }
                 },
                 "subscriptions": [
@@ -5447,10 +5752,11 @@ class SensuEntityTests(unittest.TestCase):
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "argo-mon.ni4os.eu",
-                    "namespace": "TENANT1",
+                    "namespace": "tenant1",
                     "labels": {
                         "generic_tcp_connect": "generic.tcp.connect",
-                        "hostname": "argo-mon.ni4os.eu"
+                        "hostname": "argo-mon.ni4os.eu",
+                        "tenants": "TENANT1"
                     }
                 },
                 "subscriptions": [
@@ -5464,9 +5770,9 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            entities = self.sensu._get_proxy_entities(namespace="TENANT1")
+            entities = self.sensu._get_proxy_entities(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5484,10 +5790,10 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_proxy_entities(namespace="TENANT1")
+                self.sensu._get_proxy_entities(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5497,12 +5803,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "Sensu error: tenant1: Error fetching proxy entities: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
+                f"ERROR:{LOGNAME}:tenant1: Error fetching proxy entities: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -5512,10 +5818,10 @@ class SensuEntityTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_proxy_entities(namespace="TENANT1")
+                self.sensu._get_proxy_entities(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5525,12 +5831,12 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching proxy entities: "
+            "Sensu error: tenant1: Error fetching proxy entities: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching proxy entities: "
+                f"ERROR:{LOGNAME}:tenant1: Error fetching proxy entities: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -5541,26 +5847,26 @@ class SensuEntityTests(unittest.TestCase):
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
 
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, namespace="tenant1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5570,9 +5876,9 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
-                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu removed",
-                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
+                f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu removed",
+                f"INFO:{LOGNAME}:tenant1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -5585,26 +5891,26 @@ class SensuEntityTests(unittest.TestCase):
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, namespace="tenant1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5614,10 +5920,10 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
-                f"WARNING:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu "
+                f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
+                f"WARNING:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu "
                 f"not removed: 400 BAD REQUEST: Something went wrong.",
-                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
+                f"INFO:{LOGNAME}:tenant1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -5630,26 +5936,26 @@ class SensuEntityTests(unittest.TestCase):
         ]
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
-            self.sensu._delete_entities(entities=entities, namespace="TENANT1")
+            self.sensu._delete_entities(entities=entities, namespace="tenant1")
 
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/gocdb.ni4os.eu",
                 headers={
                     "Authorization": "Key t0k3n"
@@ -5659,10 +5965,10 @@ class SensuEntityTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo.ni4os.eu removed",
-                f"WARNING:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu not "
+                f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
+                f"WARNING:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu not "
                 f"removed: 400 BAD REQUEST",
-                f"INFO:{LOGNAME}:TENANT1: Entity gocdb.ni4os.eu removed"
+                f"INFO:{LOGNAME}:tenant1: Entity gocdb.ni4os.eu removed"
             }
         )
 
@@ -5678,14 +5984,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, namespace="tenant1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5694,7 +6000,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5706,13 +6012,121 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo-mon.ni4os.eu created",
-                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated"
+                f"INFO:{LOGNAME}:tenant1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_entities")
+    @patch("argo_scg.sensu.Sensu._get_proxy_entities")
+    def test_handle_proxy_entities_if_different_labels(
+            self, mock_get_entities, mock_delete_entities, mock_put
+    ):
+        copied_mock_entities = [
+            copy.deepcopy(item) for item in mock_entities[:-2]
+        ]
+        copied_mock_entities[0]["metadata"]["labels"]["tenants"] = "TENANT2"
+        mock_get_entities.return_value = copied_mock_entities
+        mock_delete_entities.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_proxy_entities(
+                entities=self.entities, namespace="tenant1"
+            )
+
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-devel.ni4os.eu",
+                data=json.dumps(self.entities[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-mon.ni4os.eu",
+                data=json.dumps(self.entities[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+
+        mock_delete_entities.assert_called_once_with(
+            entities=["gocdb.ni4os.eu"],
+            namespace="tenant1"
+        )
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated"
+            }
+        )
+
+    @patch("requests.put")
+    @patch("argo_scg.sensu.Sensu._delete_entities")
+    @patch("argo_scg.sensu.Sensu._get_proxy_entities")
+    def test_handle_proxy_entities_if_missing_labels(
+            self, mock_get_entities, mock_delete_entities, mock_put
+    ):
+        copied_mock_entities = [
+            copy.deepcopy(item) for item in mock_entities[:-2]
+        ]
+        copied_mock_entities[0]["metadata"]["labels"].pop("tenants")
+        mock_get_entities.return_value = copied_mock_entities
+        mock_delete_entities.side_effect = mock_delete_response
+        mock_put.side_effect = mock_post_response
+
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.handle_proxy_entities(
+                entities=self.entities, namespace="tenant1"
+            )
+
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
+        self.assertEqual(mock_put.call_count, 2)
+        mock_put.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-devel.ni4os.eu",
+                data=json.dumps(self.entities[0]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-mon.ni4os.eu",
+                data=json.dumps(self.entities[2]),
+                headers={
+                    "Authorization": "Key t0k3n",
+                    "Content-Type": "application/json"
+                }
+            )
+        ], any_order=True)
+
+        mock_delete_entities.assert_called_once_with(
+            entities=["gocdb.ni4os.eu"],
+            namespace="tenant1"
+        )
+
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Entity argo-mon.ni4os.eu created",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated"
             }
         )
 
@@ -5731,14 +6145,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, namespace="tenant1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5747,7 +6161,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5759,13 +6173,13 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated",
-                f"WARNING:{LOGNAME}:TENANT1: Proxy entity argo-mon.ni4os.eu "
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated",
+                f"WARNING:{LOGNAME}:tenant1: Proxy entity argo-mon.ni4os.eu "
                 f"not created: 400 BAD REQUEST: Something went wrong."
             }
         )
@@ -5785,14 +6199,14 @@ class SensuEntityTests(unittest.TestCase):
 
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_proxy_entities(
-                entities=self.entities, namespace="TENANT1"
+                entities=self.entities, namespace="tenant1"
             )
 
-        mock_get_entities.assert_called_once_with(namespace="TENANT1")
+        mock_get_entities.assert_called_once_with(namespace="tenant1")
         self.assertEqual(mock_put.call_count, 2)
         mock_put.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-devel.ni4os.eu",
                 data=json.dumps(self.entities[0]),
                 headers={
@@ -5801,7 +6215,7 @@ class SensuEntityTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/argo-mon.ni4os.eu",
                 data=json.dumps(self.entities[2]),
                 headers={
@@ -5813,13 +6227,13 @@ class SensuEntityTests(unittest.TestCase):
 
         mock_delete_entities.assert_called_once_with(
             entities=["gocdb.ni4os.eu"],
-            namespace="TENANT1"
+            namespace="tenant1"
         )
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: Entity argo-devel.ni4os.eu updated",
-                f"WARNING:{LOGNAME}:TENANT1: Proxy entity argo-mon.ni4os.eu "
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu updated",
+                f"WARNING:{LOGNAME}:tenant1: Proxy entity argo-mon.ni4os.eu "
                 f"not created: 400 BAD REQUEST"
             }
         )
@@ -5827,16 +6241,24 @@ class SensuEntityTests(unittest.TestCase):
 
 class SensuAgentsTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
 
     @patch("requests.get")
     def test_get_agents(self, mock_get):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            agents = self.sensu._get_agents(namespace="TENANT1")
+            agents = self.sensu._get_agents(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5853,10 +6275,10 @@ class SensuAgentsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_agents(namespace="TENANT1")
+                self.sensu._get_agents(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5866,12 +6288,12 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Error fetching agents: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"ERROR:{LOGNAME}:tenant1: Error fetching agents: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -5881,10 +6303,10 @@ class SensuAgentsTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_entity_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_agents(namespace="TENANT1")
+                self.sensu._get_agents(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "entities",
             headers={
                 "Authorization": "Key t0k3n",
@@ -5894,11 +6316,11 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Error fetching agents: 400 BAD REQUEST"
+            "Sensu error: tenant1: Error fetching agents: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Error fetching agents: "
+                f"ERROR:{LOGNAME}:tenant1: Error fetching agents: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -5916,13 +6338,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -5938,7 +6360,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -5963,9 +6385,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 labels updated"
             }
         )
 
@@ -5988,13 +6410,13 @@ class SensuAgentsTests(unittest.TestCase):
                         "internals"
                     ]
                 },
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6010,7 +6432,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6034,9 +6456,9 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 labels updated"
             }
         )
 
@@ -6058,13 +6480,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6080,7 +6502,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6105,8 +6527,8 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 not updated: "
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"ERROR:{LOGNAME}:tenant1: sensu-agent2 not updated: "
                 f"400 BAD REQUEST: Something went wrong."
             }
         )
@@ -6129,13 +6551,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6151,7 +6573,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6176,8 +6598,8 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"ERROR:{LOGNAME}:TENANT1: sensu-agent2 not updated: "
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"ERROR:{LOGNAME}:tenant1: sensu-agent2 not updated: "
                 f"400 BAD REQUEST"
             }
         )
@@ -6205,13 +6627,13 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu",
                     "internals"
                 ]},
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6234,7 +6656,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6259,10 +6681,10 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 labels updated"
             }
         )
 
@@ -6287,14 +6709,14 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo-devel.ni4os.eu",
                     "argo.ni4os.eu"
                 ]},
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
 
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6319,7 +6741,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6343,10 +6765,10 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 labels updated"
             }
         )
 
@@ -6363,14 +6785,14 @@ class SensuAgentsTests(unittest.TestCase):
                     "argo.ni4os.eu"
                 ]},
                 services="argo.mon,argo.test",
-                namespace="TENANT1"
+                namespace="tenant1"
             )
 
         self.assertEqual(mock_patch.call_count, 2)
 
         mock_patch.assert_has_calls([
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent1",
                 data=json.dumps({
                     "subscriptions": [
@@ -6391,7 +6813,7 @@ class SensuAgentsTests(unittest.TestCase):
                 }
             ),
             call(
-                "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
                 "entities/sensu-agent2",
                 data=json.dumps({
                     "subscriptions": [
@@ -6415,21 +6837,29 @@ class SensuAgentsTests(unittest.TestCase):
 
         self.assertEqual(
             set(log.output), {
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent1 labels updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 subscriptions updated",
-                f"INFO:{LOGNAME}:TENANT1: sensu-agent2 labels updated"
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent1 labels updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 subscriptions updated",
+                f"INFO:{LOGNAME}:tenant1: sensu-agent2 labels updated"
             }
         )
 
 
 class SensuHandlersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.publisher_handler = {
             "metadata": {
                 "name": "publisher-handler",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "type": "pipe",
             "command": "/bin/sensu2publisher.py"
@@ -6437,7 +6867,7 @@ class SensuHandlersTests(unittest.TestCase):
         self.slack_handler = {
             "metadata": {
                 "name": "slack",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "type": "pipe",
             "command": "source /etc/sensu/secrets ; "
@@ -6451,9 +6881,9 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            handlers = self.sensu._get_handlers(namespace="TENANT1")
+            handlers = self.sensu._get_handlers(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             headers={
                 "Authorization": "Key t0k3n",
@@ -6468,10 +6898,9 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_handlers(namespace="TENANT1")
-
+                self.sensu._get_handlers(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             headers={
                 "Authorization": "Key t0k3n",
@@ -6481,12 +6910,12 @@ class SensuHandlersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Handlers fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Handlers fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Handlers fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Handlers fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -6496,10 +6925,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_handlers(namespace="TENANT1")
+                self.sensu._get_handlers(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             headers={
                 "Authorization": "Key t0k3n",
@@ -6509,11 +6938,11 @@ class SensuHandlersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Handlers fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Handlers fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Handlers fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Handlers fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -6524,11 +6953,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers1
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_publisher_handler(namespace="TENANT1")
-
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+            self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
@@ -6538,7 +6966,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: publisher-handler created"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: publisher-handler created"]
         )
 
     @patch("requests.post")
@@ -6550,11 +6978,11 @@ class SensuHandlersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.handle_publisher_handler(namespace="TENANT1")
+                self.sensu.handle_publisher_handler(namespace="tenant1")
 
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
@@ -6564,12 +6992,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: publisher-handler create error: "
+            "Sensu error: tenant1: publisher-handler create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: publisher-handler create error: "
+                f"ERROR:{LOGNAME}:tenant1: publisher-handler create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -6583,11 +7011,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.handle_publisher_handler(namespace="TENANT1")
-
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+                self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.publisher_handler),
             headers={
@@ -6597,12 +7024,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: publisher-handler create error: "
+            "Sensu error: tenant1: publisher-handler create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: publisher-handler create error: "
+                f"ERROR:{LOGNAME}:tenant1: publisher-handler create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -6616,8 +7043,8 @@ class SensuHandlersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.handle_publisher_handler(namespace="TENANT1")
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+            self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -6629,10 +7056,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_publisher_handler(namespace="TENANT1")
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+            self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
@@ -6644,7 +7071,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: publisher-handler updated"
+                f"INFO:{LOGNAME}:tenant1: publisher-handler updated"
             ]
         )
 
@@ -6656,10 +7083,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_with_msg
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_publisher_handler(namespace="TENANT1")
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+            self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
@@ -6671,7 +7098,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: publisher-handler not updated: "
+                f"WARNING:{LOGNAME}:tenant1: publisher-handler not updated: "
                 f"400 BAD REQUEST: Something went wrong.",
             ]
         )
@@ -6684,10 +7111,10 @@ class SensuHandlersTests(unittest.TestCase):
         mock_get_handlers.return_value = mock_handlers3
         mock_patch.side_effect = mock_post_response_not_ok_without_msg
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.handle_publisher_handler(namespace="TENANT1")
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+            self.sensu.handle_publisher_handler(namespace="tenant1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/publisher-handler",
             data=json.dumps({
                 "command": "/bin/sensu2publisher.py"
@@ -6699,7 +7126,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: publisher-handler not updated: "
+                f"WARNING:{LOGNAME}:tenant1: publisher-handler not updated: "
                 f"400 BAD REQUEST",
             ]
         )
@@ -6711,11 +7138,11 @@ class SensuHandlersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
-                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                secrets_file="/etc/sensu/secrets", namespace="tenant1"
             )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.slack_handler),
             headers={
@@ -6724,7 +7151,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: slack-handler created"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: slack-handler created"]
         )
 
     @patch("requests.post")
@@ -6737,11 +7164,11 @@ class SensuHandlersTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_slack_handler(
-                    secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                    secrets_file="/etc/sensu/secrets", namespace="tenant1"
                 )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.slack_handler),
             headers={
@@ -6751,12 +7178,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: slack-handler create error: "
+            "Sensu error: tenant1: slack-handler create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: slack-handler create error: "
+                f"ERROR:{LOGNAME}:tenant1: slack-handler create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -6771,11 +7198,11 @@ class SensuHandlersTests(unittest.TestCase):
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.handle_slack_handler(
-                    secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                    secrets_file="/etc/sensu/secrets", namespace="tenant1"
                 )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers",
             data=json.dumps(self.slack_handler),
             headers={
@@ -6785,12 +7212,12 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: slack-handler create error: "
+            "Sensu error: tenant1: slack-handler create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: slack-handler create error: "
+                f"ERROR:{LOGNAME}:tenant1: slack-handler create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -6805,9 +7232,9 @@ class SensuHandlersTests(unittest.TestCase):
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.handle_slack_handler(
-                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                secrets_file="/etc/sensu/secrets", namespace="tenant1"
             )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -6820,11 +7247,11 @@ class SensuHandlersTests(unittest.TestCase):
         mock_patch.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
-                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                secrets_file="/etc/sensu/secrets", namespace="tenant1"
             )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
@@ -6837,7 +7264,7 @@ class SensuHandlersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: slack-handler updated"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: slack-handler updated"]
         )
 
     @patch("requests.patch")
@@ -6849,11 +7276,11 @@ class SensuHandlersTests(unittest.TestCase):
         mock_patch.side_effect = mock_post_response_not_ok_with_msg
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
-                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                secrets_file="/etc/sensu/secrets", namespace="tenant1"
             )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
@@ -6867,7 +7294,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: slack-handler not updated: "
+                f"WARNING:{LOGNAME}:tenant1: slack-handler not updated: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -6881,11 +7308,11 @@ class SensuHandlersTests(unittest.TestCase):
         mock_patch.side_effect = mock_post_response_not_ok_without_msg
         with self.assertLogs(LOGNAME) as log:
             self.sensu.handle_slack_handler(
-                secrets_file="/etc/sensu/secrets", namespace="TENANT1"
+                secrets_file="/etc/sensu/secrets", namespace="tenant1"
             )
-        mock_get_handlers.assert_called_once_with(namespace="TENANT1")
+        mock_get_handlers.assert_called_once_with(namespace="tenant1")
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "handlers/slack",
             data=json.dumps({
                 "command": "source /etc/sensu/secrets ; "
@@ -6899,7 +7326,7 @@ class SensuHandlersTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"WARNING:{LOGNAME}:TENANT1: slack-handler not updated: "
+                f"WARNING:{LOGNAME}:tenant1: slack-handler not updated: "
                 "400 BAD REQUEST"
             ]
         )
@@ -6907,11 +7334,19 @@ class SensuHandlersTests(unittest.TestCase):
 
 class SensuFiltersTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.daily = {
             "metadata": {
                 "name": "daily",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "action": "allow",
             "expressions": [
@@ -6928,7 +7363,7 @@ class SensuFiltersTests(unittest.TestCase):
         self.hard = {
             "metadata": {
                 "name": "hard-state",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "action": "allow",
             "expressions": [
@@ -6943,9 +7378,9 @@ class SensuFiltersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            filters = self.sensu._get_filters(namespace="TENANT1")
+            filters = self.sensu._get_filters(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             headers={
                 "Authorization": "Key t0k3n"
@@ -6959,10 +7394,10 @@ class SensuFiltersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_filters(namespace="TENANT1")
+                self.sensu._get_filters(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             headers={
                 "Authorization": "Key t0k3n"
@@ -6971,12 +7406,12 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Filters fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Filters fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Filters fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Filters fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -6986,10 +7421,10 @@ class SensuFiltersTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_filters(namespace="TENANT1")
+                self.sensu._get_filters(namespace="tenant1")
 
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             headers={
                 "Authorization": "Key t0k3n"
@@ -6997,11 +7432,11 @@ class SensuFiltersTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Filters fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Filters fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Filters fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Filters fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -7012,11 +7447,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = []
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_daily_filter(namespace="TENANT1")
+            self.sensu.add_daily_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.daily),
             headers={
@@ -7025,7 +7460,7 @@ class SensuFiltersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter created"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: daily filter created"]
         )
 
     @patch("requests.post")
@@ -7035,11 +7470,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_daily_filter(namespace="TENANT1")
+                self.sensu.add_daily_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.daily),
             headers={
@@ -7050,13 +7485,13 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: daily filter create error: "
+            "Sensu error: tenant1: daily filter create error: "
             "400 BAD REQUEST: Something went wrong."
         )
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: daily filter create error: "
+                f"ERROR:{LOGNAME}:tenant1: daily filter create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -7068,11 +7503,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_daily_filter(namespace="TENANT1")
+                self.sensu.add_daily_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.daily),
             headers={
@@ -7083,11 +7518,11 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: daily filter create error: 400 BAD REQUEST"
+            "Sensu error: tenant1: daily filter create error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: daily filter create error: "
+                f"ERROR:{LOGNAME}:tenant1: daily filter create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -7098,8 +7533,8 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = mock_filters1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_daily_filter(namespace="TENANT1")
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_daily_filter(namespace="tenant1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -7111,11 +7546,11 @@ class SensuFiltersTests(unittest.TestCase):
     ):
         mock_filters.return_value = mock_filters2
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_daily_filter(namespace="TENANT1")
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_daily_filter(namespace="tenant1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters/daily",
             data=json.dumps({
                 "expressions": [
@@ -7136,7 +7571,7 @@ class SensuFiltersTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: daily filter updated"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: daily filter updated"]
         )
 
     @patch("requests.post")
@@ -7145,11 +7580,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = []
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_hard_state_filter(namespace="TENANT1")
+            self.sensu.add_hard_state_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.hard),
             headers={
@@ -7158,7 +7593,7 @@ class SensuFiltersTests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter created"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: hard-state filter created"]
         )
 
     @patch("requests.post")
@@ -7170,11 +7605,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_hard_state_filter(namespace="TENANT1")
+                self.sensu.add_hard_state_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.hard),
             headers={
@@ -7185,13 +7620,13 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: hard-state filter create error: "
+            "Sensu error: tenant1: hard-state filter create error: "
             "400 BAD REQUEST: Something went wrong."
         )
 
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"ERROR:{LOGNAME}:tenant1: hard-state filter create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -7205,11 +7640,11 @@ class SensuFiltersTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_hard_state_filter(namespace="TENANT1")
+                self.sensu.add_hard_state_filter(namespace="tenant1")
 
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters",
             data=json.dumps(self.hard),
             headers={
@@ -7220,12 +7655,12 @@ class SensuFiltersTests(unittest.TestCase):
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: hard-state filter create error: "
+            "Sensu error: tenant1: hard-state filter create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: hard-state filter create error: "
+                f"ERROR:{LOGNAME}:tenant1: hard-state filter create error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -7238,8 +7673,8 @@ class SensuFiltersTests(unittest.TestCase):
         mock_filters.return_value = mock_filters1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_hard_state_filter(namespace="TENANT1")
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_hard_state_filter(namespace="tenant1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -7251,11 +7686,11 @@ class SensuFiltersTests(unittest.TestCase):
     ):
         mock_filters.return_value = mock_filters2
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_hard_state_filter(namespace="TENANT1")
-        mock_filters.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_hard_state_filter(namespace="tenant1")
+        mock_filters.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "filters/hard-state",
             data=json.dumps({
                 "expressions": [
@@ -7271,17 +7706,25 @@ class SensuFiltersTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            log.output, [f"INFO:{LOGNAME}:TENANT1: hard-state filter updated"]
+            log.output, [f"INFO:{LOGNAME}:tenant1: hard-state filter updated"]
         )
 
 
 class SensuPipelinesTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.reduce_alerts = {
             "metadata": {
                 "name": "reduce_alerts",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "workflows": [
                 {
@@ -7315,7 +7758,7 @@ class SensuPipelinesTests(unittest.TestCase):
         self.hard_state = {
             "metadata": {
                 "name": "hard_state",
-                "namespace": "TENANT1"
+                "namespace": "tenant1"
             },
             "workflows": [
                 {
@@ -7341,9 +7784,9 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            pipelines = self.sensu._get_pipelines(namespace="TENANT1")
+            pipelines = self.sensu._get_pipelines(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
@@ -7357,9 +7800,9 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_pipelines(namespace="TENANT1")
+                self.sensu._get_pipelines(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
@@ -7367,12 +7810,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Pipelines fetch error: 400 BAD REQUEST: "
+            "Sensu error: tenant1: Pipelines fetch error: 400 BAD REQUEST: "
             "Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Pipelines fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Pipelines fetch error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -7382,9 +7825,9 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_get.side_effect = mock_sensu_request_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu._get_pipelines(namespace="TENANT1")
+                self.sensu._get_pipelines(namespace="tenant1")
         mock_get.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             headers={
                 "Authorization": "Key t0k3n"
@@ -7392,11 +7835,11 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Pipelines fetch error: 400 BAD REQUEST"
+            "Sensu error: tenant1: Pipelines fetch error: 400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Pipelines fetch error: "
+                f"ERROR:{LOGNAME}:tenant1: Pipelines fetch error: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -7407,10 +7850,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipelines.return_value = []
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_reduce_alerts_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
@@ -7420,7 +7863,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGNAME}:TENANT1: reduce_alerts pipeline created"]
+            [f"INFO:{LOGNAME}:tenant1: reduce_alerts pipeline created"]
         )
 
     @patch("requests.post")
@@ -7430,10 +7873,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_reduce_alerts_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
@@ -7443,12 +7886,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: reduce_alerts pipeline create error: "
+            "Sensu error: tenant1: reduce_alerts pipeline create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: "
+                f"ERROR:{LOGNAME}:tenant1: "
                 f"reduce_alerts pipeline create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
@@ -7461,10 +7904,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_reduce_alerts_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.reduce_alerts),
             headers={
@@ -7474,12 +7917,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: reduce_alerts pipeline create error: "
+            "Sensu error: tenant1: reduce_alerts pipeline create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: "
+                f"ERROR:{LOGNAME}:tenant1: "
                 f"reduce_alerts pipeline create error: "
                 f"400 BAD REQUEST"
             ]
@@ -7491,8 +7934,8 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.return_value = mock_pipelines1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
-        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_reduce_alerts_pipeline(namespace="tenant1")
+        mock_pipeline.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -7504,11 +7947,11 @@ class SensuPipelinesTests(unittest.TestCase):
     ):
         mock_pipeline.return_value = mock_pipelines2
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_reduce_alerts_pipeline(namespace="TENANT1")
-        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_reduce_alerts_pipeline(namespace="tenant1")
+        mock_pipeline.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_patch.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines/reduce_alerts",
             data=json.dumps({
                 "workflows": [{
@@ -7544,7 +7987,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGNAME}:TENANT1: reduce_alerts pipeline updated"]
+            [f"INFO:{LOGNAME}:tenant1: reduce_alerts pipeline updated"]
         )
 
     @patch("requests.post")
@@ -7553,10 +7996,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipelines.return_value = []
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_hard_state_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_hard_state_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.hard_state),
             headers={
@@ -7566,7 +8009,7 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGNAME}:TENANT1: hard_state pipeline created"]
+            [f"INFO:{LOGNAME}:tenant1: hard_state pipeline created"]
         )
 
     @patch("requests.post")
@@ -7576,10 +8019,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_hard_state_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_hard_state_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.hard_state),
             headers={
@@ -7589,12 +8032,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: hard_state pipeline create error: "
+            "Sensu error: tenant1: hard_state pipeline create error: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: "
+                f"ERROR:{LOGNAME}:tenant1: "
                 f"hard_state pipeline create error: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
@@ -7607,10 +8050,10 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_hard_state_pipeline(namespace="TENANT1")
-        mock_pipelines.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_hard_state_pipeline(namespace="tenant1")
+        mock_pipelines.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
             "pipelines",
             data=json.dumps(self.hard_state),
             headers={
@@ -7620,12 +8063,12 @@ class SensuPipelinesTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: hard_state pipeline create error: "
+            "Sensu error: tenant1: hard_state pipeline create error: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: "
+                f"ERROR:{LOGNAME}:tenant1: "
                 f"hard_state pipeline create error: "
                 f"400 BAD REQUEST"
             ]
@@ -7637,15 +8080,23 @@ class SensuPipelinesTests(unittest.TestCase):
         mock_pipeline.return_value = mock_pipelines1
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_hard_state_pipeline(namespace="TENANT1")
-        mock_pipeline.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_hard_state_pipeline(namespace="tenant1")
+        mock_pipeline.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
 
 class SensuUsageChecksTests(unittest.TestCase):
     def setUp(self):
-        self.sensu = Sensu(url="https://sensu.mock.com:8080", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://sensu.mock.com:8080",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.cpu_check = {
             "command": "check-cpu-usage -w 85 -c 90",
             "interval": 300,
@@ -7660,7 +8111,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "round_robin": False,
             "metadata": {
                 "name": "sensu.cpu.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "annotations": {
                     "attempts": "3"
                 }
@@ -7687,7 +8138,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "round_robin": False,
             "metadata": {
                 "name": "sensu.memory.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "annotations": {
                     "attempts": "3"
                 }
@@ -7708,10 +8159,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.cpu_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -7720,7 +8171,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGNAME}:TENANT1: Check sensu.cpu.usage created"]
+            [f"INFO:{LOGNAME}:tenant1: Check sensu.cpu.usage created"]
         )
 
     @patch("argo_scg.sensu.requests.post")
@@ -7731,10 +8182,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.cpu_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -7743,12 +8194,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.cpu.usage not created: "
+            "Sensu error: tenant1: Check sensu.cpu.usage not created: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not created: "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.cpu.usage not created: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -7763,10 +8214,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.cpu_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -7775,12 +8226,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.cpu.usage not created: "
+            "Sensu error: tenant1: Check sensu.cpu.usage not created: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not created: "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.cpu.usage not created: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -7794,8 +8245,8 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = mock_checks
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertFalse(mock_put.called)
         self.assertEqual(log.output, DUMMY_LOG)
@@ -7832,7 +8283,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.cpu.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7847,11 +8298,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.cpu.usage",
             data=json.dumps(self.cpu_check),
             headers={
@@ -7861,7 +8312,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check sensu.cpu.usage updated"
+                f"INFO:{LOGNAME}:tenant1: Check sensu.cpu.usage updated"
             ]
         )
 
@@ -7897,7 +8348,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.cpu.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7913,11 +8364,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.cpu.usage",
             data=json.dumps(self.cpu_check),
             headers={
@@ -7927,12 +8378,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.cpu.usage not updated: "
+            "Sensu error: tenant1: Check sensu.cpu.usage not updated: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not updated: "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.cpu.usage not updated: "
                 f"400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -7969,7 +8420,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.cpu.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -7985,11 +8436,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_cpu_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_cpu_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.cpu.usage",
             data=json.dumps(self.cpu_check),
             headers={
@@ -7999,12 +8450,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.cpu.usage not updated: "
+            "Sensu error: tenant1: Check sensu.cpu.usage not updated: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.cpu.usage not updated: "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.cpu.usage not updated: "
                 f"400 BAD REQUEST"
             ]
         )
@@ -8016,10 +8467,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.memory_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -8028,7 +8479,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output,
-            [f"INFO:{LOGNAME}:TENANT1: Check sensu.memory.usage created"]
+            [f"INFO:{LOGNAME}:tenant1: Check sensu.memory.usage created"]
         )
 
     @patch("argo_scg.sensu.requests.post")
@@ -8041,10 +8492,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.memory_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -8053,12 +8504,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.memory.usage not created: "
+            "Sensu error: tenant1: Check sensu.memory.usage not created: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.memory.usage not "
                 f"created: 400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -8073,10 +8524,10 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_post.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         mock_post.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks",
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks",
             data=json.dumps(self.memory_check),
             headers={
                 "Authorization": "Key t0k3n",
@@ -8085,12 +8536,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.memory.usage not created: "
+            "Sensu error: tenant1: Check sensu.memory.usage not created: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.memory.usage not "
                 f"created: 400 BAD REQUEST"
             ]
         )
@@ -8104,8 +8555,8 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = mock_checks
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
-            self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         self.assertFalse(mock_put.called)
         self.assertEqual(log.output, DUMMY_LOG)
@@ -8142,7 +8593,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.memory.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -8157,11 +8608,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
         with self.assertLogs(LOGNAME) as log:
-            self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+            self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.memory.usage",
             data=json.dumps(self.memory_check),
             headers={
@@ -8171,7 +8622,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             log.output, [
-                f"INFO:{LOGNAME}:TENANT1: Check sensu.memory.usage updated"
+                f"INFO:{LOGNAME}:tenant1: Check sensu.memory.usage updated"
             ]
         )
 
@@ -8207,7 +8658,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.memory.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -8223,11 +8674,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_with_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.memory.usage",
             data=json.dumps(self.memory_check),
             headers={
@@ -8237,12 +8688,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.memory.usage not updated: "
+            "Sensu error: tenant1: Check sensu.memory.usage not updated: "
             "400 BAD REQUEST: Something went wrong."
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.memory.usage not "
                 f"updated: 400 BAD REQUEST: Something went wrong."
             ]
         )
@@ -8279,7 +8730,7 @@ class SensuUsageChecksTests(unittest.TestCase):
             "env_vars": None,
             "metadata": {
                 "name": "sensu.memory.usage",
-                "namespace": "TENANT1",
+                "namespace": "tenant1",
                 "created_by": "admin"
             },
             "secrets": None,
@@ -8295,11 +8746,11 @@ class SensuUsageChecksTests(unittest.TestCase):
         mock_put.side_effect = mock_post_response_not_ok_without_msg
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
-                self.sensu.add_memory_check(namespace="TENANT1")
-        mock_get.assert_called_once_with(namespace="TENANT1")
+                self.sensu.add_memory_check(namespace="tenant1")
+        mock_get.assert_called_once_with(namespace="tenant1")
         self.assertFalse(mock_post.called)
         mock_put.assert_called_once_with(
-            "https://sensu.mock.com:8080/api/core/v2/namespaces/TENANT1/checks/"
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
             "sensu.memory.usage",
             data=json.dumps(self.memory_check),
             headers={
@@ -8309,12 +8760,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Check sensu.memory.usage not updated: "
+            "Sensu error: tenant1: Check sensu.memory.usage not updated: "
             "400 BAD REQUEST"
         )
         self.assertEqual(
             log.output, [
-                f"ERROR:{LOGNAME}:TENANT1: Check sensu.memory.usage not "
+                f"ERROR:{LOGNAME}:tenant1: Check sensu.memory.usage not "
                 f"updated: 400 BAD REQUEST"
             ]
         )
@@ -8377,8 +8828,9 @@ class MetricOutputTests(unittest.TestCase):
                 "env_vars": None,
                 "metadata": {
                     "name": "generic.http.connect",
-                    "namespace": "TENANT",
-                    "annotations": {"attempts": "3"}
+                    "namespace": "tenant",
+                    "annotations": {"attempts": "3"},
+                    "labels": {"tenants": "TENANT"}
                 },
                 "secrets": None,
                 "is_silenced": False,
@@ -8407,7 +8859,7 @@ class MetricOutputTests(unittest.TestCase):
                 "metadata": {
                     "name": "eu.eosc.portal.services.url__hostname.example.eu_"
                             "site-name",
-                    "namespace": "TENANT",
+                    "namespace": "tenant",
                     "labels": {
                         "generic_http_connect": "generic.http.connect",
                         "hostname": "hostname.example.eu",
@@ -8417,13 +8869,14 @@ class MetricOutputTests(unittest.TestCase):
                         "port": "443",
                         "service": "eu.eosc.portal.services.url",
                         "site": "site-name",
-                        "ssl": "-S --sni"
+                        "ssl": "-S --sni",
+                        "tenants": "TENANT"
                     }
                 },
                 "sensu_agent_version": ""
             },
             "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-            "metadata": {"namespace": "TENANT"},
+            "metadata": {"namespace": "tenant"},
             "pipelines": [{
                 "name": "hard_state",
                 "type": "Pipeline",
@@ -8622,6 +9075,17 @@ class MetricOutputTests(unittest.TestCase):
              ",/ops/Role=NULL/Capability=NULL\"\n\\nx509userproxysubject = \""
              "/DC=EU/DC=EGI/C=HR/O=Robots/O=SRCE/CN=Robot:argo-egi@cro-ngi.hr\""
              "\n\\nx509UserProxyVOName = \"ops\"\n\\n\n\\n\\nCOMPLETED\\n")
+        sample_output_multi_tenant_check = copy.deepcopy(sample_output)
+        sample_output_multi_tenant_check["check"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT,TENANT2"
+        sample_output_multi_tenant_check_entity = copy.deepcopy(sample_output)
+        sample_output_multi_tenant_check_entity["check"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT1,TENANT2"
+        sample_output_multi_tenant_check_entity["entity"]["metadata"]["labels"][
+            "tenants"
+        ] = "TENANT1, TENANT2, TENANT3"
         self.output = MetricOutput(data=sample_output)
         self.output_oneline = MetricOutput(data=sample_output_one_line)
         self.output_oneline_perfdata = MetricOutput(
@@ -8632,6 +9096,12 @@ class MetricOutputTests(unittest.TestCase):
         )
         self.output_multiline_with_breaks = MetricOutput(
             data=sample_output_multiline_with_breaks
+        )
+        self.output_multitenant_check = MetricOutput(
+            data=sample_output_multi_tenant_check
+        )
+        self.output_multitenant_check_entity = MetricOutput(
+            data=sample_output_multi_tenant_check_entity
         )
 
     def test_get_service(self):
@@ -8864,13 +9334,28 @@ class MetricOutputTests(unittest.TestCase):
     def test_get_site(self):
         self.assertEqual(self.output.get_site(), "site-name")
 
-    def test_get_namespace(self):
-        self.assertEqual(self.output.get_namespace(), "TENANT")
+    def test_get_tenants(self):
+        self.assertEqual(self.output.get_tenants(), ["TENANT"])
+        self.assertEqual(
+            self.output_multitenant_check.get_tenants(), ["TENANT"]
+        )
+        self.assertEqual(
+            self.output_multitenant_check_entity.get_tenants(),
+            ["TENANT1", "TENANT2"]
+        )
 
 
 class SensuCheckCallTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://mock.url.com",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
         self.checks = [
             {
                 "command": "/usr/lib64/nagios/plugins/check_http "
@@ -8898,6 +9383,9 @@ class SensuCheckCallTests(unittest.TestCase):
                     "namespace": "default",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "default"
                     }
                 },
                 "round_robin": False,
@@ -8949,6 +9437,9 @@ class SensuCheckCallTests(unittest.TestCase):
                     "created_by": "root",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "default"
                     }
                 },
                 "secrets": None,
@@ -8982,6 +9473,9 @@ class SensuCheckCallTests(unittest.TestCase):
                     "namespace": "default",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenants": "default"
                     }
                 },
                 "secrets": None,
@@ -9312,7 +9806,15 @@ class SensuCheckCallTests(unittest.TestCase):
 
 class SensuSilencingEntryTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensu = Sensu(url="https://mock.url.com", token="t0k3n")
+        self.sensu = Sensu(
+            url="https://mock.url.com",
+            token="t0k3n",
+            namespaces={
+                "default": ["default"],
+                "tenant1": ["TENANT1"],
+                "tenant2": ["TENANT2"]
+            }
+        )
 
     @patch("argo_scg.sensu.Sensu._get_events")
     @patch("requests.post")
@@ -9322,15 +9824,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
             mock_events, status_code=200
         )
         self.sensu.create_silencing_entry(
-            check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-            namespace="TENANT1"
+            check="generic.tcp.connect",
+            entity="gocdb.ni4os.eu",
+            namespace="tenant1"
         )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9355,15 +9858,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.tcp.connect",
+                entity="gocdb.ni4os.eu",
+                namespace="tenant1"
             )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9376,7 +9880,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Silencing entry gocdb.ni4os.eu/"
+            "Sensu error: tenant1: Silencing entry gocdb.ni4os.eu/"
             "generic.tcp.connect create error: 400 BAD REQUEST: "
             "There has been an error"
         )
@@ -9392,15 +9896,16 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.tcp.connect", entity="gocdb.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.tcp.connect",
+                entity="gocdb.ni4os.eu",
+                namespace="tenant1"
             )
         mock_post.assert_called_once_with(
-            "https://mock.url.com/api/core/v2/namespaces/TENANT1/silenced",
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
             data=json.dumps({
                 "metadata": {
                     "name": "entity:gocdb.ni4os.eu:generic.tcp.connect",
-                    "namespace": "TENANT1"
+                    "namespace": "tenant1"
                 },
                 "expire_on_resolve": True,
                 "check": "generic.tcp.connect",
@@ -9413,7 +9918,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: Silencing entry gocdb.ni4os.eu/"
+            "Sensu error: tenant1: Silencing entry gocdb.ni4os.eu/"
             "generic.tcp.connect create error: 400 BAD REQUEST"
         )
 
@@ -9428,21 +9933,22 @@ class SensuSilencingEntryTests(unittest.TestCase):
         )
         with self.assertRaises(SensuException) as context:
             self.sensu.create_silencing_entry(
-                check="generic.http.connect", entity="argo.ni4os.eu",
-                namespace="TENANT1"
+                check="generic.http.connect",
+                entity="argo.ni4os.eu",
+                namespace="tenant1"
             )
         self.assertEqual(mock_post.call_count, 0)
 
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: TENANT1: No event for entity argo.ni4os.eu and check "
+            "Sensu error: tenant1: No event for entity argo.ni4os.eu and check "
             "generic.http.connect: Silencing entry not created"
         )
 
 
 class SensuCtlTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.sensuctl = SensuCtl(namespace="default")
+        self.sensuctl = SensuCtl(tenant="ni4os", namespace="default")
 
     @patch("argo_scg.sensu.subprocess.check_output")
     def test_get_events(self, mock_subprocess):
@@ -9483,6 +9989,74 @@ class SensuCtlTests(unittest.TestCase):
                 "  OK - The run finished successfully.",
                 "sensu-agent-ni4os-devel.cro-ngi                  "
                 "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+
+    @patch("argo_scg.sensu.subprocess.check_output")
+    def test_get_events_if_multiple_tenants(self, mock_subprocess):
+        mock_subprocess.return_value = \
+            json.dumps(mock_events_ctl_multiple_tenants).encode("utf-8")
+        sensuctl = SensuCtl(tenant="tenant2", namespace="default")
+        events = self.sensuctl.get_events()
+        events2 = sensuctl.get_events()
+        self.assertEqual(
+            events, [
+                "Entity                                           "
+                "Metric                          Status    Executed           "
+                "  Output",
+                "_________________________________________________"
+                "_____________________________________________________________"
+                "___________",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.certificate.validity    OK        2023-03-01 10:23:26"
+                "  SSL_CERT OK - x509 certificate '*.ni4os.eu' "
+                "(argo-mon-devel.ni4os.eu) from 'GEANT OV RSA CA 4' valid "
+                "until Apr 14 23:59:59 2023 GMT (expires in 44 days)",
+                "argo.mon__argo-mon-devel.ni4os.eu                "
+                "generic.http.connect-nagios-ui  OK        2023-03-01 10:28:16"
+                "  HTTP OK: HTTP/1.1 200 OK - 121268 bytes in 0.051 second "
+                "response time",
+                "eu.eudat.itsm.spmt__agora.ni4os.eu               "
+                "grnet.agora.healthcheck         OK        2023-04-24 07:54:32"
+                "  OK - Agora is up.",
+                "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs  "
+                "generic.certificate.validity    OK        2023-04-24 06:23:32"
+                "  SSL_CERT OK - x509 certificate 'cherry.chem.bg.ac.rs' from "
+                "'R3' valid until Jul 21 19:32:45 2023 GMT (expires in "
+                "88 days)",
+                "eu.ni4os.repo.publication__videolectures.net     "
+                "generic.certificate.validity    CRITICAL  2023-03-01 10:23:31"
+                "  SSL_CERT CRITICAL videolectures.net: x509 certificate is "
+                "expired (was valid until Jul 10 07:29:06 2022 GMT)",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "argo.poem-tools.check           OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi                  "
+                "hr.srce.CertLifetime-Local      OK        2023-04-24 07:01:10"
+                "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
+                "(May  2 06:53:47 2024 GMT)"
+            ]
+        )
+        self.assertEqual(
+            events2, [
+                "Entity                             "
+                "Metric                      Status    Executed           "
+                "  Output",
+                "___________________________________"
+                "_________________________________________________________"
+                "___________",
+                "WebService__hostname.test.eu_id_3  "
+                "generic.http.connect        OK        2024-06-05 08:33:25"
+                "  <A HREF=\"https://hostname.test.eu:443/meh/\" target="
+                "\"_blank\">HTTP OK: HTTP/1.1 200 OK - 9743 bytes in 0.339 "
+                "second response time </A>",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "argo.poem-tools.check       OK        2023-04-24 07:55:24"
+                "  OK - The run finished successfully.",
+                "sensu-agent-ni4os-devel.cro-ngi    "
+                "hr.srce.CertLifetime-Local  OK        2023-04-24 07:01:10"
                 "  CERT LIFETIME OK - Certificate will expire in 373.99 days "
                 "(May  2 06:53:47 2024 GMT)"
             ]

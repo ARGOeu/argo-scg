@@ -784,6 +784,9 @@ class ConfigurationGenerator:
                     "namespace": namespace,
                     "annotations": {
                         "attempts": configuration["config"]["maxCheckAttempts"]
+                    },
+                    "labels": {
+                        "tenants": self.tenant
                     }
                 },
                 "round_robin": False
@@ -864,7 +867,8 @@ class ConfigurationGenerator:
                                 "metadata": {
                                     "name": name,
                                     "namespace": namespace,
-                                    "annotations": {"attempts": attempts}
+                                    "annotations": {"attempts": attempts},
+                                    "labels": {"tenants": self.tenant}
                                 },
                                 "round_robin": False
                             }
@@ -1299,7 +1303,9 @@ class ConfigurationGenerator:
                                             })
 
                 labels.update({
-                    "service": item["service"], "site": item["group"]
+                    "service": item["service"],
+                    "site": item["group"],
+                    "tenants": self.tenant
                 })
 
                 site_entries = [
@@ -1457,3 +1463,229 @@ class ConfigurationGenerator:
             services.extend(self.servicetypes4metrics[metric])
 
         return ",".join(sorted(list(set(services))))
+
+
+class ConfigurationMerger:
+    def __init__(
+            self,
+            checks,
+            entities,
+            internal_services,
+            subscriptions,
+            metricoverrides4agents=None,
+            attributeoverrides4agents=None
+    ):
+        self.checks = checks
+        self.entities = entities
+        self.internal_services = internal_services
+        self.subscriptions = subscriptions
+        self.metric_overrides = metricoverrides4agents
+        self.attribute_overrides = attributeoverrides4agents
+        self.logger = logging.getLogger("argo-scg.generator")
+
+    def merge_checks(self):
+        merged_checks = list()
+
+        for tenant, checks in self.checks.items():
+            checks_names = [item["metadata"]["name"] for item in merged_checks]
+            for check in checks:
+                if check["metadata"]["name"] not in checks_names:
+                    merged_checks.append(check)
+
+                else:
+                    check_index = next(
+                        (index for (index, d) in enumerate(merged_checks) if
+                         d["metadata"]["name"] == check["metadata"]["name"]),
+                        None
+                    )
+                    subs = merged_checks[check_index]["subscriptions"]
+
+                    tenants = [
+                        item.strip() for item in merged_checks[check_index][
+                            "metadata"
+                        ]["labels"]["tenants"].split(",")
+                    ]
+
+                    tenants.append(check["metadata"]["labels"]["tenants"])
+
+                    subs.extend(check["subscriptions"])
+
+                    merged_checks[check_index]["subscriptions"] = sorted(
+                        list(set(subs))
+                    )
+
+                    merged_checks[check_index]["metadata"]["labels"][
+                        "tenants"
+                    ] = ",".join(sorted(tenants))
+
+        return merged_checks
+
+    def merge_entities(self):
+        merged_entities = list()
+        for tenant, entities in self.entities.items():
+            entities_names = [
+                item["metadata"]["name"] for item in merged_entities
+            ]
+            for entity in entities:
+                if entity["metadata"]["name"] not in entities_names:
+                    merged_entities.append(entity)
+
+                else:
+                    entity_index = next(
+                        (index for (index, d) in enumerate(merged_entities) if
+                         d["metadata"]["name"] == entity["metadata"]["name"]),
+                        None
+                    )
+
+                    for key, value in entity["metadata"]["labels"].items():
+                        if key not in merged_entities[entity_index]["metadata"][
+                            "labels"
+                        ]:
+                            merged_entities[entity_index]["metadata"][
+                                "labels"
+                            ].update({key: value})
+
+                    site = [
+                        item.strip() for item in merged_entities[entity_index][
+                            "metadata"
+                        ]["labels"]["site"].split(",")
+                    ]
+                    tenants = [
+                        item.strip() for item in merged_entities[entity_index][
+                            "metadata"
+                        ]["labels"]["tenants"].split(",")
+                    ]
+                    site.append(entity["metadata"]["labels"]["site"])
+                    tenants.append(entity["metadata"]["labels"]["tenants"])
+
+                    merged_entities[entity_index]["metadata"]["labels"][
+                        "site"
+                    ] = ",".join(sorted(site))
+                    merged_entities[entity_index]["metadata"]["labels"][
+                        "tenants"
+                    ] = ",".join(sorted(tenants))
+
+        return sorted(merged_entities, key=lambda e: e["metadata"]["name"])
+
+    @staticmethod
+    def _metric_parameter_override_exists(override, merged):
+        return len([
+            item for item in merged if (
+                    item["metric"] == override["metric"] and
+                    item["hostname"] == override["hostname"] and
+                    item["parameter"] == override["parameter"]
+            )
+        ]) == 1
+
+    @staticmethod
+    def _metric_parameter_override_identical(override, merged):
+        return len([
+            item for item in merged if (
+                    item["metric"] == override["metric"] and
+                    item["hostname"] == override["hostname"] and
+                    item["parameter"] == override["parameter"] and
+                    item["value"] == override["value"]
+            )
+        ]) == 1
+
+    def merge_metric_parameter_overrides(self):
+        merged_overrides = list()
+        if self.metric_overrides:
+            for tenant, overrides in self.metric_overrides.items():
+                for override in overrides:
+                    if self._metric_parameter_override_exists(
+                            override, merged_overrides
+                    ):
+                        if self._metric_parameter_override_identical(
+                            override, merged_overrides
+                        ):
+                            continue
+
+                        else:
+                            self.logger.warning(
+                                f"{tenant}: Discrepancy in "
+                                f"{override['hostname']}/{override['metric']} "
+                                f"metric parameter override"
+                            )
+
+                    else:
+                        merged_overrides.append(override)
+
+        return merged_overrides
+
+    @staticmethod
+    def _attribute_present(override, merged):
+        return len([
+            item for item in merged if (
+                item["hostname"] == override["hostname"] and
+                item["attribute"] == override["attribute"]
+            )
+        ]) == 1
+
+    @staticmethod
+    def _attribute_identical(override, merged):
+        return len([
+            item for item in merged if (
+                    item["hostname"] == override["hostname"] and
+                    item["attribute"] == override["attribute"] and
+                    item["value"] == override["value"]
+            )
+        ]) == 1
+
+    def merge_attribute_overrides(self):
+        merged_attributes = list()
+        if self.attribute_overrides:
+            for tenant, overrides in self.attribute_overrides.items():
+                for override in overrides:
+                    if self._attribute_present(override, merged_attributes):
+                        if self._attribute_identical(
+                                override, merged_attributes
+                        ):
+                            merged_attribute = [
+                                item for item in merged_attributes if (
+                                        item["hostname"] == override["hostname"]
+                                        and item["attribute"] == override[
+                                            "attribute"
+                                        ]
+                                )
+                            ][0]
+                            metrics = merged_attribute["metrics"]
+                            metrics.extend(override["metrics"])
+                            merged_attributes[
+                                merged_attributes.index(merged_attribute)
+                            ]["metrics"] = sorted(metrics)
+
+                        else:
+                            self.logger.warning(
+                                f"{tenant}: Discrepancy in "
+                                f"{override['hostname']}/"
+                                f"{override['attribute']} host attribute "
+                                f"override"
+                            )
+
+                    else:
+                        merged_attributes.append(override)
+
+        return merged_attributes
+
+    def merge_subscriptions(self):
+        subs = dict()
+        for tenant, subs_dict in self.subscriptions.items():
+            for host, subscriptions in subs_dict.items():
+                if host not in subs:
+                    subs.update({host: subscriptions})
+
+                else:
+                    host_subs = subs[host]
+                    host_subs.extend(subscriptions)
+                    subs[host] = sorted(list(set(host_subs)))
+
+        return subs
+
+    def merge_internal_services(self):
+        internals = list()
+        for tenant, services_str in self.internal_services.items():
+            services = [item.strip() for item in services_str.split(",")]
+            internals.extend(services)
+
+        return ",".join(sorted(list(set(internals))))

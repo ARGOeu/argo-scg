@@ -2,47 +2,72 @@
 import argparse
 import sys
 
+from argo_scg.config import Config
+from argo_scg.exceptions import ConfigException
 from argo_scg.sensu import SensuCtl
+from argo_scg.utils import namespace4tenant
+
+CONFFILE = "/etc/argo-scg/scg.conf"
 
 
 def main():
     parser = argparse.ArgumentParser("Get event data")
     parser.add_argument(
-        "--namespace", dest="namespace", default="default", help="namespace",
+        "-t", "--tenant", dest="tenant", default="default", help="tenant",
         type=str
     )
     parser.add_argument(
-        "--status", dest="status", type=int,
+        "-S", "--status", dest="status", type=int,
         help="status to filter; must be integer code 0, 1, 2 or 3"
     )
     parser.add_argument(
-        "--service", dest="service_type", type=str,
+        "-s", "--service", dest="service_type", type=str,
         help="service type to filter"
     )
     parser.add_argument(
         "--agent", dest="agent", action="store_true",
         help="show only agent events"
     )
+    parser.add_argument(
+        "-c", "--config", dest="config", help="configuration file",
+        default=CONFFILE
+    )
+
     args = parser.parse_args()
 
-    sensuctl = SensuCtl(namespace=args.namespace)
+    try:
+        config = Config(config_file=args.config)
+        namespace = namespace4tenant(args.tenant, config.get_namespaces())
 
-    if args.status is not None and args.status not in [0, 1, 2, 3]:
-        parser.error("Status must be one of integer codes 0, 1, 2 or 3")
+        if args.tenant not in config.get_tenants():
+            parser.error(f"Tenant {args.tenant} does not exist")
+            sys.exit(2)
+
+    except ConfigException as e:
+        print(str(e))
         sys.exit(2)
 
-    if args.status is None and args.service_type is None and not args.agent:
-        lines = sensuctl.get_events()
-
     else:
-        lines = sensuctl.filter_events(
-            status=args.status, service_type=args.service_type, agent=args.agent
-        )
+        sensuctl = SensuCtl(tenant=args.tenant, namespace=namespace)
 
-    for i in range(len(lines)):
-        print(lines[i])
-        if i > 1:
-            print("\n")
+        if args.status is not None and args.status not in [0, 1, 2, 3]:
+            parser.error("Status must be one of integer codes 0, 1, 2 or 3")
+            sys.exit(2)
+
+        if args.status is None and args.service_type is None and not args.agent:
+            lines = sensuctl.get_events()
+
+        else:
+            lines = sensuctl.filter_events(
+                status=args.status,
+                service_type=args.service_type,
+                agent=args.agent
+            )
+
+        for i in range(len(lines)):
+            print(lines[i])
+            if i > 1:
+                print("\n")
 
 
 main()

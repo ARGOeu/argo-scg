@@ -63,6 +63,26 @@ class Config(_Config):
     def get_tenants(self):
         return self.tenants
 
+    def get_namespaces(self):
+        namespaces = dict()
+        for tenant in self.tenants:
+            try:
+                namespace = self.conf.get(tenant, "namespace")
+
+            except configparser.NoOptionError:
+                namespace = tenant
+
+            if namespace not in namespaces:
+                namespaces.update({namespace: [tenant]})
+
+            else:
+                temp = namespaces[namespace]
+                temp.append(tenant)
+
+                namespaces.update({namespace: sorted(temp)})
+
+        return namespaces
+
     def get_poem_urls(self):
         try:
             urls = dict()

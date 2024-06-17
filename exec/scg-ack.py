@@ -4,6 +4,7 @@ import argparse
 from argo_scg.config import Config
 from argo_scg.exceptions import SensuException, ConfigException
 from argo_scg.sensu import Sensu
+from argo_scg.utils import namespace4tenant
 
 CONFFILE = "/etc/argo-scg/scg.conf"
 
@@ -21,8 +22,8 @@ def main():
         required=True
     )
     parser.add_argument(
-        "-n", "--namespace", dest="namespace", type=str, default="default",
-        help="namespace"
+        "-t", "--tenant", dest="tenant", type=str, default="default",
+        help="tenant"
     )
     parser.add_argument(
         "--conf", dest="conf", help="configuration file", default=CONFFILE
@@ -32,12 +33,18 @@ def main():
     try:
         config = Config(config_file=args.conf)
 
+        namespaces = config.get_namespaces()
+
         sensu = Sensu(
-            url=config.get_sensu_url(), token=config.get_sensu_token()
+            url=config.get_sensu_url(),
+            token=config.get_sensu_token(),
+            namespaces=namespaces
         )
 
         sensu.create_silencing_entry(
-            check=args.check, entity=args.entity, namespace=args.namespace
+            check=args.check,
+            entity=args.entity,
+            namespace=namespace4tenant(args.tenant, namespaces)
         )
 
         print(f"Created silencing entry for {args.entity}/{args.check}")

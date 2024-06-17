@@ -3,7 +3,8 @@ import logging
 import unittest
 
 from argo_scg.exceptions import GeneratorException
-from argo_scg.generator import ConfigurationGenerator, generate_adhoc_check
+from argo_scg.generator import ConfigurationGenerator, generate_adhoc_check, \
+    ConfigurationMerger
 
 mock_metrics = [
     {
@@ -4184,6 +4185,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4218,6 +4222,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4280,6 +4287,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4313,6 +4323,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4369,6 +4382,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -4421,6 +4437,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "default"
                         }
                     },
                     "round_robin": False,
@@ -4448,6 +4467,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "default"
                         }
                     },
                     "round_robin": False,
@@ -4509,6 +4531,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4543,6 +4568,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4604,6 +4632,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4644,6 +4675,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4677,6 +4711,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4706,6 +4743,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4767,6 +4807,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4807,6 +4850,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4836,6 +4882,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4899,6 +4948,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -4966,6 +5018,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5002,6 +5057,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5037,6 +5095,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5099,6 +5160,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5138,6 +5202,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5199,6 +5266,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5266,6 +5336,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5311,6 +5384,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5370,6 +5446,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5411,6 +5490,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5469,6 +5551,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5504,6 +5589,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5543,6 +5631,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5579,6 +5670,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5640,6 +5734,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5703,6 +5800,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5777,6 +5877,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5845,6 +5948,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5904,6 +6010,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -5965,6 +6074,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6024,6 +6136,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6085,6 +6200,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6141,6 +6259,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6172,6 +6293,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6259,6 +6383,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6294,6 +6421,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6330,6 +6460,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6416,6 +6549,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6451,6 +6587,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6484,6 +6623,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6573,6 +6715,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6609,6 +6754,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6642,6 +6790,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6721,6 +6872,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6768,6 +6922,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "1"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False,
@@ -6808,6 +6965,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -6879,6 +7039,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -6967,6 +7130,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7025,6 +7191,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -7094,6 +7263,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7177,6 +7349,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7235,6 +7410,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7308,6 +7486,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7382,6 +7563,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7440,6 +7624,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7474,6 +7661,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7553,6 +7743,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7587,6 +7780,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7660,6 +7856,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7694,6 +7893,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7769,6 +7971,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7803,6 +8008,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7874,6 +8082,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7908,6 +8119,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -7967,6 +8181,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8025,6 +8242,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8093,6 +8313,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8163,6 +8386,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8249,6 +8475,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8277,6 +8506,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8336,6 +8568,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8373,6 +8608,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8448,6 +8686,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8485,6 +8726,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8549,6 +8793,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8592,6 +8839,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8654,6 +8904,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8716,6 +8969,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8743,6 +8999,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8770,6 +9029,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8828,6 +9090,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8865,6 +9130,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8931,6 +9199,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -8996,6 +9267,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9059,6 +9333,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9120,6 +9397,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9161,6 +9441,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9238,6 +9521,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9279,6 +9565,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9341,6 +9630,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9388,6 +9680,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9443,6 +9738,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9473,6 +9771,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9532,6 +9833,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9565,6 +9869,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9622,6 +9929,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9698,6 +10008,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9740,6 +10053,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "2"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9803,6 +10119,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "namespace": "mockspace",
                     "annotations": {
                         "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "MOCK_TENANT"
                     }
                 },
                 "round_robin": False,
@@ -9880,6 +10199,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9919,6 +10241,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -9978,6 +10303,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10013,6 +10341,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10052,6 +10383,9 @@ class CheckConfigurationTests(unittest.TestCase):
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "round_robin": False
@@ -10091,7 +10425,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.test"]
@@ -10108,7 +10443,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui"]
@@ -10125,7 +10461,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui"]
@@ -10165,7 +10502,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -10184,7 +10522,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -10221,7 +10560,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "port": "1022",
                             "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -10235,7 +10575,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_test": "generic.ssh.test",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -10253,7 +10594,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url":
                                 "https://bioinformatics.cing.ac.cy/MelGene/",
                             "service": "web.check",
-                            "site": "CING"
+                            "site": "CING",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["bioinformatics.cing.ac.cy"]
@@ -10270,7 +10612,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
-                            "site": "CYI"
+                            "site": "CYI",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eewrc-las.cyi.ac.cy"]
@@ -10291,7 +10634,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://sampaeos.if.usp.br:9000//eos/ops/"
                                 "opstest/",
                             "service": "web.check",
-                            "site": "SAMPA"
+                            "site": "SAMPA",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["sampaeos.if.usp.br"]
@@ -10327,7 +10671,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -10343,7 +10688,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssl": "-S --sni",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -10383,6 +10729,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://dynafed.hostname.ca:443/dynafed/ops",
                             "service": "ch.cern.dynafed",
                             "site": "CA-UVic-Cloud",
+                            "tenants": "MOCK_TENANT",
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
                     },
@@ -10398,7 +10745,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "grycap.upv.es",
                             "info_url": "https://grycap.upv.es:31443/im/",
                             "service": "es.upv.grycap.im",
-                            "site": "UPV-GRyCAP"
+                            "site": "UPV-GRyCAP",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["grycap.upv.es"]
@@ -10419,7 +10767,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://eosatlas.cern.ch//eos/atlas/opstest/"
                                 "egi/",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eosatlas.cern.ch"]
@@ -10437,7 +10786,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "webdav_url":
                                 "https://hostname.cern.ch/atlas/opstest",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname.cern.ch"]
@@ -10478,7 +10828,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://mock.url.com/dpm/ops",
                             "service": "mock.webdav",
                             "site": "WEBDAV-test",
-                            "info_hostdn": "/CN=host/dpm.bla.meh.com"
+                            "info_hostdn": "/CN=host/dpm.bla.meh.com",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dpm.bla.meh.com"]
@@ -10524,7 +10875,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH",
                             "site_bdii": "grid-giis1.desy.de",
                             "info_url": "ldap://grid-giis1.desy.de:2170/"
-                                        "mds-vo-name=DESY-HH,o=grid"
+                                        "mds-vo-name=DESY-HH,o=grid",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["grid-giis1.desy.de"]
@@ -10549,7 +10901,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARNES",
                             "site_bdii": "kser.arnes.si",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
-                                           "CN=kser.arnes.si"
+                                           "CN=kser.arnes.si",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["kser.arnes.si"]
@@ -10572,7 +10925,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=SBDII,o=glue",
                             "service": "Site-BDII",
                             "site": "SBDII",
-                            "site_bdii": "sbdii.test.com"
+                            "site_bdii": "sbdii.test.com",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["sbdii.test.com"]
@@ -10596,7 +10950,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "GLUE2DomainID=BEgrid-ULB-VUB,o=glue",
                             "service": "Site-BDII",
                             "site": "BEgrid-ULB-VUB",
-                            "site_bdii": "sitebdii.iihe.ac.be"
+                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["sitebdii.iihe.ac.be"]
@@ -10613,7 +10968,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "bdii_type": "bdii_top",
                             "glue2_bdii_dn": "GLUE2DomainID=BDII,o=glue",
                             "service": "Top-BDII",
-                            "site": "BDII"
+                            "site": "BDII",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["bdii1.test.com"]
@@ -10651,7 +11007,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssl": "-S --sni",
                             "generic_http_connect_path": "-u /",
                             "service": "eu.ni4os.app.web",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["catalogue.ni4os.eu"]
@@ -10667,7 +11024,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "port": "1022",
                             "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -10681,7 +11039,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_test": "generic.ssh.test",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -10719,7 +11078,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://dns1.cloud.test.eu/",
                             "endpoint_name": "nsupdate",
                             "service": "eu.egi.cloud.dyndns",
-                            "site": "EGI-DDNS"
+                            "site": "EGI-DDNS",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dns1.cloud.test.eu"]
@@ -10735,7 +11095,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dns2.cloud.test.eu",
                             "endpoint_name": "secondary",
                             "service": "eu.egi.cloud.dyndns",
-                            "site": "EGI-DDNS"
+                            "site": "EGI-DDNS",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dns2.cloud.test.eu"]
@@ -10751,7 +11112,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dns3.cloud.test.eu",
                             "endpoint_name": "primary",
                             "service": "eu.egi.cloud.dyndns",
-                            "site": "EGI-DDNS"
+                            "site": "EGI-DDNS",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dns3.cloud.test.eu"]
@@ -10792,7 +11154,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://185.229.108.85:8080/",
                             "hostname": "185.229.108.85",
                             "service": "eu.seadatanet.org.replicationmanager",
-                            "site": "GAMMA"
+                            "site": "GAMMA",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["185.229.108.85"]
@@ -10814,7 +11177,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "r__rm_path": "-r /ReplicationManager/",
                             "hostname": "hnodc-dm.ath.hcmr.gr",
                             "service": "eu.seadatanet.org.replicationmanager",
-                            "site": "HNODC"
+                            "site": "HNODC",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hnodc-dm.ath.hcmr.gr"]
@@ -10862,7 +11226,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "cloud-api-pub.cr.cnaf.infn.it",
                             "region__os_region": "--region sdds",
                             "service": "org.openstack.nova",
-                            "site": "INFN-CLOUD-CNAF"
+                            "site": "INFN-CLOUD-CNAF",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
@@ -10886,7 +11251,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "os_keystone_host": "egi-cloud.pd.infn.it",
                             "hostname": "egi-cloud.pd.infn.it",
                             "service": "org.openstack.nova",
-                            "site": "INFN-PADOVA-STACK"
+                            "site": "INFN-PADOVA-STACK",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["egi-cloud.pd.infn.it"]
@@ -10905,7 +11271,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "os_keystone_host": "identity.cloud.muni.cz",
                             "hostname": "identity.cloud.muni.cz",
                             "service": "org.openstack.swift",
-                            "site": "CESNET-MCC"
+                            "site": "CESNET-MCC",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["identity.cloud.muni.cz"]
@@ -10944,7 +11311,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "openid-configuration",
                             "hostname": "aai.eosc-portal.eu",
                             "service": "egi.aai.oidc",
-                            "site": "GRIDOPS-CheckIn"
+                            "site": "GRIDOPS-CheckIn",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["aai.eosc-portal.eu"]
@@ -10962,7 +11330,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "metadata.php",
                             "hostname": "aai.eosc-portal.eu",
                             "service": "egi.aai.saml",
-                            "site": "GRIDOPS-CheckIn"
+                            "site": "GRIDOPS-CheckIn",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["aai.eosc-portal.eu"]
@@ -11002,7 +11371,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint__surl":
                                 "--endpoint srm://dcache-se-cms.desy.de:8443"
                                 "/srm/managerv2?SFN=/pnfs/desy.de/ops",
-                            "site": "DESY-HH"
+                            "site": "DESY-HH",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache-se-cms.desy.de"]
@@ -11020,7 +11390,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARNES",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
                                            "CN=dcache.arnes.si",
-                            "srm2_port": "8443"
+                            "srm2_port": "8443",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache.arnes.si"]
@@ -11035,7 +11406,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache6-shadow.iihe.ac.be",
                             "site_bdii": "sitebdii.iihe.ac.be",
                             "service": "SRM",
-                            "site": "BEgrid-ULB-VUB"
+                            "site": "BEgrid-ULB-VUB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache6-shadow.iihe.ac.be"]
@@ -11071,7 +11443,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "org.nordugrid.ARC-CE-SRM-submit",
                             "hostname": "gridarcce01.mesocentre.uca.fr",
                             "service": "ARC-CE",
-                            "site": "AUVERGRID"
+                            "site": "AUVERGRID",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gridarcce01.mesocentre.uca.fr"]
@@ -11088,7 +11461,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "service": "ARC-CE",
                             "site": "RO-13-ISS",
                             "memory_limit__arc_ce_memory_limit":
-                                "--memory-limit 268435456"
+                                "--memory-limit 268435456",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["alien.spacescience.ro"]
@@ -11124,7 +11498,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "hostname": "argo-mon-devel.egi.eu",
                             "service": "argo.mon",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-mon-devel.egi.eu"]
@@ -11139,7 +11514,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "hostname": "argo-mon-devel.ni4os.eu",
                             "service": "argo.mon",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-mon-devel.ni4os.eu"]
@@ -11221,7 +11597,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11237,7 +11614,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -11253,7 +11631,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11311,7 +11690,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11327,7 +11707,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -11343,7 +11724,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11402,7 +11784,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11422,7 +11805,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -11442,7 +11826,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11458,7 +11843,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "b2handle_prefix": "123456",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.test",
-                            "site": "B2HANDLE-TEST"
+                            "site": "B2HANDLE-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -11518,7 +11904,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11538,7 +11925,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-devel.ni4os.eu",
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo-devel.ni4os.eu"]
@@ -11558,7 +11946,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11574,7 +11963,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "b2handle_prefix": "123456",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.test",
-                            "site": "B2HANDLE-TEST"
+                            "site": "B2HANDLE-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -11623,7 +12013,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "api.argo.grnet.gr",
                             "info_url": "https://api.argo.grnet.gr/",
                             "service": "argo.api",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["api.argo.grnet.gr"]
@@ -11639,7 +12030,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "api.devel.argo.grnet.gr",
                             "info_url": "https://api.devel.argo.grnet.gr/",
                             "service": "argo.api",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["api.devel.argo.grnet.gr"]
@@ -11675,7 +12067,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo.ni4os.eu",
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.ni4os.eu"]
@@ -11734,7 +12127,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "grnet.rciam.oidc-login-edugain",
                             "hostname": "aai.argo.eu",
                             "service": "argo.oidc.login",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["aai.argo.eu"]
@@ -11804,7 +12198,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname.cern.ch/atlas/opstest",
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname.cern.ch"]
@@ -11821,7 +12216,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "webdav_url": "https://meh.cern.ch/atlas/opstest",
                             "hostname": "hostname2.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname2.cern.ch"]
@@ -11861,7 +12257,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname1.argo.com/path",
                             "hostname": "hostname1.argo.com",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "test1"
+                            "site": "test1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname1.argo.com"]
@@ -11878,7 +12275,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname2.argo.eu",
                             "ssl": "-S --sni",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "test2.test"
+                            "site": "test2.test",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname2.argo.eu"]
@@ -11895,7 +12293,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect_path": "-u /",
                             "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "group3"
+                            "site": "group3",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname3.argo.eu"]
@@ -11932,7 +12331,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test-json.argo.grnet.gr/some/path",
                             "hostname": "test-json.argo.grnet.gr",
                             "service": "argo.json",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test-json.argo.grnet.gr"]
@@ -11990,7 +12390,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test.argo.grnet.gr/some/extra/path",
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test.argo.grnet.gr"]
@@ -12009,7 +12410,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test2.argo.grnet.gr/some/extra2/path",
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test2.argo.grnet.gr"]
@@ -12028,7 +12430,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test3.argo.grnet.gr/some/extra3/path",
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test3.argo.grnet.gr"]
@@ -12088,7 +12491,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test.argo.grnet.gr/some/extra/path",
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test.argo.grnet.gr"]
@@ -12107,7 +12511,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test2.argo.grnet.gr/some/extra2/path",
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test2.argo.grnet.gr"]
@@ -12126,7 +12531,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://test3.argo.grnet.gr/some/extra3/path",
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
-                            "site": "ARGO"
+                            "site": "ARGO",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["test3.argo.grnet.gr"]
@@ -12166,7 +12572,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://b2handle.test.example.com",
                             "hostname": "b2handle.test.example.com",
                             "service": "b2handle",
-                            "site": "B2HANDLE"
+                            "site": "B2HANDLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle.test.example.com"]
@@ -12221,7 +12628,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://b2handle.test.example.com",
                             "hostname": "b2handle.test.example.com",
                             "service": "b2handle",
-                            "site": "B2HANDLE"
+                            "site": "B2HANDLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle.test.example.com"]
@@ -12260,7 +12668,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "b2handle3.test.com/credentials.json",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.api",
-                            "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST"
+                            "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -12311,7 +12720,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "b2handle.test.com/credentials.json",
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "B2HANDLE-TEST"
+                            "site": "B2HANDLE-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle.test.com"]
@@ -12330,7 +12740,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "b2handle_prefix": "123456",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "ARCHIVE-B2HANDLE"
+                            "site": "ARCHIVE-B2HANDLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -12389,7 +12800,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "b2handle.test.com/credentials.json",
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "B2HANDLE-TEST"
+                            "site": "B2HANDLE-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle.test.com"]
@@ -12408,7 +12820,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "b2handle_prefix": "123456",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "ARCHIVE-B2HANDLE"
+                            "site": "ARCHIVE-B2HANDLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -12461,7 +12874,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "b2handle.test.com/credentials.json",
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "B2HANDLE-TEST"
+                            "site": "B2HANDLE-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle.test.com"]
@@ -12480,7 +12894,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "b2handle_prefix": "123.456",
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
-                            "site": "ARCHIVE-B2HANDLE"
+                            "site": "ARCHIVE-B2HANDLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["b2handle3.test.com"]
@@ -12514,7 +12929,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_tcp_connect": "generic.tcp.connect",
                             "hostname": "gitlab.test.com",
                             "service": "gitlab",
-                            "site": "GITLAB-TEST"
+                            "site": "GITLAB-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab.test.com"]
@@ -12531,7 +12947,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "https://gitlab2.test.com/",
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab",
-                            "site": "GITLAB-TEST"
+                            "site": "GITLAB-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab2.test.com"]
@@ -12591,7 +13008,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--url https://gitlab.test.com",
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab.test.com"]
@@ -12608,7 +13026,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--url https://gitlab2.test.com/",
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab2.test.com"]
@@ -12658,7 +13077,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--url https://gitlab.test.com",
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab.test.com"]
@@ -12673,7 +13093,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "eudat_gitlab_liveness_url": "",
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab2.test.com"]
@@ -12728,7 +13149,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "https://gitlab.test.com",
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab.test.com"]
@@ -12744,7 +13166,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "https://gitlab2.test.com",
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab2.test.com"]
@@ -12791,7 +13214,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "https://gitlab.test.com",
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab.test.com"]
@@ -12805,7 +13229,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_tcp_connect": "generic.tcp.connect",
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
-                            "site": "GITLAB-TEST2"
+                            "site": "GITLAB-TEST2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["gitlab2.test.com"]
@@ -12845,7 +13270,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssh_port": "1022",
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -12859,7 +13285,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_connect": "generic.ssh.connect",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -12895,7 +13322,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "port": "1022",
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -12909,7 +13337,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_connect": "generic.ssh.connect",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -12955,7 +13384,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "port": "1022",
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -12969,7 +13399,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_connect": "generic.ssh.connect",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -13017,7 +13448,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssh_port": "1022",
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "IPB"
+                            "site": "IPB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hpc.resource.ni4os.eu"]
@@ -13031,7 +13463,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_ssh_connect": "generic.ssh.connect",
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
-                            "site": "SRCE"
+                            "site": "SRCE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["teran.srce.hr"]
@@ -13069,7 +13502,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
                             "hostname": "apel.grid1.example.com",
                             "service": "APEL",
-                            "site": "APEL-Site1"
+                            "site": "APEL-Site1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["apel.grid1.example.com"]
@@ -13086,7 +13520,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
                             "hostname": "apel.grid2.example.com",
                             "service": "APEL",
-                            "site": "APEL-Site2"
+                            "site": "APEL-Site2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["apel.grid2.example.com"]
@@ -13138,7 +13573,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "argo_apel_sync_u": "/rss/APEL-Site1_Sync.html",
                             "hostname": "apel.grid1.example.com",
                             "service": "APEL",
-                            "site": "APEL-Site1"
+                            "site": "APEL-Site1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["apel.grid1.example.com"]
@@ -13155,7 +13591,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "argo_apel_sync_u": "/rss/APEL-Site2_Sync.html",
                             "hostname": "apel.grid2.example.com",
                             "service": "APEL",
-                            "site": "APEL-Site2"
+                            "site": "APEL-Site2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["apel.grid2.example.com"]
@@ -13192,7 +13629,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "hostname": "appdb.egi.eu",
                             "service": "egi.AppDB",
-                            "site": "APPDB"
+                            "site": "APPDB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["appdb.egi.eu"]
@@ -13212,7 +13650,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect_path": "-u /MelGene/",
                             "hostname": "bioinformatics.cing.ac.cy",
                             "service": "web.check",
-                            "site": "CING"
+                            "site": "CING",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["bioinformatics.cing.ac.cy"]
@@ -13231,7 +13670,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect_path": "-u /las/getUI.do",
                             "hostname": "eewrc-las.cyi.ac.cy",
                             "service": "web.check",
-                            "site": "CYI"
+                            "site": "CYI",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eewrc-las.cyi.ac.cy"]
@@ -13254,7 +13694,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "-u //eos/ops/opstest/",
                             "hostname": "sampaeos.if.usp.br",
                             "service": "web.check",
-                            "site": "SAMPA"
+                            "site": "SAMPA",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["sampaeos.if.usp.br"]
@@ -13291,7 +13732,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "cvmfs_stratum_1_port": "80",
                             "hostname": "cclssts1.in2p3.fr",
                             "service": "ch.cern.cvmfs.stratum.1",
-                            "site": "IN2P3-CC"
+                            "site": "IN2P3-CC",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["cclssts1.in2p3.fr"]
@@ -13308,7 +13750,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "argo.cvmfs-stratum-1.status",
                             "hostname": "cvmfs-stratum-one.cc.kek.jp",
                             "service": "ch.cern.cvmfs.stratum.1",
-                            "site": "JP-KEK-CRC-02"
+                            "site": "JP-KEK-CRC-02",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
@@ -13346,7 +13789,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache-se-cms.desy.de",
                             "service": "SRM",
                             "site": "DESY-HH",
-                            "site_bdii": "grid-giis1.desy.de"
+                            "site_bdii": "grid-giis1.desy.de",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache-se-cms.desy.de"]
@@ -13365,7 +13809,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARNES",
                             "site_bdii": "kser.arnes.si",
                             "info_hostdn":
-                                "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si"
+                                "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache.arnes.si"]
@@ -13381,7 +13826,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache6-shadow.iihe.ac.be",
                             "site_bdii": "sitebdii.iihe.ac.be",
                             "service": "SRM",
-                            "site": "BEgrid-ULB-VUB"
+                            "site": "BEgrid-ULB-VUB",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["dcache6-shadow.iihe.ac.be"]
@@ -13425,7 +13871,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "lida_survey_data\"",
                             "hostname": "lida.dataverse.lt",
                             "service": "eu.eosc.generic.oai-pmh",
-                            "site": "lida.lida_survey_data"
+                            "site": "lida.lida_survey_data",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["lida.dataverse.lt"]
@@ -13464,7 +13911,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "root://atlas.dcache.example.eu:1094/",
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE1"
+                            "site": "XROOTD-SITE1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["atlas.dcache.example.eu"]
@@ -13479,7 +13927,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "e__argo_xrootd_ops_url": "",
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["castorpublic.cern.ch"]
@@ -13499,7 +13948,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "root://xrootd.example.eu:1094",
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE2"
+                            "site": "XROOTD-SITE2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["xrootd.example.eu"]
@@ -13538,7 +13988,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "root://atlas.dcache.example.eu:1094/",
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE1"
+                            "site": "XROOTD-SITE1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["atlas.dcache.example.eu"]
@@ -13553,7 +14004,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "e__argo_xrootd_ops_url": "",
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["castorpublic.cern.ch"]
@@ -13573,7 +14025,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "root://xrootd.example.eu:1094",
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE2"
+                            "site": "XROOTD-SITE2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["xrootd.example.eu"]
@@ -13594,7 +14047,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://eosatlas.cern.ch//eos/atlas/opstest",
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eosatlas.cern.ch"]
@@ -13611,7 +14065,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname.cern.ch/atlas/opstest",
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname.cern.ch"]
@@ -13666,7 +14121,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "root://atlas.dcache.example.eu:1094/",
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE1"
+                            "site": "XROOTD-SITE1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["atlas.dcache.example.eu"]
@@ -13682,7 +14138,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "-E root://castorpublic.cern.ch/data/ops/",
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["castorpublic.cern.ch"]
@@ -13702,7 +14159,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_url": "root://xrootd.example.eu:1094",
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
-                            "site": "XROOTD-SITE2"
+                            "site": "XROOTD-SITE2",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["xrootd.example.eu"]
@@ -13723,7 +14181,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://eosatlas.cern.ch//eos/atlas/opstest",
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eosatlas.cern.ch"]
@@ -13740,7 +14199,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname.cern.ch/atlas/opstest",
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname.cern.ch"]
@@ -13782,7 +14242,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://eosatlas.cern.ch//eos/atlas/opstest",
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
-                            "site": "CERN-PROD"
+                            "site": "CERN-PROD",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["eosatlas.cern.ch"]
@@ -13799,7 +14260,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "davs://webdav.test.de:2880",
                             "hostname": "webdav.test.de",
                             "service": "webdav",
-                            "site": "UNI-TEST"
+                            "site": "UNI-TEST",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["webdav.test.de"]
@@ -13819,7 +14281,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "ops",
                             "hostname": "xrootd.example.de",
                             "service": "webdav",
-                            "site": "UNI-EXAMPLE"
+                            "site": "UNI-EXAMPLE",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["xrootd.example.de"]
@@ -13860,7 +14323,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname1.argo.com/path",
                             "hostname": "hostname1.argo.com",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "test1"
+                            "site": "test1",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname1.argo.com_hostname1_id"]
@@ -13877,7 +14341,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname2.argo.eu",
                             "ssl": "-S --sni",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "test2.test"
+                            "site": "test2.test",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname2.argo.eu_second.id"]
@@ -13894,7 +14359,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect_path": "-u /",
                             "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
-                            "site": "group3"
+                            "site": "group3",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["hostname3.argo.eu_test.id"]
@@ -13932,7 +14398,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "hostname": "argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.test"]
@@ -13949,7 +14416,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "hostname": "argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui"]
@@ -13966,7 +14434,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "hostname": "argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui"]
@@ -14004,7 +14473,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "hostname": "argo.ni4os.eu",
                             "service": "argo.test",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.test__argo.ni4os.eu"]
@@ -14021,7 +14491,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "hostname": "argo-devel.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui__argo-devel.ni4os.eu"]
@@ -14038,7 +14509,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "hostname": "argo.ni4os.eu",
                             "service": "argo.webui",
-                            "site": "GRNET"
+                            "site": "GRNET",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["argo.webui__argo.ni4os.eu"]
@@ -14082,7 +14554,8 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "xrootd_tests",
                             "hostname": "xrootd01.readonly.eu",
                             "service": "eu.egi.readonly.xrootd",
-                            "site": "XROOTD-READONLY"
+                            "site": "XROOTD-READONLY",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["xrootd01.readonly.eu"]
@@ -14131,7 +14604,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "cloud-api-pub.cr.cnaf.infn.it",
                             "region__os_region": "--region sdds",
                             "service": "org.openstack.nova",
-                            "site": "INFN-CLOUD-CNAF"
+                            "site": "INFN-CLOUD-CNAF",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
@@ -14153,7 +14627,8 @@ class EntityConfigurationTests(unittest.TestCase):
                             "os_keystone_host": "egi-cloud.pd.infn.it",
                             "hostname": "egi-cloud.pd.infn.it",
                             "service": "org.openstack.nova",
-                            "site": "INFN-PADOVA-STACK"
+                            "site": "INFN-PADOVA-STACK",
+                            "tenants": "MOCK_TENANT"
                         }
                     },
                     "subscriptions": ["egi-cloud.pd.infn.it"]
@@ -14724,3 +15199,1272 @@ class AdHocCheckTests(unittest.TestCase):
                 "round_robin": False
             }
         )
+
+
+class ConfigurationMergerTests(unittest.TestCase):
+    def setUp(self):
+        self.checks1 = [
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 60 --link "
+                           "--onredirect follow {{ .labels.ssl | "
+                           "default " " }} {{ .labels."
+                           "generic_http_connect_port | default " " }} "
+                           "{{ .labels.generic_http_connect_path | "
+                           "default " " }}",
+                "subscriptions": [
+                    "hostname1.example.com",
+                    "hostname2.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                           "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                           "-N --altnames --rootcert-dir "
+                           "/etc/grid-security/certificates "
+                           "--rootcert-file /etc/pki/tls/certs/"
+                           "ca-bundle.crt "
+                           "-C /etc/sensu/certs/hostcert.pem "
+                           "-K /etc/sensu/certs/hostkey.pem",
+                "subscriptions": [
+                    "hostname1.example.com",
+                    "hostname2.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_certificate_validity == "
+                        "'generic.certificate.validity'"
+                    ]
+                },
+                "interval": 14400,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.certificate.validity",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "2"
+                    },
+                    "labels": {
+                        "tenants": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/libexec/argo/probes/argo_tools/"
+                           "check_log -t 120 --file /var/log/"
+                           "argo-poem-tools/argo-poem-tools.log "
+                           "--age 2 --app argo-poem-packages",
+                "subscriptions": [
+                    "internals"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "interval": 7200,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "argo.poem-tools.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "4"
+                    },
+                    "labels": {
+                        "tenants": "TENANT1"
+                    }
+                },
+                "round_robin": False
+            }
+        ]
+        self.checks2 = [
+            {
+                "command": "/usr/libexec/argo/probes/xml/check_xml "
+                           "-t 30 -u {{ .labels.endpoint_url}} "
+                           "-x /aris/partition/state_up --ok up",
+                "subscriptions": [
+                    "hostname3.example.com",
+                    "hostname4.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_xml_check == "
+                        "'generic.xml.check'"
+                    ]
+                },
+                "interval": 1800,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.xml.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "TENANT2"
+                    }
+                },
+                "round_robin": False
+            },
+            {
+                "command": "/usr/libexec/argo/probes/argo_tools/"
+                           "check_log -t 120 --file /var/log/"
+                           "argo-poem-tools/argo-poem-tools.log "
+                           "--age 2 --app argo-poem-packages",
+                "subscriptions": [
+                    "internals"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "reduce_alerts",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "interval": 7200,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "argo.poem-tools.check",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "4"
+                    },
+                    "labels": {
+                        "tenants": "TENANT2"
+                    }
+                },
+                "round_robin": False
+            }
+        ]
+        self.entities1 = [
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.test__argo.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "hostname": "argo.ni4os.eu",
+                        "info_url": "https://argo.ni4os.eu",
+                        "service": "argo.test",
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
+                    }
+                },
+                "subscriptions": ["argo.test"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.webui__argo-devel.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo-devel.ni4os.eu",
+                        "info_url": "http://argo-devel.ni4os.eu",
+                        "service": "argo.webui",
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
+                    }
+                },
+                "subscriptions": ["argo.webui"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.webui__argo.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_http_ar_argoui_ni4os":
+                            "generic.http.ar-argoui-ni4os",
+                        "generic_tcp_connect": "generic.tcp.connect",
+                        "hostname": "argo.ni4os.eu",
+                        "info_url": "https://argo.ni4os.eu",
+                        "service": "argo.webui",
+                        "site": "GRNET",
+                        "tenants": "TENANT1"
+                    }
+                },
+                "subscriptions": ["argo.webui"]
+            }
+        ]
+        self.entities2 = [
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.mon__argo-mon-devel.egi.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_certificate_validity":
+                            "generic.certificate.validity",
+                        "hostname": "argo-mon-devel.egi.eu",
+                        "service": "argo.mon",
+                        "site": "SRCE",
+                        "tenants": "TENANT2"
+                    }
+                },
+                "subscriptions": ["argo-mon-devel.egi.eu"]
+            },
+            {
+                "entity_class": "proxy",
+                "metadata": {
+                    "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                    "namespace": "default",
+                    "labels": {
+                        "generic_certificate_validity":
+                            "generic.certificate.validity",
+                        "hostname": "argo-mon-devel.ni4os.eu",
+                        "service": "argo.mon",
+                        "site": "SRCE",
+                        "tenants": "TENANT2"
+                    }
+                },
+                "subscriptions": ["argo-mon-devel.ni4os.eu"]
+            }
+        ]
+        self.metric_overrides1 = [{
+            "metric": "argo.poem-tools.check",
+            "hostname": "agent1",
+            "parameter": "--age",
+            "value": "3"
+        }]
+        self.metric_overrides2 = [{
+            "metric": "argo.poem-tools.check",
+            "hostname": "agent1",
+            "parameter": "--age",
+            "value": "3"
+        }, {
+            "metric": "generic.certificate.validity-robot",
+            "hostname": "agent1",
+            "parameter": "-f",
+            "value": "/some/custom/path/to/robotcert.pem"
+        }]
+        self.attribute_overrides1 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["generic.certificate.validity-robot"]
+        }]
+        self.attribute_overrides2 = [{
+            "hostname": "agent1",
+            "attribute": "ROBOT_CERT",
+            "label": "robot_cert",
+            "value": "/etc/sensu/certs/robotcert.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }, {
+            "hostname": "agent1",
+            "attribute": "ROBOT_KEY",
+            "label": "robot_key",
+            "value": "/etc/sensu/certs/robotkey.pem",
+            "metrics": ["srce.gridproxy.get"]
+        }]
+
+    def test_merge_checks(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        checks = merger.merge_checks()
+        self.assertEqual(
+            sorted(checks, key=lambda c: c["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/argo_tools/"
+                               "check_log -t 120 --file /var/log/"
+                               "argo-poem-tools/argo-poem-tools.log "
+                               "--age 2 --app argo-poem-packages",
+                    "subscriptions": [
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 7200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.poem-tools.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1,TENANT2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                               "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                               "-N --altnames --rootcert-dir "
+                               "/etc/grid-security/certificates "
+                               "--rootcert-file /etc/pki/tls/certs/"
+                               "ca-bundle.crt "
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity == "
+                            "'generic.certificate.validity'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 60 --link "
+                               "--onredirect follow {{ .labels.ssl | "
+                               "default " " }} {{ .labels."
+                               "generic_http_connect_port | default " " }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default " " }}",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/xml/check_xml "
+                               "-t 30 -u {{ .labels.endpoint_url}} "
+                               "-x /aris/partition/state_up --ok up",
+                    "subscriptions": [
+                        "hostname3.example.com",
+                        "hostname4.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_xml_check == "
+                            "'generic.xml.check'"
+                        ]
+                    },
+                    "interval": 1800,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.xml.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+
+    def test_merge_checks_if_duplicate_with_different_subscriptions(self):
+        checks2 = self.checks2.copy()
+        checks2.append(
+            {
+                "command": "/usr/lib64/nagios/plugins/check_http "
+                           "-H {{ .labels.hostname }} -t 60 --link "
+                           "--onredirect follow {{ .labels.ssl | "
+                           "default " " }} {{ .labels."
+                           "generic_http_connect_port | default " " }} "
+                           "{{ .labels.generic_http_connect_path | "
+                           "default " " }}",
+                "subscriptions": [
+                    "hostname3.example.com",
+                    "hostname5.example.com"
+                ],
+                "handlers": [],
+                "pipelines": [
+                    {
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }
+                ],
+                "proxy_requests": {
+                    "entity_attributes": [
+                        "entity.entity_class == 'proxy'",
+                        "entity.labels.generic_http_connect == "
+                        "'generic.http.connect'"
+                    ]
+                },
+                "interval": 300,
+                "timeout": 900,
+                "publish": True,
+                "metadata": {
+                    "name": "generic.http.connect",
+                    "namespace": "test",
+                    "annotations": {
+                        "attempts": "3"
+                    },
+                    "labels": {
+                        "tenants": "TENANT2"
+                    }
+                },
+                "round_robin": False
+            }
+        )
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        checks = merger.merge_checks()
+        self.assertEqual(
+            sorted(checks, key=lambda c: c["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/argo_tools/"
+                               "check_log -t 120 --file /var/log/"
+                               "argo-poem-tools/argo-poem-tools.log "
+                               "--age 2 --app argo-poem-packages",
+                    "subscriptions": [
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "interval": 7200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.poem-tools.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "4"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1,TENANT2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
+                               "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
+                               "-N --altnames --rootcert-dir "
+                               "/etc/grid-security/certificates "
+                               "--rootcert-file /etc/pki/tls/certs/"
+                               "ca-bundle.crt "
+                               "-C /etc/sensu/certs/hostcert.pem "
+                               "-K /etc/sensu/certs/hostkey.pem",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_certificate_validity == "
+                            "'generic.certificate.validity'"
+                        ]
+                    },
+                    "interval": 14400,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.certificate.validity",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 60 --link "
+                               "--onredirect follow {{ .labels.ssl | "
+                               "default " " }} {{ .labels."
+                               "generic_http_connect_port | default " " }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default " " }}",
+                    "subscriptions": [
+                        "hostname1.example.com",
+                        "hostname2.example.com",
+                        "hostname3.example.com",
+                        "hostname5.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "TENANT1,TENANT2"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/libexec/argo/probes/xml/check_xml "
+                               "-t 30 -u {{ .labels.endpoint_url}} "
+                               "-x /aris/partition/state_up --ok up",
+                    "subscriptions": [
+                        "hostname3.example.com",
+                        "hostname4.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_xml_check == "
+                            "'generic.xml.check'"
+                        ]
+                    },
+                    "interval": 1800,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.xml.check",
+                        "namespace": "test",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+
+    def test_merge_entities(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        entities = merger.merge_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda e: e["metadata"]["name"]), [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.egi.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.ni4os.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo-devel.ni4os.eu",
+                            "info_url": "http://argo-devel.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.webui__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.webui",
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "subscriptions": ["argo.webui"]
+                }
+            ]
+        )
+
+    def test_merge_entities_if_duplicates(self):
+        self.maxDiff = None
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": [
+                    {
+                        "entity_class": "proxy",
+                        "metadata": {
+                            "name": "argo.test__argo.ni4os.eu",
+                            "namespace": "default",
+                            "labels": {
+                                "generic_http_ar_argoui_ni4os":
+                                    "generic.http.ar-argoui-ni4os",
+                                "hostname": "argo.ni4os.eu",
+                                "info_url": "https://argo.ni4os.eu",
+                                "service": "argo.test",
+                                "site": "GRNET",
+                                "tenants": "TENANT1"
+                            }
+                        },
+                        "subscriptions": ["argo.test"]
+                    },
+                    {
+                        "entity_class": "proxy",
+                        "metadata": {
+                            "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                            "namespace": "default",
+                            "labels": {
+                                "generic_http_connect": "generic.http.connect",
+                                "hostname": "argo-mon-devel.ni4os.eu",
+                                "service": "argo.mon",
+                                "site": "GRNET",
+                                "tenants": "TENANT1"
+                            }
+                        },
+                        "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
+                ],
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        entities = merger.merge_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda e: e["metadata"]["name"]), [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.egi.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "hostname": "argo-mon-devel.egi.eu",
+                            "service": "argo.mon",
+                            "site": "SRCE",
+                            "tenants": "TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.mon__argo-mon-devel.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_certificate_validity":
+                                "generic.certificate.validity",
+                            "generic_http_connect": "generic.http.connect",
+                            "hostname": "argo-mon-devel.ni4os.eu",
+                            "service": "argo.mon",
+                            "site": "GRNET,SRCE",
+                            "tenants": "TENANT1,TENANT2"
+                        }
+                    },
+                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test__argo.ni4os.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_http_ar_argoui_ni4os":
+                                "generic.http.ar-argoui-ni4os",
+                            "hostname": "argo.ni4os.eu",
+                            "info_url": "https://argo.ni4os.eu",
+                            "service": "argo.test",
+                            "site": "GRNET",
+                            "tenants": "TENANT1"
+                        }
+                    },
+                    "subscriptions": ["argo.test"]
+                }
+            ]
+        )
+
+    def test_merge_metric_parameter_overrides(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": self.metric_overrides1,
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(override, self.metric_overrides2)
+
+    def test_merge_metric_parameter_overrides_if_diff(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": [{
+                    "metric": "argo.poem-tools.check",
+                    "hostname": "agent1",
+                    "parameter": "--age",
+                    "value": "4"
+                }],
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(
+            override, [{
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--age",
+                "value": "4"
+            }, {
+                "metric": "generic.certificate.validity-robot",
+                "hostname": "agent1",
+                "parameter": "-f",
+                "value": "/some/custom/path/to/robotcert.pem"
+            }]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
+                f"agent1/argo.poem-tools.check metric parameter override"
+            ]
+        )
+
+    def test_merge_metric_parameter_overrides_if_same_metric_different_param(
+            self
+    ):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            metricoverrides4agents={
+                "TENANT1": [{
+                    "metric": "argo.poem-tools.check",
+                    "hostname": "agent1",
+                    "parameter": "--file",
+                    "value": "/path/to/file"
+                }],
+                "TENANT2": self.metric_overrides2
+            }
+        )
+        override = merger.merge_metric_parameter_overrides()
+        self.assertEqual(
+            override, [{
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--file",
+                "value": "/path/to/file"
+            }, {
+                "metric": "argo.poem-tools.check",
+                "hostname": "agent1",
+                "parameter": "--age",
+                "value": "3"
+            }, {
+                "metric": "generic.certificate.validity-robot",
+                "hostname": "agent1",
+                "parameter": "-f",
+                "value": "/some/custom/path/to/robotcert.pem"
+            }]
+        )
+
+    def test_merge_attribute_overrides(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            attributeoverrides4agents={
+                "TENANT1": self.attribute_overrides1,
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robotcert.pem",
+                "metrics": [
+                    "generic.certificate.validity-robot",
+                    "srce.gridproxy.get"
+                ]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+
+    def test_merge_attribute_overrides_if_diff(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            attributeoverrides4agents={
+                "TENANT1": [{
+                    "hostname": "agent1",
+                    "attribute": "ROBOT_CERT",
+                    "label": "robot_cert",
+                    "value": "/etc/sensu/certs/robot.cert",
+                    "metrics": ["generic.certificate.validity-robot"]
+                }],
+                "TENANT2": self.attribute_overrides2
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            override = merger.merge_attribute_overrides()
+        self.assertEqual(
+            override, [{
+                "hostname": "agent1",
+                "attribute": "ROBOT_CERT",
+                "label": "robot_cert",
+                "value": "/etc/sensu/certs/robot.cert",
+                "metrics": ["generic.certificate.validity-robot"]
+            }, {
+                "hostname": "agent1",
+                "attribute": "ROBOT_KEY",
+                "label": "robot_key",
+                "value": "/etc/sensu/certs/robotkey.pem",
+                "metrics": ["srce.gridproxy.get"]
+            }]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
+                f"agent1/ROBOT_CERT host attribute override"
+            ]
+        )
+
+    def test_merge_subscriptions(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            }
+        )
+        subs = merger.merge_subscriptions()
+        self.assertEqual(
+            subs, {
+                "default": ["sub1", "sub2", "sub3", "sub6"],
+                "agent1": ["sub1", "sub4"]
+            }
+        )
+
+    def test_merge_internal_services(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            subscriptions={
+                "TENANT1": {
+                    "default": ["sub1", "sub2", "sub3"],
+                    "agent1": ["sub1", "sub4"]
+                },
+                "TENANT2": {
+                    "default": ["sub1", "sub2", "sub6"]
+                }
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            }
+        )
+        internals = merger.merge_internal_services()
+        self.assertEqual(internals, "service1,service2,service3,service4")

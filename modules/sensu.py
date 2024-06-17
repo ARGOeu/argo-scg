@@ -10,10 +10,11 @@ from argo_scg.generator import create_attribute_env, create_label, \
 
 
 class Sensu:
-    def __init__(self, url, token):
+    def __init__(self, url, token, namespaces):
         self.url = url
         self.token = token
         self.non_poem_checks = ["sensu.cpu.usage", "sensu.memory.usage"]
+        self.namespaces = namespaces
         self.logger = logging.getLogger("argo-scg.sensu")
 
     def _get_namespaces(self):
@@ -46,12 +47,11 @@ class Sensu:
                 namespace["name"] not in exceptions
             ]
 
-    def handle_namespaces(self, tenants):
-        namespaces = self._get_namespaces()
-        for tenant in tenants:
-            namespace = tenant
+    def handle_namespaces(self):
+        existing_namespaces = self._get_namespaces()
 
-            if namespace not in namespaces:
+        for namespace, tenants in self.namespaces.items():
+            if namespace not in existing_namespaces:
                 response = requests.put(
                     f"{self.url}/api/core/v2/namespaces/{namespace}",
                     headers={
@@ -78,21 +78,23 @@ class Sensu:
                 else:
                     self.logger.info(f"Namespace {namespace} created")
 
-        for tenant in set(namespaces).difference(set(tenants)):
+        for namespace in set(existing_namespaces).difference(
+                set(self.namespaces.keys())
+        ):
             try:
                 subprocess.check_output(
                     f"sensuctl dump "
                     f"entities,events,assets,checks,filters,handlers "
-                    f"--namespace {tenant} | sensuctl delete", shell=True
+                    f"--namespace {namespace} | sensuctl delete", shell=True
                 )
-                self.logger.info(f"Namespace {tenant} emptied")
+                self.logger.info(f"Namespace {namespace} emptied")
                 response = requests.delete(
-                    f"{self.url}/api/core/v2/namespaces/{tenant}",
+                    f"{self.url}/api/core/v2/namespaces/{namespace}",
                     headers={"Authorization": f"Key {self.token}"}
                 )
 
                 if response.ok:
-                    self.logger.info(f"Namespace {tenant} deleted")
+                    self.logger.info(f"Namespace {namespace} deleted")
 
                 else:
                     msg = f"{response.status_code} {response.reason}"
@@ -102,11 +104,11 @@ class Sensu:
                     except (ValueError, KeyError, TypeError):
                         pass
 
-                    self.logger.error(f"Error deleting {tenant}: {msg}")
+                    self.logger.error(f"Error deleting {namespace}: {msg}")
 
             except subprocess.CalledProcessError as err:
                 self.logger.error(
-                    f"Error cleaning namespace {tenant}: {err.output}"
+                    f"Error cleaning namespace {namespace}: {err.output}"
                 )
 
     def _get_checks(self, namespace):
@@ -136,11 +138,9 @@ class Sensu:
 
     def _get_events(self, namespace):
         response = requests.get(
-            "{}/api/core/v2/namespaces/{}/events".format(
-                self.url, namespace
-            ),
+            f"{self.url}/api/core/v2/namespaces/{namespace}/events",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             }
         )
@@ -200,10 +200,8 @@ class Sensu:
 
     def _delete_check(self, check, namespace):
         response = requests.delete(
-            "{}/api/core/v2/namespaces/{}/checks/{}".format(
-                self.url, namespace, check
-            ),
-            headers={"Authorization": "Key {}".format(self.token)}
+            f"{self.url}/api/core/v2/namespaces/{namespace}/checks/{check}",
+            headers={"Authorization": f"Key {self.token}"}
         )
         return response
 
@@ -331,10 +329,10 @@ class Sensu:
 
             return interval_equal
 
-        def annotations_equality(c1, c2):
-            annotations_equal = False
+        def _equality_2lvl(c1, c2, key):
+            _equal = False
             key1 = "metadata"
-            key2 = "annotations"
+            key2 = key
             condition1 = key2 in c1[key1] and key2 in c2[key1]
             condition2 = key2 not in c1[key1] and key2 not in c2[key1]
 
@@ -343,25 +341,32 @@ class Sensu:
                 condition3 = c1[key1][key2] == c2[key1][key2]
 
             if (condition1 and condition3) or condition2:
-                annotations_equal = True
+                _equal = True
 
-            return annotations_equal
+            return _equal
+
+        def annotations_equality(c1, c2):
+            return _equality_2lvl(c1, c2, key="annotations")
+
+        def labels_equality(c1, c2):
+            return _equality_2lvl(c1, c2, key="labels")
 
         equal = False
-        if check1["command"] == check2["command"] and \
-                sorted(check1["subscriptions"]) == \
-                sorted(check2["subscriptions"]) and \
-                sorted(check1["handlers"]) == sorted(check2["handlers"]) and \
-                proxy_equality(check1, check2) and \
-                interval_equality(check1, check2) and \
-                check1["timeout"] == check2["timeout"] and \
-                check1["publish"] == check2["publish"] and \
-                check1["metadata"]["name"] == check2["metadata"]["name"] and \
-                check1["metadata"]["namespace"] == \
-                check2["metadata"]["namespace"] and \
-                check1["round_robin"] == check2["round_robin"] and \
-                check1["pipelines"] == check2["pipelines"] and \
-                annotations_equality(check1, check2):
+        if ((check1["command"] == check2["command"] and
+                sorted(check1["subscriptions"]) ==
+                sorted(check2["subscriptions"]) and
+                sorted(check1["handlers"]) == sorted(check2["handlers"]) and
+                proxy_equality(check1, check2) and
+                interval_equality(check1, check2) and
+                check1["timeout"] == check2["timeout"] and
+                check1["publish"] == check2["publish"] and
+                check1["metadata"]["name"] == check2["metadata"]["name"] and
+                check1["metadata"]["namespace"] ==
+                check2["metadata"]["namespace"] and
+                check1["round_robin"] == check2["round_robin"] and
+                check1["pipelines"] == check2["pipelines"] and
+                annotations_equality(check1, check2)) and
+                labels_equality(check1, check2)):
             equal = True
 
         return equal
@@ -449,9 +454,8 @@ class Sensu:
     def _delete_entities(self, entities, namespace):
         for entity in entities:
             response = requests.delete(
-                "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                    self.url, namespace, entity
-                ),
+                f"{self.url}/api/core/v2/namespaces/{namespace}"
+                f"/entities/{entity}",
                 headers={"Authorization": f"Key {self.token}"}
             )
 
@@ -496,7 +500,7 @@ class Sensu:
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks/"
             f"{check['metadata']['name']}",
             headers={
-                "Authorization": "Key {}".format(self.token),
+                "Authorization": f"Key {self.token}",
                 "Content-Type": "application/json"
             },
             data=json.dumps(check)
@@ -614,12 +618,11 @@ class Sensu:
             if len(existing_entity) == 0 or \
                     not self._compare_entities(entity, existing_entity[0]):
                 response = requests.put(
-                    "{}/api/core/v2/namespaces/{}/entities/{}".format(
-                        self.url, namespace, entity["metadata"]["name"]
-                    ),
+                    f"{self.url}/api/core/v2/namespaces/{namespace}/entities/"
+                    f"{entity['metadata']['name']}",
                     data=json.dumps(entity),
                     headers={
-                        "Authorization": "Key {}".format(self.token),
+                        "Authorization": f"Key {self.token}",
                         "Content-Type": "application/json"
                     }
                 )
@@ -724,11 +727,11 @@ class Sensu:
 
                 if send_data:
                     response = requests.patch(
-                        f"{self.url}/api/core/v2/namespaces/{namespace}/"
-                        f"entities/{agent['metadata']['name']}",
+                        f"{self.url}/api/core/v2/namespaces/"
+                        f"{namespace}/entities/{agent['metadata']['name']}",
                         data=json.dumps(send_data),
                         headers={
-                            "Authorization": "Key {}".format(self.token),
+                            "Authorization": f"Key {self.token}",
                             "Content-Type": "application/merge-patch+json"
                         }
                     )
@@ -1253,8 +1256,8 @@ class Sensu:
     def _get_check(self, check, namespace):
         try:
             return [
-                c for c in self._get_checks(namespace=namespace) if
-                c["metadata"]["name"] == check
+                c for c in self._get_checks(namespace=namespace)
+                if c["metadata"]["name"] == check
             ][0]
 
         except IndexError:
@@ -1458,13 +1461,23 @@ class MetricOutput:
     def get_site(self):
         return self.data["entity"]["metadata"]["labels"]["site"]
 
-    def get_namespace(self):
-        return self.data["check"]["metadata"]["namespace"]
+    def get_tenants(self):
+        check_tenants = set([
+            item.strip() for item in
+            self.data["check"]["metadata"]["labels"]["tenants"].split(",")
+        ])
+        entity_tenants = set([
+            item.strip() for item in
+            self.data["entity"]["metadata"]["labels"]["tenants"].split(",")
+        ])
+
+        return sorted(list(entity_tenants.intersection(check_tenants)))
 
 
 class SensuCtl:
-    def __init__(self, namespace):
+    def __init__(self, tenant, namespace):
         self.namespace = namespace
+        self.tenant = tenant
 
     def _get_events(self):
         output = subprocess.check_output([
@@ -1529,7 +1542,20 @@ class SensuCtl:
 
     def get_events(self):
         data = self._get_events()
-        return self._format_events(data)
+        tenant_data = [
+            item for item in data if
+            item["entity"]["entity_class"] == "agent" or
+            (self.tenant in [
+                t.strip() for t in item["check"]["metadata"]["labels"][
+                    "tenants"
+                ].split(",")
+            ] and self.tenant in [
+                t.strip() for t in item["entity"]["metadata"]["labels"][
+                    "tenants"
+                ].split(",")
+            ])
+        ]
+        return self._format_events(tenant_data)
 
     @staticmethod
     def _is_servicetype(item, servicetype):
