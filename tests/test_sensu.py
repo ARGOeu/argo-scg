@@ -3826,8 +3826,8 @@ class SensuNamespaceTests(unittest.TestCase):
             )
         ], any_order=True)
         mock_subprocess.assert_called_once_with(
-            "sensuctl dump entities,events,assets,checks,filters,handlers "
-            "--namespace Tenant5 | sensuctl delete", shell=True
+            "sensuctl dump entities,events,assets,checks,filters,handlers,"
+            "silenced --namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
@@ -3877,8 +3877,8 @@ class SensuNamespaceTests(unittest.TestCase):
             )
         ], any_order=True)
         mock_subprocess.assert_called_once_with(
-            "sensuctl dump entities,events,assets,checks,filters,handlers "
-            "--namespace Tenant5 | sensuctl delete", shell=True
+            "sensuctl dump entities,events,assets,checks,filters,handlers,"
+            "silenced --namespace Tenant5 | sensuctl delete", shell=True
         )
         self.assertEqual(mock_delete.call_count, 0)
         self.assertEqual(
@@ -3925,8 +3925,8 @@ class SensuNamespaceTests(unittest.TestCase):
             )
         ], any_order=True)
         mock_subprocess.assert_called_once_with(
-            "sensuctl dump entities,events,assets,checks,filters,handlers "
-            "--namespace Tenant5 | sensuctl delete", shell=True
+            "sensuctl dump entities,events,assets,checks,filters,handlers,"
+            "silenced --namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
@@ -3975,8 +3975,8 @@ class SensuNamespaceTests(unittest.TestCase):
             )
         ], any_order=True)
         mock_subprocess.assert_called_once_with(
-            "sensuctl dump entities,events,assets,checks,filters,handlers "
-            "--namespace Tenant5 | sensuctl delete", shell=True
+            "sensuctl dump entities,events,assets,checks,filters,handlers,"
+            "silenced --namespace Tenant5 | sensuctl delete", shell=True
         )
         mock_delete.assert_called_once_with(
             "https://sensu.mock.com:8080/api/core/v2/namespaces/Tenant5",
