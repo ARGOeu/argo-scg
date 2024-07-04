@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.6.0
+Version:       0.6.1
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 4 2024 Katarina Zailac <kzailac@srce.hr> - 0.6.1-1%{?dist}
+- ARGO-4564 When clearing namespace for deletion, remove all the silenced entries
 * Mon Jun 17 2024 Katarina Zailac <kzailac@srce.hr> - 0.6.0-1%{?dist}
 - ARGO-4555 Display only events for the given tenant
 - ARGO-4663 Fix wrongly referenced variable

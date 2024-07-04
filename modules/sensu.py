@@ -84,7 +84,7 @@ class Sensu:
             try:
                 subprocess.check_output(
                     f"sensuctl dump "
-                    f"entities,events,assets,checks,filters,handlers "
+                    f"entities,events,assets,checks,filters,handlers,silenced "
                     f"--namespace {namespace} | sensuctl delete", shell=True
                 )
                 self.logger.info(f"Namespace {namespace} emptied")
