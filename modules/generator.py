@@ -792,12 +792,18 @@ class ConfigurationGenerator:
                 "round_robin": False
             }
 
-            if publish and "NOPUBLISH" not in configuration["flags"]:
+            if (
+                    publish and "NOPUBLISH" not in configuration["flags"] and
+                    "SILENCED" not in configuration["flags"]
+            ):
                 check.update({
                     "pipelines": [HARD_STATE_PIPELINE]
                 })
 
-            elif not publish or "internal" in configuration["tags"]:
+            elif (
+                    (not publish or "internal" in configuration["tags"]) and
+                    "SILENCED" not in configuration["flags"]
+            ):
                 check.update({
                     "pipelines": [
                         {
