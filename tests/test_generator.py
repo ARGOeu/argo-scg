@@ -1566,7 +1566,99 @@ mock_metrics = [
         }
     },
     {
+        "org.nordugrid.ARC-CE-clean": {
+            "tags": [
+                "arc",
+                "compute",
+                "htc",
+                "internal",
+                "nonharmonized"
+            ],
+            "probe": "check_arcce_clean",
+            "config": {
+                "interval": "20",
+                "maxCheckAttempts": "2",
+                "path": "/usr/lib64/nagios/plugins",
+                "retryInterval": "60",
+                "timeout": "600"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "NOTIMEOUT": "1",
+                "REQUIREMENT": "org.nordugrid.ARC-CE-submit",
+                "VO": "1",
+                "NOPUBLISH": "1",
+                "SILENCED": "1"
+            },
+            "dependency": {
+                "hr.srce.GridProxy-Valid": "0"
+            },
+            "attribute": {
+                "VONAME": "--voms",
+                "VO_FQAN": "--fqan",
+                "X509_USER_PROXY": "--user-proxy"
+            },
+            "parameter": {
+                "--timeout": "600",
+                "--command-file": "/var/nagios/rw/nagios.cmd",
+                "--how-invoked": "nagios"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://git.nbi.ku.dk/downloads/"
+                      "NorduGridARCNagiosPlugins/index.html#"
+        }
+    },
+    {
         "org.nordugrid.ARC-CE-monitor": {
+            "tags": [
+                "arc",
+                "compute",
+                "htc",
+                "internal",
+                "nonharmonized"
+            ],
+            "probe": "check_arcce_monitor",
+            "config": {
+                "interval": "20",
+                "maxCheckAttempts": "2",
+                "path": "/usr/lib64/nagios/plugins",
+                "retryInterval": "20",
+                "timeout": "900"
+            },
+            "flags": {
+                "NOHOSTNAME": "1",
+                "NOTIMEOUT": "1",
+                "REQUIREMENT": "org.nordugrid.ARC-CE-submit",
+                "VO": "1",
+                "NOPUBLISH": "1",
+                "SILENCED": "1"
+            },
+            "dependency": {
+                "hr.srce.GridProxy-Valid": "0"
+            },
+            "attribute": {
+                "VONAME": "--voms",
+                "VO_FQAN": "--fqan",
+                "X509_USER_PROXY": "--user-proxy"
+            },
+            "parameter": {
+                "-O": "service_suffix=-$_SERVICEVO_FQAN$ -O lfc_host=dummy "
+                      "-O se_host=dummy",
+                "--timeout": "900",
+                "--command-file": "/var/nagios/rw/nagios.cmd",
+                "--how-invoked": "nagios"
+            },
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "http://git.nbi.ku.dk/downloads/NorduGridARCNagiosPlugins"
+                      "/index.html#"
+        }
+    },
+    {
+        "org.nordugrid.ARC-CE-test": {
             "tags": [
                 "arc",
                 "compute",
@@ -3270,7 +3362,7 @@ mock_metric_profiles = [
             {
                 "service": "argo.test",
                 "metrics": [
-                    "org.nordugrid.ARC-CE-monitor",
+                    "org.nordugrid.ARC-CE-test",
                     "generic.tcp.connect"
                 ]
             }
@@ -3793,6 +3885,23 @@ mock_metric_profiles = [
                     "argo.APEL-Pub",
                     "argo.APEL-Sync",
                     "org.apel.APEL-Pub"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2024-07-09",
+        "name": "ARGO_TEST56",
+        "description": "Profile with metrics with SILENCED flag",
+        "services": [
+            {
+                "service": "argo.mon",
+                "metrics": [
+                    "argo.AMSPublisher-Check",
+                    "org.nordugrid.ARC-CE-clean",
+                    "org.nordugrid.ARC-CE-monitor"
+
                 ]
             }
         ]
@@ -6281,15 +6390,15 @@ class CheckConfigurationTests(unittest.TestCase):
                     "proxy_requests": {
                         "entity_attributes": [
                             "entity.entity_class == 'proxy'",
-                            "entity.labels.org_nordugrid_arc_ce_monitor == "
-                            "'org.nordugrid.ARC-CE-monitor'"
+                            "entity.labels.org_nordugrid_arc_ce_test == "
+                            "'org.nordugrid.ARC-CE-test'"
                         ]
                     },
                     "interval": 1200,
                     "timeout": 900,
                     "publish": True,
                     "metadata": {
-                        "name": "org.nordugrid.ARC-CE-monitor",
+                        "name": "org.nordugrid.ARC-CE-test",
                         "namespace": "mockspace",
                         "annotations": {
                             "attempts": "2"
@@ -10389,6 +10498,118 @@ class CheckConfigurationTests(unittest.TestCase):
                         }
                     },
                     "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_check_configuration_if_SILENCED_flag(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST56"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT"
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/libexec/argo-monitoring/probes/argo/"
+                               "ams-publisher-probe "
+                               "-s /var/run/argo-nagios-ams-publisher/sock "
+                               "-q 'w:metrics+g:published180' -c 4000 -q "
+                               "'w:alarms+g:published180' -c 1 -q "
+                               "'w:metricsdevel+g:published180' -c 4000",
+                    "subscriptions": [
+                        "argo-mon2.ni4os.eu",
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "interval": 10800,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "argo.AMSPublisher-Check",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "1"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "reduce_alerts",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_arcce_clean "
+                               "--timeout 600 "
+                               "--command-file /var/nagios/rw/nagios.cmd "
+                               "--how-invoked nagios --voms test "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "argo-mon2.ni4os.eu",
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "interval": 1200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "org.nordugrid.ARC-CE-clean",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": []
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_arcce_monitor "
+                               "-O service_suffix=-test -O "
+                               "lfc_host=dummy -O se_host=dummy --timeout 900 "
+                               "--command-file /var/nagios/rw/nagios.cmd "
+                               "--how-invoked nagios --voms test "
+                               "--user-proxy /etc/sensu/certs/userproxy.pem",
+                    "subscriptions": [
+                        "argo-mon2.ni4os.eu",
+                        "internals"
+                    ],
+                    "handlers": [],
+                    "interval": 1200,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "org.nordugrid.ARC-CE-monitor",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "2"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": []
                 }
             ]
         )
@@ -16050,7 +16271,6 @@ class ConfigurationMergerTests(unittest.TestCase):
         )
 
     def test_merge_entities_if_duplicates(self):
-        self.maxDiff = None
         merger = ConfigurationMerger(
             checks={
                 "TENANT1": self.checks1,
