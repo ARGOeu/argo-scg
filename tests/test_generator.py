@@ -5879,7 +5879,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p eu.egi.SRM -s test --se-timeout 260 "
                                "--voname test "
                                "-X /etc/sensu/certs/userproxy.pem "
-                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.ldap_url__site_bdii | "
+                               "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
@@ -5956,7 +5957,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 300 -d "
                                "-p eu.egi.SRM --se-timeout 260 "
                                "-X /etc/sensu/certs/userproxy.pem "
-                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.ldap_url__site_bdii | "
+                               "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
@@ -9048,7 +9050,8 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p eu.egi.SRM -s test --se-timeout 260 "
                                "--voname test "
                                "-X /etc/sensu/certs/userproxy.pem "
-                               "--ldap-url {{ .labels.site_bdii }} "
+                               "{{ .labels.ldap_url__site_bdii | "
+                               "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
                         "dcache-se-cms.desy.de",
@@ -11094,7 +11097,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=DESY-HH,o=glue",
                             "service": "Site-BDII",
                             "site": "DESY-HH",
-                            "site_bdii": "grid-giis1.desy.de",
                             "info_url": "ldap://grid-giis1.desy.de:2170/"
                                         "mds-vo-name=DESY-HH,o=grid",
                             "tenants": "MOCK_TENANT"
@@ -11120,7 +11122,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=ARNES,o=glue",
                             "service": "Site-BDII",
                             "site": "ARNES",
-                            "site_bdii": "kser.arnes.si",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
                                            "CN=kser.arnes.si",
                             "tenants": "MOCK_TENANT"
@@ -11146,7 +11147,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=SBDII,o=glue",
                             "service": "Site-BDII",
                             "site": "SBDII",
-                            "site_bdii": "sbdii.test.com",
                             "tenants": "MOCK_TENANT"
                         }
                     },
@@ -11171,7 +11171,6 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "GLUE2DomainID=BEgrid-ULB-VUB,o=glue",
                             "service": "Site-BDII",
                             "site": "BEgrid-ULB-VUB",
-                            "site_bdii": "sitebdii.iihe.ac.be",
                             "tenants": "MOCK_TENANT"
                         }
                     },
@@ -11586,7 +11585,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "eu_egi_srm_all": "eu.egi.SRM-All",
                             "hostname": "dcache-se-cms.desy.de",
-                            "site_bdii": "grid-giis1.desy.de",
+                            "ldap_url__site_bdii":
+                                "--ldap-url grid-giis1.desy.de",
                             "service": "SRM",
                             "srm2_port": "8443",
                             "endpoint__surl":
@@ -11606,7 +11606,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "eu_egi_srm_all": "eu.egi.SRM-All",
                             "hostname": "dcache.arnes.si",
-                            "site_bdii": "kser.arnes.si",
+                            "ldap_url__site_bdii": "--ldap-url kser.arnes.si",
                             "service": "SRM",
                             "site": "ARNES",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
@@ -11625,7 +11625,8 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "eu_egi_srm_all": "eu.egi.SRM-All",
                             "hostname": "dcache6-shadow.iihe.ac.be",
-                            "site_bdii": "sitebdii.iihe.ac.be",
+                            "ldap_url__site_bdii":
+                                "--ldap-url sitebdii.iihe.ac.be",
                             "service": "SRM",
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
@@ -14010,7 +14011,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache-se-cms.desy.de",
                             "service": "SRM",
                             "site": "DESY-HH",
-                            "site_bdii": "grid-giis1.desy.de",
                             "tenants": "MOCK_TENANT"
                         }
                     },
@@ -14028,7 +14028,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache.arnes.si",
                             "service": "SRM",
                             "site": "ARNES",
-                            "site_bdii": "kser.arnes.si",
                             "info_hostdn":
                                 "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
                             "tenants": "MOCK_TENANT"
@@ -14045,7 +14044,6 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_certificate_validity_srm":
                                 "generic.certificate.validity-srm",
                             "hostname": "dcache6-shadow.iihe.ac.be",
-                            "site_bdii": "sitebdii.iihe.ac.be",
                             "service": "SRM",
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
