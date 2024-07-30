@@ -103,6 +103,7 @@ class ConfigurationGenerator:
         metrics_with_hostalias = list()
         metrics_with_servicesite_name = list()
         metrics_with_non_fallback_urls = dict()
+        metrics_with_site_bdii = dict()
         for metric in metrics:
             for key, value in metric.items():
                 metrics_names_set.add(key)
@@ -133,6 +134,17 @@ class ConfigurationGenerator:
                             metrics_with_endpoint_url.update({
                                 key: {
                                     "attribute": attribute,
+                                    "value": attr_val
+                                }
+                            })
+
+                        if attribute == "SITE_BDII":
+                            label = create_label(
+                                attr_val.lstrip("-").lstrip("-")
+                            )
+                            metrics_with_site_bdii.update({
+                                key: {
+                                    "label": f"{label}__site_bdii",
                                     "value": attr_val
                                 }
                             })
@@ -179,6 +191,7 @@ class ConfigurationGenerator:
         self.metrics_with_servicesite_name = metrics_with_servicesite_name
         self.metrics_with_endpoint_url = metrics_with_endpoint_url
         self.metrics_with_non_fallback_urls = metrics_with_non_fallback_urls
+        self.metrics_with_site_bdii = metrics_with_site_bdii
         self.internal_metrics = internal_metrics
         self.topology = topology
         self.secrets = secrets_file
@@ -241,6 +254,12 @@ class ConfigurationGenerator:
 
                 else:
                     self.servicetypes_with_url.update({st: [attribute]})
+
+        self.servicetypes_with_site_bdii = list()
+        for metric in self.metrics_with_site_bdii.keys():
+            self.servicetypes_with_site_bdii.extend(
+                self.servicetypes4metrics[metric]
+            )
 
     @staticmethod
     def _read_global_attributes(input_attrs):
@@ -553,7 +572,10 @@ class ConfigurationGenerator:
                             key = ""
 
                     elif key == "SITE_BDII":
-                        key = "{{ .labels.site_bdii }}"
+                        key = "{{ .labels.%s | default \"\" }}" % (
+                            self.metrics_with_site_bdii[metric]["label"]
+                        )
+                        value = ""
 
                     elif key in self.default_ports:
                         if self._is_extension_present_any_endpoint(
@@ -1320,10 +1342,16 @@ class ConfigurationGenerator:
                 site_bdii_entries = [
                     i for i in site_entries if i["service"] == "Site-BDII"
                 ]
-                if len(site_bdii_entries) > 0:
-                    labels.update({
-                        "site_bdii": site_bdii_entries[0]["hostname"]
-                    })
+
+                if item["service"] in self.servicetypes_with_site_bdii:
+                    if len(site_bdii_entries) > 0:
+                        for metric, config in (
+                                self.metrics_with_site_bdii.items()
+                        ):
+                            label = config["label"]
+                            value = (f"{config['value']} "
+                                     f"{site_bdii_entries[0]['hostname']}")
+                            labels.update({label: value})
 
                 existing_entities = [
                     ent for ent in entities if
