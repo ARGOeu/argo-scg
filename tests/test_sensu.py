@@ -3399,6 +3399,37 @@ mock_events_ctl_multiple_tenants = [
     }
 ] + mock_events_ctl
 
+mock_silenced = [
+    {
+        "metadata": {
+            "name": "entity:hostname1.example.com:generic.tcp.connect",
+            "namespace": "tenant1",
+            "created_by": "admin"
+        },
+        "expire": -1,
+        "expire_on_resolve": True,
+        "creator": "admin",
+        "check": "generic.tcp.connect",
+        "subscription": "entity:hostname1.example.com",
+        "begin": 1718689948,
+        "expire_at": 0
+    },
+    {
+        "metadata": {
+            "name": "entity:hostname2.example.com:generic.http.connect",
+            "namespace": "tenant1",
+            "created_by": "admin"
+        },
+        "expire": -1,
+        "expire_on_resolve": True,
+        "creator": "admin",
+        "check": "generic.http.connect",
+        "subscription": "entity:hostname2.example.com",
+        "begin": 1718689948,
+        "expire_at": 0
+    }
+]
+
 LOGNAME = "argo-scg.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
 DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
@@ -3429,6 +3460,9 @@ def mock_sensu_request(*args, **kwargs):
 
     elif args[0].endswith("pipelines"):
         return MockResponse(mock_pipelines1, status_code=200)
+
+    elif args[0].endswith("silenced"):
+        return MockResponse(mock_silenced, status_code=200)
 
 
 def mock_sensu_request_entity_not_ok_with_msg(*args, **kwargs):
@@ -9805,7 +9839,7 @@ class SensuCheckCallTests(unittest.TestCase):
 
 
 class SensuSilencingEntryTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.sensu = Sensu(
             url="https://mock.url.com",
             token="t0k3n",
@@ -9943,6 +9977,46 @@ class SensuSilencingEntryTests(unittest.TestCase):
             context.exception.__str__(),
             "Sensu error: tenant1: No event for entity argo.ni4os.eu and check "
             "generic.http.connect: Silencing entry not created"
+        )
+
+    @patch("argo_scg.sensu.requests.get")
+    def test_get_silenced_entries(self, mock_get):
+        mock_get.side_effect = mock_sensu_request
+        silenced_entries = self.sensu.get_silenced_entries(namespace="tenant1")
+        mock_get.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(silenced_entries, mock_silenced)
+
+    @patch("argo_scg.sensu.requests.get")
+    def test_get_silenced_entries_with_error_with_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_with_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_silenced_entries(namespace="tenant1")
+        mock_get.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: tenant1: Silenced entries fetch error: "
+            "400 BAD REQUEST: Something went wrong."
+        )
+
+    @patch("argo_scg.sensu.requests.get")
+    def test_get_silenced_entries_with_error_without_message(self, mock_get):
+        mock_get.side_effect = mock_sensu_request_not_ok_without_msg
+        with self.assertRaises(SensuException) as context:
+            self.sensu.get_silenced_entries(namespace="tenant1")
+        mock_get.assert_called_once_with(
+            "https://mock.url.com/api/core/v2/namespaces/tenant1/silenced",
+            headers={"Authorization": "Key t0k3n"}
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Sensu error: tenant1: Silenced entries fetch error: "
+            "400 BAD REQUEST"
         )
 
 

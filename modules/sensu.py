@@ -1380,6 +1380,29 @@ class Sensu:
 
                 raise SensuException(msg)
 
+    def get_silenced_entries(self, namespace="default"):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Silenced entries fetch error: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
 
 class MetricOutput:
     def __init__(self, data):
