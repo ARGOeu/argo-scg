@@ -1380,7 +1380,7 @@ class Sensu:
 
                 raise SensuException(msg)
 
-    def get_silenced_entries(self, namespace="default"):
+    def _get_silenced_entries(self, namespace="default"):
         response = requests.get(
             f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
             headers={
@@ -1402,6 +1402,56 @@ class Sensu:
 
         else:
             return response.json()
+
+    def delete_silenced_entry(
+            self, entity=None, check=None, namespace="default"
+    ):
+        silenced_entries = self._get_silenced_entries(namespace=namespace)
+
+        if entity:
+            silenced_entries = [
+                item for item in silenced_entries if
+                item["metadata"]["name"].startswith(f"entity:{entity}:")
+            ]
+
+        if check:
+            silenced_entries = [
+                item for item in silenced_entries
+                if item["metadata"]["name"].endswith(f":{check}")
+            ]
+
+        failed_delete = list()
+        for entry in silenced_entries:
+            response = requests.delete(
+                f"{self.url}/api/core/v2/namespaces/{namespace}"
+                f"/silenced/{entry['metadata']['name']}",
+                headers={"Authorization": f"Key {self.token}"}
+            )
+
+            if not response.ok:
+                msg = f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = f"{msg}: {response.json()['message']}"
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                failed_delete.append(f"{entry['metadata']['name']} ({msg})")
+
+        if len(failed_delete) > 0:
+            final_msg = f"{namespace}: Silenced"
+            if len(failed_delete) == 1:
+                word = "entry"
+
+            else:
+                word = "entries"
+
+            final_msg = (
+                f"{final_msg} {word} {', '.join(failed_delete)} not removed"
+            )
+
+            raise SensuException(final_msg)
 
 
 class MetricOutput:
