@@ -3702,9 +3702,12 @@ def mock_function(*args, **kwargs):
 
 
 def mock_silenced_entry_delete_exception(*args, **kwargs):
-    if kwargs["check"] == "generic.tcp.connect":
+    if (
+            ("check" in kwargs and kwargs["check"] == "generic.tcp.connect") or
+            ("entity" in kwargs and kwargs["entity"] == "argo.ni4os.eu")
+    ):
         raise SCGWarnException(
-            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
+            "Silenced entry entity:argo.ni4os.eu:generic.tcp.connect "
             "(400 BAD REQUEST: Something went wrong) not removed"
         )
 
@@ -4469,7 +4472,7 @@ class SensuCheckTests(unittest.TestCase):
                 f"INFO:{LOGNAME}:tenant1: "
                 f"Check generic.certificate.validity removed",
                 f"WARNING:{LOGNAME}:tenant1: Silenced entry "
-                f"entity:hostname2.example.com:generic.tcp.connect "
+                f"entity:argo.ni4os.eu:generic.tcp.connect "
                 f"(400 BAD REQUEST: Something went wrong) not removed"
             }
         )
@@ -4568,7 +4571,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
+            "Silenced entry entity:argo.ni4os.eu:generic.tcp.connect "
             "(400 BAD REQUEST: Something went wrong) not removed"
         )
 
@@ -6196,6 +6199,57 @@ class SensuEntityTests(unittest.TestCase):
                 f"WARNING:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu not "
                 f"removed: 400 BAD REQUEST",
                 f"INFO:{LOGNAME}:tenant1: Entity gocdb.ni4os.eu removed"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
+    @patch("requests.delete")
+    def test_delete_entities_with_silenced_entry_error(
+            self, mock_delete, mock_delete_silenced
+    ):
+        mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_silenced_entry_delete_exception
+        entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu._delete_entities(entities=entities, namespace="tenant1")
+        self.assertEqual(mock_delete.call_count, 3)
+        mock_delete.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo.ni4os.eu",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/argo-devel.ni4os.eu",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "entities/gocdb.ni4os.eu",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            )
+        ], any_order=True)
+        self.assertEqual(mock_delete_silenced.call_count, 3)
+        mock_delete_silenced.assert_has_calls([
+            call(entity="argo.ni4os.eu", namespace="tenant1"),
+            call(entity="argo-devel.ni4os.eu", namespace="tenant1"),
+            call(entity="gocdb.ni4os.eu", namespace="tenant1")
+        ], any_order=True)
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
+                f"INFO:{LOGNAME}:tenant1: Entity argo-devel.ni4os.eu removed",
+                f"INFO:{LOGNAME}:tenant1: Entity gocdb.ni4os.eu removed",
+                f"WARNING:{LOGNAME}:tenant1: Silenced entry "
+                f"entity:argo.ni4os.eu:generic.tcp.connect (400 BAD REQUEST: "
+                f"Something went wrong) not removed"
             }
         )
 

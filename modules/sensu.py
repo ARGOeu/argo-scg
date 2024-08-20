@@ -477,7 +477,14 @@ class Sensu:
                 self.logger.warning(msg)
 
             else:
-                self._delete_silenced_entry(entity=entity, namespace=namespace)
+                try:
+                    self._delete_silenced_entry(
+                        entity=entity, namespace=namespace
+                    )
+
+                except SCGWarnException as e:
+                    self.logger.warning(f"{namespace}: {str(e)}")
+
                 self.logger.info(f"{namespace}: Entity {entity} removed")
 
     @staticmethod
