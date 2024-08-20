@@ -5648,9 +5648,11 @@ class SensuEventsTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_events(self, mock_delete):
+    def test_delete_events(self, mock_delete, mock_delete_silenced):
         mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_function
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
@@ -5662,7 +5664,6 @@ class SensuEventsTests(unittest.TestCase):
                 },
                 namespace="tenant1"
             )
-
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
@@ -5687,7 +5688,24 @@ class SensuEventsTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        self.assertEqual(mock_delete_silenced.call_count, 3)
+        mock_delete_silenced.assert_has_calls([
+            call(
+                entity="argo.ni4os.eu",
+                check="generic.tcp.connect",
+                namespace="tenant1"
+            ),
+            call(
+                entity="argo.ni4os.eu",
+                check="generic.http.connect",
+                namespace="tenant1"
+            ),
+            call(
+                entity="argo-devel.ni4os.eu",
+                check="generic.certificate.validation",
+                namespace="tenant1"
+            )
+        ], any_order=True)
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Event "
@@ -5699,12 +5717,16 @@ class SensuEventsTests(unittest.TestCase):
             }
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_events_with_error_with_message(self, mock_delete):
+    def test_delete_events_with_error_with_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.side_effect = [
             MockResponse(None, status_code=204),
             MockResponse({"message": "Something went wrong."}, status_code=400)
         ]
+        mock_delete_silenced.side_effect = mock_function
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
@@ -5715,7 +5737,6 @@ class SensuEventsTests(unittest.TestCase):
                 },
                 namespace="tenant1"
             )
-
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
@@ -5733,7 +5754,11 @@ class SensuEventsTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        mock_delete_silenced.assert_called_once_with(
+            entity="argo.ni4os.eu",
+            check="generic.tcp.connect",
+            namespace="tenant1"
+        )
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Event "
@@ -5744,12 +5769,16 @@ class SensuEventsTests(unittest.TestCase):
             }
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_events_with_error_without_message(self, mock_delete):
+    def test_delete_events_with_error_without_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.side_effect = [
             MockResponse(None, status_code=204),
             MockResponse(None, status_code=400)
         ]
+        mock_delete_silenced.side_effect = mock_function
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_events(
                 events={
@@ -5760,7 +5789,6 @@ class SensuEventsTests(unittest.TestCase):
                 },
                 namespace="tenant1"
             )
-
         self.assertEqual(mock_delete.call_count, 2)
         mock_delete.assert_has_calls([
             call(
@@ -5778,7 +5806,11 @@ class SensuEventsTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        mock_delete_silenced.assert_called_once_with(
+            entity="argo.ni4os.eu",
+            check="generic.tcp.connect",
+            namespace="tenant1"
+        )
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Event "
@@ -5789,11 +5821,14 @@ class SensuEventsTests(unittest.TestCase):
             }
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_event(self, mock_delete):
+    def test_delete_event(self, mock_delete, mock_delete_silenced):
         mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_function
         self.sensu.delete_event(
-            entity="argo.ni4os.eu", check="generic.tcp.connect",
+            entity="argo.ni4os.eu",
+            check="generic.tcp.connect",
             namespace="tenant1"
         )
         mock_delete.assert_called_once_with(
@@ -5803,12 +5838,21 @@ class SensuEventsTests(unittest.TestCase):
                 "Authorization": "Key t0k3n"
             }
         )
+        mock_delete_silenced.called_once_with(
+            entity="argo.ni4os.eu",
+            check="generic.tcp.connect",
+            namespace="tenant1"
+        )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_event_with_error_with_message(self, mock_delete):
+    def test_delete_event_with_error_with_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.return_value = MockResponse(
             {"message": "Something went wrong"}, status_code=400
         )
+        mock_delete_silenced.side_effect = mock_function
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
                 entity="argo.ni4os.eu",
@@ -5822,15 +5866,20 @@ class SensuEventsTests(unittest.TestCase):
                 "Authorization": "Key t0k3n"
             }
         )
+        self.assertFalse(mock_delete_silenced.called)
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: tenant1: Event argo.ni4os.eu/generic.tcp.connect not "
             "removed: 400 BAD REQUEST: Something went wrong"
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_event_with_error_without_message(self, mock_delete):
+    def test_delete_event_with_error_without_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.return_value = MockResponse(None, status_code=400)
+        mock_delete_silenced.side_effect = mock_function
         with self.assertRaises(SensuException) as context:
             self.sensu.delete_event(
                 entity="argo.ni4os.eu",
@@ -5844,6 +5893,7 @@ class SensuEventsTests(unittest.TestCase):
                 "Authorization": "Key t0k3n"
             }
         )
+        self.assertFalse(mock_delete_silenced.called)
         self.assertEqual(
             context.exception.__str__(),
             "Sensu error: tenant1: Event argo.ni4os.eu/generic.tcp.connect not "

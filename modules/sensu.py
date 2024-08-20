@@ -253,12 +253,6 @@ class Sensu:
                 "Authorization": f"Key {self.token}"
             }
         )
-        return response
-
-    def delete_event(self, entity, check, namespace="default"):
-        response = self._delete_event(
-            entity=entity, check=check, namespace=namespace
-        )
 
         if not response.ok:
             msg = f"{namespace}: Event {entity}/{check} not removed: " \
@@ -270,27 +264,30 @@ class Sensu:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            raise SCGException(msg)
+
+        else:
+            self._delete_silenced_entry(
+                entity=entity, check=check, namespace=namespace
+            )
+
+    def delete_event(self, entity, check, namespace="default"):
+        try:
+            self._delete_event(entity=entity, check=check, namespace=namespace)
+
+        except SCGException as e:
+            raise SensuException(str(e))
 
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
             for check in checks:
-                response = self._delete_event(
-                    entity=entity, check=check, namespace=namespace
-                )
+                try:
+                    self._delete_event(
+                        entity=entity, check=check, namespace=namespace
+                    )
 
-                if not response.ok:
-                    msg = f"{namespace}: Event " \
-                          f"{entity}/{check} not removed: " \
-                          f"{response.status_code} {response.reason}"
-
-                    try:
-                        msg = f"{msg}: {response.json()['message']}"
-
-                    except (ValueError, TypeError, KeyError):
-                        pass
-
-                    self.logger.warning(msg)
+                except SCGException as e:
+                    self.logger.warning(str(e))
 
                 else:
                     self.logger.info(
