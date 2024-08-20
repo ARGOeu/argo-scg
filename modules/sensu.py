@@ -4,7 +4,7 @@ import logging
 import subprocess
 
 import requests
-from argo_scg.exceptions import SensuException
+from argo_scg.exceptions import SensuException, SCGException
 from argo_scg.generator import create_attribute_env, create_label, \
     is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
 
@@ -203,10 +203,6 @@ class Sensu:
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks/{check}",
             headers={"Authorization": f"Key {self.token}"}
         )
-        return response
-
-    def delete_check(self, check, namespace="default"):
-        response = self._delete_check(check=check, namespace=namespace)
 
         if not response.ok:
             msg = f"{namespace}: Check {check} not removed: " \
@@ -218,23 +214,25 @@ class Sensu:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            raise SCGException(msg)
+
+        else:
+            self.delete_silenced_entry(check=check, namespace=namespace)
+
+    def delete_check(self, check, namespace="default"):
+        try:
+            self._delete_check(check=check, namespace=namespace)
+
+        except SCGException as e:
+            raise SensuException(str(e))
 
     def _delete_checks(self, checks, namespace):
         for check in checks:
-            response = self._delete_check(check=check, namespace=namespace)
+            try:
+                self._delete_check(check=check, namespace=namespace)
 
-            if not response.ok:
-                msg = f"{namespace}: Check {check} not removed: " \
-                      f"{response.status_code} {response.reason}"
-
-                try:
-                    msg = f"{msg}: {response.json()['message']}"
-
-                except (ValueError, TypeError, KeyError):
-                    pass
-
-                self.logger.warning(msg)
+            except SCGException as e:
+                self.logger.warning(str(e))
                 continue
 
             else:

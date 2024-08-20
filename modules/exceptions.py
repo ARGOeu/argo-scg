@@ -1,36 +1,36 @@
-class MyException(Exception):
+class SCGException(Exception):
     def __init__(self, msg):
         self.msg = msg
 
     def __str__(self):
-        return f"Error: {str(self.msg)}"
+        return str(self.msg)
 
 
-class SensuException(MyException):
+class SensuException(SCGException):
     def __str__(self):
         return f"Sensu error: {str(self.msg)}"
 
 
-class PoemException(MyException):
+class PoemException(SCGException):
     def __str__(self):
         return f"Poem error: {str(self.msg)}"
 
 
-class WebApiException(MyException):
+class WebApiException(SCGException):
     def __str__(self):
         return f"WebApi error: {str(self.msg)}"
 
 
-class ConfigException(MyException):
+class ConfigException(SCGException):
     def __str__(self):
         return f"Configuration file error: {str(self.msg)}"
 
 
-class AgentConfigException(MyException):
+class AgentConfigException(SCGException):
     def __str__(self):
         return f"Agent configuration file error: {str(self.msg)}"
 
 
-class GeneratorException(MyException):
+class GeneratorException(SCGException):
     def __str__(self):
         return str(self.msg)
