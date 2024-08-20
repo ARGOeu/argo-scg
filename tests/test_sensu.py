@@ -5,7 +5,7 @@ import subprocess
 import unittest
 from unittest.mock import patch, call
 
-from argo_scg.exceptions import SensuException
+from argo_scg.exceptions import SensuException, SCGWarnException
 from argo_scg.sensu import Sensu, MetricOutput, SensuCtl
 
 from utils import MockResponse
@@ -3701,6 +3701,14 @@ def mock_function(*args, **kwargs):
     pass
 
 
+def mock_silenced_entry_delete_exception(*args, **kwargs):
+    if kwargs["check"] == "generic.tcp.connect":
+        raise SCGWarnException(
+            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
+            "(400 BAD REQUEST: Something went wrong) not removed"
+        )
+
+
 class SensuNamespaceTests(unittest.TestCase):
     def setUp(self):
         self.sensu = Sensu(
@@ -4261,7 +4269,7 @@ class SensuCheckTests(unittest.TestCase):
             ]
         )
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_checks(self, mock_delete, mock_delete_silenced):
         mock_delete.side_effect = mock_delete_response
@@ -4316,7 +4324,7 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_checks_with_error_with_message(
             self, mock_delete, mock_delete_silenced
@@ -4361,7 +4369,7 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_checks_with_error_without_message(
             self, mock_delete, mock_delete_silenced
@@ -4406,7 +4414,67 @@ class SensuCheckTests(unittest.TestCase):
             }
         )
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
+    @patch("requests.delete")
+    def test_delete_checks_with_error_with_silenced_entries(
+            self, mock_delete, mock_delete_silenced
+    ):
+        mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_silenced_entry_delete_exception
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu._delete_checks(
+                checks=[
+                    "generic.tcp.connect",
+                    "generic.http.connect",
+                    "generic.certificate.validity"
+                ],
+                namespace="tenant1"
+            )
+        self.assertEqual(mock_delete.call_count, 3)
+        mock_delete.assert_has_calls([
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.tcp.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.http.connect",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            ),
+            call(
+                "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/"
+                "checks/generic.certificate.validity",
+                headers={
+                    "Authorization": "Key t0k3n"
+                }
+            )
+        ], any_order=True)
+        self.assertEqual(mock_delete_silenced.call_count, 3)
+        mock_delete_silenced.assert_has_calls([
+            call(check="generic.tcp.connect", namespace="tenant1"),
+            call(check="generic.http.connect", namespace="tenant1"),
+            call(check="generic.certificate.validity", namespace="tenant1")
+        ])
+        self.assertEqual(
+            set(log.output), {
+                f"INFO:{LOGNAME}:tenant1: "
+                f"Check generic.tcp.connect removed",
+                f"INFO:{LOGNAME}:tenant1: "
+                f"Check generic.http.connect removed",
+                f"INFO:{LOGNAME}:tenant1: "
+                f"Check generic.certificate.validity removed",
+                f"WARNING:{LOGNAME}:tenant1: Silenced entry "
+                f"entity:hostname2.example.com:generic.tcp.connect "
+                f"(400 BAD REQUEST: Something went wrong) not removed"
+            }
+        )
+
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_single_check(self, mock_delete, mock_delete_silenced):
         mock_delete.side_effect = mock_delete_response
@@ -4425,7 +4493,7 @@ class SensuCheckTests(unittest.TestCase):
             check="generic.tcp.connect", namespace="tenant1"
         )
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_single_check_with_error_with_message(
             self, mock_delete, mock_delete_silenced
@@ -4452,7 +4520,7 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertFalse(mock_delete_silenced.called)
 
-    @patch("argo_scg.sensu.Sensu.delete_silenced_entry")
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
     def test_delete_single_check_with_error_without_message(
             self, mock_delete, mock_delete_silenced
@@ -10103,7 +10171,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
     def test_delete_silenced_entry(self, mock_silenced_entries, mock_delete):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.side_effect = mock_delete_response
-        self.sensu.delete_silenced_entry(
+        self.sensu._delete_silenced_entry(
             entity="hostname1.example.com",
             check="generic.tcp.connect",
             namespace="tenant1"
@@ -10121,7 +10189,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
     ):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.side_effect = mock_delete_response
-        self.sensu.delete_silenced_entry(
+        self.sensu._delete_silenced_entry(
             entity="hostname1.example.com",
             namespace="tenant1"
         )
@@ -10146,7 +10214,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
     ):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.side_effect = mock_delete_response
-        self.sensu.delete_silenced_entry(
+        self.sensu._delete_silenced_entry(
             check="generic.tcp.connect",
             namespace="tenant1"
         )
@@ -10172,8 +10240,8 @@ class SensuSilencingEntryTests(unittest.TestCase):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.side_effect = \
             mock_delete_response_one_silenced_entry_not_ok_with_message
-        with self.assertRaises(SensuException) as context:
-            self.sensu.delete_silenced_entry(
+        with self.assertRaises(SCGWarnException) as context:
+            self.sensu._delete_silenced_entry(
                 check="generic.tcp.connect",
                 namespace="tenant1"
             )
@@ -10192,8 +10260,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: tenant1: Silenced entry entity:"
-            "hostname2.example.com:generic.tcp.connect "
+            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
             "(400 BAD REQUEST: Something went wrong) "
             "not removed"
         )
@@ -10207,8 +10274,8 @@ class SensuSilencingEntryTests(unittest.TestCase):
         mock_delete.return_value = MockResponse(
             {"message": "Something went wrong"}, status_code=400
         )
-        with self.assertRaises(SensuException) as context:
-            self.sensu.delete_silenced_entry(
+        with self.assertRaises(SCGWarnException) as context:
+            self.sensu._delete_silenced_entry(
                 check="generic.tcp.connect",
                 namespace="tenant1"
             )
@@ -10227,8 +10294,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: tenant1: Silenced entries "
-            "entity:hostname1.example.com:generic.tcp.connect "
+            "Silenced entries entity:hostname1.example.com:generic.tcp.connect "
             "(400 BAD REQUEST: Something went wrong), "
             "entity:hostname2.example.com:generic.tcp.connect "
             "(400 BAD REQUEST: Something went wrong) "
@@ -10243,8 +10309,8 @@ class SensuSilencingEntryTests(unittest.TestCase):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.side_effect = \
             mock_delete_response_one_silenced_entry_not_ok_without_message
-        with self.assertRaises(SensuException) as context:
-            self.sensu.delete_silenced_entry(
+        with self.assertRaises(SCGWarnException) as context:
+            self.sensu._delete_silenced_entry(
                 check="generic.tcp.connect",
                 namespace="tenant1"
             )
@@ -10263,8 +10329,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: tenant1: Silenced entry entity:"
-            "hostname2.example.com:generic.tcp.connect "
+            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
             "(400 BAD REQUEST) not removed"
         )
 
@@ -10275,8 +10340,8 @@ class SensuSilencingEntryTests(unittest.TestCase):
     ):
         mock_silenced_entries.return_value = mock_silenced
         mock_delete.return_value = MockResponse(None, status_code=400)
-        with self.assertRaises(SensuException) as context:
-            self.sensu.delete_silenced_entry(
+        with self.assertRaises(SCGWarnException) as context:
+            self.sensu._delete_silenced_entry(
                 check="generic.tcp.connect",
                 namespace="tenant1"
             )
@@ -10295,8 +10360,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             context.exception.__str__(),
-            "Sensu error: tenant1: Silenced entries "
-            "entity:hostname1.example.com:generic.tcp.connect "
+            "Silenced entries entity:hostname1.example.com:generic.tcp.connect "
             "(400 BAD REQUEST), "
             "entity:hostname2.example.com:generic.tcp.connect "
             "(400 BAD REQUEST) not removed"

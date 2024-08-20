@@ -6,6 +6,10 @@ class SCGException(Exception):
         return str(self.msg)
 
 
+class SCGWarnException(SCGException):
+    pass
+
+
 class SensuException(SCGException):
     def __str__(self):
         return f"Sensu error: {str(self.msg)}"

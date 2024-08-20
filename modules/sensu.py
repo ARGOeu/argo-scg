@@ -4,7 +4,7 @@ import logging
 import subprocess
 
 import requests
-from argo_scg.exceptions import SensuException, SCGException
+from argo_scg.exceptions import SensuException, SCGException, SCGWarnException
 from argo_scg.generator import create_attribute_env, create_label, \
     is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
 
@@ -217,7 +217,7 @@ class Sensu:
             raise SCGException(msg)
 
         else:
-            self.delete_silenced_entry(check=check, namespace=namespace)
+            self._delete_silenced_entry(check=check, namespace=namespace)
 
     def delete_check(self, check, namespace="default"):
         try:
@@ -230,6 +230,10 @@ class Sensu:
         for check in checks:
             try:
                 self._delete_check(check=check, namespace=namespace)
+
+            except SCGWarnException as e:
+                self.logger.info(f"{namespace}: Check {check} removed")
+                self.logger.warning(f"{namespace}: {str(e)}")
 
             except SCGException as e:
                 self.logger.warning(str(e))
@@ -1401,7 +1405,7 @@ class Sensu:
         else:
             return response.json()
 
-    def delete_silenced_entry(
+    def _delete_silenced_entry(
             self, entity=None, check=None, namespace="default"
     ):
         silenced_entries = self._get_silenced_entries(namespace=namespace)
@@ -1438,7 +1442,7 @@ class Sensu:
                 failed_delete.append(f"{entry['metadata']['name']} ({msg})")
 
         if len(failed_delete) > 0:
-            final_msg = f"{namespace}: Silenced"
+            final_msg = "Silenced"
             if len(failed_delete) == 1:
                 word = "entry"
 
@@ -1449,7 +1453,7 @@ class Sensu:
                 f"{final_msg} {word} {', '.join(failed_delete)} not removed"
             )
 
-            raise SensuException(final_msg)
+            raise SCGWarnException(final_msg)
 
 
 class MetricOutput:
