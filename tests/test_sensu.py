@@ -4545,6 +4545,33 @@ class SensuCheckTests(unittest.TestCase):
         )
         self.assertFalse(mock_delete_silenced.called)
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
+    @patch("requests.delete")
+    def test_delete_single_check_with_silenced_entry_error(
+            self, mock_delete, mock_delete_silenced
+    ):
+        mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_silenced_entry_delete_exception
+        with self.assertRaises(SCGWarnException) as context:
+            self.sensu.delete_check(
+                check="generic.tcp.connect", namespace="tenant1"
+            )
+        mock_delete.assert_called_once_with(
+            "https://sensu.mock.com:8080/api/core/v2/namespaces/tenant1/checks/"
+            "generic.tcp.connect",
+            headers={
+                "Authorization": "Key t0k3n"
+            }
+        )
+        mock_delete_silenced.assert_called_once_with(
+            check="generic.tcp.connect", namespace="tenant1"
+        )
+        self.assertEqual(
+            context.exception.__str__(),
+            "Silenced entry entity:hostname2.example.com:generic.tcp.connect "
+            "(400 BAD REQUEST: Something went wrong) not removed"
+        )
+
     @patch("requests.put")
     @patch("argo_scg.sensu.Sensu._delete_events")
     @patch("argo_scg.sensu.Sensu._delete_checks")

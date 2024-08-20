@@ -223,6 +223,9 @@ class Sensu:
         try:
             self._delete_check(check=check, namespace=namespace)
 
+        except SCGWarnException:
+            raise
+
         except SCGException as e:
             raise SensuException(str(e))
 
