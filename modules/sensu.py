@@ -477,6 +477,7 @@ class Sensu:
                 self.logger.warning(msg)
 
             else:
+                self._delete_silenced_entry(entity=entity, namespace=namespace)
                 self.logger.info(f"{namespace}: Entity {entity} removed")
 
     @staticmethod

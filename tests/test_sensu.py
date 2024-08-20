@@ -6049,14 +6049,14 @@ class SensuEntityTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_entities(self, mock_delete):
+    def test_delete_entities(self, mock_delete, mock_delete_silenced):
         mock_delete.side_effect = mock_delete_response
+        mock_delete_silenced.side_effect = mock_function
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
-
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="tenant1")
-
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
@@ -6081,7 +6081,12 @@ class SensuEntityTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        self.assertEqual(mock_delete_silenced.call_count, 3)
+        mock_delete_silenced.assert_has_calls([
+            call(entity="argo.ni4os.eu", namespace="tenant1"),
+            call(entity="argo-devel.ni4os.eu", namespace="tenant1"),
+            call(entity="gocdb.ni4os.eu", namespace="tenant1")
+        ], any_order=True)
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
@@ -6090,17 +6095,20 @@ class SensuEntityTests(unittest.TestCase):
             }
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_entities_with_error_with_message(self, mock_delete):
+    def test_delete_entities_with_error_with_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.side_effect = [
             MockResponse(None, status_code=204),
             MockResponse({"message": "Something went wrong."}, status_code=400),
             MockResponse(None, status_code=204)
         ]
+        mock_delete_silenced.side_effect = mock_function
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="tenant1")
-
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
@@ -6125,7 +6133,11 @@ class SensuEntityTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        self.assertEqual(mock_delete_silenced.call_count, 2)
+        mock_delete_silenced.assert_has_calls([
+            call(entity="argo.ni4os.eu", namespace="tenant1"),
+            call(entity="gocdb.ni4os.eu", namespace="tenant1")
+        ], any_order=True)
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
@@ -6135,17 +6147,20 @@ class SensuEntityTests(unittest.TestCase):
             }
         )
 
+    @patch("argo_scg.sensu.Sensu._delete_silenced_entry")
     @patch("requests.delete")
-    def test_delete_entities_with_error_without_message(self, mock_delete):
+    def test_delete_entities_with_error_without_message(
+            self, mock_delete, mock_delete_silenced
+    ):
         mock_delete.side_effect = [
             MockResponse(None, status_code=204),
             MockResponse(None, status_code=400),
             MockResponse(None, status_code=204)
         ]
+        mock_delete_silenced.side_effect = mock_function
         entities = ["argo.ni4os.eu", "argo-devel.ni4os.eu", "gocdb.ni4os.eu"]
         with self.assertLogs(LOGNAME) as log:
             self.sensu._delete_entities(entities=entities, namespace="tenant1")
-
         self.assertEqual(mock_delete.call_count, 3)
         mock_delete.assert_has_calls([
             call(
@@ -6170,7 +6185,11 @@ class SensuEntityTests(unittest.TestCase):
                 }
             )
         ], any_order=True)
-
+        self.assertEqual(mock_delete_silenced.call_count, 2)
+        mock_delete_silenced.assert_has_calls([
+            call(entity="argo.ni4os.eu", namespace="tenant1"),
+            call(entity="gocdb.ni4os.eu", namespace="tenant1")
+        ], any_order=True)
         self.assertEqual(
             set(log.output), {
                 f"INFO:{LOGNAME}:tenant1: Entity argo.ni4os.eu removed",
