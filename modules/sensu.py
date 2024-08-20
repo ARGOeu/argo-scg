@@ -275,6 +275,9 @@ class Sensu:
         try:
             self._delete_event(entity=entity, check=check, namespace=namespace)
 
+        except SCGWarnException:
+            raise
+
         except SCGException as e:
             raise SensuException(str(e))
 
@@ -285,6 +288,13 @@ class Sensu:
                     self._delete_event(
                         entity=entity, check=check, namespace=namespace
                     )
+
+                except SCGWarnException as e:
+                    self.logger.info(
+                        f"{namespace}: Event {entity}/{check} removed"
+                    )
+                    self.logger.warning(f"{namespace}: {str(e)}")
+
 
                 except SCGException as e:
                     self.logger.warning(str(e))
