@@ -14079,14 +14079,14 @@ class AdHocCheckTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
 
         check = generate_adhoc_check(
-            command=command, subscriptions=["argo-test"], namespace="TENANT1"
+            command=command, subscriptions=["internals"], namespace="TENANT1"
         )
 
         self.assertEqual(
             check, {
                 "command": "/usr/lib64/nagios/plugins/check_tcp -H "
                            "argo.ni4os.eu -t 120 -p 443",
-                "subscriptions": ["argo-test"],
+                "subscriptions": ["internals"],
                 "handlers": [],
                 "interval": 86400,
                 "timeout": 900,
@@ -14112,8 +14112,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "{{ .labels.generic_http_connect_path | "
                            "default " " }}",
                 "subscriptions": [
-                    "hostname1.example.com",
-                    "hostname2.example.com"
+                    "internals"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14155,8 +14154,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-C /etc/sensu/certs/hostcert.pem "
                            "-K /etc/sensu/certs/hostkey.pem",
                 "subscriptions": [
-                    "hostname1.example.com",
-                    "hostname2.example.com"
+                    "internals"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14226,8 +14224,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-t 30 -u {{ .labels.endpoint_url}} "
                            "-x /aris/partition/state_up --ok up",
                 "subscriptions": [
-                    "hostname3.example.com",
-                    "hostname4.example.com"
+                    "internals"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14306,8 +14303,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.test"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -14324,8 +14320,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.webui"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -14342,8 +14337,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.webui"]
+                }
             }
         ]
         self.entities2 = [
@@ -14360,8 +14354,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "SRCE",
                         "tenants": "TENANT2"
                     }
-                },
-                "subscriptions": ["argo-mon-devel.egi.eu"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -14376,8 +14369,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "SRCE",
                         "tenants": "TENANT2"
                     }
-                },
-                "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                }
             }
         ]
         self.metric_overrides1 = [{
@@ -14427,19 +14419,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         checks = merger.merge_checks()
@@ -14486,8 +14465,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
+                        "internals"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -14527,244 +14505,12 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "generic_http_connect_port | default " " }} "
                                "{{ .labels.generic_http_connect_path | "
                                "default " " }}",
-                    "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_http_connect == "
-                            "'generic.http.connect'"
-                        ]
-                    },
-                    "interval": 300,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.http.connect",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "3"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/libexec/argo/probes/xml/check_xml "
-                               "-t 30 -u {{ .labels.endpoint_url}} "
-                               "-x /aris/partition/state_up --ok up",
-                    "subscriptions": [
-                        "hostname3.example.com",
-                        "hostname4.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_xml_check == "
-                            "'generic.xml.check'"
-                        ]
-                    },
-                    "interval": 1800,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.xml.check",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "3"
-                        },
-                        "labels": {
-                            "tenants": "TENANT2"
-                        }
-                    },
-                    "round_robin": False
-                }
-            ]
-        )
-
-    def test_merge_checks_if_duplicate_with_different_subscriptions(self):
-        checks2 = self.checks2.copy()
-        checks2.append(
-            {
-                "command": "/usr/lib64/nagios/plugins/check_http "
-                           "-H {{ .labels.hostname }} -t 60 --link "
-                           "--onredirect follow {{ .labels.ssl | "
-                           "default " " }} {{ .labels."
-                           "generic_http_connect_port | default " " }} "
-                           "{{ .labels.generic_http_connect_path | "
-                           "default " " }}",
-                "subscriptions": [
-                    "hostname3.example.com",
-                    "hostname5.example.com"
-                ],
-                "handlers": [],
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_connect == "
-                        "'generic.http.connect'"
-                    ]
-                },
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.connect",
-                    "namespace": "test",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "TENANT2"
-                    }
-                },
-                "round_robin": False
-            }
-        )
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            }
-        )
-        checks = merger.merge_checks()
-        self.assertEqual(
-            sorted(checks, key=lambda c: c["metadata"]["name"]), [
-                {
-                    "command": "/usr/libexec/argo/probes/argo_tools/"
-                               "check_log -t 120 --file /var/log/"
-                               "argo-poem-tools/argo-poem-tools.log "
-                               "--age 2 --app argo-poem-packages",
                     "subscriptions": [
                         "internals"
                     ],
                     "handlers": [],
                     "pipelines": [
                         {
-                            "name": "reduce_alerts",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "interval": 7200,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "argo.poem-tools.check",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "4"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1,TENANT2"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
-                               "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
-                               "-N --altnames --rootcert-dir "
-                               "/etc/grid-security/certificates "
-                               "--rootcert-file /etc/pki/tls/certs/"
-                               "ca-bundle.crt "
-                               "-C /etc/sensu/certs/hostcert.pem "
-                               "-K /etc/sensu/certs/hostkey.pem",
-                    "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_certificate_validity == "
-                            "'generic.certificate.validity'"
-                        ]
-                    },
-                    "interval": 14400,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.certificate.validity",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "2"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/lib64/nagios/plugins/check_http "
-                               "-H {{ .labels.hostname }} -t 60 --link "
-                               "--onredirect follow {{ .labels.ssl | "
-                               "default " " }} {{ .labels."
-                               "generic_http_connect_port | default " " }} "
-                               "{{ .labels.generic_http_connect_path | "
-                               "default " " }}",
-                    "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com",
-                        "hostname3.example.com",
-                        "hostname5.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
                             "name": "hard_state",
                             "type": "Pipeline",
                             "api_version": "core/v2"
@@ -14787,7 +14533,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "attempts": "3"
                         },
                         "labels": {
-                            "tenants": "TENANT1,TENANT2"
+                            "tenants": "TENANT1"
                         }
                     },
                     "round_robin": False
@@ -14797,8 +14543,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-t 30 -u {{ .labels.endpoint_url}} "
                                "-x /aris/partition/state_up --ok up",
                     "subscriptions": [
-                        "hostname3.example.com",
-                        "hostname4.example.com"
+                        "internals"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -14842,19 +14587,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         entities = merger.merge_entities()
@@ -14873,8 +14605,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14889,8 +14620,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14906,8 +14636,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.test"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14924,8 +14653,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.webui"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14942,8 +14670,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.webui"]
+                    }
                 }
             ]
         )
@@ -14970,8 +14697,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "site": "GRNET",
                                 "tenants": "TENANT1"
                             }
-                        },
-                        "subscriptions": ["argo.test"]
+                        }
                     },
                     {
                         "entity_class": "proxy",
@@ -14985,24 +14711,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "site": "GRNET",
                                 "tenants": "TENANT1"
                             }
-                        },
-                        "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                        }
                     }
                 ],
                 "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         entities = merger.merge_entities()
@@ -15021,8 +14733,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -15038,8 +14749,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET,SRCE",
                             "tenants": "TENANT1,TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -15055,8 +14765,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.test"]
+                    }
                 }
             ]
         )
@@ -15070,19 +14779,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             },
             metricoverrides4agents={
                 "TENANT1": self.metric_overrides1,
@@ -15101,19 +14797,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             },
             metricoverrides4agents={
                 "TENANT1": [{
@@ -15159,19 +14842,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             metricoverrides4agents={
                 "TENANT1": [{
                     "metric": "argo.poem-tools.check",
@@ -15212,19 +14882,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             attributeoverrides4agents={
                 "TENANT1": self.attribute_overrides1,
                 "TENANT2": self.attribute_overrides2
@@ -15260,19 +14917,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             attributeoverrides4agents={
                 "TENANT1": [{
                     "hostname": "agent1",
@@ -15307,62 +14951,3 @@ class ConfigurationMergerTests(unittest.TestCase):
                 f"agent1/ROBOT_CERT host attribute override"
             ]
         )
-
-    def test_merge_subscriptions(self):
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": self.checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            }
-        )
-        subs = merger.merge_subscriptions()
-        self.assertEqual(
-            subs, {
-                "default": ["sub1", "sub2", "sub3", "sub6"],
-                "agent1": ["sub1", "sub4"]
-            }
-        )
-
-    def test_merge_internal_services(self):
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": self.checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            }
-        )
-        internals = merger.merge_internal_services()
-        self.assertEqual(internals, "service1,service2,service3,service4")

@@ -1401,15 +1401,11 @@ class ConfigurationMerger:
             self,
             checks,
             entities,
-            internal_services,
-            subscriptions,
             metricoverrides4agents=None,
             attributeoverrides4agents=None
     ):
         self.checks = checks
         self.entities = entities
-        self.internal_services = internal_services
-        self.subscriptions = subscriptions
         self.metric_overrides = metricoverrides4agents
         self.attribute_overrides = attributeoverrides4agents
         self.logger = logging.getLogger("argo-scg.generator")
@@ -1429,7 +1425,6 @@ class ConfigurationMerger:
                          d["metadata"]["name"] == check["metadata"]["name"]),
                         None
                     )
-                    subs = merged_checks[check_index]["subscriptions"]
 
                     tenants = [
                         item.strip() for item in merged_checks[check_index][
@@ -1439,11 +1434,7 @@ class ConfigurationMerger:
 
                     tenants.append(check["metadata"]["labels"]["tenants"])
 
-                    subs.extend(check["subscriptions"])
-
-                    merged_checks[check_index]["subscriptions"] = sorted(
-                        list(set(subs))
-                    )
+                    merged_checks[check_index]["subscriptions"] = SUBSCRIPTIONS
 
                     merged_checks[check_index]["metadata"]["labels"][
                         "tenants"
@@ -1598,25 +1589,3 @@ class ConfigurationMerger:
                         merged_attributes.append(override)
 
         return merged_attributes
-
-    def merge_subscriptions(self):
-        subs = dict()
-        for tenant, subs_dict in self.subscriptions.items():
-            for host, subscriptions in subs_dict.items():
-                if host not in subs:
-                    subs.update({host: subscriptions})
-
-                else:
-                    host_subs = subs[host]
-                    host_subs.extend(subscriptions)
-                    subs[host] = sorted(list(set(host_subs)))
-
-        return subs
-
-    def merge_internal_services(self):
-        internals = list()
-        for tenant, services_str in self.internal_services.items():
-            services = [item.strip() for item in services_str.split(",")]
-            internals.extend(services)
-
-        return ",".join(sorted(list(set(internals))))
