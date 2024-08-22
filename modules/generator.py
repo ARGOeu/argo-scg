@@ -11,7 +11,7 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
-INTERNAL_METRICS_SUBSCRIPTION = "internals"
+SUBSCRIPTIONS = ["internals"]
 
 HARD_STATE_PIPELINE = {
     "name": "hard_state",
@@ -60,11 +60,10 @@ class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
             attributes, secrets_file, default_ports, tenant,
-            skipped_metrics=None, subscription="hostname"
+            skipped_metrics=None
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
-        self.subscription = subscription
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -89,7 +88,7 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.internal_metrics_subscription = INTERNAL_METRICS_SUBSCRIPTION
+        self.internal_metrics_subscription = SUBSCRIPTIONS
 
         metrics_list = list()
         internal_metrics = list()
@@ -394,10 +393,7 @@ class ConfigurationGenerator:
         return metrics
 
     def _get_hostname(self, item):
-        if self.subscription == "hostname_with_id":
-            return item["hostname"]
-
-        elif "hostname" in item["tags"]:
+        if "hostname" in item["tags"]:
             return item["tags"]["hostname"]
 
         else:
@@ -691,18 +687,6 @@ class ConfigurationGenerator:
     def _is_passive(configuration):
         return "PASSIVE" in configuration["flags"]
 
-    def _generate_metric_subscriptions(self, name):
-        if self.subscription == "servicetype":
-            subscriptions = self._get_servicetypes4metrics()[name]
-
-        elif self.subscription == "entity":
-            subscriptions = self._get_entities4metrics()[name]
-
-        else:
-            subscriptions = self._get_hostnames4metrics()[name]
-
-        return sorted(subscriptions)
-
     def _generate_active_check(
             self, name, configuration, publish, namespace="default"
     ):
@@ -796,7 +780,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self._generate_metric_subscriptions(name),
+                "subscriptions": SUBSCRIPTIONS,
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -854,11 +838,6 @@ class ConfigurationGenerator:
                     }
                 })
 
-            if "NOPUBLISH" in configuration["flags"]:
-                subscriptions = check["subscriptions"]
-                subscriptions.append(self.internal_metrics_subscription)
-                check.update({"subscriptions": subscriptions})
-
             return check
 
         except KeyError as e:
@@ -885,8 +864,7 @@ class ConfigurationGenerator:
                             ]
                             check = {
                                 "command": "PASSIVE",
-                                "subscriptions":
-                                    self._generate_metric_subscriptions(name),
+                                "subscriptions": SUBSCRIPTIONS,
                                 "handlers": [],
                                 "pipelines": [HARD_STATE_PIPELINE],
                                 "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
