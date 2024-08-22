@@ -10165,81 +10165,6 @@ class CheckConfigurationTests(unittest.TestCase):
 
 
 class EntityConfigurationTests(unittest.TestCase):
-    def test_generate_entity_configuration_with_servicetype_subscriptions(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "hostname": "argo.ni4os.eu",
-                            "info_url": "https://argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "hostname": "argo.ni4os.eu",
-                            "info_url": "https://argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
     def test_generate_entity_configuration(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -10274,8 +10199,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10294,8 +10218,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -10332,8 +10255,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10347,8 +10269,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10366,8 +10287,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bioinformatics.cing.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10384,8 +10304,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10406,8 +10325,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sampaeos.if.usp.br"]
+                    }
                 },
             ]
         )
@@ -10443,8 +10361,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10460,8 +10377,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -10501,8 +10417,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "tenants": "MOCK_TENANT",
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
-                    },
-                    "subscriptions": ["dynafed.hostname.ca"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10517,8 +10432,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UPV-GRyCAP",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["grycap.upv.es"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10539,8 +10453,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10558,8 +10471,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -10600,8 +10512,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/CN=host/dpm.bla.meh.com",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dpm.bla.meh.com"]
+                    }
                 }
             ]
         )
@@ -10646,8 +10557,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                         "mds-vo-name=DESY-HH,o=grid",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["grid-giis1.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10671,8 +10581,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                            "CN=kser.arnes.si",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["kser.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10694,8 +10603,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SBDII",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sbdii.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10718,8 +10626,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sitebdii.iihe.ac.be"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10736,8 +10643,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BDII",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bdii1.test.com"]
+                    }
                 }
             ]
         )
@@ -10775,8 +10681,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["catalogue.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10792,8 +10697,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10807,8 +10711,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -10846,8 +10749,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns1.cloud.test.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10863,8 +10765,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns2.cloud.test.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10880,8 +10781,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns3.cloud.test.eu"]
+                    }
                 }
             ]
         )
@@ -10922,8 +10822,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GAMMA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["185.229.108.85"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10945,8 +10844,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "HNODC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hnodc-dm.ath.hcmr.gr"]
+                    }
                 }
             ]
         )
@@ -10994,8 +10892,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11019,8 +10916,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11039,8 +10935,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CESNET-MCC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["identity.cloud.muni.cz"]
+                    }
                 }
             ]
         )
@@ -11079,8 +10974,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.eosc-portal.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11098,8 +10992,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.eosc-portal.eu"]
+                    }
                 }
             ]
         )
@@ -11140,8 +11033,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache-se-cms.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11159,8 +11051,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "srm2_port": "8443",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11176,8 +11067,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                    }
                 }
             ]
         )
@@ -11213,8 +11103,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "AUVERGRID",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gridarcce01.mesocentre.uca.fr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11231,8 +11120,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--memory-limit 268435456",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["alien.spacescience.ro"]
+                    }
                 }
             ]
         )
@@ -11268,8 +11156,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11284,8 +11171,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11367,8 +11253,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11384,8 +11269,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11401,8 +11285,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11460,8 +11343,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11477,8 +11359,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11494,8 +11375,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11554,8 +11434,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11575,8 +11454,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11596,8 +11474,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11613,8 +11490,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -11674,8 +11550,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11695,8 +11570,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11716,8 +11590,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11733,8 +11606,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -11783,8 +11655,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["api.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11800,8 +11671,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["api.devel.argo.grnet.gr"]
+                    }
                 }
             ]
         )
@@ -11837,8 +11707,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11897,8 +11766,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.argo.eu"]
+                    }
                 }
             ]
         )
@@ -11968,8 +11836,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11986,8 +11853,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname2.cern.ch"]
+                    }
                 }
             ]
         )
@@ -12027,8 +11893,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname1.argo.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12045,8 +11910,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test2.test",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname2.argo.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12063,8 +11927,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "group3",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname3.argo.eu"]
+                    }
                 }
             ]
         )
@@ -12101,8 +11964,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test-json.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12160,8 +12022,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12180,8 +12041,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test2.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12200,8 +12060,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test3.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12261,8 +12120,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12281,8 +12139,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test2.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12301,8 +12158,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test3.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12342,8 +12198,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.example.com"]
+                    }
                 }
             ]
         )
@@ -12398,8 +12253,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.example.com"]
+                    }
                 }
             ]
         )
@@ -12438,8 +12292,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12490,8 +12343,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12510,8 +12362,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12570,8 +12421,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12590,8 +12440,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12644,8 +12493,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12664,8 +12512,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12699,8 +12546,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12717,8 +12563,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -12778,8 +12623,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12796,8 +12640,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -12847,8 +12690,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12863,8 +12705,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -12919,8 +12760,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12936,8 +12776,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -12984,8 +12823,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12999,8 +12837,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13040,8 +12877,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13055,8 +12891,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13092,8 +12927,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13107,8 +12941,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13154,8 +12987,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13169,8 +13001,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13218,8 +13049,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13233,8 +13063,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13272,8 +13101,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid1.example.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13290,8 +13118,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid2.example.com"]
+                    }
                 }
             ]
         )
@@ -13343,8 +13170,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid1.example.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13361,8 +13187,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid2.example.com"]
+                    }
                 }
             ]
         )
@@ -13399,8 +13224,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APPDB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["appdb.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13420,8 +13244,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bioinformatics.cing.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13440,8 +13263,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13464,8 +13286,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sampaeos.if.usp.br"]
+                    }
                 }
             ]
         )
@@ -13502,8 +13323,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IN2P3-CC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cclssts1.in2p3.fr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13520,8 +13340,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "JP-KEK-CRC-02",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
+                    }
                 }
             ]
         )
@@ -13558,8 +13377,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache-se-cms.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13577,8 +13395,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13593,8 +13410,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                    }
                 }
             ]
         )
@@ -13638,8 +13454,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "lida.lida_survey_data",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["lida.dataverse.lt"]
+                    }
                 }
             ]
         )
@@ -13678,8 +13493,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13694,8 +13508,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13715,8 +13528,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 }
             ]
         )
@@ -13755,8 +13567,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13771,8 +13582,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13792,8 +13602,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13814,8 +13623,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13832,8 +13640,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -13888,8 +13695,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13905,8 +13711,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13926,8 +13731,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13948,8 +13752,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13966,8 +13769,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -14009,8 +13811,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14027,8 +13828,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UNI-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["webdav.test.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14048,236 +13848,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UNI-EXAMPLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.de"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_hostname_with_id_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname1.argo.com_hostname1_id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "generic_http_connect_path": "-u /path",
-                            "ssl": "-S --sni",
-                            "info_url":
-                                "https://hostname1.argo.com/path",
-                            "hostname": "hostname1.argo.com",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test1",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname1.argo.com_hostname1_id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname2.argo.eu_second.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "https://hostname2.argo.eu",
-                            "hostname": "hostname2.argo.eu",
-                            "ssl": "-S --sni",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test2.test",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname2.argo.eu_second.id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname3.argo.eu_test.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "http://hostname3.argo.eu/",
-                            "generic_http_connect_path": "-u /",
-                            "hostname": "hostname3.argo.eu",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "group3",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname3.argo.eu_test.id"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_servicetype_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_entity_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test__argo.ni4os.eu"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui__argo-devel.ni4os.eu"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui__argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -14321,8 +13892,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-READONLY",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd01.readonly.eu"]
+                    }
                 }
             ]
         )
@@ -14371,8 +13941,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14394,444 +13963,10 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                    }
                 }
             ]
         )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_custom_agents_subs(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST51"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={
-                    "sensu-agent1": ["argo.test"],
-                    "sensu-agent2": ["argo.webui"]
-                }
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dcache-se-cms.desy.de", "dcache.arnes.si",
-                    "dcache6-shadow.iihe.ac.be", "internals"
-                ],
-                "sensu-agent1": ["argo.ni4os.eu", "internals"],
-                "sensu-agent2": ["argo-devel.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_custom_agents_subs_if_missing_service(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST51"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={
-                    "sensu-agent1": ["web.check"],
-                }
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo-devel.ni4os.eu", "argo.ni4os.eu",
-                    "dcache-se-cms.desy.de", "dcache.arnes.si",
-                    "dcache6-shadow.iihe.ac.be", "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_without_id(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_without_id_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "internals"
-                ],
-                "sensu-agent1": ["dabar.srce.hr", "hrcak.srce.hr", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_hostnames_without_id_custom_agnt_missing_serv(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dabar.srce.hr", "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "hrcak.srce.hr", "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_with_id(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_with_id_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "internals"
-                ],
-                "sensu-agent1": [
-                    "dabar.srce.hr_dabar_id", "hrcak.srce.hr_hrcak.id",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_hostnames_with_id_custom_agent_missing_service(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dabar.srce.hr_dabar_id",
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "hrcak.srce.hr_hrcak.id",
-                    "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_servicetypes(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_servicetypes_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"],
-                "sensu-agent1": ["eu.eosc.generic.oai-pmh", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_servicetypes_custom_agent_missing_service(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"],
-                "sensu-agent1": ["argo.test", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_entity_sub(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.test__argo.ni4os.eu",
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_entity_subs_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ],
-                "sensu-agent1": ["argo.test__argo.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_entity_subs_custom_agent_missing_service(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.portal.services.url"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.test__argo.ni4os.eu",
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_internal_services(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1", "ARGO_TEST2", "ARGO_TEST27"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            services = generator.generate_internal_services()
-        self.assertEqual(services, "argo.test,argo.webui")
         self.assertEqual(log.output, DUMMY_LOG)
 
 

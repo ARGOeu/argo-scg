@@ -1369,26 +1369,13 @@ class ConfigurationGenerator:
                     existing_entity["metadata"]["labels"] = new_labels
 
                 else:
-                    if self.subscription == "servicetype":
-                        subscriptions = types
-
-                    elif self.subscription == "hostname_with_id":
-                        subscriptions = [item["hostname"]]
-
-                    elif self.subscription == "entity":
-                        subscriptions = [entity_name]
-
-                    else:
-                        subscriptions = [hostname]
-
                     entities.append({
                         "entity_class": "proxy",
                         "metadata": {
                             "name": entity_name,
                             "namespace": namespace,
                             "labels": labels
-                        },
-                        "subscriptions": subscriptions
+                        }
                     })
 
             if len(skipped_entities) > 0:
@@ -1407,74 +1394,6 @@ class ConfigurationGenerator:
             raise GeneratorException(
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
-
-    def _generate_hostname_subscriptions(self, servicetypes):
-        subscriptions = list()
-
-        for servicetype in servicetypes:
-            if servicetype != self.internal_metrics_subscription:
-                try:
-                    if self.subscription == "entity":
-                        subscriptions.extend(
-                            self._get_entities4servicetypes()[servicetype]
-                        )
-
-                    else:
-                        subscriptions.extend(
-                            self._get_hostnames4servicetypes()[servicetype]
-                        )
-
-                except KeyError:
-                    continue
-
-        return sorted(list(set(subscriptions)))
-
-    def generate_subscriptions(self, custom_subs=None):
-        if custom_subs is None:
-            custom_subs = dict()
-
-        subscriptions = dict()
-        remaining_servicetypes = self.servicetypes
-        remaining_hostnames = set(
-            self._generate_hostname_subscriptions(list(remaining_servicetypes))
-        )
-
-        used_hostnames = set()
-        for key, values in custom_subs.items():
-            remaining_servicetypes = remaining_servicetypes.difference(
-                set(values)
-            )
-
-            if self.subscription == "servicetype":
-                subs_values = set(values)
-
-            else:
-                subs_values = self._generate_hostname_subscriptions(values)
-                subs_values = set(subs_values).difference(used_hostnames)
-                used_hostnames.update(subs_values)
-
-            subs_values.add(self.internal_metrics_subscription)
-            subscriptions.update({key: sorted(list(subs_values))})
-
-        if self.subscription == "servicetype":
-            remaining_servicetypes.add(self.internal_metrics_subscription)
-            subscriptions.update({
-                "default": sorted(list(remaining_servicetypes))
-            })
-
-        else:
-            subs = remaining_hostnames.difference(used_hostnames)
-            subs.add(self.internal_metrics_subscription)
-            subscriptions.update({"default": sorted(list(subs))})
-
-        return subscriptions
-
-    def generate_internal_services(self):
-        services = list()
-        for metric in self.internal_metrics:
-            services.extend(self.servicetypes4metrics[metric])
-
-        return ",".join(sorted(list(set(services))))
 
 
 class ConfigurationMerger:
