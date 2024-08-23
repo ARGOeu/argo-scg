@@ -51,9 +51,7 @@ mock_entities = [
             "cloud_provider": "",
             "processes": None
         },
-        "subscriptions": [
-            "argo.ni4os.eu"
-        ],
+        "subscriptions": None,
         "last_seen": 0,
         "deregister": False,
         "deregistration": {},
@@ -81,9 +79,7 @@ mock_entities = [
             "cloud_provider": "",
             "processes": None
         },
-        "subscriptions": [
-            "gocdb.ni4os.eu"
-        ],
+        "subscriptions": None,
         "last_seen": 0,
         "deregister": False,
         "deregistration": {},
@@ -129,8 +125,6 @@ mock_entities = [
         },
         "subscriptions": [
             "entity:sensu-agent1",
-            "argo.ni4os.eu",
-            "gocdb.ni4os.eu",
             "internals"
         ],
         "last_seen": 1645005291,
@@ -187,9 +181,7 @@ mock_entities = [
             "processes": None
         },
         "subscriptions": [
-            "argo.ni4os.eu",
             "entity:sensu-agent2",
-            "gocdb.ni4os.eu",
             "internals"
         ],
         "last_seen": 1645005284,
@@ -6083,10 +6075,7 @@ class SensuEntityTests(unittest.TestCase):
                         "hostname": "argo-devel.ni4os.eu",
                         "tenants": "TENANT1"
                     },
-                },
-                "subscriptions": [
-                    "argo-devel.ni4os.eu"
-                ]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -6098,10 +6087,7 @@ class SensuEntityTests(unittest.TestCase):
                         "hostname": "argo.ni4os.eu",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": [
-                    "argo.ni4os.eu"
-                ]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -6113,10 +6099,7 @@ class SensuEntityTests(unittest.TestCase):
                         "hostname": "argo-mon.ni4os.eu",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": [
-                    "argo-mon.ni4os.eu"
-                ]
+                }
             }
         ]
 

@@ -504,6 +504,12 @@ class Sensu:
         except KeyError:
             pass
 
+        if "subscriptions" not in entity1:
+            entity1.update({"subscriptions": None})
+
+        if "subscriptions" not in entity2:
+            entity2.update({"subscriptions": None})
+
         if entity1["metadata"]["name"] == entity2["metadata"]["name"] and \
                 entity1["metadata"]["namespace"] == \
                 entity2["metadata"]["namespace"] and \
