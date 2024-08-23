@@ -88,7 +88,7 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.internal_metrics_subscription = SUBSCRIPTIONS
+        self.subscriptions = [self.tenant.lower()]
 
         metrics_list = list()
         internal_metrics = list()
@@ -780,7 +780,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": SUBSCRIPTIONS,
+                "subscriptions": self.subscriptions,
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -864,7 +864,7 @@ class ConfigurationGenerator:
                             ]
                             check = {
                                 "command": "PASSIVE",
-                                "subscriptions": SUBSCRIPTIONS,
+                                "subscriptions": self.subscriptions,
                                 "handlers": [],
                                 "pipelines": [HARD_STATE_PIPELINE],
                                 "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
