@@ -6,7 +6,7 @@ import subprocess
 import requests
 from argo_scg.exceptions import SensuException, SCGException, SCGWarnException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret, SUBSCRIPTIONS
+    is_attribute_secret, DEFAULT_SUBSCRIPTION
 
 
 class Sensu:
@@ -1182,6 +1182,14 @@ class Sensu:
         checks = self._get_checks(namespace=namespace)
         checks_names = [check["metadata"]["name"] for check in checks]
 
+        tenants = self.namespaces[namespace]
+
+        if len(tenants) > 1:
+            subs = DEFAULT_SUBSCRIPTION
+
+        else:
+            subs = tenants[0].lower()
+
         assets = {
             "sensu.cpu.usage": "check-cpu-usage",
             "sensu.memory.usage": "check-memory-usage"
@@ -1194,7 +1202,7 @@ class Sensu:
             "runtime_assets": [
                 assets[name]
             ],
-            "subscriptions": SUBSCRIPTIONS,
+            "subscriptions": [subs],
             "timeout": 900,
             "round_robin": False,
             "metadata": {

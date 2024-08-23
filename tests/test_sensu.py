@@ -221,7 +221,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "internals"
+            "tenant1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -268,7 +268,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "internals"
+            "tenant1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -313,7 +313,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "internals"
+            "tenant1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -358,7 +358,7 @@ mock_checks = [
             "check-cpu-usage"
         ],
         "subscriptions": [
-            "internals"
+            "tenant1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -398,7 +398,7 @@ mock_checks = [
             "check-memory-usage"
         ],
         "subscriptions": [
-            "internals"
+            "tenant1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -1325,8 +1325,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu"
+                "ni4os"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1437,9 +1436,7 @@ mock_events_ctl = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "argo-mon-devel.ni4os.eu"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -1489,8 +1486,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu"
+                "ni4os"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1643,9 +1639,7 @@ mock_events_ctl = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "argo-mon-devel.ni4os.eu"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -1694,7 +1688,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "agora.ni4os.eu"
+                "ni4os"
             ],
             "proxy_entity_name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
             "check_hooks": None,
@@ -1789,9 +1783,7 @@ mock_events_ctl = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "agora.ni4os.eu"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -1839,8 +1831,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "cherry.chem.bg.ac.rs",
-                "videolectures.net"
+                "ni4os"
             ],
             "proxy_entity_name":
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
@@ -1955,9 +1946,7 @@ mock_events_ctl = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "cherry.chem.bg.ac.rs"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -2010,10 +1999,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "cherry.chem.bg.ac.rs",
-                "videolectures.net"
+                "ni4os"
             ],
             "proxy_entity_name": "eu.ni4os.repo.publication__videolectures.net",
             "check_hooks": None,
@@ -2119,9 +2105,7 @@ mock_events_ctl = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "videolectures.net"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -2170,9 +2154,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "internals"
+                "ni4os"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2271,12 +2253,7 @@ mock_events_ctl = [
             },
             "subscriptions": [
                 "entity:sensu-agent-ni4os-devel.cro-ngi",
-                "agora.ni4os.eu",
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "cherry.chem.bg.ac.rs",
-                "internals",
-                "videolectures.net"
+                "ni4os",
             ],
             "last_seen": 1682322924,
             "deregister": False,
@@ -2318,9 +2295,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "internals"
+                "ni4os"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2413,12 +2388,7 @@ mock_events_ctl = [
             },
             "subscriptions": [
                 "entity:sensu-agent-ni4os-devel.cro-ngi",
-                "agora.ni4os.eu",
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "cherry.chem.bg.ac.rs",
-                "internals",
-                "videolectures.net"
+                "ni4os"
             ],
             "last_seen": 1682319670,
             "deregister": False,
@@ -2464,7 +2434,7 @@ mock_events_multiline_ctl = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+                "ni4os"
             ],
             'proxy_entity_name':
                 'org.opensciencegrid.htcondorce__ce503.cern.ch',
@@ -2523,7 +2493,7 @@ mock_events_multiline_ctl = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ce503.cern.ch'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -2574,7 +2544,7 @@ mock_events_multiline_ctl = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                 'ce503.cern.ch', 'ce504.cern.ch', 'ce505.cern.ch'
+                "ni4os"
             ],
             'proxy_entity_name':
                 'org.opensciencegrid.htcondorce__ce503.cern.ch',
@@ -2632,7 +2602,7 @@ mock_events_multiline_ctl = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ce503.cern.ch'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -2716,7 +2686,7 @@ mock_events_multiline_ctl = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ce503.cern.ch'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -2764,7 +2734,7 @@ mock_events_ctl_with_unknowns = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "sub1", "sub2", "sub3"
+                "ni4os"
             ],
             'proxy_entity_name': 'ARC-CE__hostname1.example.com',
             'check_hooks': None,
@@ -2818,7 +2788,7 @@ mock_events_ctl_with_unknowns = [
             }]},
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ARC-CE__hostname1.example.com'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -2875,7 +2845,7 @@ mock_events_ctl_with_unknowns = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "sub1", "sub2", "sub3"
+                "ni4os"
             ],
             'proxy_entity_name': 'ARC-CE__hostname1.example.com',
             'check_hooks': None,
@@ -2932,7 +2902,7 @@ mock_events_ctl_with_unknowns = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ARC-CE__hostname1.example.com'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -3030,7 +3000,7 @@ mock_events_ctl_with_unknowns = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ["sub1"],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -3124,7 +3094,7 @@ mock_events_ctl_with_unknowns = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ARC-CE__hostname2.example.com'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -3215,7 +3185,7 @@ mock_events_ctl_with_unknowns = [
         },
         'entity': {
             'entity_class': 'proxy',
-            'subscriptions': ['ARC-CE__hostname3.example.com'],
+            'subscriptions': None,
             'last_seen': 0,
             'deregister': False,
             'deregistration': {},
@@ -3273,9 +3243,7 @@ mock_events_ctl_multiple_tenants = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "lists.submerse.eu",
-                "submerse.eu",
-                "www.grnet.gr"
+                "tenant2"
             ],
             "proxy_entity_name": "WebService__hostname.test.eu_id_3",
             "check_hooks": None,
@@ -3348,9 +3316,7 @@ mock_events_ctl_multiple_tenants = [
         },
         "entity": {
             "entity_class": "proxy",
-            "subscriptions": [
-                "lists.submerse.eu"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -4095,7 +4061,7 @@ class SensuCheckTests(unittest.TestCase):
                            "NGI?accept=csv "
                            "--ssl --onredirect follow",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4123,7 +4089,7 @@ class SensuCheckTests(unittest.TestCase):
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
                            "-H {{ .labels.hostname }} -t 120 -p 443",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -4159,7 +4125,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-K {{ .labels.ROBOT_KEY | "
                            "default /etc/sensu/certs/hostkey.pem }}",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4704,7 +4670,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-T {{ .labels.TRUSTSTORE | default "
                            "/etc/sensu/certs/truststore.ts }}",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4731,7 +4697,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.BDII_PORT | default 2170 }} "
                            "-H {{ .labels.BDII_HOST }}",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4835,7 +4801,7 @@ class SensuCheckTests(unittest.TestCase):
                            "--url https://b2access.fz-juelich.de:8443 "
                            "--username username --password pa55w0rD",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4861,7 +4827,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.QCG-COMPUTING_PORT | "
                            "default 19000 }} -x",
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4971,7 +4937,7 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "internals"
+                    "tenant1"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -5181,7 +5147,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5238,7 +5204,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5260,7 +5226,7 @@ class SensuCheckTests(unittest.TestCase):
             "publish": False,
             "runtime_assets": None,
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -5448,7 +5414,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5481,7 +5447,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5520,7 +5486,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -8513,7 +8479,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "timeout": 900,
             "round_robin": False,
@@ -8540,7 +8506,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "timeout": 900,
             "round_robin": False,
@@ -8677,7 +8643,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8742,7 +8708,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8814,7 +8780,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8987,7 +8953,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -9052,7 +9018,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -9124,7 +9090,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "internals"
+                "tenant1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -9193,7 +9159,9 @@ class MetricOutputTests(unittest.TestCase):
                 "low_flap_threshold": 0,
                 "publish": True,
                 "runtime_assets": None,
-                "subscriptions": ["hostname.example.eu_site-name"],
+                "subscriptions": [
+                    "tenant"
+                ],
                 "proxy_entity_name": "eu.eosc.portal.services.url__hostname."
                                      "example.eu_site-name",
                 "check_hooks": None,
@@ -9260,7 +9228,9 @@ class MetricOutputTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["hostname.example.eu_site-name"],
+                "subscriptions": [
+                    "tenant"
+                ],
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -9772,7 +9742,7 @@ class SensuCheckCallTests(unittest.TestCase):
                            "{{ .labels.ssl }} "
                            "-p {{ .labels.port }} ",
                 "subscriptions": [
-                    "internals"
+                    "default"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -9814,7 +9784,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "internals"
+                    "default"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -9859,7 +9829,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "internals"
+                    "default"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -9982,7 +9952,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 },
                 "subscriptions": [
                     "entity:sensu-agent1",
-                    "internals"
+                    "default"
                 ],
                 "last_seen": 1645005291,
                 "deregister": False,
@@ -10165,11 +10135,11 @@ class SensuCheckCallTests(unittest.TestCase):
         return_checks.return_value = self.checks
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.http.connect"),
-            ["internals"]
+            ["default"]
         )
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"), [
-                "internals"
+                "default"
             ]
         )
 
