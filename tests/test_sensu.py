@@ -9772,8 +9772,7 @@ class SensuCheckCallTests(unittest.TestCase):
                            "{{ .labels.ssl }} "
                            "-p {{ .labels.port }} ",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -9815,10 +9814,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo-mon-devel.ni4os.eu",
-                    "argo-mon.ni4os.eu",
-                    "argo2.ni4os.eu"
+                    "internals"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -9863,8 +9859,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "argo-mon-devel.ni4os.eu",
-                    "argo-mon.ni4os.eu"
+                    "internals"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -9909,7 +9904,7 @@ class SensuCheckCallTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["argo.ni4os.eu"],
+                "subscriptions": None,
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -9939,7 +9934,7 @@ class SensuCheckCallTests(unittest.TestCase):
                     "cloud_provider": "",
                     "processes": None
                 },
-                "subscriptions": ["argo2.ni4os.eu"],
+                "subscriptions": None,
                 "last_seen": 0,
                 "deregister": False,
                 "deregistration": {},
@@ -9986,11 +9981,8 @@ class SensuCheckCallTests(unittest.TestCase):
                     "processes": None
                 },
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo-mon-devel.ni4os.eu",
-                    "argo-mon.ni4os.eu",
-                    "argo2.ni4os.eu",
-                    "entity:sensu-agent1"
+                    "entity:sensu-agent1",
+                    "internals"
                 ],
                 "last_seen": 1645005291,
                 "deregister": False,
@@ -10173,14 +10165,11 @@ class SensuCheckCallTests(unittest.TestCase):
         return_checks.return_value = self.checks
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.http.connect"),
-            ["argo-devel.ni4os.eu", "argo.ni4os.eu"]
+            ["internals"]
         )
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"), [
-                "argo-devel.ni4os.eu",
-                "argo-mon-devel.ni4os.eu",
-                "argo-mon.ni4os.eu",
-                "argo2.ni4os.eu"
+                "internals"
             ]
         )
 
@@ -10595,7 +10584,7 @@ class SensuSilencingEntryTests(unittest.TestCase):
 
 
 class SensuCtlTests(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.sensuctl = SensuCtl(tenant="ni4os", namespace="default")
 
     @patch("argo_scg.sensu.subprocess.check_output")
