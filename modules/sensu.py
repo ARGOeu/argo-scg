@@ -6,7 +6,7 @@ import subprocess
 import requests
 from argo_scg.exceptions import SensuException, SCGException, SCGWarnException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
+    is_attribute_secret, SUBSCRIPTIONS
 
 
 class Sensu:
@@ -1188,9 +1188,7 @@ class Sensu:
             "runtime_assets": [
                 assets[name]
             ],
-            "subscriptions": [
-                INTERNAL_METRICS_SUBSCRIPTION
-            ],
+            "subscriptions": SUBSCRIPTIONS,
             "timeout": 900,
             "round_robin": False,
             "metadata": {

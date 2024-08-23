@@ -229,8 +229,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "argo-devel.ni4os.eu",
-            "argo.ni4os.eu"
+            "internals"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -277,8 +276,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "argo-devel.ni4os.eu",
-            "argo.ni4os.eu"
+            "internals"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -323,8 +321,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "argo-devel.ni4os.eu",
-            "argo.ni4os.eu"
+            "internals"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -4106,8 +4103,7 @@ class SensuCheckTests(unittest.TestCase):
                            "NGI?accept=csv "
                            "--ssl --onredirect follow",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4135,8 +4131,7 @@ class SensuCheckTests(unittest.TestCase):
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
                            "-H {{ .labels.hostname }} -t 120 -p 443",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -4172,8 +4167,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-K {{ .labels.ROBOT_KEY | "
                            "default /etc/sensu/certs/hostkey.pem }}",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4718,8 +4712,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-T {{ .labels.TRUSTSTORE | default "
                            "/etc/sensu/certs/truststore.ts }}",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4746,8 +4739,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.BDII_PORT | default 2170 }} "
                            "-H {{ .labels.BDII_HOST }}",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4851,8 +4843,7 @@ class SensuCheckTests(unittest.TestCase):
                            "--url https://b2access.fz-juelich.de:8443 "
                            "--username username --password pa55w0rD",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4878,8 +4869,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.QCG-COMPUTING_PORT | "
                            "default 19000 }} -x",
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4989,8 +4979,7 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "argo-devel.ni4os.eu",
-                    "argo.ni4os.eu"
+                    "internals"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -5200,7 +5189,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "dcache.arnes.si"
+                "internals"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5257,7 +5246,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "dcache.arnes.si"
+                "internals"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5279,7 +5268,7 @@ class SensuCheckTests(unittest.TestCase):
             "publish": False,
             "runtime_assets": None,
             "subscriptions": [
-                "dcache.arnes.si"
+                "internals"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -5467,7 +5456,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "argo.ni4os.eu"
+                "internals"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5500,7 +5489,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "argo.ni4os.eu"
+                "internals"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5539,7 +5528,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "argo.ni4os.eu"
+                "internals"
             ],
             "handlers": [],
             "interval": 86400,
