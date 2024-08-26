@@ -74,7 +74,6 @@ def main():
                 tenants_checks = dict()
                 tenants_entities = dict()
                 tenants_internal_services = dict()
-                tenants_subscriptions = dict()
                 tenants_metric_overrides = dict()
                 tenants_attribute_overrides = dict()
                 for tenant in tenants:
@@ -150,6 +149,10 @@ def main():
                         tenant: generator.generate_entities(namespace=namespace)
                     })
 
+                    tenants_internal_services.update({
+                        tenant: generator.generate_internal_services()
+                    })
+
                     tenants_metric_overrides.update({
                         tenant: generator.get_metric_parameter_overrides()
                     })
@@ -162,6 +165,7 @@ def main():
                     merger = ConfigurationMerger(
                         checks=tenants_checks,
                         entities=tenants_entities,
+                        internal_services=tenants_internal_services,
                         metricoverrides4agents=tenants_metric_overrides,
                         attributeoverrides4agents=tenants_attribute_overrides
                     )
@@ -172,6 +176,7 @@ def main():
                         merger.merge_metric_parameter_overrides()
                     host_attribute_overrides = \
                         merger.merge_attribute_overrides()
+                    internal_services = merger.merge_internal_services()
 
                 else:
                     checks = tenants_checks[tenants[0]]
@@ -182,6 +187,7 @@ def main():
                     host_attribute_overrides = tenants_attribute_overrides[
                         tenants[0]
                     ]
+                    internal_services = tenants_internal_services[tenants[0]]
 
                 sensu.add_daily_filter(namespace=namespace)
                 sensu.handle_slack_handler(
@@ -207,7 +213,6 @@ def main():
                     metric_parameters_overrides=metric_parameter_overrides,
                     host_attributes_overrides=host_attribute_overrides,
                     services=internal_services,
-                    subscriptions=subs,
                     namespace=namespace
                 )
 
