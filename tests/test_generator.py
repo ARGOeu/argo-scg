@@ -14465,7 +14465,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "{{ .labels.generic_http_connect_path | "
                            "default " " }}",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14507,7 +14507,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-C /etc/sensu/certs/hostcert.pem "
                            "-K /etc/sensu/certs/hostkey.pem",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14545,7 +14545,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "argo-poem-tools/argo-poem-tools.log "
                            "--age 2 --app argo-poem-packages",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14577,7 +14577,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-t 30 -u {{ .labels.endpoint_url}} "
                            "-x /aris/partition/state_up --ok up",
                 "subscriptions": [
-                    "tenant2"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14615,7 +14615,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "argo-poem-tools/argo-poem-tools.log "
                            "--age 2 --app argo-poem-packages",
                 "subscriptions": [
-                    "tenant2"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -14787,7 +14787,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "argo-poem-tools/argo-poem-tools.log "
                                "--age 2 --app argo-poem-packages",
                     "subscriptions": [
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -14822,7 +14822,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "tenant1"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -14863,7 +14863,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "{{ .labels.generic_http_connect_path | "
                                "default " " }}",
                     "subscriptions": [
-                        "tenant1"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -14900,7 +14900,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-t 30 -u {{ .labels.endpoint_url}} "
                                "-x /aris/partition/state_up --ok up",
                     "subscriptions": [
-                        "tenant2"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -15335,25 +15335,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 f"WARNING:{LOGNAME}:TENANT2: Discrepancy in "
                 f"agent1/ROBOT_CERT host attribute override"
             ]
-        )
-
-    def test_get_subscriptions(self):
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": self.checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            }
-        )
-        self.assertEqual(
-            merger.get_subscriptions(), ["internals", "tenant1", "tenant2"]
         )
 
     def test_merge_internal_services(self):

@@ -11,8 +11,6 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
-DEFAULT_SUBSCRIPTION = "internals"
-
 HARD_STATE_PIPELINE = {
     "name": "hard_state",
     "type": "Pipeline",
@@ -1465,14 +1463,6 @@ class ConfigurationMerger:
 
                     tenants.append(check["metadata"]["labels"]["tenants"])
 
-                    if len(tenants) > 1:
-                        subs = [DEFAULT_SUBSCRIPTION]
-
-                    else:
-                        subs = [tenants[0].lower()]
-
-                    merged_checks[check_index]["subscriptions"] = subs
-
                     merged_checks[check_index]["metadata"]["labels"][
                         "tenants"
                     ] = ",".join(sorted(tenants))
@@ -1626,11 +1616,6 @@ class ConfigurationMerger:
                         merged_attributes.append(override)
 
         return merged_attributes
-
-    def get_subscriptions(self):
-        return sorted(
-            [t.lower() for t in self.checks.keys()] + [DEFAULT_SUBSCRIPTION]
-        )
 
     def merge_internal_services(self):
         internals = list()
