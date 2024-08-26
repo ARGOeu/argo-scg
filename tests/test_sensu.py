@@ -221,7 +221,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "tenant1"
+            "entity:sensu-agent1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -268,7 +268,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "tenant1"
+            "entity:sensu-agent1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -313,7 +313,7 @@ mock_checks = [
         "publish": True,
         "runtime_assets": None,
         "subscriptions": [
-            "tenant1"
+            "entity:sensu-agent1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -358,7 +358,8 @@ mock_checks = [
             "check-cpu-usage"
         ],
         "subscriptions": [
-            "tenant1"
+            "entity:sensu-agent1",
+            "entity:sensu-agent2"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -398,7 +399,7 @@ mock_checks = [
             "check-memory-usage"
         ],
         "subscriptions": [
-            "tenant1"
+            "entity:sensu-agent1"
         ],
         "proxy_entity_name": "",
         "check_hooks": None,
@@ -447,9 +448,7 @@ mock_events = [
                 "cloud_provider": "",
                 "processes": None
             },
-            "subscriptions": [
-                "argo.ni4os.eu"
-            ],
+            "subscriptions": None,
             "last_seen": 0,
             "deregister": False,
             "deregistration": {},
@@ -463,7 +462,8 @@ mock_events = [
                     "tenants": "TENANT1"
                 }
             },
-            "sensu_agent_version": ""},
+            "sensu_agent_version": ""
+        },
         "check": {
             "command": "/usr/lib64/nagios/plugins/check_http "
                        "-H argo.ni4os.eu -t 30 -r argo.eu "
@@ -476,8 +476,7 @@ mock_events = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-devel.ni4os.eu",
-                "argo.ni4os.eu"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "argo.ni4os.eu",
             "check_hooks": None,
@@ -561,7 +560,7 @@ mock_events = [
                 "processes": None
             },
             "subscriptions": [
-                "gocdb.ni4os.eu"
+                "entity:sensu-agent1"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -587,7 +586,7 @@ mock_events = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "gocdb.ni4os.eu"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "gocdb.ni4os.eu",
             "check_hooks": None,
@@ -657,7 +656,7 @@ mock_events = [
                 "processes": None
             },
             "subscriptions": [
-                "argo.ni4os.eu"
+                "entity:sensu-agent1"
             ],
             "last_seen": 0,
             "deregister": False,
@@ -688,8 +687,7 @@ mock_events = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "argo-devel.ni4os.eu",
-                "argo.ni4os.eu"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "argo.ni4os.eu",
             "check_hooks": None,
@@ -1325,7 +1323,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1486,7 +1484,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "argo.mon__argo-mon-devel.ni4os.eu",
             "check_hooks": None,
@@ -1688,7 +1686,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "eu.eudat.itsm.spmt__agora.ni4os.eu",
             "check_hooks": None,
@@ -1831,7 +1829,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name":
                 "eu.ni4os.repo.publication__cherry.chem.bg.ac.rs",
@@ -1999,7 +1997,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "eu.ni4os.repo.publication__videolectures.net",
             "check_hooks": None,
@@ -2154,7 +2152,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2295,7 +2293,7 @@ mock_events_ctl = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -2434,7 +2432,7 @@ mock_events_multiline_ctl = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             'proxy_entity_name':
                 'org.opensciencegrid.htcondorce__ce503.cern.ch',
@@ -2544,7 +2542,7 @@ mock_events_multiline_ctl = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             'proxy_entity_name':
                 'org.opensciencegrid.htcondorce__ce503.cern.ch',
@@ -2734,7 +2732,7 @@ mock_events_ctl_with_unknowns = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             'proxy_entity_name': 'ARC-CE__hostname1.example.com',
             'check_hooks': None,
@@ -2845,7 +2843,7 @@ mock_events_ctl_with_unknowns = [
             'publish': True,
             'runtime_assets': None,
             'subscriptions': [
-                "ni4os"
+                "entity:sensu-agent1"
             ],
             'proxy_entity_name': 'ARC-CE__hostname1.example.com',
             'check_hooks': None,
@@ -3243,7 +3241,7 @@ mock_events_ctl_multiple_tenants = [
             "publish": True,
             "runtime_assets": None,
             "subscriptions": [
-                "tenant2"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "WebService__hostname.test.eu_id_3",
             "check_hooks": None,
@@ -4061,7 +4059,7 @@ class SensuCheckTests(unittest.TestCase):
                            "NGI?accept=csv "
                            "--ssl --onredirect follow",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4089,7 +4087,7 @@ class SensuCheckTests(unittest.TestCase):
                 "command": "/usr/lib64/nagios/plugins/check_tcp "
                            "-H {{ .labels.hostname }} -t 120 -p 443",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -4125,7 +4123,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-K {{ .labels.ROBOT_KEY | "
                            "default /etc/sensu/certs/hostkey.pem }}",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4670,7 +4668,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-T {{ .labels.TRUSTSTORE | default "
                            "/etc/sensu/certs/truststore.ts }}",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4697,7 +4695,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.BDII_PORT | default 2170 }} "
                            "-H {{ .labels.BDII_HOST }}",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4801,7 +4799,7 @@ class SensuCheckTests(unittest.TestCase):
                            "--url https://b2access.fz-juelich.de:8443 "
                            "--username username --password pa55w0rD",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4827,7 +4825,7 @@ class SensuCheckTests(unittest.TestCase):
                            "-p {{ .labels.QCG-COMPUTING_PORT | "
                            "default 19000 }} -x",
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": ["publisher-handler"],
                 "proxy_requests": {
@@ -4937,7 +4935,7 @@ class SensuCheckTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "tenant1"
+                    "entity:sensu-agent1"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -5147,7 +5145,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5204,7 +5202,7 @@ class SensuCheckTests(unittest.TestCase):
         passive_check = {
             "command": "PASSIVE",
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "handlers": [],
             "pipelines": [],
@@ -5226,7 +5224,7 @@ class SensuCheckTests(unittest.TestCase):
             "publish": False,
             "runtime_assets": None,
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -5414,7 +5412,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5447,7 +5445,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -5486,7 +5484,7 @@ class SensuCheckTests(unittest.TestCase):
             "command": "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu "
                        "-t 120 -p 443",
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "handlers": [],
             "interval": 86400,
@@ -8479,7 +8477,8 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1",
+                "entity:sensu-agent2"
             ],
             "timeout": 900,
             "round_robin": False,
@@ -8506,7 +8505,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "timeout": 900,
             "round_robin": False,
@@ -8526,12 +8525,14 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         }
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
-    def test_add_cpu_check(self, mock_get, mock_post):
+    def test_add_cpu_check(self, mock_get, mock_post, mock_agents):
         copy_mock_checks = mock_checks.copy()[0:3]
         mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_cpu_check(namespace="tenant1")
         mock_get.assert_called_once_with(namespace="tenant1")
@@ -8548,12 +8549,16 @@ class SensuUsageChecksTests(unittest.TestCase):
             [f"INFO:{LOGNAME}:tenant1: Check sensu.cpu.usage created"]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
-    def test_add_cpu_check_with_error_with_message(self, mock_get, mock_post):
+    def test_add_cpu_check_with_error_with_message(
+            self, mock_get, mock_post, mock_agents
+    ):
         copy_mock_checks = mock_checks.copy()[0:3]
         mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response_not_ok_with_msg
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_cpu_check(namespace="tenant1")
@@ -8578,14 +8583,16 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_cpu_check_with_error_without_message(
-            self, mock_get, mock_post
+            self, mock_get, mock_post, mock_agents
     ):
         copy_mock_checks = mock_checks.copy()[0:3]
         mock_get.return_value = copy_mock_checks
         mock_post.side_effect = mock_post_response_not_ok_without_msg
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_cpu_check(namespace="tenant1")
@@ -8610,13 +8617,15 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_cpu_check_if_exists_and_same(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_get.return_value = mock_checks
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.add_cpu_check(namespace="tenant1")
@@ -8625,11 +8634,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         self.assertFalse(mock_put.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_cpu_check_if_exists_and_different(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[3] = {
@@ -8643,7 +8653,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8671,6 +8681,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_cpu_check(namespace="tenant1")
         mock_get.assert_called_once_with(namespace="tenant1")
@@ -8690,11 +8701,12 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_update_cpu_check_error_with_message(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[3] = {
@@ -8708,7 +8720,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8736,6 +8748,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_with_msg
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_cpu_check(namespace="tenant1")
@@ -8762,11 +8775,12 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_update_cpu_check_error_without_message(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[3] = {
@@ -8780,7 +8794,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-cpu-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8808,6 +8822,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_without_msg
+        mock_agents.return_value = [mock_entities[3], mock_entities[4]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_cpu_check(namespace="tenant1")
@@ -8834,12 +8849,14 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
-    def test_add_memory_check(self, mock_get, mock_post):
+    def test_add_memory_check(self, mock_get, mock_post, mock_agents):
         mock_checks_copy = mock_checks.copy()
         mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_memory_check(namespace="tenant1")
         mock_get.assert_called_once_with(namespace="tenant1")
@@ -8856,14 +8873,16 @@ class SensuUsageChecksTests(unittest.TestCase):
             [f"INFO:{LOGNAME}:tenant1: Check sensu.memory.usage created"]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_memory_check_with_error_with_message(
-            self, mock_get, mock_post
+            self, mock_get, mock_post, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response_not_ok_with_msg
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_memory_check(namespace="tenant1")
@@ -8888,14 +8907,16 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_memory_check_with_error_without_message(
-            self, mock_get, mock_post
+            self, mock_get, mock_post, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_get.return_value = mock_checks_copy[0:3]
         mock_post.side_effect = mock_post_response_not_ok_without_msg
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_memory_check(namespace="tenant1")
@@ -8920,13 +8941,15 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_memory_check_if_exists_and_same(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_get.return_value = mock_checks
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
             self.sensu.add_memory_check(namespace="tenant1")
@@ -8935,11 +8958,12 @@ class SensuUsageChecksTests(unittest.TestCase):
         self.assertFalse(mock_put.called)
         self.assertEqual(log.output, DUMMY_LOG)
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_add_memory_check_if_exists_and_different(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[4] = {
@@ -8953,7 +8977,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -8981,6 +9005,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertLogs(LOGNAME) as log:
             self.sensu.add_memory_check(namespace="tenant1")
         mock_get.assert_called_once_with(namespace="tenant1")
@@ -9000,11 +9025,12 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_update_memory_check_error_with_message(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[4] = {
@@ -9018,7 +9044,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -9046,6 +9072,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_with_msg
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_memory_check(namespace="tenant1")
@@ -9072,11 +9099,12 @@ class SensuUsageChecksTests(unittest.TestCase):
             ]
         )
 
+    @patch("argo_scg.sensu.Sensu.get_agents")
     @patch("argo_scg.sensu.requests.put")
     @patch("argo_scg.sensu.requests.post")
     @patch("argo_scg.sensu.Sensu._get_checks")
     def test_update_memory_check_error_without_message(
-            self, mock_get, mock_post, mock_put
+            self, mock_get, mock_post, mock_put, mock_agents
     ):
         mock_checks_copy = mock_checks.copy()
         mock_checks_copy[4] = {
@@ -9090,7 +9118,7 @@ class SensuUsageChecksTests(unittest.TestCase):
                 "check-memory-usage"
             ],
             "subscriptions": [
-                "tenant1"
+                "entity:sensu-agent1"
             ],
             "proxy_entity_name": "",
             "check_hooks": None,
@@ -9118,6 +9146,7 @@ class SensuUsageChecksTests(unittest.TestCase):
         }
         mock_get.return_value = mock_checks_copy
         mock_put.side_effect = mock_post_response_not_ok_without_msg
+        mock_agents.return_value = [mock_entities[3]]
         with self.assertRaises(SensuException) as context:
             with self.assertLogs(LOGNAME) as log:
                 self.sensu.add_memory_check(namespace="tenant1")
@@ -9160,7 +9189,7 @@ class MetricOutputTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "tenant"
+                    "entity:sensu-agent1"
                 ],
                 "proxy_entity_name": "eu.eosc.portal.services.url__hostname."
                                      "example.eu_site-name",
@@ -9229,7 +9258,7 @@ class MetricOutputTests(unittest.TestCase):
                     "processes": None
                 },
                 "subscriptions": [
-                    "tenant"
+                    "entity:sensu-agent1"
                 ],
                 "last_seen": 0,
                 "deregister": False,
@@ -9742,7 +9771,7 @@ class SensuCheckCallTests(unittest.TestCase):
                            "{{ .labels.ssl }} "
                            "-p {{ .labels.port }} ",
                 "subscriptions": [
-                    "default"
+                    "entity:sensu-agent1"
                 ],
                 "handlers": [],
                 "proxy_requests": {
@@ -9784,7 +9813,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "default"
+                    "entity:sensu-agent1"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -9829,7 +9858,7 @@ class SensuCheckCallTests(unittest.TestCase):
                 "publish": True,
                 "runtime_assets": None,
                 "subscriptions": [
-                    "default"
+                    "entity:sensu-agent1"
                 ],
                 "proxy_entity_name": "",
                 "check_hooks": None,
@@ -10135,11 +10164,11 @@ class SensuCheckCallTests(unittest.TestCase):
         return_checks.return_value = self.checks
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.http.connect"),
-            ["default"]
+            ["entity:sensu-agent1"]
         )
         self.assertEqual(
             self.sensu.get_check_subscriptions(check="generic.tcp.connect"), [
-                "default"
+                "entity:sensu-agent1"
             ]
         )
 
