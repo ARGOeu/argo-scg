@@ -1416,11 +1416,13 @@ class ConfigurationMerger:
             self,
             checks,
             entities,
+            internal_services,
             metricoverrides4agents=None,
             attributeoverrides4agents=None
     ):
         self.checks = checks
         self.entities = entities
+        self.internal_services = internal_services
         self.metric_overrides = metricoverrides4agents
         self.attribute_overrides = attributeoverrides4agents
         self.logger = logging.getLogger("argo-scg.generator")
@@ -1615,3 +1617,11 @@ class ConfigurationMerger:
         return sorted(
             [t.lower() for t in self.checks.keys()] + [DEFAULT_SUBSCRIPTION]
         )
+
+    def merge_internal_services(self):
+        internals = list()
+        for tenant, services_str in self.internal_services.items():
+            services = [item.strip() for item in services_str.split(",")]
+            internals.extend(services)
+
+        return ",".join(sorted(list(set(internals))))

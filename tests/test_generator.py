@@ -14664,6 +14664,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             }
         )
         checks = merger.merge_checks()
@@ -14832,6 +14836,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             }
         )
         entities = merger.merge_entities()
@@ -14960,6 +14968,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                     }
                 ],
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             }
         )
         entities = merger.merge_entities()
@@ -15025,6 +15037,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             metricoverrides4agents={
                 "TENANT1": self.metric_overrides1,
                 "TENANT2": self.metric_overrides2
@@ -15042,6 +15058,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             },
             metricoverrides4agents={
                 "TENANT1": [{
@@ -15087,6 +15107,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             metricoverrides4agents={
                 "TENANT1": [{
                     "metric": "argo.poem-tools.check",
@@ -15127,6 +15151,10 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
             },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            },
             attributeoverrides4agents={
                 "TENANT1": self.attribute_overrides1,
                 "TENANT2": self.attribute_overrides2
@@ -15161,6 +15189,10 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             },
             attributeoverrides4agents={
                 "TENANT1": [{
@@ -15206,8 +15238,30 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
             }
         )
         self.assertEqual(
             merger.get_subscriptions(), ["internals", "tenant1", "tenant2"]
         )
+
+    def test_merge_internal_services(self):
+        merger = ConfigurationMerger(
+            checks={
+                "TENANT1": self.checks1,
+                "TENANT2": self.checks2
+            },
+            entities={
+                "TENANT1": self.entities1,
+                "TENANT2": self.entities2
+            },
+            internal_services={
+                "TENANT1": "service1,service2,service3",
+                "TENANT2": "service2,service3,service4"
+            }
+        )
+        internals = merger.merge_internal_services()
+        self.assertEqual(internals, "service1,service2,service3,service4")
