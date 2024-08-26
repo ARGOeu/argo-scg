@@ -223,27 +223,6 @@ class Config(_Config):
 
         return queue
 
-    def get_subscriptions(self):
-        subscriptions = dict()
-        for tenant in self.tenants:
-            try:
-                value = self.conf.get(tenant, "subscription")
-
-                if value not in [
-                    "entity", "hostname", "hostname_with_id", "servicetype"
-                ]:
-                    raise ConfigException(
-                        f"Unacceptable value '{value}' for option: "
-                        f"'subscription' in section: '{tenant}'"
-                    )
-
-            except configparser.NoOptionError:
-                value = "hostname"
-
-            subscriptions.update({tenant: value})
-
-        return subscriptions
-
     def get_agents_configurations(self):
         configurations = dict()
 
