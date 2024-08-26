@@ -59,7 +59,7 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 class ConfigurationGenerator:
     def __init__(
             self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant,
+            attributes, secrets_file, default_ports, tenant, default_agent,
             skipped_metrics=None
     ):
         self.logger = logging.getLogger("argo-scg.generator")
@@ -88,7 +88,7 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.subscriptions = [self.tenant.lower()]
+        self.subscriptions = [f"entity:{default_agent}"]
 
         metrics_list = list()
         internal_metrics = list()

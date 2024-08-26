@@ -4250,7 +4250,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4268,7 +4269,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4304,7 +4305,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4349,7 +4350,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -4362,7 +4364,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4412,7 +4414,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="default"
+            tenant="default",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4430,7 +4433,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "default"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 300,
@@ -4459,7 +4462,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "default"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 300,
@@ -4497,7 +4500,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4515,7 +4519,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4551,7 +4555,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4596,7 +4600,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4614,7 +4619,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem -p 2119",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4656,7 +4661,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4692,7 +4697,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
                                "-H {{ .labels.hostname }} -t 60 -p 2811",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4729,7 +4734,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "CertLifetime-probe -t 60 "
                                "-f /etc/sensu/certs/hostcert.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -4767,7 +4772,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes_with_robot,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4785,7 +4791,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key -p 2119",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4827,7 +4833,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4864,7 +4870,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "CertLifetime-probe -t 60 "
                                "-f /etc/nagios/certs/hostcert.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -4902,7 +4908,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4922,7 +4929,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.generic_http_connect_path | "
                                "default \" \" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4967,7 +4974,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4984,7 +4992,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.webdav_url }} "
                                "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5023,7 +5031,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.endpoint_url }} "
                                "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5061,7 +5069,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--url {{ .labels.info_url }} "
                                "--token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5106,7 +5114,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5122,7 +5131,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-w 20:1 -b {{ .labels.bdii_dn }} "
                                "-p 2170",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5161,7 +5170,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.org_nagios_glue2_check_f }} "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5206,7 +5215,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5223,7 +5233,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 "
                                "--endpoint-name {{ .labels.endpoint_name }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5268,7 +5278,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5292,7 +5303,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5339,7 +5350,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5384,7 +5395,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5399,7 +5411,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
                                "{{ .labels.u__rm_path | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5439,7 +5451,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 "
                                "{{ .labels.r__rm_path | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5488,7 +5500,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5503,7 +5516,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5541,7 +5554,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--access-token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5582,7 +5595,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5620,7 +5633,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"443\" }} "
                                "-H {{ .labels.os_keystone_host }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5665,7 +5678,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5683,7 +5697,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--key /etc/sensu/certs/hostkey.pem "
                                "--site {{ .labels.site }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5728,7 +5742,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5748,7 +5763,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5805,7 +5820,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5824,7 +5840,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5869,7 +5885,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5894,7 +5911,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5939,7 +5956,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5956,7 +5974,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-n {{ .labels.info_hostdn }} "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6001,7 +6019,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6020,7 +6039,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6065,7 +6084,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6082,7 +6102,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "checkhealth -H {{ .labels.hostname }} -v -i "
                                "-u $AGORA_USERNAME -p $AGORA_PASSWORD",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6127,7 +6147,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6146,7 +6167,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token $ARGO_API_TOKEN",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6191,7 +6212,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6205,7 +6227,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6245,7 +6267,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --user-proxy "
                                "/etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -6310,7 +6332,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6329,7 +6352,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
                                "| default \"OK\" }} --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6366,7 +6389,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.generic_ssh_test_port | "
                                "default \" \" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6404,7 +6427,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p {{ .labels.generic_tcp_connect_p | "
                                "default \"443\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6472,7 +6495,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6492,7 +6516,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6529,7 +6553,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_handle_resolution.pl -t 10 "
                                "--prefix {{ .labels.b2handle_prefix }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6566,7 +6590,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6637,7 +6661,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6657,7 +6682,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6695,7 +6720,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6732,7 +6757,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6795,7 +6820,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6814,7 +6840,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token {{ .labels.argo_api_token }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6859,7 +6885,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6877,7 +6904,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 10800,
@@ -6906,7 +6933,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6975,7 +7002,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6994,7 +7022,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-u $EDUGAIN_USER -a $EDUGAIN_PASSWORD -s "
                     "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/auth.php",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 900,
@@ -7069,7 +7097,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7084,7 +7113,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-u {{ .labels.webdav_url }} "
                     "-E /etc/sensu/certs/userproxy.pem",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 3600,
@@ -7127,7 +7156,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7143,7 +7173,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.generic_http_connect_port | default \" \" }} "
                     "{{ .labels.generic_http_connect_path | default \" \" }}",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 300,
@@ -7187,7 +7217,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -7200,7 +7231,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7269,7 +7300,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7285,7 +7317,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.eosc_test_api_l }} "
                                "-u {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7329,7 +7361,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7345,7 +7378,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7405,7 +7438,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7421,7 +7455,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7480,7 +7514,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7497,7 +7532,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                " --prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7542,7 +7577,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7557,7 +7593,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7593,7 +7629,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7659,7 +7695,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7674,7 +7711,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7710,7 +7747,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7770,7 +7807,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7785,7 +7823,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7821,7 +7859,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7883,7 +7921,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7898,7 +7937,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7934,7 +7973,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7992,7 +8031,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8007,7 +8047,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8043,7 +8083,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8090,7 +8130,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8104,7 +8145,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8151,7 +8192,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8164,7 +8206,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 22",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8221,7 +8263,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8234,7 +8277,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 1022",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8292,7 +8335,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8306,7 +8350,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8385,7 +8429,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8401,7 +8446,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--robot-key /etc/nagios/robot/robot.key "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8431,7 +8476,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "GridProxy-probe -t 30 --vo test "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8469,7 +8514,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8486,7 +8532,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8525,7 +8571,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8585,7 +8631,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8602,7 +8649,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8641,7 +8688,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8685,7 +8732,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8704,7 +8752,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8747,7 +8795,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.generic_http_connect_path | "
                         "default \" \" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8792,7 +8840,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8811,7 +8860,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.cvmfs_stratum_1_port | "
                                "default \"8000\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8856,7 +8905,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8875,7 +8925,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8910,7 +8960,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8938,7 +8988,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8976,7 +9026,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -8992,7 +9043,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9031,7 +9082,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9078,7 +9129,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9097,7 +9149,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "-K /etc/sensu/certs/hostkey.pem "
                         "-p {{ .labels.srm2_port | default \"8443\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9144,7 +9196,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9163,7 +9216,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "-K /etc/sensu/certs/hostkey.pem "
                         "-p {{ .labels.srm2_port | default \"8443\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9208,7 +9261,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9227,7 +9281,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9272,7 +9326,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9290,7 +9345,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9332,7 +9387,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9393,7 +9448,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9411,7 +9467,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9453,7 +9509,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9498,7 +9554,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9516,7 +9573,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9561,7 +9618,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9579,7 +9637,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                     "default \"\" }}",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 3600,
@@ -9647,7 +9705,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9660,7 +9719,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_tcp "
                     "-H {{ .labels.hostname }} -t 120 -p 443",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 300,
@@ -9704,7 +9763,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.memory_limit__arc_ce_memory_limit "
                     "| default \"\" }}",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 3600,
@@ -9760,7 +9819,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -9772,7 +9832,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "/usr/lib64/nagios/plugins/check_tcp "
                     "-H {{ .labels.hostname }} -t 120 -p 443",
                 "subscriptions": [
-                    "mock_tenant"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 300,
@@ -9822,7 +9882,8 @@ class CheckConfigurationTests(unittest.TestCase):
             skipped_metrics=[
                 "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
             ],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9837,7 +9898,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9878,7 +9939,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9924,7 +9985,8 @@ class CheckConfigurationTests(unittest.TestCase):
             secrets_file="",
             default_ports=mock_default_ports,
             skipped_metrics=["org.nagios.Keystone-TCP", "argo.mock.metric"],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9939,7 +10001,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9977,7 +10039,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--access-token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10018,7 +10080,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10063,7 +10125,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10081,7 +10144,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 10800,
@@ -10113,7 +10176,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --voms test "
                                "--user-proxy /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 1200,
@@ -10140,7 +10203,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --voms test "
                                "--user-proxy /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "mock_tenant"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 1200,
@@ -10174,7 +10237,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10233,7 +10297,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10340,7 +10405,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10392,7 +10458,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10486,7 +10553,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10527,7 +10595,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10658,7 +10727,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10726,7 +10796,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10796,7 +10867,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10859,7 +10931,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10950,7 +11023,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11007,7 +11081,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11082,7 +11157,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11135,7 +11211,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11186,7 +11263,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertRaises(GeneratorException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -11230,7 +11308,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11320,7 +11399,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11413,7 +11493,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11529,7 +11610,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11633,7 +11715,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11686,7 +11769,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11746,7 +11830,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11812,7 +11897,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11868,7 +11954,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11942,7 +12029,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11997,7 +12085,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12095,7 +12184,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12173,7 +12263,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12228,7 +12319,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12268,7 +12360,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12319,7 +12412,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12397,7 +12491,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12469,7 +12564,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12527,7 +12623,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -12600,7 +12697,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12668,7 +12766,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -12738,7 +12837,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12802,7 +12902,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -12855,7 +12956,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12906,7 +13008,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12966,7 +13069,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13027,7 +13131,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13078,7 +13183,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13147,7 +13253,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13202,7 +13309,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13301,7 +13409,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13355,7 +13464,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13425,7 +13535,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13469,7 +13580,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13543,7 +13655,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13671,7 +13784,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13784,7 +13898,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13863,7 +13978,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13910,7 +14026,8 @@ class EntityConfigurationTests(unittest.TestCase):
             skipped_metrics=[
                 "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
             ],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13997,7 +14114,8 @@ class OverridesTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14045,7 +14163,8 @@ class OverridesTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent="sensu-agent-mock_tenant.example.com"
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
