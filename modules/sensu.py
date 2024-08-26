@@ -685,7 +685,6 @@ class Sensu:
 
     def handle_agents(
             self,
-            subscriptions,
             metric_parameters_overrides=None,
             host_attributes_overrides=None,
             services="internals",
@@ -724,21 +723,10 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                if agent["metadata"]["name"] in subscriptions.keys():
-                    subs = subscriptions[agent["metadata"]["name"]]
+                subs = [f"entity:{agent['metadata']['name']}"]
 
-                else:
-                    subs = subscriptions["default"]
-
-                new_subscriptions = subs + [
-                    item for item in agent["subscriptions"] if
-                    agent["metadata"]["name"] in item
-                ]
-
-                if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({
-                        "subscriptions": sorted(new_subscriptions)
-                    })
+                if not set(subs) == set(agent["subscriptions"]):
+                    send_data.update({"subscriptions": subs})
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
