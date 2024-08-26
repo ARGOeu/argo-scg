@@ -88,7 +88,15 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.subscriptions = [f"entity:{default_agent}"]
+        sorted_agents = sorted(default_agent)
+
+        if len(default_agent) > 1:
+            self.logger.warning(
+                f"{tenant}: Multiple agents defined for tenant - using "
+                f"{sorted_agents[0]} for checks' configuration"
+            )
+
+        self.subscriptions = [f"entity:{default_agent[0]}"]
 
         metrics_list = list()
         internal_metrics = list()
