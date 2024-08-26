@@ -4341,7 +4341,9 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_checks_configuration_if_multiple_agents(self):
+    def test_generate_checks_configuration_if_multiple_agents_with_warning(
+            self
+    ):
         with self.assertLogs(LOGNAME) as log:
             generator = ConfigurationGenerator(
                 metrics=mock_metrics,
@@ -4448,6 +4450,112 @@ class CheckConfigurationTests(unittest.TestCase):
                 f"checks' configuration"
             ]
         )
+
+    def test_generate_checks_configuration_if_agents_configuration(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=[
+                "sensu-agent-mock_tenant.example.com",
+                "sensu-agent-mock_tenant2.example.com"
+            ],
+            agents_config={
+                "sensu-agent-mock_tenant2.example.com": ["argo.test"]
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 30 "
+                               "-r argo.eu "
+                               "-u /ni4os/report-ar/Critical/"
+                               "NGI?accept=csv "
+                               "--ssl --onredirect follow",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_ar_argoui_ni4os == "
+                            "'generic.http.ar-argoui-ni4os'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.ar-argoui-ni4os",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
 
     def test_generate_checks_configuration_with_faulty_metrics(self):
         generator = ConfigurationGenerator(

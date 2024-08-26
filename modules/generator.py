@@ -58,9 +58,9 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 
 class ConfigurationGenerator:
     def __init__(
-            self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant, default_agent,
-            skipped_metrics=None
+            self, metrics, metric_profiles, topology, profiles, attributes,
+            secrets_file, default_ports, tenant, default_agent,
+            skipped_metrics=None, agents_config=None
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
@@ -88,15 +88,17 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
+
+        self.agents_config = agents_config
         sorted_agents = sorted(default_agent)
 
-        if len(default_agent) > 1:
+        if len(default_agent) > 1 and not agents_config:
             self.logger.warning(
                 f"{tenant}: Multiple agents defined for tenant - using "
                 f"{sorted_agents[0]} for checks' configuration"
             )
 
-        self.subscriptions = [f"entity:{default_agent[0]}"]
+        self.subscriptions = [f"entity:{sorted_agents[0]}"]
 
         metrics_list = list()
         internal_metrics = list()
@@ -788,7 +790,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self.subscriptions,
+                "subscriptions": self._get_subscription(name),
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -856,6 +858,18 @@ class ConfigurationGenerator:
 
             return None
 
+    def _get_subscription(self, metric):
+        subscription = self.subscriptions
+        if self.agents_config:
+            for agent, servicetypes in self.agents_config.items():
+                if set(self.servicetypes4metrics[metric]).intersection(
+                        set(servicetypes)
+                ):
+                    subscription = [f"entity:{agent}"]
+                    break
+
+        return subscription
+
     def generate_checks(self, publish, namespace="default"):
         checks = list()
 
@@ -872,7 +886,7 @@ class ConfigurationGenerator:
                             ]
                             check = {
                                 "command": "PASSIVE",
-                                "subscriptions": self.subscriptions,
+                                "subscriptions": self._get_subscription(metric),
                                 "handlers": [],
                                 "pipelines": [HARD_STATE_PIPELINE],
                                 "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",

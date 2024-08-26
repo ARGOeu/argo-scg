@@ -117,10 +117,10 @@ def main():
                         agent_config = AgentConfig(
                             file=agents_configurations[tenant]
                         )
-                        custom_subs = agent_config.get_custom_subs()
+                        custom_agent_config = agent_config.get_custom_subs()
 
                     else:
-                        custom_subs = None
+                        custom_agent_config = None
 
                     generator = ConfigurationGenerator(
                         metrics=poem.get_metrics_configurations(),
@@ -135,7 +135,8 @@ def main():
                             item["metadata"]["name"] for item in
                             sensu.get_agents(namespace=namespace)
                         ],
-                        skipped_metrics=skipped_metrics[tenant]
+                        skipped_metrics=skipped_metrics[tenant],
+                        agents_config=custom_agent_config
                     )
 
                     tenants_checks.update({
