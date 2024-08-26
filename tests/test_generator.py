@@ -14194,6 +14194,24 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_internal_services(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1", "ARGO_TEST2", "ARGO_TEST27"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            services = generator.generate_internal_services()
+        self.assertEqual(services, "argo.test,argo.webui")
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class OverridesTests(unittest.TestCase):
     def test_get_metric_parameter_overrides(self):

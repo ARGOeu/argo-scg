@@ -1403,6 +1403,13 @@ class ConfigurationGenerator:
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
 
+    def generate_internal_services(self):
+        services = list()
+        for metric in self.internal_metrics:
+            services.extend(self.servicetypes4metrics[metric])
+
+        return ",".join(sorted(list(set(services))))
+
 
 class ConfigurationMerger:
     def __init__(
