@@ -44,7 +44,6 @@ topology_groups_filter = type=NGI&tags=certification:Certified
 topology_endpoints_filter = tags=monitored:1
 attributes = /etc/argo-scg/attributes/attributes-tenant2.conf
 secrets = /path/to/secrets
-subscription = servicetype
 agents_configuration = /path/to/config-file
 skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
 namespace = tenant2_namespace
@@ -61,18 +60,13 @@ namespace = tenant2_namespace
 * `topology_endpoints_filter ` - query parameter(s) used when fetching topology endpoints from Web-API (optional);
 * `attributes` - path to the file containing the attributes for the given tenant (optional);
 * `secrets` - path to file containing sensitive attributes (e.g. passwords, tokens) (optional);
-* `subscription` - type of subscription to use (optional; if not set, it uses the default value). There are three possible values:
-  * `entity` - entity name is used as subscription,
-  * `hostname` - hostname is used as a subscription (this is a default value),
-  * `hostname_with_id` - hostname with id is used as subscription,
-  * `servicetype` - service types are used as subscription,
 * `agents_configuration` - path to configuration file for custom agents' subscriptions (optional);
 * `skipped_metrics` - list of metrics that should not be run on Sensu agent (optional). These metrics would then be skipped when doing the configuration for the Sensu agent, even if they do exist in the metric profile;
 * `namespace` - Sensu namespace to which the tenant is going to be associated (optional). If not set, tenant is associated to the namespace with the same name as tenant.
 
 #### Agents configuration
 
-If `agents_configuration` setting exists, `scg-reload.py` tool will use only subscription set in the configuration file for the agents listed in the file. The configuration file must have the following form:
+If `agents_configuration` setting exists, `scg-reload.py` tool will configure checks with given service types to be run on the agents listed in the file. The configuration file must have the following form:
 
 ```
 [AGENTS]
@@ -247,7 +241,7 @@ All the arguments used for filtering can also be combined.
 
 ### Namespaces
 
-Multi-tenancy in Sensu is achieved by using namespaces - each tenant has its own namespace with isolated definitions of checks (metrics), entities (endpoints), events, handlers, filters, and pipelines. For each tenant defined in the configuration file, the `scg-reload.py` tool creates a namespace (with the same name as tenant) if it does not exist. Also, if a namespace exists for which there is no tenant definition in the configuration file, that namespace is deleted.
+Multi-tenancy in Sensu is achieved by using namespaces - each tenant has its own namespace with isolated definitions of checks (metrics), entities (endpoints), events, handlers, filters, and pipelines. For each tenant defined in the configuration file, the `scg-reload.py` tool creates a namespace (with the same name as tenant, unless specified explicitly in the configuration file) if it does not exist. Also, if a namespace exists for which there is no tenant definition in the configuration file, that namespace is deleted.
 
 ### Entities
 
@@ -257,7 +251,7 @@ Proxy entities, on the other hand, allow Sensu to monitor external resources on 
 
 #### Agent entity
 
-For each tenant, we create a single agent entity which runs the checks for the given tenant. Sensu is scheduling checks based on subscriptions: the subscriptions specified in the Sensu agent definition control which checks the agent will execute. In our system, such subscriptions are actually hostnames of proxy entities configured (and one additional, `internal`, for the internal checks which are executed directly on the agent). The list of subscriptions for agent are handled by `scg-reload.py` tool.
+For each tenant, we create a single agent entity which runs the checks for the given tenant. Sensu is scheduling checks based on subscriptions: the subscriptions specified in the Sensu agent definition control which checks the agent will execute. The list of subscriptions for agent are handled by `scg-reload.py` tool.
 
 #### Proxy entity
 
@@ -306,7 +300,7 @@ If we take [generic.tcp.connect](https://poem.argo.grnet.gr/ui/public_metrictemp
 
 Checks can fetch information from entities' labels buckets, and they are generated accordingly (case of attributes, special values from topology and/or overrides). The parameters are simply mapped to command if there are no overrides. 
 
-Tool also creates a list of hostnames which are going to run the check, and adds them to subscriptions list. It calculates the check interval (in POEM it is defined in minutes, in check definition it needs to be defined in seconds). A fixed timeout of 900 s (15 min) is created for each check - this is in case the probe is left hanging, so that it does not clutter the system. 
+Tool calculates the check interval (in POEM it is defined in minutes, in check definition it needs to be defined in seconds). A fixed timeout of 900 s (15 min) is created for each check - this is in case the probe is left hanging, so that it does not clutter the system. 
 
 In metadata bucket the tool stores the metric name, namespace in which it is defined, and in annotations we define attempts, which is the number defined as `maxCheckAttempts` in POEM. This number is used by `hard-state` filter.
 
@@ -326,6 +320,7 @@ This metrics are considered internal, so the alerts are only raised to ARGO Slac
 * `NOHOSTNAME` - `{{ .labels.hostname }}` is left out from the check command.
 * `NOTIMEOUT` - `-t <TIMEOUT>` parameter is left out from the check command.
 * `NOPUBLISH` - pipeline defined for this check is `reduce_alerts`. Its results are sent to Slack channel instead of AMS Publisher.
+* `SILENCED` - metrics with this flag are configured not to raise alerts. Used only with specific internal metrics, which are in turn handled differently.
 * `PASSIVE` - marks passive metric. These are handled slightly differently. They are not actively running, but generated by results written to fifo file by their active parents. When a metric has this flag, the generated check looks as follows:
 
 ```json
