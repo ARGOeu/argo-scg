@@ -30,67 +30,7 @@ webapi_token = w3b4p1t0k3n2
 attributes = /path/to/attributes2
 metricprofiles = PROFILE4
 publish = false
-subscription = hostname_with_id
 skipped_metrics = eudat.b2safe.irods-crud, argo.connectors.check
-"""
-
-config_file_ok_hostname_service_sub = """[GENERAL]
-sensu_url = http://sensu.mock.url/
-sensu_token = s3ns8t0k3n
-webapi_url = https://web-api.mock.url/
-
-[TENANT1]
-poem_url = https://tenant1.poem.mock.url/
-poem_token = p03mtok3n
-webapi_token = w3b4p1t0k3n
-topology_groups_filter = type=NGI&tags=certification:Certified
-topology_endpoints_filter = tags=monitored:1
-attributes = /path/to/attributes1
-metricprofiles = PROFILE1, PROFILE2,PROFILE3
-topology = /path/to/topology1
-secrets = /path/to/secrets
-publish = true
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
-agents_configuration = /path/to/config-file
-subscription = servicetype
-
-[TENANT2]
-poem_url = https://tenant2.poem.mock.url/
-poem_token = p03mtok3n22
-webapi_token = w3b4p1t0k3n2
-attributes = /path/to/attributes2
-metricprofiles = PROFILE4
-publish = false
-subscription = hostname
-"""
-
-config_file_ok_entity_sub = """[GENERAL]
-sensu_url = http://sensu.mock.url/
-sensu_token = s3ns8t0k3n
-webapi_url = https://web-api.mock.url/
-
-[TENANT1]
-poem_url = https://tenant1.poem.mock.url/
-poem_token = p03mtok3n
-webapi_token = w3b4p1t0k3n
-topology_groups_filter = type=NGI&tags=certification:Certified
-topology_endpoints_filter = tags=monitored:1
-attributes = /path/to/attributes1
-metricprofiles = PROFILE1, PROFILE2,PROFILE3
-topology = /path/to/topology1
-secrets = /path/to/secrets
-publish = true
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
-agents_configuration = /path/to/config-file
-
-[TENANT2]
-poem_url = https://tenant2.poem.mock.url/
-poem_token = p03mtok3n22
-webapi_token = w3b4p1t0k3n2
-attributes = /path/to/attributes2
-metricprofiles = PROFILE4
-publish = false
-subscription = entity
 """
 
 config_file_ok_custom_namespace = """[GENERAL]
@@ -119,7 +59,6 @@ webapi_token = w3b4p1t0k3n2
 attributes = /path/to/attributes2
 metricprofiles = PROFILE4
 publish = false
-subscription = hostname_with_id
 """
 
 config_file_ok_custom_namespace_multiple_tenants = """[GENERAL]
@@ -148,7 +87,6 @@ webapi_token = w3b4p1t0k3n2
 attributes = /path/to/attributes2
 metricprofiles = PROFILE4
 publish = false
-subscription = hostname_with_id
 
 [TENANT3]
 poem_url = https://tenant3.poem.mock.url/
@@ -218,34 +156,6 @@ webapi_token = w3b4p1t0k3n2
 attributes = /path/to/attributes2
 metricprofiles = PROFILE4
 publish = false
-"""
-
-config_file_wrong_subscription_entry = """[GENERAL]
-sensu_url = http://sensu.mock.url/
-sensu_token = s3ns8t0k3n
-webapi_url = https://web-api.mock.url/
-
-[TENANT1]
-poem_url = https://tenant1.poem.mock.url/
-poem_token = p03mtok3n
-webapi_token = w3b4p1t0k3n
-topology_groups_filter = type=NGI&tags=certification:Certified
-topology_endpoints_filter = tags=monitored:1
-attributes = /path/to/attributes1
-metricprofiles = PROFILE1, PROFILE2,PROFILE3
-topology = /path/to/topology1
-secrets = /path/to/secrets
-publish = true
-publisher_queue = /var/spool/argo-nagios-ams-publisher/tenant1_metrics
-
-[TENANT2]
-poem_url = https://tenant2.poem.mock.url/
-poem_token = p03mtok3n22
-webapi_token = w3b4p1t0k3n2
-attributes = /path/to/attributes2
-metricprofiles = PROFILE4
-publish = false
-subscription = nonexisting
 """
 
 agents_config_ok = """[AGENTS]
@@ -604,52 +514,6 @@ class ConfigTests(unittest.TestCase):
                 "TENANT1":
                     "/var/spool/argo-nagios-ams-publisher/tenant1_metrics"
             }
-        )
-
-    def test_get_subscriptions(self):
-        self.assertEqual(
-            self.config.get_subscriptions(), {
-                "TENANT1": "hostname", "TENANT2": "hostname_with_id"
-            }
-        )
-
-    def test_get_subscriptions_hostname_servicetype(self):
-        with open(config_file_name, "w") as f:
-            f.write(config_file_ok_hostname_service_sub)
-
-        config = Config(config_file=config_file_name)
-
-        self.assertEqual(
-            config.get_subscriptions(), {
-                "TENANT1": "servicetype", "TENANT2": "hostname"
-            }
-        )
-
-    def test_get_subscriptions_entity(self):
-        with open(config_file_name, "w") as f:
-            f.write(config_file_ok_entity_sub)
-
-        config = Config(config_file=config_file_name)
-
-        self.assertEqual(
-            config.get_subscriptions(), {
-                "TENANT1": "hostname", "TENANT2": "entity"
-            }
-        )
-
-    def test_get_subscriptions_with_wrong_entry(self):
-        with open(config_file_name, "w") as f:
-            f.write(config_file_wrong_subscription_entry)
-
-        config = Config(config_file=config_file_name)
-
-        with self.assertRaises(ConfigException) as context:
-            config.get_subscriptions()
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Configuration file error: Unacceptable value 'nonexisting' for "
-            "option: 'subscription' in section: 'TENANT2'"
         )
 
     def test_get_agents_configurations(self):

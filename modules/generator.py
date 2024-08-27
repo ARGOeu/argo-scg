@@ -11,8 +11,6 @@ hardcoded_attributes = {
     "TRUSTSTORE": "/etc/sensu/certs/truststore.ts"
 }
 
-INTERNAL_METRICS_SUBSCRIPTION = "internals"
-
 HARD_STATE_PIPELINE = {
     "name": "hard_state",
     "type": "Pipeline",
@@ -58,13 +56,12 @@ def generate_adhoc_check(command, subscriptions, namespace="default"):
 
 class ConfigurationGenerator:
     def __init__(
-            self, metrics, metric_profiles, topology, profiles,
-            attributes, secrets_file, default_ports, tenant,
-            skipped_metrics=None, subscription="hostname"
+            self, metrics, metric_profiles, topology, profiles, attributes,
+            secrets_file, default_ports, tenant, default_agent,
+            skipped_metrics=None, agents_config=None
     ):
         self.logger = logging.getLogger("argo-scg.generator")
         self.tenant = tenant
-        self.subscription = subscription
         self.metric_profiles = [
             p for p in metric_profiles if p["name"] in profiles
         ]
@@ -89,7 +86,17 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-        self.internal_metrics_subscription = INTERNAL_METRICS_SUBSCRIPTION
+
+        self.agents_config = agents_config
+        sorted_agents = sorted(default_agent)
+
+        if len(default_agent) > 1 and not agents_config:
+            self.logger.warning(
+                f"{tenant}: Multiple agents defined for tenant - using "
+                f"{sorted_agents[0]} for checks' configuration"
+            )
+
+        self.subscriptions = [f"entity:{sorted_agents[0]}"]
 
         metrics_list = list()
         internal_metrics = list()
@@ -394,10 +401,7 @@ class ConfigurationGenerator:
         return metrics
 
     def _get_hostname(self, item):
-        if self.subscription == "hostname_with_id":
-            return item["hostname"]
-
-        elif "hostname" in item["tags"]:
+        if "hostname" in item["tags"]:
             return item["tags"]["hostname"]
 
         else:
@@ -691,18 +695,6 @@ class ConfigurationGenerator:
     def _is_passive(configuration):
         return "PASSIVE" in configuration["flags"]
 
-    def _generate_metric_subscriptions(self, name):
-        if self.subscription == "servicetype":
-            subscriptions = self._get_servicetypes4metrics()[name]
-
-        elif self.subscription == "entity":
-            subscriptions = self._get_entities4metrics()[name]
-
-        else:
-            subscriptions = self._get_hostnames4metrics()[name]
-
-        return sorted(subscriptions)
-
     def _generate_active_check(
             self, name, configuration, publish, namespace="default"
     ):
@@ -796,7 +788,7 @@ class ConfigurationGenerator:
 
             check = {
                 "command": command.strip(),
-                "subscriptions": self._generate_metric_subscriptions(name),
+                "subscriptions": self._get_subscription(name),
                 "handlers": [],
                 "interval": int(configuration["config"]["interval"]) * 60,
                 "timeout": 900,
@@ -854,11 +846,6 @@ class ConfigurationGenerator:
                     }
                 })
 
-            if "NOPUBLISH" in configuration["flags"]:
-                subscriptions = check["subscriptions"]
-                subscriptions.append(self.internal_metrics_subscription)
-                check.update({"subscriptions": subscriptions})
-
             return check
 
         except KeyError as e:
@@ -868,6 +855,18 @@ class ConfigurationGenerator:
             )
 
             return None
+
+    def _get_subscription(self, metric):
+        subscription = self.subscriptions
+        if self.agents_config:
+            for agent, servicetypes in self.agents_config.items():
+                if set(self.servicetypes4metrics[metric]).intersection(
+                        set(servicetypes)
+                ):
+                    subscription = [f"entity:{agent}"]
+                    break
+
+        return subscription
 
     def generate_checks(self, publish, namespace="default"):
         checks = list()
@@ -885,8 +884,7 @@ class ConfigurationGenerator:
                             ]
                             check = {
                                 "command": "PASSIVE",
-                                "subscriptions":
-                                    self._generate_metric_subscriptions(name),
+                                "subscriptions": self._get_subscription(metric),
                                 "handlers": [],
                                 "pipelines": [HARD_STATE_PIPELINE],
                                 "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
@@ -1391,26 +1389,13 @@ class ConfigurationGenerator:
                     existing_entity["metadata"]["labels"] = new_labels
 
                 else:
-                    if self.subscription == "servicetype":
-                        subscriptions = types
-
-                    elif self.subscription == "hostname_with_id":
-                        subscriptions = [item["hostname"]]
-
-                    elif self.subscription == "entity":
-                        subscriptions = [entity_name]
-
-                    else:
-                        subscriptions = [hostname]
-
                     entities.append({
                         "entity_class": "proxy",
                         "metadata": {
                             "name": entity_name,
                             "namespace": namespace,
                             "labels": labels
-                        },
-                        "subscriptions": subscriptions
+                        }
                     })
 
             if len(skipped_entities) > 0:
@@ -1430,67 +1415,6 @@ class ConfigurationGenerator:
                 f"{self.tenant}: Error generating entities: faulty topology"
             )
 
-    def _generate_hostname_subscriptions(self, servicetypes):
-        subscriptions = list()
-
-        for servicetype in servicetypes:
-            if servicetype != self.internal_metrics_subscription:
-                try:
-                    if self.subscription == "entity":
-                        subscriptions.extend(
-                            self._get_entities4servicetypes()[servicetype]
-                        )
-
-                    else:
-                        subscriptions.extend(
-                            self._get_hostnames4servicetypes()[servicetype]
-                        )
-
-                except KeyError:
-                    continue
-
-        return sorted(list(set(subscriptions)))
-
-    def generate_subscriptions(self, custom_subs=None):
-        if custom_subs is None:
-            custom_subs = dict()
-
-        subscriptions = dict()
-        remaining_servicetypes = self.servicetypes
-        remaining_hostnames = set(
-            self._generate_hostname_subscriptions(list(remaining_servicetypes))
-        )
-
-        used_hostnames = set()
-        for key, values in custom_subs.items():
-            remaining_servicetypes = remaining_servicetypes.difference(
-                set(values)
-            )
-
-            if self.subscription == "servicetype":
-                subs_values = set(values)
-
-            else:
-                subs_values = self._generate_hostname_subscriptions(values)
-                subs_values = set(subs_values).difference(used_hostnames)
-                used_hostnames.update(subs_values)
-
-            subs_values.add(self.internal_metrics_subscription)
-            subscriptions.update({key: sorted(list(subs_values))})
-
-        if self.subscription == "servicetype":
-            remaining_servicetypes.add(self.internal_metrics_subscription)
-            subscriptions.update({
-                "default": sorted(list(remaining_servicetypes))
-            })
-
-        else:
-            subs = remaining_hostnames.difference(used_hostnames)
-            subs.add(self.internal_metrics_subscription)
-            subscriptions.update({"default": sorted(list(subs))})
-
-        return subscriptions
-
     def generate_internal_services(self):
         services = list()
         for metric in self.internal_metrics:
@@ -1505,14 +1429,12 @@ class ConfigurationMerger:
             checks,
             entities,
             internal_services,
-            subscriptions,
             metricoverrides4agents=None,
             attributeoverrides4agents=None
     ):
         self.checks = checks
         self.entities = entities
         self.internal_services = internal_services
-        self.subscriptions = subscriptions
         self.metric_overrides = metricoverrides4agents
         self.attribute_overrides = attributeoverrides4agents
         self.logger = logging.getLogger("argo-scg.generator")
@@ -1532,7 +1454,6 @@ class ConfigurationMerger:
                          d["metadata"]["name"] == check["metadata"]["name"]),
                         None
                     )
-                    subs = merged_checks[check_index]["subscriptions"]
 
                     tenants = [
                         item.strip() for item in merged_checks[check_index][
@@ -1541,12 +1462,6 @@ class ConfigurationMerger:
                     ]
 
                     tenants.append(check["metadata"]["labels"]["tenants"])
-
-                    subs.extend(check["subscriptions"])
-
-                    merged_checks[check_index]["subscriptions"] = sorted(
-                        list(set(subs))
-                    )
 
                     merged_checks[check_index]["metadata"]["labels"][
                         "tenants"
@@ -1701,20 +1616,6 @@ class ConfigurationMerger:
                         merged_attributes.append(override)
 
         return merged_attributes
-
-    def merge_subscriptions(self):
-        subs = dict()
-        for tenant, subs_dict in self.subscriptions.items():
-            for host, subscriptions in subs_dict.items():
-                if host not in subs:
-                    subs.update({host: subscriptions})
-
-                else:
-                    host_subs = subs[host]
-                    host_subs.extend(subscriptions)
-                    subs[host] = sorted(list(set(host_subs)))
-
-        return subs
 
     def merge_internal_services(self):
         internals = list()

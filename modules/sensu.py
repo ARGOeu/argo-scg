@@ -6,7 +6,7 @@ import subprocess
 import requests
 from argo_scg.exceptions import SensuException, SCGException, SCGWarnException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
+    is_attribute_secret
 
 
 class Sensu:
@@ -504,6 +504,12 @@ class Sensu:
         except KeyError:
             pass
 
+        if "subscriptions" not in entity1:
+            entity1.update({"subscriptions": None})
+
+        if "subscriptions" not in entity2:
+            entity2.update({"subscriptions": None})
+
         if entity1["metadata"]["name"] == entity2["metadata"]["name"] and \
                 entity1["metadata"]["namespace"] == \
                 entity2["metadata"]["namespace"] and \
@@ -679,7 +685,6 @@ class Sensu:
 
     def handle_agents(
             self,
-            subscriptions,
             metric_parameters_overrides=None,
             host_attributes_overrides=None,
             services="internals",
@@ -718,21 +723,10 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                if agent["metadata"]["name"] in subscriptions.keys():
-                    subs = subscriptions[agent["metadata"]["name"]]
+                subs = [f"entity:{agent['metadata']['name']}"]
 
-                else:
-                    subs = subscriptions["default"]
-
-                new_subscriptions = subs + [
-                    item for item in agent["subscriptions"] if
-                    agent["metadata"]["name"] in item
-                ]
-
-                if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({
-                        "subscriptions": sorted(new_subscriptions)
-                    })
+                if not set(subs) == set(agent["subscriptions"]):
+                    send_data.update({"subscriptions": subs})
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
@@ -1175,6 +1169,10 @@ class Sensu:
     def _add_asset_check(self, name, namespace):
         checks = self._get_checks(namespace=namespace)
         checks_names = [check["metadata"]["name"] for check in checks]
+        agents = [
+            f"entity:{item['metadata']['name']}" for item in
+            self.get_agents(namespace=namespace)
+        ]
 
         assets = {
             "sensu.cpu.usage": "check-cpu-usage",
@@ -1188,9 +1186,7 @@ class Sensu:
             "runtime_assets": [
                 assets[name]
             ],
-            "subscriptions": [
-                INTERNAL_METRICS_SUBSCRIPTION
-            ],
+            "subscriptions": agents,
             "timeout": 900,
             "round_robin": False,
             "metadata": {
