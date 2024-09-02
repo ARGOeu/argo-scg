@@ -4,9 +4,9 @@ import logging
 import subprocess
 
 import requests
-from argo_scg.exceptions import SensuException
+from argo_scg.exceptions import SensuException, SCGException, SCGWarnException
 from argo_scg.generator import create_attribute_env, create_label, \
-    is_attribute_secret, INTERNAL_METRICS_SUBSCRIPTION
+    is_attribute_secret
 
 
 class Sensu:
@@ -203,10 +203,6 @@ class Sensu:
             f"{self.url}/api/core/v2/namespaces/{namespace}/checks/{check}",
             headers={"Authorization": f"Key {self.token}"}
         )
-        return response
-
-    def delete_check(self, check, namespace="default"):
-        response = self._delete_check(check=check, namespace=namespace)
 
         if not response.ok:
             msg = f"{namespace}: Check {check} not removed: " \
@@ -218,23 +214,32 @@ class Sensu:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            raise SCGException(msg)
+
+        else:
+            self._delete_silenced_entry(check=check, namespace=namespace)
+
+    def delete_check(self, check, namespace="default"):
+        try:
+            self._delete_check(check=check, namespace=namespace)
+
+        except SCGWarnException:
+            raise
+
+        except SCGException as e:
+            raise SensuException(str(e))
 
     def _delete_checks(self, checks, namespace):
         for check in checks:
-            response = self._delete_check(check=check, namespace=namespace)
+            try:
+                self._delete_check(check=check, namespace=namespace)
 
-            if not response.ok:
-                msg = f"{namespace}: Check {check} not removed: " \
-                      f"{response.status_code} {response.reason}"
+            except SCGWarnException as e:
+                self.logger.info(f"{namespace}: Check {check} removed")
+                self.logger.warning(f"{namespace}: {str(e)}")
 
-                try:
-                    msg = f"{msg}: {response.json()['message']}"
-
-                except (ValueError, TypeError, KeyError):
-                    pass
-
-                self.logger.warning(msg)
+            except SCGException as e:
+                self.logger.warning(str(e))
                 continue
 
             else:
@@ -248,12 +253,6 @@ class Sensu:
                 "Authorization": f"Key {self.token}"
             }
         )
-        return response
-
-    def delete_event(self, entity, check, namespace="default"):
-        response = self._delete_event(
-            entity=entity, check=check, namespace=namespace
-        )
 
         if not response.ok:
             msg = f"{namespace}: Event {entity}/{check} not removed: " \
@@ -265,27 +264,40 @@ class Sensu:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            raise SensuException(msg)
+            raise SCGException(msg)
+
+        else:
+            self._delete_silenced_entry(
+                entity=entity, check=check, namespace=namespace
+            )
+
+    def delete_event(self, entity, check, namespace="default"):
+        try:
+            self._delete_event(entity=entity, check=check, namespace=namespace)
+
+        except SCGWarnException:
+            raise
+
+        except SCGException as e:
+            raise SensuException(str(e))
 
     def _delete_events(self, events, namespace):
         for entity, checks in events.items():
             for check in checks:
-                response = self._delete_event(
-                    entity=entity, check=check, namespace=namespace
-                )
+                try:
+                    self._delete_event(
+                        entity=entity, check=check, namespace=namespace
+                    )
 
-                if not response.ok:
-                    msg = f"{namespace}: Event " \
-                          f"{entity}/{check} not removed: " \
-                          f"{response.status_code} {response.reason}"
+                except SCGWarnException as e:
+                    self.logger.info(
+                        f"{namespace}: Event {entity}/{check} removed"
+                    )
+                    self.logger.warning(f"{namespace}: {str(e)}")
 
-                    try:
-                        msg = f"{msg}: {response.json()['message']}"
 
-                    except (ValueError, TypeError, KeyError):
-                        pass
-
-                    self.logger.warning(msg)
+                except SCGException as e:
+                    self.logger.warning(str(e))
 
                 else:
                     self.logger.info(
@@ -472,6 +484,14 @@ class Sensu:
                 self.logger.warning(msg)
 
             else:
+                try:
+                    self._delete_silenced_entry(
+                        entity=entity, namespace=namespace
+                    )
+
+                except SCGWarnException as e:
+                    self.logger.warning(f"{namespace}: {str(e)}")
+
                 self.logger.info(f"{namespace}: Entity {entity} removed")
 
     @staticmethod
@@ -483,6 +503,12 @@ class Sensu:
 
         except KeyError:
             pass
+
+        if "subscriptions" not in entity1:
+            entity1.update({"subscriptions": None})
+
+        if "subscriptions" not in entity2:
+            entity2.update({"subscriptions": None})
 
         if entity1["metadata"]["name"] == entity2["metadata"]["name"] and \
                 entity1["metadata"]["namespace"] == \
@@ -659,7 +685,6 @@ class Sensu:
 
     def handle_agents(
             self,
-            subscriptions,
             metric_parameters_overrides=None,
             host_attributes_overrides=None,
             services="internals",
@@ -698,21 +723,10 @@ class Sensu:
 
             for agent in agents:
                 send_data = dict()
-                if agent["metadata"]["name"] in subscriptions.keys():
-                    subs = subscriptions[agent["metadata"]["name"]]
+                subs = [f"entity:{agent['metadata']['name']}"]
 
-                else:
-                    subs = subscriptions["default"]
-
-                new_subscriptions = subs + [
-                    item for item in agent["subscriptions"] if
-                    agent["metadata"]["name"] in item
-                ]
-
-                if not set(new_subscriptions) == set(agent["subscriptions"]):
-                    send_data.update({
-                        "subscriptions": sorted(new_subscriptions)
-                    })
+                if not set(subs) == set(agent["subscriptions"]):
+                    send_data.update({"subscriptions": subs})
 
                 labels = _get_labels(agent["metadata"]["name"])
                 if (
@@ -1155,6 +1169,10 @@ class Sensu:
     def _add_asset_check(self, name, namespace):
         checks = self._get_checks(namespace=namespace)
         checks_names = [check["metadata"]["name"] for check in checks]
+        agents = [
+            f"entity:{item['metadata']['name']}" for item in
+            self.get_agents(namespace=namespace)
+        ]
 
         assets = {
             "sensu.cpu.usage": "check-cpu-usage",
@@ -1168,9 +1186,7 @@ class Sensu:
             "runtime_assets": [
                 assets[name]
             ],
-            "subscriptions": [
-                INTERNAL_METRICS_SUBSCRIPTION
-            ],
+            "subscriptions": agents,
             "timeout": 900,
             "round_robin": False,
             "metadata": {
@@ -1379,6 +1395,79 @@ class Sensu:
                     pass
 
                 raise SensuException(msg)
+
+    def _get_silenced_entries(self, namespace="default"):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{namespace}/silenced",
+            headers={
+                "Authorization": f"Key {self.token}"
+            }
+        )
+
+        if not response.ok:
+            msg = f"{namespace}: Silenced entries fetch error: " \
+                  f"{response.status_code} {response.reason}"
+
+            try:
+                msg = f"{msg}: {response.json()['message']}"
+
+            except (ValueError, KeyError, TypeError):
+                pass
+
+            raise SensuException(msg)
+
+        else:
+            return response.json()
+
+    def _delete_silenced_entry(
+            self, entity=None, check=None, namespace="default"
+    ):
+        silenced_entries = self._get_silenced_entries(namespace=namespace)
+
+        if entity:
+            silenced_entries = [
+                item for item in silenced_entries if
+                item["metadata"]["name"].startswith(f"entity:{entity}:")
+            ]
+
+        if check:
+            silenced_entries = [
+                item for item in silenced_entries
+                if item["metadata"]["name"].endswith(f":{check}")
+            ]
+
+        failed_delete = list()
+        for entry in silenced_entries:
+            response = requests.delete(
+                f"{self.url}/api/core/v2/namespaces/{namespace}"
+                f"/silenced/{entry['metadata']['name']}",
+                headers={"Authorization": f"Key {self.token}"}
+            )
+
+            if not response.ok:
+                msg = f"{response.status_code} {response.reason}"
+
+                try:
+                    msg = f"{msg}: {response.json()['message']}"
+
+                except (ValueError, KeyError, TypeError):
+                    pass
+
+                failed_delete.append(f"{entry['metadata']['name']} ({msg})")
+
+        if len(failed_delete) > 0:
+            final_msg = "Silenced"
+            if len(failed_delete) == 1:
+                word = "entry"
+
+            else:
+                word = "entries"
+
+            final_msg = (
+                f"{final_msg} {word} {', '.join(failed_delete)} not removed"
+            )
+
+            raise SCGWarnException(final_msg)
 
 
 class MetricOutput:

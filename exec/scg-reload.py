@@ -47,7 +47,6 @@ def main():
         local_topology = config.get_topology()
         secrets = config.get_secrets()
         publish_bool = config.publish()
-        subscriptions = config.get_subscriptions()
         skipped_metrics = config.get_skipped_metrics()
         agents_configurations = config.get_agents_configurations()
 
@@ -75,7 +74,6 @@ def main():
                 tenants_checks = dict()
                 tenants_entities = dict()
                 tenants_internal_services = dict()
-                tenants_subscriptions = dict()
                 tenants_metric_overrides = dict()
                 tenants_attribute_overrides = dict()
                 for tenant in tenants:
@@ -119,22 +117,26 @@ def main():
                         agent_config = AgentConfig(
                             file=agents_configurations[tenant]
                         )
-                        custom_subs = agent_config.get_custom_subs()
+                        custom_agent_config = agent_config.get_custom_subs()
 
                     else:
-                        custom_subs = None
+                        custom_agent_config = None
 
                     generator = ConfigurationGenerator(
                         metrics=poem.get_metrics_configurations(),
-                        profiles=metricprofiles[tenant],
                         metric_profiles=webapi.get_metric_profiles(),
                         topology=topology,
+                        profiles=metricprofiles[tenant],
                         attributes=poem.get_metric_overrides(),
                         secrets_file=secrets[tenant],
                         default_ports=poem.get_default_ports(),
                         tenant=tenant,
+                        default_agent=[
+                            item["metadata"]["name"] for item in
+                            sensu.get_agents(namespace=namespace)
+                        ],
                         skipped_metrics=skipped_metrics[tenant],
-                        subscription=subscriptions[tenant]
+                        agents_config=custom_agent_config
                     )
 
                     tenants_checks.update({
@@ -152,12 +154,6 @@ def main():
                         tenant: generator.generate_internal_services()
                     })
 
-                    tenants_subscriptions.update({
-                        tenant: generator.generate_subscriptions(
-                            custom_subs=custom_subs
-                        )
-                    })
-
                     tenants_metric_overrides.update({
                         tenant: generator.get_metric_parameter_overrides()
                     })
@@ -171,7 +167,6 @@ def main():
                         checks=tenants_checks,
                         entities=tenants_entities,
                         internal_services=tenants_internal_services,
-                        subscriptions=tenants_subscriptions,
                         metricoverrides4agents=tenants_metric_overrides,
                         attributeoverrides4agents=tenants_attribute_overrides
                     )
@@ -183,7 +178,6 @@ def main():
                     host_attribute_overrides = \
                         merger.merge_attribute_overrides()
                     internal_services = merger.merge_internal_services()
-                    subs = merger.merge_subscriptions()
 
                 else:
                     checks = tenants_checks[tenants[0]]
@@ -195,7 +189,6 @@ def main():
                         tenants[0]
                     ]
                     internal_services = tenants_internal_services[tenants[0]]
-                    subs = tenants_subscriptions[tenants[0]]
 
                 sensu.add_daily_filter(namespace=namespace)
                 sensu.handle_slack_handler(
@@ -221,7 +214,6 @@ def main():
                     metric_parameters_overrides=metric_parameter_overrides,
                     host_attributes_overrides=host_attribute_overrides,
                     services=internal_services,
-                    subscriptions=subs,
                     namespace=namespace
                 )
 

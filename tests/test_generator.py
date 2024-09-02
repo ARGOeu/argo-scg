@@ -4250,7 +4250,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4268,8 +4269,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4305,8 +4305,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4342,23 +4341,27 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_checks_configuration_with_servicetype_subscriptions(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
+    def test_generate_checks_configuration_if_multiple_agents_with_warning(
+            self
+    ):
         with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            checks = generator.generate_checks(
-                publish=True, namespace="mockspace"
+            generator = ConfigurationGenerator(
+                metrics=mock_metrics,
+                profiles=["ARGO_TEST1"],
+                metric_profiles=mock_metric_profiles,
+                topology=mock_topology,
+                attributes=mock_attributes,
+                secrets_file="",
+                default_ports=mock_default_ports,
+                tenant="MOCK_TENANT",
+                default_agent=[
+                    "sensu-agent-mock_tenant.example.com",
+                    "sensu-agent-mock_tenant2.example.com"
+                ]
             )
+        checks = generator.generate_checks(
+            publish=True, namespace="mockspace"
+        )
         self.assertEqual(
             sorted(checks, key=lambda k: k["metadata"]["name"]),
             [
@@ -4370,8 +4373,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "argo.test",
-                        "argo.webui"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4407,7 +4409,119 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo.webui"
+                        "entity:sensu-agent-mock_tenant.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(
+            log.output, [
+                f"WARNING:{LOGNAME}:MOCK_TENANT: Multiple agents defined for "
+                f"tenant - using sensu-agent-mock_tenant.example.com for "
+                f"checks' configuration"
+            ]
+        )
+
+    def test_generate_checks_configuration_if_agents_configuration(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST1"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=[
+                "sensu-agent-mock_tenant.example.com",
+                "sensu-agent-mock_tenant2.example.com"
+            ],
+            agents_config={
+                "sensu-agent-mock_tenant2.example.com": ["argo.test"]
+            }
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 30 "
+                               "-r argo.eu "
+                               "-u /ni4os/report-ar/Critical/"
+                               "NGI?accept=csv "
+                               "--ssl --onredirect follow",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant2.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_ar_argoui_ni4os == "
+                            "'generic.http.ar-argoui-ni4os'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.ar-argoui-ni4os",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4452,7 +4566,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -4465,8 +4580,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -4516,7 +4630,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="default"
+            tenant="default",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4534,8 +4649,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 300,
@@ -4564,8 +4678,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 300,
@@ -4603,7 +4716,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4621,8 +4735,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "NGI?accept=csv "
                                "--ssl --onredirect follow",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4658,8 +4771,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4704,7 +4816,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4722,8 +4835,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem -p 2119",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4765,8 +4877,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4802,7 +4913,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ftp "
                                "-H {{ .labels.hostname }} -t 60 -p 2811",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4839,9 +4950,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "CertLifetime-probe -t 60 "
                                "-f /etc/sensu/certs/hostcert.pem",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -4879,7 +4988,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes_with_robot,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -4897,8 +5007,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key -p 2119",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4940,8 +5049,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/nagios/robot/robot.pem "
                                "-K /etc/nagios/robot/robot.key",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -4978,9 +5086,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "CertLifetime-probe -t 60 "
                                "-f /etc/nagios/certs/hostcert.pem",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 14400,
@@ -5018,7 +5124,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5038,8 +5145,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.generic_http_connect_path | "
                                "default \" \" }}",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -5084,7 +5190,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5101,8 +5208,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.webdav_url }} "
                                "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "eosatlas.cern.ch",
-                        "hostname.cern.ch"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5141,7 +5247,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-u {{ .labels.endpoint_url }} "
                                "-E /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "dynafed.hostname.ca"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5179,7 +5285,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--url {{ .labels.info_url }} "
                                "--token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "grycap.upv.es"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5224,7 +5330,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5240,11 +5347,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-w 20:1 -b {{ .labels.bdii_dn }} "
                                "-p 2170",
                     "subscriptions": [
-                        "bdii1.test.com",
-                        "grid-giis1.desy.de",
-                        "kser.arnes.si",
-                        "sbdii.test.com",
-                        "sitebdii.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5283,10 +5386,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.org_nagios_glue2_check_f }} "
                                "-b {{ .labels.glue2_bdii_dn }} -p 2170",
                     "subscriptions": [
-                        "grid-giis1.desy.de",
-                        "kser.arnes.si",
-                        "sbdii.test.com",
-                        "sitebdii.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5331,7 +5431,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5348,9 +5449,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 120 "
                                "--endpoint-name {{ .labels.endpoint_name }}",
                     "subscriptions": [
-                        "dns1.cloud.test.eu",
-                        "dns2.cloud.test.eu",
-                        "dns3.cloud.test.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5395,7 +5494,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5419,8 +5519,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "alien.spacescience.ro",
-                        "gridarcce01.mesocentre.uca.fr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5467,8 +5566,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "alien.spacescience.ro",
-                        "gridarcce01.mesocentre.uca.fr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5513,7 +5611,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5528,8 +5627,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 -f \"follow\" "
                                "{{ .labels.u__rm_path | default \"\" }}",
                     "subscriptions": [
-                        "185.229.108.85",
-                        "hnodc-dm.ath.hcmr.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5569,8 +5667,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 30 "
                                "{{ .labels.r__rm_path | default \"\" }}",
                     "subscriptions": [
-                        "185.229.108.85",
-                        "hnodc-dm.ath.hcmr.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5619,7 +5716,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5634,8 +5732,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5673,7 +5770,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--access-token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "identity.cloud.muni.cz"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5714,8 +5811,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5753,8 +5849,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"443\" }} "
                                "-H {{ .labels.os_keystone_host }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5799,7 +5894,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5817,8 +5913,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--key /etc/sensu/certs/hostkey.pem "
                                "--site {{ .labels.site }}",
                     "subscriptions": [
-                        "alien.spacescience.ro",
-                        "gridarcce01.mesocentre.uca.fr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5863,7 +5958,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5883,9 +5979,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -5942,7 +6036,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -5961,9 +6056,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6008,7 +6101,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6033,8 +6127,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.memory_limit__arc_ce_memory_limit "
                                "| default \"\" }}",
                     "subscriptions": [
-                        "alien.spacescience.ro",
-                        "gridarcce01.mesocentre.uca.fr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6079,7 +6172,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6096,7 +6190,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-n {{ .labels.info_hostdn }} "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "qcg-broker.man.poznan.pl"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6141,7 +6235,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6160,7 +6255,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "argo-mon2.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6205,7 +6300,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6222,7 +6318,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "checkhealth -H {{ .labels.hostname }} -v -i "
                                "-u $AGORA_USERNAME -p $AGORA_PASSWORD",
                     "subscriptions": [
-                        "eosc.agora.grnet.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6267,7 +6363,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6286,7 +6383,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token $ARGO_API_TOKEN",
                     "subscriptions": [
-                        "api.argo.grnet.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6331,7 +6428,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6345,7 +6443,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6385,8 +6483,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --user-proxy "
                                "/etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "argo.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "proxy_requests": {
@@ -6451,7 +6548,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6470,7 +6568,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--ok-search {{ .labels.argo_apel_pub_ok_search "
                                "| default \"OK\" }} --case-sensitive",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6507,7 +6605,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.generic_ssh_test_port | "
                                "default \" \" }}",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6545,8 +6643,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-p {{ .labels.generic_tcp_connect_p | "
                                "default \"443\" }}",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6614,7 +6711,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6634,8 +6732,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6672,7 +6769,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_handle_resolution.pl -t 10 "
                                "--prefix {{ .labels.b2handle_prefix }}",
                     "subscriptions": [
-                        "b2handle3.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6709,7 +6806,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6780,7 +6877,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6800,8 +6898,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--password "
                                "{{ .labels.nagios_freshness_password }}",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6839,7 +6936,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
                     "subscriptions": [
-                        "b2handle3.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6876,7 +6973,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -6939,7 +7036,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -6958,7 +7056,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "Cloud Critical-Fedcloud Fedcloud NGIHRTest "
                                "--day 1 --token {{ .labels.argo_api_token }}",
                     "subscriptions": [
-                        "api.argo.grnet.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7003,7 +7101,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7021,8 +7120,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
                     "subscriptions": [
-                        "argo.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 10800,
@@ -7051,7 +7149,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7120,7 +7218,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7139,7 +7238,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-u $EDUGAIN_USER -a $EDUGAIN_PASSWORD -s "
                     "https://snf-666522.vm.okeanos.grnet.gr/ni4os-rp/auth.php",
                 "subscriptions": [
-                    "aai.argo.eu"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 900,
@@ -7214,7 +7313,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7229,8 +7329,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-u {{ .labels.webdav_url }} "
                     "-E /etc/sensu/certs/userproxy.pem",
                 "subscriptions": [
-                    "hostname.cern.ch",
-                    "hostname2.cern.ch"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 3600,
@@ -7273,7 +7372,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7289,9 +7389,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.generic_http_connect_port | default \" \" }} "
                     "{{ .labels.generic_http_connect_path | default \" \" }}",
                 "subscriptions": [
-                    "hostname1.argo.com",
-                    "hostname2.argo.eu",
-                    "hostname3.argo.eu"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 300,
@@ -7335,7 +7433,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -7348,8 +7447,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "argo-devel.ni4os.eu",
-                        "argo.ni4os.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7418,7 +7516,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7434,9 +7533,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.eosc_test_api_l }} "
                                "-u {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "test.argo.grnet.gr",
-                        "test2.argo.grnet.gr",
-                        "test3.argo.grnet.gr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7480,7 +7577,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7496,7 +7594,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
                     "subscriptions": [
-                        "b2handle.test.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7556,7 +7654,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7572,7 +7671,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-f {{ .labels.eudat_b2handle_handle_api_crud_f "
                                "}} --prefix 234.234",
                     "subscriptions": [
-                        "b2handle.test.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7631,7 +7730,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7648,8 +7748,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                " --prefix {{ .labels.b2handle_prefix | "
                                "default \"234.234\" }}",
                     "subscriptions": [
-                        "b2handle.test.com",
-                        "b2handle3.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7694,7 +7793,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7709,8 +7809,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7746,8 +7845,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7813,7 +7911,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7828,8 +7927,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7865,8 +7963,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7926,7 +8023,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -7941,8 +8039,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "{{ .labels.eudat_gitlab_liveness_url }}",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -7978,8 +8075,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8041,7 +8137,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8056,8 +8153,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8093,8 +8189,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8152,7 +8247,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8167,8 +8263,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "check_gitlab_liveness.sh -t 10 "
                                "--url {{ .labels.endpoint_url }}",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8204,8 +8299,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_tcp "
                                "-H {{ .labels.hostname }} -t 120 -p 443",
                     "subscriptions": [
-                        "gitlab.test.com",
-                        "gitlab2.test.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8252,7 +8346,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8266,8 +8361,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
                     "subscriptions": [
-                        "hpc.resource.ni4os.eu",
-                        "teran.srce.hr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8314,7 +8408,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8327,8 +8422,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 22",
                     "subscriptions": [
-                        "hpc.resource.ni4os.eu",
-                        "teran.srce.hr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8385,7 +8479,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8398,8 +8493,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "command": "/usr/lib64/nagios/plugins/check_ssh "
                                "-H {{ .labels.hostname }} -t 60 -p 1022",
                     "subscriptions": [
-                        "hpc.resource.ni4os.eu",
-                        "teran.srce.hr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8457,7 +8551,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8471,8 +8566,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-H {{ .labels.hostname }} -t 60 "
                                "-p {{ .labels.ssh_port | default \"22\" }}",
                     "subscriptions": [
-                        "hpc.resource.ni4os.eu",
-                        "teran.srce.hr"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8551,7 +8645,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8567,8 +8662,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--robot-key /etc/nagios/robot/robot.key "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "some.host.name",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8598,8 +8692,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "GridProxy-probe -t 30 --vo test "
                                "-x /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "some.host.name",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8637,7 +8730,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8654,8 +8748,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8694,8 +8787,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8755,7 +8847,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8772,8 +8865,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8812,8 +8904,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8857,7 +8948,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8876,10 +8968,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "appdb.egi.eu",
-                        "bioinformatics.cing.ac.cy",
-                        "eewrc-las.cyi.ac.cy",
-                        "sampaeos.if.usp.br"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8922,10 +9011,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.generic_http_connect_path | "
                         "default \" \" }}",
                     "subscriptions": [
-                        "appdb.egi.eu",
-                        "bioinformatics.cing.ac.cy",
-                        "eewrc-las.cyi.ac.cy",
-                        "sampaeos.if.usp.br"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -8970,7 +9056,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -8989,8 +9076,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "{{ .labels.cvmfs_stratum_1_port | "
                                "default \"8000\" }}",
                     "subscriptions": [
-                        "cclssts1.in2p3.fr",
-                        "cvmfs-stratum-one.cc.kek.jp"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9035,7 +9121,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9054,9 +9141,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "default \"\" }} "
                                "{{ .labels.endpoint__surl | default \"\" }}",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9091,9 +9176,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9121,9 +9204,7 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "PASSIVE",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9161,7 +9242,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -9177,8 +9259,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9217,8 +9298,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--warning-search WARN --critical-search ERROR "
                                "--ok-search OK --case-sensitive",
                     "subscriptions": [
-                        "apel.grid1.example.com",
-                        "apel.grid2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9265,7 +9345,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9284,9 +9365,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "-K /etc/sensu/certs/hostkey.pem "
                         "-p {{ .labels.srm2_port | default \"8443\" }}",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9333,7 +9412,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9352,9 +9432,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "-K /etc/sensu/certs/hostkey.pem "
                         "-p {{ .labels.srm2_port | default \"8443\" }}",
                     "subscriptions": [
-                        "dcache-se-cms.desy.de",
-                        "dcache.arnes.si",
-                        "dcache6-shadow.iihe.ac.be"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9399,7 +9477,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9418,9 +9497,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "atlas.dcache.example.eu",
-                        "castorpublic.cern.ch",
-                        "xrootd.example.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9465,7 +9542,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9483,8 +9561,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "eosatlas.cern.ch",
-                        "hostname.cern.ch"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9526,9 +9603,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "atlas.dcache.example.eu",
-                        "castorpublic.cern.ch",
-                        "xrootd.example.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9589,7 +9664,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9607,8 +9683,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "eosatlas.cern.ch",
-                        "hostname.cern.ch"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9650,9 +9725,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                         "default \"\" }}",
                     "subscriptions": [
-                        "atlas.dcache.example.eu",
-                        "castorpublic.cern.ch",
-                        "xrootd.example.eu"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9697,7 +9770,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -9715,9 +9789,7 @@ class CheckConfigurationTests(unittest.TestCase):
                         "{{ .labels.skip_dir_test__argo_webdav_skip_dir_test "
                         "| default \"\" }}",
                     "subscriptions": [
-                        "eosatlas.cern.ch",
-                        "webdav.test.de",
-                        "xrootd.example.de"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -9753,258 +9825,6 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
-    def test_generate_check_with_hostname_with_id_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            checks = generator.generate_checks(
-                publish=True, namespace="mockspace"
-            )
-        self.assertEqual(
-            checks, [{
-                "command":
-                    "/usr/lib64/nagios/plugins/check_http "
-                    "-H {{ .labels.hostname }} -t 60 --link "
-                    "--onredirect follow {{ .labels.ssl | default \" \" }} "
-                    "{{ .labels.generic_http_connect_port | default \" \" }} "
-                    "{{ .labels.generic_http_connect_path | default \" \" }}",
-                "subscriptions": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id"
-                ],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.connect",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "MOCK_TENANT"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_connect == "
-                        "'generic.http.connect'"
-                    ]
-                },
-            }]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_check_with_servicetype_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            checks = generator.generate_checks(
-                publish=True, namespace="mockspace"
-            )
-        self.assertEqual(
-            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
-                "command":
-                    "/usr/lib64/nagios/plugins/check_http "
-                    "-H {{ .labels.hostname }} -t 30 -r argo.eu "
-                    "-u /ni4os/report-ar/Critical/NGI?accept=csv --ssl "
-                    "--onredirect follow",
-                "subscriptions": ["argo.test", "argo.webui"],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.ar-argoui-ni4os",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "MOCK_TENANT"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_ar_argoui_ni4os == "
-                        "'generic.http.ar-argoui-ni4os'"
-                    ]
-                }
-            }, {
-                "command": "/usr/lib64/nagios/plugins/check_tcp "
-                           "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": ["argo.webui"],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.tcp.connect",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "MOCK_TENANT"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_tcp_connect == "
-                        "'generic.tcp.connect'"
-                    ]
-                }
-            }]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_check_with_entity_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            checks = generator.generate_checks(
-                publish=True, namespace="mockspace"
-            )
-        self.assertEqual(
-            sorted(checks, key=lambda k: k["metadata"]["name"]), [{
-                "command":
-                    "/usr/lib64/nagios/plugins/check_http "
-                    "-H {{ .labels.hostname }} -t 30 -r argo.eu "
-                    "-u /ni4os/report-ar/Critical/NGI?accept=csv --ssl "
-                    "--onredirect follow",
-                "subscriptions": [
-                    "argo.test__argo.ni4os.eu",
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu"
-                ],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.ar-argoui-ni4os",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "MOCK_TENANT"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_ar_argoui_ni4os == "
-                        "'generic.http.ar-argoui-ni4os'"
-                    ]
-                }
-            }, {
-                "command": "/usr/lib64/nagios/plugins/check_tcp "
-                           "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": [
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu"
-                ],
-                "handlers": [],
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.tcp.connect",
-                    "namespace": "mockspace",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "MOCK_TENANT"
-                    }
-                },
-                "round_robin": False,
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_tcp_connect == "
-                        "'generic.tcp.connect'"
-                    ]
-                }
-            }]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
     def test_generate_check_with_non_fallback_attribute_in_every_endpoint(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -10014,7 +9834,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10031,7 +9852,9 @@ class CheckConfigurationTests(unittest.TestCase):
                     "-X /etc/sensu/certs/userproxy.pem "
                     "{{ .labels.skip_ls_dir__argo_xrootd_skip_ls_dir | "
                     "default \"\" }}",
-                "subscriptions": ["xrootd01.readonly.eu"],
+                "subscriptions": [
+                    "entity:sensu-agent-mock_tenant.example.com"
+                ],
                 "handlers": [],
                 "interval": 3600,
                 "timeout": 900,
@@ -10098,7 +9921,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10110,7 +9934,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 "command":
                     "/usr/lib64/nagios/plugins/check_tcp "
                     "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": ["argo.ni4os.eu"],
+                "subscriptions": [
+                    "entity:sensu-agent-mock_tenant.example.com"
+                ],
                 "handlers": [],
                 "interval": 300,
                 "timeout": 900,
@@ -10153,8 +9979,7 @@ class CheckConfigurationTests(unittest.TestCase):
                     "{{ .labels.memory_limit__arc_ce_memory_limit "
                     "| default \"\" }}",
                 "subscriptions": [
-                    "alien.spacescience.ro",
-                    "gridarcce01.mesocentre.uca.fr"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "interval": 3600,
@@ -10210,7 +10035,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             checks = generator.generate_checks(
@@ -10221,7 +10047,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 "command":
                     "/usr/lib64/nagios/plugins/check_tcp "
                     "-H {{ .labels.hostname }} -t 120 -p 443",
-                "subscriptions": ["argo.ni4os.eu"],
+                "subscriptions": [
+                    "entity:sensu-agent-mock_tenant.example.com"
+                ],
                 "handlers": [],
                 "interval": 300,
                 "timeout": 900,
@@ -10270,7 +10098,8 @@ class CheckConfigurationTests(unittest.TestCase):
             skipped_metrics=[
                 "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
             ],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10285,8 +10114,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10327,8 +10155,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10374,7 +10201,8 @@ class CheckConfigurationTests(unittest.TestCase):
             secrets_file="",
             default_ports=mock_default_ports,
             skipped_metrics=["org.nagios.Keystone-TCP", "argo.mock.metric"],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10389,8 +10217,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "cloudinfo.py -t 300 "
                                "--endpoint {{ .labels.os_keystone_url }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10428,7 +10255,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--endpoint {{ .labels.os_keystone_url }} "
                                "--access-token /etc/sensu/certs/oidc",
                     "subscriptions": [
-                        "identity.cloud.muni.cz"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10469,8 +10296,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--cert /etc/sensu/certs/userproxy.pem "
                                "{{ .labels.region__os_region | default \"\" }}",
                     "subscriptions": [
-                        "cloud-api-pub.cr.cnaf.infn.it",
-                        "egi-cloud.pd.infn.it"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -10515,7 +10341,8 @@ class CheckConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10533,8 +10360,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "'w:alarms+g:published180' -c 1 -q "
                                "'w:metricsdevel+g:published180' -c 4000",
                     "subscriptions": [
-                        "argo-mon2.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 10800,
@@ -10566,8 +10392,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --voms test "
                                "--user-proxy /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "argo-mon2.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 1200,
@@ -10594,8 +10419,7 @@ class CheckConfigurationTests(unittest.TestCase):
                                "--how-invoked nagios --voms test "
                                "--user-proxy /etc/sensu/certs/userproxy.pem",
                     "subscriptions": [
-                        "argo-mon2.ni4os.eu",
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "interval": 1200,
@@ -10620,81 +10444,6 @@ class CheckConfigurationTests(unittest.TestCase):
 
 
 class EntityConfigurationTests(unittest.TestCase):
-    def test_generate_entity_configuration_with_servicetype_subscriptions(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "hostname": "argo.ni4os.eu",
-                            "info_url": "https://argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "hostname": "argo.ni4os.eu",
-                            "info_url": "https://argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
     def test_generate_entity_configuration(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -10704,7 +10453,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10729,8 +10479,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10749,8 +10498,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -10765,7 +10513,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10787,8 +10536,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10802,8 +10550,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10821,8 +10568,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bioinformatics.cing.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10839,8 +10585,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10861,8 +10606,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sampaeos.if.usp.br"]
+                    }
                 },
             ]
         )
@@ -10877,7 +10621,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10898,8 +10643,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10915,8 +10659,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -10931,7 +10674,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -10956,8 +10700,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "tenants": "MOCK_TENANT",
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
-                    },
-                    "subscriptions": ["dynafed.hostname.ca"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10972,8 +10715,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UPV-GRyCAP",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["grycap.upv.es"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -10994,8 +10736,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11013,8 +10754,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -11029,7 +10769,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11055,8 +10796,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_hostdn": "/CN=host/dpm.bla.meh.com",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dpm.bla.meh.com"]
+                    }
                 }
             ]
         )
@@ -11071,7 +10811,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11101,8 +10842,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                         "mds-vo-name=DESY-HH,o=grid",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["grid-giis1.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11126,8 +10866,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                            "CN=kser.arnes.si",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["kser.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11149,8 +10888,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SBDII",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sbdii.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11173,8 +10911,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sitebdii.iihe.ac.be"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11191,8 +10928,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BDII",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bdii1.test.com"]
+                    }
                 }
             ]
         )
@@ -11207,7 +10943,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11230,8 +10967,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["catalogue.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11247,8 +10983,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11262,8 +10997,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -11278,7 +11012,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11301,8 +11036,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns1.cloud.test.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11318,8 +11052,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns2.cloud.test.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11335,8 +11068,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "EGI-DDNS",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dns3.cloud.test.eu"]
+                    }
                 }
             ]
         )
@@ -11351,7 +11083,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11377,8 +11110,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GAMMA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["185.229.108.85"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11400,8 +11132,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "HNODC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hnodc-dm.ath.hcmr.gr"]
+                    }
                 }
             ]
         )
@@ -11416,7 +11147,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11449,8 +11181,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11474,8 +11205,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11494,8 +11224,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CESNET-MCC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["identity.cloud.muni.cz"]
+                    }
                 }
             ]
         )
@@ -11510,7 +11239,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11534,8 +11264,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.eosc-portal.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11553,8 +11282,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRIDOPS-CheckIn",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.eosc-portal.eu"]
+                    }
                 }
             ]
         )
@@ -11569,7 +11297,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11595,8 +11324,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache-se-cms.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11614,8 +11342,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "srm2_port": "8443",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11631,8 +11358,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                    }
                 }
             ]
         )
@@ -11647,7 +11373,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11668,8 +11395,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "AUVERGRID",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gridarcce01.mesocentre.uca.fr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11686,8 +11412,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--memory-limit 268435456",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["alien.spacescience.ro"]
+                    }
                 }
             ]
         )
@@ -11702,7 +11427,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11723,8 +11449,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11739,8 +11464,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11755,7 +11479,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertRaises(GeneratorException) as context:
             with self.assertLogs(LOGNAME) as log:
@@ -11799,7 +11524,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11822,8 +11548,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11839,8 +11564,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11856,8 +11580,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11892,7 +11615,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -11915,8 +11639,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11932,8 +11655,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -11949,8 +11671,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -11988,7 +11709,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12009,8 +11731,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12030,8 +11751,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12051,8 +11771,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12068,8 +11787,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12108,7 +11826,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12129,8 +11848,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12150,8 +11868,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12171,8 +11888,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12188,8 +11904,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12216,7 +11931,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="/path/to/secrets",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12238,8 +11954,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["api.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12255,8 +11970,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["api.devel.argo.grnet.gr"]
+                    }
                 }
             ]
         )
@@ -12271,7 +11985,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12292,8 +12007,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -12332,7 +12046,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12352,8 +12067,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["aai.argo.eu"]
+                    }
                 }
             ]
         )
@@ -12399,7 +12113,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12423,8 +12138,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12441,8 +12155,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname2.cern.ch"]
+                    }
                 }
             ]
         )
@@ -12457,7 +12170,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12482,8 +12196,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname1.argo.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12500,8 +12213,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "test2.test",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname2.argo.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12518,8 +12230,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "group3",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname3.argo.eu"]
+                    }
                 }
             ]
         )
@@ -12534,7 +12245,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12556,8 +12268,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test-json.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12590,7 +12301,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12615,8 +12327,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12635,8 +12346,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test2.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12655,8 +12365,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test3.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12691,7 +12400,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12716,8 +12426,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12736,8 +12445,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test2.argo.grnet.gr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12756,8 +12464,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARGO",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["test3.argo.grnet.gr"]
+                    }
                 },
             ]
         )
@@ -12772,7 +12479,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12797,8 +12505,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.example.com"]
+                    }
                 }
             ]
         )
@@ -12828,7 +12535,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12853,8 +12561,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.example.com"]
+                    }
                 }
             ]
         )
@@ -12869,7 +12576,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12893,8 +12601,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -12921,7 +12628,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -12945,8 +12653,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -12965,8 +12672,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -13001,7 +12707,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13025,8 +12732,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13045,8 +12751,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -13075,7 +12780,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13099,8 +12805,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "B2HANDLE-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13119,8 +12824,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "ARCHIVE-B2HANDLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["b2handle3.test.com"]
+                    }
                 }
             ]
         )
@@ -13135,7 +12839,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -13154,8 +12859,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13172,8 +12876,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13210,7 +12913,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13233,8 +12937,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13251,8 +12954,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13280,7 +12982,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -13302,8 +13005,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13318,8 +13020,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13352,7 +13053,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13374,8 +13076,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13391,8 +13092,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13418,7 +13118,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             entities = generator.generate_entities()
@@ -13439,8 +13140,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab.test.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13454,8 +13154,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "GITLAB-TEST2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["gitlab2.test.com"]
+                    }
                 }
             ]
         )
@@ -13473,7 +13172,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13495,8 +13195,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13510,8 +13209,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13526,7 +13224,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13547,8 +13246,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13562,8 +13260,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13588,7 +13285,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13609,8 +13307,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13624,8 +13321,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13651,7 +13347,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13673,8 +13370,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IPB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hpc.resource.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13688,8 +13384,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["teran.srce.hr"]
+                    }
                 }
             ]
         )
@@ -13704,7 +13399,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13727,8 +13423,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid1.example.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13745,8 +13440,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid2.example.com"]
+                    }
                 }
             ]
         )
@@ -13775,7 +13469,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13798,8 +13493,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid1.example.com"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13816,8 +13510,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APEL-Site2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["apel.grid2.example.com"]
+                    }
                 }
             ]
         )
@@ -13832,7 +13525,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13854,8 +13548,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "APPDB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["appdb.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13875,8 +13568,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CING",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["bioinformatics.cing.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13895,8 +13587,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CYI",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eewrc-las.cyi.ac.cy"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13919,8 +13610,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "SAMPA",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["sampaeos.if.usp.br"]
+                    }
                 }
             ]
         )
@@ -13935,7 +13625,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -13957,8 +13648,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "IN2P3-CC",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cclssts1.in2p3.fr"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -13975,8 +13665,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "JP-KEK-CRC-02",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cvmfs-stratum-one.cc.kek.jp"]
+                    }
                 }
             ]
         )
@@ -13991,7 +13680,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14013,8 +13703,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "DESY-HH",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache-se-cms.desy.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14032,8 +13721,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache.arnes.si"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14048,8 +13736,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "BEgrid-ULB-VUB",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["dcache6-shadow.iihe.ac.be"]
+                    }
                 }
             ]
         )
@@ -14064,7 +13751,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14093,8 +13781,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "lida.lida_survey_data",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["lida.dataverse.lt"]
+                    }
                 }
             ]
         )
@@ -14109,7 +13796,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14133,8 +13821,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14149,8 +13836,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14170,8 +13856,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 }
             ]
         )
@@ -14186,7 +13871,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14210,8 +13896,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14226,8 +13911,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14247,8 +13931,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14269,8 +13952,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14287,8 +13969,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -14319,7 +14000,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14343,8 +14025,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE1",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["atlas.dcache.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14360,8 +14041,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["castorpublic.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14381,8 +14061,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-SITE2",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14403,8 +14082,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14421,8 +14099,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["hostname.cern.ch"]
+                    }
                 }
             ]
         )
@@ -14437,7 +14114,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14464,8 +14142,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "CERN-PROD",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["eosatlas.cern.ch"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14482,8 +14159,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UNI-TEST",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["webdav.test.de"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14503,236 +14179,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "UNI-EXAMPLE",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd.example.de"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_hostname_with_id_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname1.argo.com_hostname1_id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "generic_http_connect_path": "-u /path",
-                            "ssl": "-S --sni",
-                            "info_url":
-                                "https://hostname1.argo.com/path",
-                            "hostname": "hostname1.argo.com",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test1",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname1.argo.com_hostname1_id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname2.argo.eu_second.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "https://hostname2.argo.eu",
-                            "hostname": "hostname2.argo.eu",
-                            "ssl": "-S --sni",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "test2.test",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname2.argo.eu_second.id"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "eu.eosc.portal.services.url__"
-                                "hostname3.argo.eu_test.id",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_connect": "generic.http.connect",
-                            "info_url": "http://hostname3.argo.eu/",
-                            "generic_http_connect_path": "-u /",
-                            "hostname": "hostname3.argo.eu",
-                            "service": "eu.eosc.portal.services.url",
-                            "site": "group3",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["hostname3.argo.eu_test.id"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_servicetype_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui"]
-                }
-            ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_entity_with_entity_subscription(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            entities = generator.generate_entities()
-        self.assertEqual(
-            sorted(entities, key=lambda k: k["metadata"]["name"]),
-            [
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.test__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.test",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.test__argo.ni4os.eu"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo-devel.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "http://argo-devel.ni4os.eu",
-                            "hostname": "argo-devel.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui__argo-devel.ni4os.eu"]
-                },
-                {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": "argo.webui__argo.ni4os.eu",
-                        "namespace": "default",
-                        "labels": {
-                            "generic_http_ar_argoui_ni4os":
-                                "generic.http.ar-argoui-ni4os",
-                            "generic_tcp_connect": "generic.tcp.connect",
-                            "info_url": "https://argo.ni4os.eu",
-                            "hostname": "argo.ni4os.eu",
-                            "service": "argo.webui",
-                            "site": "GRNET",
-                            "tenants": "MOCK_TENANT"
-                        }
-                    },
-                    "subscriptions": ["argo.webui__argo.ni4os.eu"]
+                    }
                 }
             ]
         )
@@ -14747,7 +14194,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14776,8 +14224,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "XROOTD-READONLY",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["xrootd01.readonly.eu"]
+                    }
                 }
             ]
         )
@@ -14795,7 +14242,8 @@ class EntityConfigurationTests(unittest.TestCase):
             skipped_metrics=[
                 "org.nagios.Keystone-TCP", "eu.egi.cloud.OpenStack-Swift"
             ],
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -14826,8 +14274,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-CLOUD-CNAF",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["cloud-api-pub.cr.cnaf.infn.it"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -14849,426 +14296,9 @@ class EntityConfigurationTests(unittest.TestCase):
                             "site": "INFN-PADOVA-STACK",
                             "tenants": "MOCK_TENANT"
                         }
-                    },
-                    "subscriptions": ["egi-cloud.pd.infn.it"]
+                    }
                 }
             ]
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": ["argo-devel.ni4os.eu", "argo.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_custom_agents_subs(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST51"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={
-                    "sensu-agent1": ["argo.test"],
-                    "sensu-agent2": ["argo.webui"]
-                }
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dcache-se-cms.desy.de", "dcache.arnes.si",
-                    "dcache6-shadow.iihe.ac.be", "internals"
-                ],
-                "sensu-agent1": ["argo.ni4os.eu", "internals"],
-                "sensu-agent2": ["argo-devel.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_custom_agents_subs_if_missing_service(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST51"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={
-                    "sensu-agent1": ["web.check"],
-                }
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo-devel.ni4os.eu", "argo.ni4os.eu",
-                    "dcache-se-cms.desy.de", "dcache.arnes.si",
-                    "dcache6-shadow.iihe.ac.be", "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_without_id(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_without_id_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "internals"
-                ],
-                "sensu-agent1": ["dabar.srce.hr", "hrcak.srce.hr", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_hostnames_without_id_custom_agnt_missing_serv(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dabar.srce.hr", "hostname1.argo.com", "hostname2.argo.eu",
-                    "hostname3.argo.eu", "hrcak.srce.hr", "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_with_id(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_hostnames_with_id_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "internals"
-                ],
-                "sensu-agent1": [
-                    "dabar.srce.hr_dabar_id", "hrcak.srce.hr_hrcak.id",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_hostnames_with_id_custom_agent_missing_service(
-            self
-    ):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST52"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="hostname_with_id"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "dabar.srce.hr_dabar_id",
-                    "hostname1.argo.com_hostname1_id",
-                    "hostname2.argo.eu_second.id",
-                    "hostname3.argo.eu_test.id",
-                    "hrcak.srce.hr_hrcak.id",
-                    "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_servicetypes(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_servicetypes_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.generic.oai-pmh"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"],
-                "sensu-agent1": ["eu.eosc.generic.oai-pmh", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_servicetypes_custom_agent_missing_service(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST30"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology_with_hostname_in_tag,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="servicetype"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": ["eu.eosc.portal.services.url", "internals"],
-                "sensu-agent1": ["argo.test", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_entity_sub(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions()
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.test__argo.ni4os.eu",
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subscriptions_for_entity_subs_custom_agent(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["argo.test"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ],
-                "sensu-agent1": ["argo.test__argo.ni4os.eu", "internals"]
-            }
-        )
-        self.assertEqual(log.output, DUMMY_LOG)
-
-    def test_generate_subs_for_entity_subs_custom_agent_missing_service(self):
-        generator = ConfigurationGenerator(
-            metrics=mock_metrics,
-            profiles=["ARGO_TEST1"],
-            metric_profiles=mock_metric_profiles,
-            topology=mock_topology,
-            attributes=mock_attributes,
-            secrets_file="",
-            default_ports=mock_default_ports,
-            tenant="MOCK_TENANT",
-            subscription="entity"
-        )
-        with self.assertLogs(LOGNAME) as log:
-            _log_dummy()
-            subscriptions = generator.generate_subscriptions(
-                custom_subs={"sensu-agent1": ["eu.eosc.portal.services.url"]}
-            )
-        self.assertEqual(
-            subscriptions, {
-                "default": [
-                    "argo.test__argo.ni4os.eu",
-                    "argo.webui__argo-devel.ni4os.eu",
-                    "argo.webui__argo.ni4os.eu",
-                    "internals"
-                ],
-                "sensu-agent1": ["internals"]
-            }
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
@@ -15281,7 +14311,8 @@ class EntityConfigurationTests(unittest.TestCase):
             attributes=mock_attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -15317,7 +14348,8 @@ class OverridesTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -15365,7 +14397,8 @@ class OverridesTests(unittest.TestCase):
             attributes=attributes,
             secrets_file="",
             default_ports=mock_default_ports,
-            tenant="MOCK_TENANT"
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
         )
         with self.assertLogs(LOGNAME) as log:
             _log_dummy()
@@ -15399,14 +14432,14 @@ class AdHocCheckTests(unittest.TestCase):
             "/usr/lib64/nagios/plugins/check_tcp -H argo.ni4os.eu -t 120 -p 443"
 
         check = generate_adhoc_check(
-            command=command, subscriptions=["argo-test"], namespace="TENANT1"
+            command=command, subscriptions=["internals"], namespace="TENANT1"
         )
 
         self.assertEqual(
             check, {
                 "command": "/usr/lib64/nagios/plugins/check_tcp -H "
                            "argo.ni4os.eu -t 120 -p 443",
-                "subscriptions": ["argo-test"],
+                "subscriptions": ["internals"],
                 "handlers": [],
                 "interval": 86400,
                 "timeout": 900,
@@ -15432,8 +14465,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "{{ .labels.generic_http_connect_path | "
                            "default " " }}",
                 "subscriptions": [
-                    "hostname1.example.com",
-                    "hostname2.example.com"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -15475,8 +14507,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-C /etc/sensu/certs/hostcert.pem "
                            "-K /etc/sensu/certs/hostkey.pem",
                 "subscriptions": [
-                    "hostname1.example.com",
-                    "hostname2.example.com"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -15514,7 +14545,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "argo-poem-tools/argo-poem-tools.log "
                            "--age 2 --app argo-poem-packages",
                 "subscriptions": [
-                    "internals"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -15546,8 +14577,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "-t 30 -u {{ .labels.endpoint_url}} "
                            "-x /aris/partition/state_up --ok up",
                 "subscriptions": [
-                    "hostname3.example.com",
-                    "hostname4.example.com"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -15585,7 +14615,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                            "argo-poem-tools/argo-poem-tools.log "
                            "--age 2 --app argo-poem-packages",
                 "subscriptions": [
-                    "internals"
+                    "entity:sensu-agent-mock_tenant.example.com"
                 ],
                 "handlers": [],
                 "pipelines": [
@@ -15626,8 +14656,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.test"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -15644,8 +14673,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.webui"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -15662,8 +14690,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "GRNET",
                         "tenants": "TENANT1"
                     }
-                },
-                "subscriptions": ["argo.webui"]
+                }
             }
         ]
         self.entities2 = [
@@ -15680,8 +14707,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "SRCE",
                         "tenants": "TENANT2"
                     }
-                },
-                "subscriptions": ["argo-mon-devel.egi.eu"]
+                }
             },
             {
                 "entity_class": "proxy",
@@ -15696,8 +14722,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "site": "SRCE",
                         "tenants": "TENANT2"
                     }
-                },
-                "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                }
             }
         ]
         self.metric_overrides1 = [{
@@ -15751,15 +14776,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             internal_services={
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         checks = merger.merge_checks()
@@ -15771,7 +14787,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "argo-poem-tools/argo-poem-tools.log "
                                "--age 2 --app argo-poem-packages",
                     "subscriptions": [
-                        "internals"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -15806,8 +14822,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-C /etc/sensu/certs/hostcert.pem "
                                "-K /etc/sensu/certs/hostkey.pem",
                     "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -15848,8 +14863,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "{{ .labels.generic_http_connect_path | "
                                "default " " }}",
                     "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -15886,239 +14900,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                "-t 30 -u {{ .labels.endpoint_url}} "
                                "-x /aris/partition/state_up --ok up",
                     "subscriptions": [
-                        "hostname3.example.com",
-                        "hostname4.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_xml_check == "
-                            "'generic.xml.check'"
-                        ]
-                    },
-                    "interval": 1800,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.xml.check",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "3"
-                        },
-                        "labels": {
-                            "tenants": "TENANT2"
-                        }
-                    },
-                    "round_robin": False
-                }
-            ]
-        )
-
-    def test_merge_checks_if_duplicate_with_different_subscriptions(self):
-        checks2 = self.checks2.copy()
-        checks2.append(
-            {
-                "command": "/usr/lib64/nagios/plugins/check_http "
-                           "-H {{ .labels.hostname }} -t 60 --link "
-                           "--onredirect follow {{ .labels.ssl | "
-                           "default " " }} {{ .labels."
-                           "generic_http_connect_port | default " " }} "
-                           "{{ .labels.generic_http_connect_path | "
-                           "default " " }}",
-                "subscriptions": [
-                    "hostname3.example.com",
-                    "hostname5.example.com"
-                ],
-                "handlers": [],
-                "pipelines": [
-                    {
-                        "name": "hard_state",
-                        "type": "Pipeline",
-                        "api_version": "core/v2"
-                    }
-                ],
-                "proxy_requests": {
-                    "entity_attributes": [
-                        "entity.entity_class == 'proxy'",
-                        "entity.labels.generic_http_connect == "
-                        "'generic.http.connect'"
-                    ]
-                },
-                "interval": 300,
-                "timeout": 900,
-                "publish": True,
-                "metadata": {
-                    "name": "generic.http.connect",
-                    "namespace": "test",
-                    "annotations": {
-                        "attempts": "3"
-                    },
-                    "labels": {
-                        "tenants": "TENANT2"
-                    }
-                },
-                "round_robin": False
-            }
-        )
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            }
-        )
-        checks = merger.merge_checks()
-        self.assertEqual(
-            sorted(checks, key=lambda c: c["metadata"]["name"]), [
-                {
-                    "command": "/usr/libexec/argo/probes/argo_tools/"
-                               "check_log -t 120 --file /var/log/"
-                               "argo-poem-tools/argo-poem-tools.log "
-                               "--age 2 --app argo-poem-packages",
-                    "subscriptions": [
-                        "internals"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "reduce_alerts",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "interval": 7200,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "argo.poem-tools.check",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "4"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1,TENANT2"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/lib64/nagios/plugins/check_ssl_cert "
-                               "-H {{ .labels.hostname }} -t 60 -w 14 -c 0 "
-                               "-N --altnames --rootcert-dir "
-                               "/etc/grid-security/certificates "
-                               "--rootcert-file /etc/pki/tls/certs/"
-                               "ca-bundle.crt "
-                               "-C /etc/sensu/certs/hostcert.pem "
-                               "-K /etc/sensu/certs/hostkey.pem",
-                    "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_certificate_validity == "
-                            "'generic.certificate.validity'"
-                        ]
-                    },
-                    "interval": 14400,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.certificate.validity",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "2"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/lib64/nagios/plugins/check_http "
-                               "-H {{ .labels.hostname }} -t 60 --link "
-                               "--onredirect follow {{ .labels.ssl | "
-                               "default " " }} {{ .labels."
-                               "generic_http_connect_port | default " " }} "
-                               "{{ .labels.generic_http_connect_path | "
-                               "default " " }}",
-                    "subscriptions": [
-                        "hostname1.example.com",
-                        "hostname2.example.com",
-                        "hostname3.example.com",
-                        "hostname5.example.com"
-                    ],
-                    "handlers": [],
-                    "pipelines": [
-                        {
-                            "name": "hard_state",
-                            "type": "Pipeline",
-                            "api_version": "core/v2"
-                        }
-                    ],
-                    "proxy_requests": {
-                        "entity_attributes": [
-                            "entity.entity_class == 'proxy'",
-                            "entity.labels.generic_http_connect == "
-                            "'generic.http.connect'"
-                        ]
-                    },
-                    "interval": 300,
-                    "timeout": 900,
-                    "publish": True,
-                    "metadata": {
-                        "name": "generic.http.connect",
-                        "namespace": "test",
-                        "annotations": {
-                            "attempts": "3"
-                        },
-                        "labels": {
-                            "tenants": "TENANT1,TENANT2"
-                        }
-                    },
-                    "round_robin": False
-                },
-                {
-                    "command": "/usr/libexec/argo/probes/xml/check_xml "
-                               "-t 30 -u {{ .labels.endpoint_url}} "
-                               "-x /aris/partition/state_up --ok up",
-                    "subscriptions": [
-                        "hostname3.example.com",
-                        "hostname4.example.com"
+                        "entity:sensu-agent-mock_tenant.example.com"
                     ],
                     "handlers": [],
                     "pipelines": [
@@ -16166,15 +14948,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             internal_services={
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         entities = merger.merge_entities()
@@ -16193,8 +14966,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16209,8 +14981,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16226,8 +14997,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.test"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16244,8 +15014,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.webui"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16262,8 +15031,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.webui"]
+                    }
                 }
             ]
         )
@@ -16290,8 +15058,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "site": "GRNET",
                                 "tenants": "TENANT1"
                             }
-                        },
-                        "subscriptions": ["argo.test"]
+                        }
                     },
                     {
                         "entity_class": "proxy",
@@ -16305,8 +15072,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "site": "GRNET",
                                 "tenants": "TENANT1"
                             }
-                        },
-                        "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                        }
                     }
                 ],
                 "TENANT2": self.entities2
@@ -16314,15 +15080,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             internal_services={
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             }
         )
         entities = merger.merge_entities()
@@ -16341,8 +15098,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "SRCE",
                             "tenants": "TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.egi.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16358,8 +15114,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET,SRCE",
                             "tenants": "TENANT1,TENANT2"
                         }
-                    },
-                    "subscriptions": ["argo-mon-devel.ni4os.eu"]
+                    }
                 },
                 {
                     "entity_class": "proxy",
@@ -16375,8 +15130,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "site": "GRNET",
                             "tenants": "TENANT1"
                         }
-                    },
-                    "subscriptions": ["argo.test"]
+                    }
                 }
             ]
         )
@@ -16394,15 +15148,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             internal_services={
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             },
             metricoverrides4agents={
                 "TENANT1": self.metric_overrides1,
@@ -16425,15 +15170,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             internal_services={
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             },
             metricoverrides4agents={
                 "TENANT1": [{
@@ -16483,15 +15219,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
             },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             metricoverrides4agents={
                 "TENANT1": [{
                     "metric": "argo.poem-tools.check",
@@ -16536,15 +15263,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
             },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             attributeoverrides4agents={
                 "TENANT1": self.attribute_overrides1,
                 "TENANT2": self.attribute_overrides2
@@ -16584,15 +15302,6 @@ class ConfigurationMergerTests(unittest.TestCase):
                 "TENANT1": "service1,service2,service3",
                 "TENANT2": "service2,service3,service4"
             },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            },
             attributeoverrides4agents={
                 "TENANT1": [{
                     "hostname": "agent1",
@@ -16628,38 +15337,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             ]
         )
 
-    def test_merge_subscriptions(self):
-        merger = ConfigurationMerger(
-            checks={
-                "TENANT1": self.checks1,
-                "TENANT2": self.checks2
-            },
-            entities={
-                "TENANT1": self.entities1,
-                "TENANT2": self.entities2
-            },
-            internal_services={
-                "TENANT1": "service1,service2,service3",
-                "TENANT2": "service2,service3,service4"
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
-            }
-        )
-        subs = merger.merge_subscriptions()
-        self.assertEqual(
-            subs, {
-                "default": ["sub1", "sub2", "sub3", "sub6"],
-                "agent1": ["sub1", "sub4"]
-            }
-        )
-
     def test_merge_internal_services(self):
         merger = ConfigurationMerger(
             checks={
@@ -16669,15 +15346,6 @@ class ConfigurationMergerTests(unittest.TestCase):
             entities={
                 "TENANT1": self.entities1,
                 "TENANT2": self.entities2
-            },
-            subscriptions={
-                "TENANT1": {
-                    "default": ["sub1", "sub2", "sub3"],
-                    "agent1": ["sub1", "sub4"]
-                },
-                "TENANT2": {
-                    "default": ["sub1", "sub2", "sub6"]
-                }
             },
             internal_services={
                 "TENANT1": "service1,service2,service3",
