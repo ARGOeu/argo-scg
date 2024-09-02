@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.6.3
+Version:       0.7.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Sep 2 2024 Katarina Zailac <kzailac@srce.hr> - 0.7.0-1%{?dist}
+- ARGO-4824 Improve checks subscriptions
+- ARGO-4748 Remove silenced entries associated to deleted entities
 * Thu Aug 8 2024 Katarina Zailac <kzailac@srce.hr> - 0.6.3-1%{?dist}
 - ARGO-4791 Take into account possibility of not having site_bdii defined for a site
 * Thu Jul 25 2024 Katarina Zailac <kzailac@srce.hr> - 0.6.2-1%{?dist}
