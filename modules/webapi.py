@@ -105,10 +105,21 @@ class WebApi:
 
     def get_topology(self):
         endpoints = self._get_topology_endpoints()
+        groups = self._get_topology_groups()
+
+        for endpoint in endpoints:
+            try:
+                ngi = [
+                    group for group in groups if
+                    group["subgroup"] == endpoint["group"]
+                ][0]["group"]
+
+            except IndexError:
+                ngi = ""
+
+            endpoint.update({"ngi": ngi})
 
         if self.groups_filter:
-            groups = self._get_topology_groups()
-
             eligible_sites = [group["subgroup"] for group in groups]
 
             endpoints = [

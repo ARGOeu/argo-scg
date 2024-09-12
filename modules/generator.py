@@ -1328,9 +1328,16 @@ class ConfigurationGenerator:
                                                 )
                                             })
 
+                try:
+                    ngi = item["ngi"]
+
+                except KeyError:
+                    ngi = ""
+
                 labels.update({
                     "service": item["service"],
                     "site": item["group"],
+                    "ngi": ngi,
                     "tenants": self.tenant
                 })
 

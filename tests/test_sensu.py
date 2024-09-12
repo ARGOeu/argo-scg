@@ -8970,6 +8970,7 @@ class MetricOutputTests(unittest.TestCase):
                         "port": "443",
                         "service": "eu.eosc.portal.services.url",
                         "site": "site-name",
+                        "ngi": "NGI_TEST",
                         "ssl": "-S --sni",
                         "tenants": "TENANT"
                     }
@@ -9434,6 +9435,9 @@ class MetricOutputTests(unittest.TestCase):
 
     def test_get_site(self):
         self.assertEqual(self.output.get_site(), "site-name")
+
+    def test_get_ngi(self):
+        self.assertEqual(self.output.get_ngi(), "NGI_TEST")
 
     def test_get_tenants(self):
         self.assertEqual(self.output.get_tenants(), ["TENANT"])

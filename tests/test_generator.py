@@ -1943,6 +1943,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.webui",
         "hostname": "argo.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_URL": "https://argo.ni4os.eu",
@@ -1957,6 +1958,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.test",
         "hostname": "argo.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_URL": "https://argo.ni4os.eu",
@@ -1971,6 +1973,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.ops.gocdb",
         "hostname": "gocdb.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "monitored": "1",
@@ -1984,6 +1987,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.mon",
         "hostname": "argo-mon2.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_URL": "https://argo-mon2.ni4os.eu",
@@ -1998,6 +2002,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.webui",
         "hostname": "argo-devel.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_URL": "http://argo-devel.ni4os.eu",
@@ -2012,6 +2017,7 @@ mock_topology = [
         "type": "SITES",
         "service": "test.openstack.nova",
         "hostname": "cloud.cloudhost.com",
+        "ngi": "FEDCLOUD",
         "tags": {
             "info_HOSTDN": "/CN=cloud.cloudhost.com",
             "info_ID": "xxxxxxx",
@@ -2027,6 +2033,7 @@ mock_topology = [
         "type": "SITES",
         "service": "mock.webdav",
         "hostname": "dpm.bla.meh.com",
+        "ngi": "MEH",
         "tags": {
             "info_HOSTDN": "/CN=host/dpm.bla.meh.com",
             "info_ID": "xxxxxxx",
@@ -2044,6 +2051,7 @@ mock_topology = [
         "type": "SITES",
         "service": "egi.aai.saml",
         "hostname": "aai.eosc-portal.eu",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://aai.eosc-portal.eu/proxy",
@@ -2064,6 +2072,7 @@ mock_topology = [
         "type": "SITES",
         "service": "egi.aai.oidc",
         "hostname": "aai.eosc-portal.eu",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://aai.eosc-portal.eu/oidc",
@@ -2082,6 +2091,7 @@ mock_topology = [
         "type": "SITES",
         "service": "Top-BDII",
         "hostname": "bdii1.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxxxxxx",
             "monitored": "1",
@@ -2095,6 +2105,7 @@ mock_topology = [
         "type": "SITES",
         "service": "Site-BDII",
         "hostname": "sbdii.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxxxxxx",
             "monitored": "1",
@@ -2108,6 +2119,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.app.web",
         "hostname": "catalogue.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxx",
             "info_URL": "https://catalogue.ni4os.eu/",
@@ -2122,6 +2134,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.hpc.ui",
         "hostname": "teran.srce.hr",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2135,6 +2148,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.hpc.ui",
         "hostname": "hpc.resource.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_ext_PORT": "1022",
@@ -2150,6 +2164,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.egi.cloud.dyndns",
         "hostname": "dns1.cloud.test.eu",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://dns1.cloud.test.eu/",
@@ -2165,6 +2180,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.egi.cloud.dyndns",
         "hostname": "dns2.cloud.test.eu",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_ext_endpoint-name": "secondary",
@@ -2179,6 +2195,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.egi.cloud.dyndns",
         "hostname": "dns3.cloud.test.eu",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_ext_endpoint-name": "primary",
@@ -2193,6 +2210,7 @@ mock_topology = [
         "type": "SITES",
         "service": "org.openstack.nova",
         "hostname": "cloud-api-pub.cr.cnaf.infn.it",
+        "ngi": "NGI_IT",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://cloud-api-pub.cr.cnaf.infn.it:5000/v3",
@@ -2208,6 +2226,7 @@ mock_topology = [
         "type": "SITES",
         "service": "org.openstack.nova",
         "hostname": "egi-cloud.pd.infn.it",
+        "ngi": "NGI_IT",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://egi-cloud.pd.infn.it:443/v3",
@@ -2222,6 +2241,7 @@ mock_topology = [
         "type": "SITES",
         "service": "org.openstack.swift",
         "hostname": "identity.cloud.muni.cz",
+        "ngi": "NGI_CZ",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://identity.cloud.muni.cz/v3",
@@ -2236,6 +2256,7 @@ mock_topology = [
         "type": "SITES",
         "service": "b2access.unity",
         "hostname": "b2access.eudat.eu",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://b2access.eudat.eu/home/",
@@ -2252,6 +2273,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ch.cern.dynafed",
         "hostname": "dynafed.hostname.ca",
+        "ngi": "ROC_Canada",
         "tags": {
             "info_HOSTDN": "/C=CA/O=Grid/CN=dynafed.hostname.ca",
             "info_ID": "xxxxxxx",
@@ -2267,6 +2289,7 @@ mock_topology = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "hostname.cern.ch",
+        "ngi": "CERN",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://hostname.cern.ch/atlas/opstest",
@@ -2281,6 +2304,7 @@ mock_topology = [
         "type": "SITES",
         "service": "es.upv.grycap.im",
         "hostname": "grycap.upv.es",
+        "ngi": "NGI_IBERGRID",
         "tags": {
             "info_ID": "xxxxxx",
             "info_URL": "https://grycap.upv.es:31443/im/",
@@ -2295,6 +2319,7 @@ mock_topology = [
         "type": "SITES",
         "service": "web.check",
         "hostname": "bioinformatics.cing.ac.cy",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_URL": "https://bioinformatics.cing.ac.cy/MelGene/",
@@ -2309,6 +2334,7 @@ mock_topology = [
         "type": "SITES",
         "service": "web.check",
         "hostname": "eewrc-las.cyi.ac.cy",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxx",
             "info_URL": "http://eewrc-las.cyi.ac.cy/las/getUI.do",
@@ -2323,6 +2349,7 @@ mock_topology = [
         "type": "SITES",
         "service": "web.check",
         "hostname": "sampaeos.if.usp.br",
+        "ngi": "ROC_LA",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://sampaeos.if.usp.br:9000//eos/ops/opstest/",
@@ -2337,6 +2364,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ARC-CE",
         "hostname": "gridarcce01.mesocentre.uca.fr",
+        "ngi": "NGI_FRANCE",
         "tags": {
             "info_ID": "xxxxxxx",
             "monitored": "1",
@@ -2350,6 +2378,7 @@ mock_topology = [
         "type": "SITES",
         "service": "Site-BDII",
         "hostname": "kser.arnes.si",
+        "ngi": "NGI_SI",
         "tags": {
             "info_HOSTDN": "/C=SI/O=SiGNET/O=Arnes/CN=kser.arnes.si",
             "info_ID": "1691G0",
@@ -2364,6 +2393,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ngi.ARGUS",
         "hostname": "argus.sling.si",
+        "ngi": "NGI_SI",
         "tags": {
             "info_HOSTDN": "/C=SI/O=SiGNET/O=SLING/CN=argus.sling.si",
             "info_ID": "5024G0",
@@ -2378,6 +2408,7 @@ mock_topology = [
         "type": "SITES",
         "service": "SRM",
         "hostname": "dcache.arnes.si",
+        "ngi": "NGI_SI",
         "tags": {
             "info_HOSTDN": "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
             "info_ID": "5869G0",
@@ -2396,6 +2427,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ARC-CE",
         "hostname": "alien.spacescience.ro",
+        "ngi": "NGI_RO",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_ext_ARC_CE_MEMORY_LIMIT": "268435456",
@@ -2410,6 +2442,7 @@ mock_topology = [
         "type": "SITES",
         "service": "QCG.Broker",
         "hostname": "qcg-broker.man.poznan.pl",
+        "ngi": "NGI_PL",
         "tags": {
             "info_HOSTDN": "/C=PL/CN=qcg-broker.man.poznan.pl",
             "info_ID": "xxxxxx",
@@ -2425,6 +2458,7 @@ mock_topology = [
         "type": "SITES",
         "service": "SRM",
         "hostname": "dcache-se-cms.desy.de",
+        "ngi": "NGI_DE",
         "tags": {
             "info_ID": "3080G0",
             "info_bdii_SRM2_PORT": "8443",
@@ -2446,6 +2480,7 @@ mock_topology = [
         "type": "SITES",
         "service": "Site-BDII",
         "hostname": "grid-giis1.desy.de",
+        "ngi": "NGI_DE",
         "tags": {
             "info_ID": "1729G0",
             "info_URL": "ldap://grid-giis1.desy.de:2170/mds-vo-name=DESY-HH,"
@@ -2461,6 +2496,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.seadatanet.org.replicationmanager",
         "hostname": "185.229.108.85",
+        "ngi": "",
         "tags": {
             "info_ID": "xxxxx",
             "info_URL": "http://185.229.108.85:8080/",
@@ -2475,6 +2511,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.seadatanet.org.replicationmanager",
         "hostname": "hnodc-dm.ath.hcmr.gr",
+        "ngi": "",
         "tags": {
             "info_ID": "xxxxx",
             "info_URL": "http://hnodc-dm.ath.hcmr.gr/",
@@ -2490,6 +2527,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.eudat.itsm.spmt",
         "hostname": "eosc.agora.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://eosc.agora.grnet.gr/",
@@ -2504,6 +2542,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.api",
         "hostname": "api.devel.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://api.devel.argo.grnet.gr/",
@@ -2518,6 +2557,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.api",
         "hostname": "api.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://api.argo.grnet.gr/",
@@ -2532,6 +2572,7 @@ mock_topology = [
         "type": "SITES",
         "service": "argo.json",
         "hostname": "test-json.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://test-json.argo.grnet.gr/some/path",
@@ -2546,6 +2587,7 @@ mock_topology = [
         "type": "SITES",
         "service": "probe.test",
         "hostname": "test.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://test.argo.grnet.gr/some/extra/path",
@@ -2560,6 +2602,7 @@ mock_topology = [
         "type": "SITES",
         "service": "probe.test",
         "hostname": "test2.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://test2.argo.grnet.gr/some/extra2/path",
@@ -2574,6 +2617,7 @@ mock_topology = [
         "type": "SITES",
         "service": "probe.test",
         "hostname": "test3.argo.grnet.gr",
+        "ngi": "EGI.eu",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://test3.argo.grnet.gr/some/extra3/path",
@@ -2588,6 +2632,7 @@ mock_topology = [
         "type": "SITES",
         "service": "b2handle",
         "hostname": "b2handle.test.example.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxxxxxx",
             "info_URL": "https://b2handle.test.example.com",
@@ -2602,6 +2647,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "b2handle.handle.api",
         "hostname": "b2handle3.test.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxxx",
             "monitored": "1",
@@ -2615,6 +2661,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "b2handle.handle.api",
         "hostname": "b2handle3.test.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2628,6 +2675,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "b2handle.test",
         "hostname": "b2handle3.test.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2641,6 +2689,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "b2handle.handle.test",
         "hostname": "b2handle3.test.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxxx",
             "monitored": "1",
@@ -2654,6 +2703,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "b2handle.handle.test",
         "hostname": "b2handle.test.com",
+        "ngi": "EUDAT",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2667,6 +2717,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "gitlab",
         "hostname": "gitlab.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2680,6 +2731,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "gitlab",
         "hostname": "gitlab2.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxx",
             "info_URL": "https://gitlab2.test.com/",
@@ -2694,6 +2746,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "gitlab2",
         "hostname": "gitlab2.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2707,6 +2760,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "gitlab2",
         "hostname": "gitlab.test.com",
+        "ngi": "TEST",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2720,6 +2774,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.hpc.ui2",
         "hostname": "teran.srce.hr",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxx",
             "monitored": "1",
@@ -2733,6 +2788,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.ni4os.hpc.ui2",
         "hostname": "hpc.resource.ni4os.eu",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "info_ext_PORT": "1022",
@@ -2747,6 +2803,7 @@ mock_topology = [
         "type": "SITES",
         "service": "gridproxy",
         "hostname": "some.host.name",
+        "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
             "monitored": "1",
@@ -2759,6 +2816,7 @@ mock_topology = [
         "type": "SITES",
         "service": "APEL",
         "hostname": "apel.grid1.example.com",
+        "ngi": "TEST",
         "notifications": {
             "enabled": True
         },
@@ -2775,6 +2833,7 @@ mock_topology = [
         "type": "SITES",
         "service": "APEL",
         "hostname": "apel.grid2.example.com",
+        "ngi": "TEST",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxxxx",
@@ -2789,6 +2848,7 @@ mock_topology = [
         "type": "SITES",
         "service": "egi.AppDB",
         "hostname": "appdb.egi.eu",
+        "ngi": "EGI.eu",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxxx",
@@ -2803,6 +2863,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ch.cern.cvmfs.stratum.1",
         "hostname": "cclssts1.in2p3.fr",
+        "ngi": "NGI_FRANCE",
         "notifications": {
             "enabled": True
         },
@@ -2820,6 +2881,7 @@ mock_topology = [
         "type": "SITES",
         "service": "ch.cern.cvmfs.stratum.1",
         "hostname": "cvmfs-stratum-one.cc.kek.jp",
+        "ngi": "AsiaPacific",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxxxx",
@@ -2834,6 +2896,7 @@ mock_topology = [
         "type": "SITES",
         "service": "SRM",
         "hostname": "dcache6-shadow.iihe.ac.be",
+        "ngi": "NGI_NL",
         "notifications": {
             "enabled": True
         },
@@ -2850,6 +2913,7 @@ mock_topology = [
         "type": "SITES",
         "service": "Site-BDII",
         "hostname": "sitebdii.iihe.ac.be",
+        "ngi": "NGI_NL",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -2864,6 +2928,7 @@ mock_topology = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.generic.oai-pmh",
         "hostname": "lida.dataverse.lt",
+        "ngi": "TEST",
         "tags": {
             "hostname": "lida.dataverse.lt",
             "info_URL": "https://lida.dataverse.lt/oai?verb="
@@ -2877,6 +2942,7 @@ mock_topology = [
         "type": "SITES",
         "service": "XRootD",
         "hostname": "atlas.dcache.example.eu",
+        "ngi": "TEST",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxxxx",
@@ -2894,6 +2960,7 @@ mock_topology = [
         "type": "SITES",
         "service": "XRootD",
         "hostname": "xrootd.example.eu",
+        "ngi": "TEST",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -2913,6 +2980,7 @@ mock_topology = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "eosatlas.cern.ch",
+        "ngi": "CERN",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -2931,6 +2999,7 @@ mock_topology = [
         "type": "SITES",
         "service": "XRootD",
         "hostname": "castorpublic.cern.ch",
+        "ngi": "CERN",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -2945,6 +3014,7 @@ mock_topology = [
         "type": "SITES",
         "service": "eu.egi.readonly.xrootd",
         "hostname": "xrootd01.readonly.eu",
+        "ngi": "TEST",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -3956,6 +4026,7 @@ mock_topology_with_hostname_in_tag = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname1.argo.com_hostname1_id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname1.argo.com",
             "info_ID": "hostname1_id",
@@ -3969,6 +4040,7 @@ mock_topology_with_hostname_in_tag = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname2.argo.eu_second.id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname2.argo.eu",
             "info_ID": "second.id",
@@ -3983,6 +4055,7 @@ mock_topology_with_hostname_in_tag = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname3.argo.eu_test.id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname3.argo.eu",
             "info_ID": "test.id",
@@ -3995,6 +4068,7 @@ mock_topology_with_hostname_in_tag = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.generic.oai-pmh",
         "hostname": "dabar.srce.hr_dabar_id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "dabar.srce.hr",
             "info_ID": "dabar_id",
@@ -4007,6 +4081,7 @@ mock_topology_with_hostname_in_tag = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.generic.oai-pmh",
         "hostname": "hrcak.srce.hr_hrcak.id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hrcak.srce.hr",
             "info_ID": "hrcak.id",
@@ -4022,6 +4097,7 @@ mock_topology_with_hostname_wrong_chars = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname1.argo.com_hostname1 id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname1.argo.com",
             "info_ID": "hostname1 id",
@@ -4035,6 +4111,7 @@ mock_topology_with_hostname_wrong_chars = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname2.argo.eu_second/id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname2.argo.eu",
             "info_ID": "second/id",
@@ -4049,6 +4126,7 @@ mock_topology_with_hostname_wrong_chars = [
         "type": "SERVICEGROUPS",
         "service": "eu.eosc.portal.services.url",
         "hostname": "hostname3.argo.eu_test.id",
+        "ngi": "TEST",
         "tags": {
             "hostname": "hostname3.argo.eu",
             "info_ID": "test.id",
@@ -4064,6 +4142,7 @@ mock_topology_with_duplicate_entries = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "xrootd.example.de",
+        "ngi": "TEST",
         "notifications": {
             "enabled": True
         },
@@ -4083,6 +4162,7 @@ mock_topology_with_duplicate_entries = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "webdav.test.de",
+        "ngi": "TEST",
         "notifications": {
             "enabled": True
         },
@@ -4100,6 +4180,7 @@ mock_topology_with_duplicate_entries = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "webdav.test.de",
+        "ngi": "TEST",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -4116,6 +4197,7 @@ mock_topology_with_duplicate_entries = [
         "type": "SITES",
         "service": "webdav",
         "hostname": "eosatlas.cern.ch",
+        "ngi": "CERN",
         "notifications": {},
         "tags": {
             "info_ID": "xxxxx",
@@ -10477,6 +10559,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10496,6 +10579,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10534,6 +10618,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10548,6 +10633,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10566,6 +10652,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://bioinformatics.cing.ac.cy/MelGene/",
                             "service": "web.check",
                             "site": "CING",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10583,6 +10670,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
                             "site": "CYI",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10604,6 +10692,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "opstest/",
                             "service": "web.check",
                             "site": "SAMPA",
+                            "ngi": "ROC_LA",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10641,6 +10730,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10657,6 +10747,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10697,6 +10788,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://dynafed.hostname.ca:443/dynafed/ops",
                             "service": "ch.cern.dynafed",
                             "site": "CA-UVic-Cloud",
+                            "ngi": "ROC_Canada",
                             "tenants": "MOCK_TENANT",
                             "info_hostdn": "/C=CA/O=Grid/CN=dynafed.hostname.ca"
                         }
@@ -10713,6 +10805,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://grycap.upv.es:31443/im/",
                             "service": "es.upv.grycap.im",
                             "site": "UPV-GRyCAP",
+                            "ngi": "NGI_IBERGRID",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10734,6 +10827,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "egi/",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10752,6 +10846,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://hostname.cern.ch/atlas/opstest",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10793,6 +10888,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "https://mock.url.com/dpm/ops",
                             "service": "mock.webdav",
                             "site": "WEBDAV-test",
+                            "ngi": "MEH",
                             "info_hostdn": "/CN=host/dpm.bla.meh.com",
                             "tenants": "MOCK_TENANT"
                         }
@@ -10838,6 +10934,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=DESY-HH,o=glue",
                             "service": "Site-BDII",
                             "site": "DESY-HH",
+                            "ngi": "NGI_DE",
                             "info_url": "ldap://grid-giis1.desy.de:2170/"
                                         "mds-vo-name=DESY-HH,o=grid",
                             "tenants": "MOCK_TENANT"
@@ -10862,6 +10959,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=ARNES,o=glue",
                             "service": "Site-BDII",
                             "site": "ARNES",
+                            "ngi": "NGI_SI",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
                                            "CN=kser.arnes.si",
                             "tenants": "MOCK_TENANT"
@@ -10886,6 +10984,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=SBDII,o=glue",
                             "service": "Site-BDII",
                             "site": "SBDII",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10909,6 +11008,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "GLUE2DomainID=BEgrid-ULB-VUB,o=glue",
                             "service": "Site-BDII",
                             "site": "BEgrid-ULB-VUB",
+                            "ngi": "NGI_NL",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10926,6 +11026,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "glue2_bdii_dn": "GLUE2DomainID=BDII,o=glue",
                             "service": "Top-BDII",
                             "site": "BDII",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10965,6 +11066,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect_path": "-u /",
                             "service": "eu.ni4os.app.web",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10981,6 +11083,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssh_port": "1022",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -10995,6 +11098,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11034,6 +11138,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_name": "nsupdate",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11050,6 +11155,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_name": "secondary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11066,6 +11172,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "endpoint_name": "primary",
                             "service": "eu.egi.cloud.dyndns",
                             "site": "EGI-DDNS",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11108,6 +11215,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "185.229.108.85",
                             "service": "eu.seadatanet.org.replicationmanager",
                             "site": "GAMMA",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11130,6 +11238,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hnodc-dm.ath.hcmr.gr",
                             "service": "eu.seadatanet.org.replicationmanager",
                             "site": "HNODC",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11179,6 +11288,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "region__os_region": "--region sdds",
                             "service": "org.openstack.nova",
                             "site": "INFN-CLOUD-CNAF",
+                            "ngi": "NGI_IT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11203,6 +11313,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "egi-cloud.pd.infn.it",
                             "service": "org.openstack.nova",
                             "site": "INFN-PADOVA-STACK",
+                            "ngi": "NGI_IT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11222,6 +11333,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "identity.cloud.muni.cz",
                             "service": "org.openstack.swift",
                             "site": "CESNET-MCC",
+                            "ngi": "NGI_CZ",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11262,6 +11374,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "aai.eosc-portal.eu",
                             "service": "egi.aai.oidc",
                             "site": "GRIDOPS-CheckIn",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11280,6 +11393,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "aai.eosc-portal.eu",
                             "service": "egi.aai.saml",
                             "site": "GRIDOPS-CheckIn",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11322,6 +11436,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--endpoint srm://dcache-se-cms.desy.de:8443"
                                 "/srm/managerv2?SFN=/pnfs/desy.de/ops",
                             "site": "DESY-HH",
+                            "ngi": "NGI_DE",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11337,6 +11452,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ldap_url__site_bdii": "--ldap-url kser.arnes.si",
                             "service": "SRM",
                             "site": "ARNES",
+                            "ngi": "NGI_SI",
                             "info_hostdn": "/C=SI/O=SiGNET/O=Arnes/"
                                            "CN=dcache.arnes.si",
                             "srm2_port": "8443",
@@ -11356,6 +11472,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "--ldap-url sitebdii.iihe.ac.be",
                             "service": "SRM",
                             "site": "BEgrid-ULB-VUB",
+                            "ngi": "NGI_NL",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11393,6 +11510,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gridarcce01.mesocentre.uca.fr",
                             "service": "ARC-CE",
                             "site": "AUVERGRID",
+                            "ngi": "NGI_FRANCE",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11408,6 +11526,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "alien.spacescience.ro",
                             "service": "ARC-CE",
                             "site": "RO-13-ISS",
+                            "ngi": "NGI_RO",
                             "memory_limit__arc_ce_memory_limit":
                                 "--memory-limit 268435456",
                             "tenants": "MOCK_TENANT"
@@ -11447,6 +11566,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.egi.eu",
                             "service": "argo.mon",
                             "site": "SRCE",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11462,6 +11582,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.ni4os.eu",
                             "service": "argo.mon",
                             "site": "SRCE",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11546,6 +11667,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11562,6 +11684,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11578,6 +11701,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11637,6 +11761,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11653,6 +11778,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11669,6 +11795,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11729,6 +11856,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11749,6 +11877,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11769,6 +11898,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11785,6 +11915,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.test",
                             "site": "B2HANDLE-TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11846,6 +11977,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11866,6 +11998,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11886,6 +12019,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11902,6 +12036,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.test",
                             "site": "B2HANDLE-TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11952,6 +12087,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://api.argo.grnet.gr/",
                             "service": "argo.api",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -11968,6 +12104,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://api.devel.argo.grnet.gr/",
                             "service": "argo.api",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12005,6 +12142,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12065,6 +12203,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "aai.argo.eu",
                             "service": "argo.oidc.login",
                             "site": "ARGO",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12081,6 +12220,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 "type": "SITES",
                 "service": "webdav",
                 "hostname": "hostname.cern.ch",
+                "ngi": "CERN",
                 "tags": {
                     "info_ID": "xxxxxxx",
                     "info_URL": "https://hostname.cern.ch/atlas/opstest",
@@ -12095,6 +12235,7 @@ class EntityConfigurationTests(unittest.TestCase):
                 "type": "SITES",
                 "service": "webdav",
                 "hostname": "hostname2.cern.ch",
+                "ngi": "CERN",
                 "tags": {
                     "info_ID": "xxxxxxx",
                     "info_URL": "https://hostname2.cern.ch/atlas/opstest",
@@ -12136,6 +12277,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12153,6 +12295,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname2.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12194,6 +12337,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname1.argo.com",
                             "service": "eu.eosc.portal.services.url",
                             "site": "test1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12211,6 +12355,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssl": "-S --sni",
                             "service": "eu.eosc.portal.services.url",
                             "site": "test2.test",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12228,6 +12373,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
                             "site": "group3",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12266,6 +12412,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test-json.argo.grnet.gr",
                             "service": "argo.json",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12325,6 +12472,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12344,6 +12492,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12363,6 +12512,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12424,6 +12574,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12443,6 +12594,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test2.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12462,6 +12614,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "test3.argo.grnet.gr",
                             "service": "probe.test",
                             "site": "ARGO",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12503,6 +12656,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle.test.example.com",
                             "service": "b2handle",
                             "site": "B2HANDLE",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12559,6 +12713,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle.test.example.com",
                             "service": "b2handle",
                             "site": "B2HANDLE",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12599,6 +12754,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.api",
                             "site": "ARCHIVE-B2HANDLE,B2HANDLE TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12651,6 +12807,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
                             "site": "B2HANDLE-TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12670,6 +12827,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
                             "site": "ARCHIVE-B2HANDLE",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12730,6 +12888,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
                             "site": "B2HANDLE-TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12749,6 +12908,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
                             "site": "ARCHIVE-B2HANDLE",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12803,6 +12963,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle.test.com",
                             "service": "b2handle.handle.test",
                             "site": "B2HANDLE-TEST",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12822,6 +12983,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "b2handle3.test.com",
                             "service": "b2handle.handle.test",
                             "site": "ARCHIVE-B2HANDLE",
+                            "ngi": "EUDAT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12857,6 +13019,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab.test.com",
                             "service": "gitlab",
                             "site": "GITLAB-TEST",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12874,6 +13037,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab",
                             "site": "GITLAB-TEST",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12935,6 +13099,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -12952,6 +13117,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13003,6 +13169,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13018,6 +13185,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13074,6 +13242,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13090,6 +13259,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13138,6 +13308,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13152,6 +13323,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "gitlab2.test.com",
                             "service": "gitlab2",
                             "site": "GITLAB-TEST2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13193,6 +13365,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13207,6 +13380,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13244,6 +13418,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13258,6 +13433,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13305,6 +13481,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13319,6 +13496,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13368,6 +13546,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hpc.resource.ni4os.eu",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "IPB",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13382,6 +13561,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "teran.srce.hr",
                             "service": "eu.ni4os.hpc.ui2",
                             "site": "SRCE",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13421,6 +13601,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "apel.grid1.example.com",
                             "service": "APEL",
                             "site": "APEL-Site1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13438,6 +13619,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "apel.grid2.example.com",
                             "service": "APEL",
                             "site": "APEL-Site2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13491,6 +13673,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "apel.grid1.example.com",
                             "service": "APEL",
                             "site": "APEL-Site1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13508,6 +13691,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "apel.grid2.example.com",
                             "service": "APEL",
                             "site": "APEL-Site2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13546,6 +13730,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "appdb.egi.eu",
                             "service": "egi.AppDB",
                             "site": "APPDB",
+                            "ngi": "EGI.eu",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13566,6 +13751,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "bioinformatics.cing.ac.cy",
                             "service": "web.check",
                             "site": "CING",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13585,6 +13771,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "eewrc-las.cyi.ac.cy",
                             "service": "web.check",
                             "site": "CYI",
+                            "ngi": "NI4OS",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13608,6 +13795,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "sampaeos.if.usp.br",
                             "service": "web.check",
                             "site": "SAMPA",
+                            "ngi": "ROC_LA",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13646,6 +13834,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "cclssts1.in2p3.fr",
                             "service": "ch.cern.cvmfs.stratum.1",
                             "site": "IN2P3-CC",
+                            "ngi": "NGI_FRANCE",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13663,6 +13852,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "cvmfs-stratum-one.cc.kek.jp",
                             "service": "ch.cern.cvmfs.stratum.1",
                             "site": "JP-KEK-CRC-02",
+                            "ngi": "AsiaPacific",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13701,6 +13891,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache-se-cms.desy.de",
                             "service": "SRM",
                             "site": "DESY-HH",
+                            "ngi": "NGI_DE",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13717,6 +13908,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache.arnes.si",
                             "service": "SRM",
                             "site": "ARNES",
+                            "ngi": "NGI_SI",
                             "info_hostdn":
                                 "/C=SI/O=SiGNET/O=Arnes/CN=dcache.arnes.si",
                             "tenants": "MOCK_TENANT"
@@ -13734,6 +13926,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "dcache6-shadow.iihe.ac.be",
                             "service": "SRM",
                             "site": "BEgrid-ULB-VUB",
+                            "ngi": "NGI_NL",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13779,6 +13972,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "lida.dataverse.lt",
                             "service": "eu.eosc.generic.oai-pmh",
                             "site": "lida.lida_survey_data",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13819,6 +14013,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13834,6 +14029,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13854,6 +14050,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13894,6 +14091,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13909,6 +14107,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13929,6 +14128,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13950,6 +14150,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -13967,6 +14168,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14023,6 +14225,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "atlas.dcache.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE1",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14039,6 +14242,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "castorpublic.cern.ch",
                             "service": "XRootD",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14059,6 +14263,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "xrootd.example.eu",
                             "service": "XRootD",
                             "site": "XROOTD-SITE2",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14080,6 +14285,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14097,6 +14303,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "hostname.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14140,6 +14347,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "eosatlas.cern.ch",
                             "service": "webdav",
                             "site": "CERN-PROD",
+                            "ngi": "CERN",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14157,6 +14365,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "webdav.test.de",
                             "service": "webdav",
                             "site": "UNI-TEST",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14177,6 +14386,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "xrootd.example.de",
                             "service": "webdav",
                             "site": "UNI-EXAMPLE",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14222,6 +14432,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "xrootd01.readonly.eu",
                             "service": "eu.egi.readonly.xrootd",
                             "site": "XROOTD-READONLY",
+                            "ngi": "TEST",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14272,6 +14483,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "region__os_region": "--region sdds",
                             "service": "org.openstack.nova",
                             "site": "INFN-CLOUD-CNAF",
+                            "ngi": "NGI_IT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14294,6 +14506,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "egi-cloud.pd.infn.it",
                             "service": "org.openstack.nova",
                             "site": "INFN-PADOVA-STACK",
+                            "ngi": "NGI_IT",
                             "tenants": "MOCK_TENANT"
                         }
                     }
@@ -14654,6 +14867,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "info_url": "https://argo.ni4os.eu",
                         "service": "argo.test",
                         "site": "GRNET",
+                        "ngi": "EGI.eu",
                         "tenants": "TENANT1"
                     }
                 }
@@ -14671,6 +14885,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "info_url": "http://argo-devel.ni4os.eu",
                         "service": "argo.webui",
                         "site": "GRNET",
+                        "ngi": "EGI.eu",
                         "tenants": "TENANT1"
                     }
                 }
@@ -14688,6 +14903,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "info_url": "https://argo.ni4os.eu",
                         "service": "argo.webui",
                         "site": "GRNET",
+                        "ngi": "EGI.eu",
                         "tenants": "TENANT1"
                     }
                 }
@@ -14705,6 +14921,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "hostname": "argo-mon-devel.egi.eu",
                         "service": "argo.mon",
                         "site": "SRCE",
+                        "ngi": "EGI.eu",
                         "tenants": "TENANT2"
                     }
                 }
@@ -14720,6 +14937,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                         "hostname": "argo-mon-devel.ni4os.eu",
                         "service": "argo.mon",
                         "site": "SRCE",
+                        "ngi": "EGI.eu",
                         "tenants": "TENANT2"
                     }
                 }
@@ -14964,6 +15182,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.egi.eu",
                             "service": "argo.mon",
                             "site": "SRCE",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT2"
                         }
                     }
@@ -14979,6 +15198,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.ni4os.eu",
                             "service": "argo.mon",
                             "site": "SRCE",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT2"
                         }
                     }
@@ -14995,6 +15215,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT1"
                         }
                     }
@@ -15012,6 +15233,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "info_url": "http://argo-devel.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT1"
                         }
                     }
@@ -15029,6 +15251,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.webui",
                             "site": "GRNET",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT1"
                         }
                     }
@@ -15056,6 +15279,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "info_url": "https://argo.ni4os.eu",
                                 "service": "argo.test",
                                 "site": "GRNET",
+                                "ngi": "EGI.eu",
                                 "tenants": "TENANT1"
                             }
                         }
@@ -15070,6 +15294,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                                 "hostname": "argo-mon-devel.ni4os.eu",
                                 "service": "argo.mon",
                                 "site": "GRNET",
+                                "ngi": "EGI.eu",
                                 "tenants": "TENANT1"
                             }
                         }
@@ -15096,6 +15321,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.egi.eu",
                             "service": "argo.mon",
                             "site": "SRCE",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT2"
                         }
                     }
@@ -15112,6 +15338,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "hostname": "argo-mon-devel.ni4os.eu",
                             "service": "argo.mon",
                             "site": "GRNET,SRCE",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT1,TENANT2"
                         }
                     }
@@ -15128,6 +15355,7 @@ class ConfigurationMergerTests(unittest.TestCase):
                             "info_url": "https://argo.ni4os.eu",
                             "service": "argo.test",
                             "site": "GRNET",
+                            "ngi": "EGI.eu",
                             "tenants": "TENANT1"
                         }
                     }
