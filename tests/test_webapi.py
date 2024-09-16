@@ -1,3 +1,4 @@
+import copy
 import logging
 import unittest
 from unittest.mock import patch, call
@@ -182,7 +183,7 @@ mock_topology_groups = [
     },
     {
         "date": "2022-03-09",
-        "group": "GROUPNAME1",
+        "group": "GROUPNAME2",
         "type": "NGI",
         "subgroup": "GROUP3",
         "tags": {
@@ -396,6 +397,14 @@ class WebApiTests(unittest.TestCase):
             topo_endpoints_filter="tags=monitored:1"
         )
         self.logname = "argo-scg.webapi"
+        self.endpoints = copy.deepcopy(mock_topology_endpoints)
+        self.endpoints[0]["ngi"] = "GROUPNAME1"
+        self.endpoints[1]["ngi"] = "GROUPNAME1"
+        self.endpoints[2]["ngi"] = "GROUPNAME1"
+        self.endpoints[3]["ngi"] = "GROUPNAME1"
+        self.endpoints[4]["ngi"] = "GROUPNAME1"
+        self.endpoints[5]["ngi"] = "GROUPNAME2"
+        self.endpoints[6]["ngi"] = "GROUPNAME1"
 
     @patch("requests.get")
     def test_get_metric_profiles(self, mock_request):
@@ -450,7 +459,7 @@ class WebApiTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             _log_dummy()
             topology = self.webapi.get_topology()
-        self.assertEqual(topology, mock_topology_endpoints)
+        self.assertEqual(topology, self.endpoints)
         self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
@@ -517,9 +526,8 @@ class WebApiTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             topology, [
-                mock_topology_endpoints[0], mock_topology_endpoints[1],
-                mock_topology_endpoints[3], mock_topology_endpoints[4],
-                mock_topology_endpoints[6]
+                self.endpoints[0], self.endpoints[1], self.endpoints[3],
+                self.endpoints[4], self.endpoints[6]
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)
@@ -530,16 +538,26 @@ class WebApiTests(unittest.TestCase):
         with self.assertLogs(self.logname) as log:
             _log_dummy()
             topology = self.webapi_filtered_endpoints.get_topology()
-        mock_get.assert_called_once_with(
-            "https://web-api.com/api/v2/topology/endpoints?"
-            "tags=monitored:1",
-            headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "x-api-key": "W3b4p1t0k3n"
-            }
-        )
-        self.assertEqual(topology, mock_topology_endpoints[1:])
+        self.assertEqual(mock_get.call_count, 2)
+        mock_get.assert_has_calls([
+            call(
+                "https://web-api.com/api/v2/topology/endpoints?"
+                "tags=monitored:1",
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            ),
+            call(
+                "https://web-api.com/api/v2/topology/groups", headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "x-api-key": "W3b4p1t0k3n"
+                }
+            )
+        ], any_order=True)
+        self.assertEqual(topology, self.endpoints[1:])
         self.assertEqual(log.output, DUMMY_LOG)
 
     @patch("requests.get")
@@ -570,8 +588,8 @@ class WebApiTests(unittest.TestCase):
         ], any_order=True)
         self.assertEqual(
             topology, [
-                mock_topology_endpoints[1], mock_topology_endpoints[3],
-                mock_topology_endpoints[4], mock_topology_endpoints[6]
+                self.endpoints[1], self.endpoints[3], self.endpoints[4],
+                self.endpoints[6]
             ]
         )
         self.assertEqual(log.output, DUMMY_LOG)

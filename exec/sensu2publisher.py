@@ -62,6 +62,8 @@ def main():
         perfdata = output.get_perfdata()
         summary = output.get_summary()
         message = output.get_message()
+        site = output.get_site()
+        roc = output.get_ngi()
 
         for tenant in tenants:
             publisher_queue = config.get_publisher_queue()[tenant]
@@ -70,9 +72,12 @@ def main():
                 "ams-metric-to-queue", "--servicestatetype", "HARD",
                 "--queue", publisher_queue, "--service", service,
                 "--hostname", hostname, "--metric", metric_name,
-                "--status", status, "--summary", summary,
+                "--status", status, "--summary", summary, "--site", site,
                 "--message", repr(message)
             ]
+            if roc:
+                ams_m2q_call.extend(["--roc", roc])
+
             if perfdata:
                 ams_m2q_call.extend(["--actual_data", perfdata])
 
