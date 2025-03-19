@@ -1120,6 +1120,37 @@ mock_metrics = [
         }
     },
     {
+        "generic.json.connect": {
+            "tags": [
+                "http",
+                "json"
+            ],
+            "probe": "check_json",
+            "config": {
+                "maxCheckAttempts": "3",
+                "timeout": "30",
+                "path": "/usr/libexec/argo/probes/json",
+                "interval": "15",
+                "retryInterval": "5"
+            },
+            "flags": {
+                "NOHOSTNAME": "1"
+            },
+            "dependency": {},
+            "attribute": {
+                "URL": "-u",
+                "ARGO_JSON_KEY": "-k",
+                "ARGO_JSON_CRITICAL": "-c"
+            },
+            "parameter": {},
+            "file_parameter": {},
+            "file_attribute": {},
+            "parent": "",
+            "docurl": "https://github.com/ARGOeu-Metrics/argo-probe-json/blob/"
+                      "master/README.md"
+        }
+    },
+    {
         "generic.oai-pmh.validity": {
             "tags": [
                 "OAI-PMH",
@@ -3026,7 +3057,33 @@ mock_topology = [
             "production": "1",
             "scope": "EGI, wlcg, tier2, atlas, cms, lhcb"
         }
-    }
+    },
+    {
+        "date": "2025-03-12",
+        "group": "TEST_API",
+        "type": "SERVICEGROUPS",
+        "service": "argo.test.json.api",
+        "hostname": "test.argo.eu",
+        "tags": {
+            "hostname": "test.argo.eu",
+            "info_ID": "ARGO6",
+            "info_URL": "https://test.argo.eu/api/DataSets/v2/search?q=house&metadataLanguage=en",
+            "monitored": "1"
+        }
+    },
+    {
+        "date": "2025-03-12",
+        "group": "TEST_API",
+        "type": "SERVICEGROUPS",
+        "service": "argo.test.json.api",
+        "hostname": "test2.argo.eu",
+        "tags": {
+            "hostname": "test2.argo.eu",
+            "info_ID": "ARGO7",
+            "info_URL": "https://test2.argo.eu/v2/vocabularies-published",
+            "monitored": "1"
+        }
+    },
 ]
 
 mock_metric_profiles = [
@@ -3975,7 +4032,21 @@ mock_metric_profiles = [
                 ]
             }
         ]
-    }
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2025-03-12",
+        "name": "ARGO_TEST57",
+        "description": "Profile for testing optional attributes",
+        "services": [
+            {
+                "service": "argo.test.json.api",
+                "metrics": [
+                    "generic.json.connect"
+                ]
+            }
+        ]
+    },
 ]
 
 mock_local_topology = [
@@ -10524,6 +10595,84 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_with_optional_attributes(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_KEY",
+                    "value": "key1.key2"
+                }, {
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_CRITICAL",
+                    "value": ":0"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST57"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/libexec/argo/probes/json/check_json -t 30 "
+                               "-u {{ .labels.endpoint_url }} "
+                               "{{ .labels.k__argo_json_key | default \"\" }} "
+                               "{{ .labels.c__argo_json_critical | "
+                               "default \"\" }}",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_json_connect == "
+                            "'generic.json.connect'"
+                        ]
+                    },
+                    "interval": 900,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.json.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -14507,6 +14656,87 @@ class EntityConfigurationTests(unittest.TestCase):
                             "service": "org.openstack.nova",
                             "site": "INFN-PADOVA-STACK",
                             "ngi": "NGI_IT",
+                            "tenants": "MOCK_TENANT"
+                        }
+                    }
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_optional_attributes(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_KEY",
+                    "value": "key1.key2"
+                }, {
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_CRITICAL",
+                    "value": ":0"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST57"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test.json.api__test.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_json_connect": "generic.json.connect",
+                            "endpoint_url":
+                                '"https://test.argo.eu/api/DataSets/v2/search'
+                                '?q=house&metadataLanguage=en"',
+                            "k__argo_json_key": "-k key1.key2",
+                            "c__argo_json_critical": "-c :0",
+                            "info_url":
+                                '"https://test.argo.eu/api/DataSets/v2/search?'
+                                'q=house&metadataLanguage=en"',
+                            "hostname": "test.argo.eu",
+                            "service": "argo.test.json.api",
+                            "site": "TEST_API",
+                            "ngi": "",
+                            "tenants": "MOCK_TENANT"
+                        }
+                    }
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test.json.api__test2.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_json_connect": "generic.json.connect",
+                            "endpoint_url":
+                                "https://test2.argo.eu/v2/"
+                                "vocabularies-published",
+                            "info_url":
+                                "https://test2.argo.eu/v2/vocabularies-"
+                                "published",
+                            "hostname": "test2.argo.eu",
+                            "service": "argo.test.json.api",
+                            "site": "TEST_API",
+                            "ngi": "",
                             "tenants": "MOCK_TENANT"
                         }
                     }
