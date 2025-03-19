@@ -14664,6 +14664,87 @@ class EntityConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_entities_with_optional_attributes(self):
+        attributes = {
+            "local": {
+                "global_attributes": [],
+                "host_attributes": [{
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_KEY",
+                    "value": "key1.key2"
+                }, {
+                    "hostname": "test.argo.eu",
+                    "attribute": "ARGO_JSON_CRITICAL",
+                    "value": ":0"
+                }],
+                "metric_parameters": []
+            }
+        }
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST57"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test.json.api__test.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_json_connect": "generic.json.connect",
+                            "endpoint_url":
+                                '"https://test.argo.eu/api/DataSets/v2/search'
+                                '?q=house&metadataLanguage=en"',
+                            "k__argo_json_key": "-k key1.key2",
+                            "c__argo_json_critical": "-c :0",
+                            "info_url":
+                                '"https://test.argo.eu/api/DataSets/v2/search?'
+                                'q=house&metadataLanguage=en"',
+                            "hostname": "test.argo.eu",
+                            "service": "argo.test.json.api",
+                            "site": "TEST_API",
+                            "ngi": "",
+                            "tenants": "MOCK_TENANT"
+                        }
+                    }
+                },
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "argo.test.json.api__test2.argo.eu",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_json_connect": "generic.json.connect",
+                            "endpoint_url":
+                                "https://test2.argo.eu/v2/"
+                                "vocabularies-published",
+                            "info_url":
+                                "https://test2.argo.eu/v2/vocabularies-"
+                                "published",
+                            "hostname": "test2.argo.eu",
+                            "service": "argo.test.json.api",
+                            "site": "TEST_API",
+                            "ngi": "",
+                            "tenants": "MOCK_TENANT"
+                        }
+                    }
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
     def test_generate_internal_services(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
