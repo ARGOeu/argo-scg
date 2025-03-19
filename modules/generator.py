@@ -86,7 +86,6 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-
         self.agents_config = agents_config
         sorted_agents = sorted(default_agent)
 
@@ -363,6 +362,20 @@ class ConfigurationGenerator:
                 break
 
         return is_present
+
+    def _is_attribute_overridden_all_endpoints(self, attribute):
+        hostnames4metric = self._get_hostnames4metrics()
+        hostnames_with_overridden_attributes = set()
+        hostnames_with_metrics = set()
+        for item in self.host_attribute_overrides:
+            if item["attribute"] == attribute:
+                hostnames_with_overridden_attributes.add(item["hostname"])
+                for metric in item["metrics"]:
+                    hostnames_with_metrics.update(set(hostnames4metric[metric]))
+
+        return len(set(hostnames_with_metrics).difference(
+            set(hostnames_with_overridden_attributes)
+        )) == 0
 
     def _is_parameter_default(self, metric_name, parameter):
         is_default = False
@@ -645,6 +658,19 @@ class ConfigurationGenerator:
                     elif key == "OS_KEYSTONE_PORT":
                         key = "{{ .labels.%s | default \"443\" }}" \
                               % create_label(key)
+
+                    elif key in overridden_attributes:
+                        if self._is_attribute_overridden_all_endpoints(
+                                attribute=key
+                        ):
+                            key = "{{ .labels.%s }}" % create_label(key.lower())
+
+                        else:
+                            key = "{{ .labels.%s__%s | default \"\" }}" % (
+                                create_label(value.lstrip("-").lstrip("-")),
+                                create_label(key)
+                            )
+                            value = ""
 
                     elif (
                             key.startswith("OS_KEYSTONE_") or
