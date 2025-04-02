@@ -86,7 +86,6 @@ class ConfigurationGenerator:
         self.servicesite_name_var = "$_SERVICESITE_NAME$"
         self.servicevo_fqan_var = "$_SERVICEVO_FQAN$"
 
-
         self.agents_config = agents_config
         sorted_agents = sorted(default_agent)
 
@@ -364,6 +363,20 @@ class ConfigurationGenerator:
 
         return is_present
 
+    def _is_attribute_overridden_all_endpoints(self, attribute):
+        hostnames4metric = self._get_hostnames4metrics()
+        hostnames_with_overridden_attributes = set()
+        hostnames_with_metrics = set()
+        for item in self.host_attribute_overrides:
+            if item["attribute"] == attribute:
+                hostnames_with_overridden_attributes.add(item["hostname"])
+                for metric in item["metrics"]:
+                    hostnames_with_metrics.update(set(hostnames4metric[metric]))
+
+        return len(set(hostnames_with_metrics).difference(
+            set(hostnames_with_overridden_attributes)
+        )) == 0
+
     def _is_parameter_default(self, metric_name, parameter):
         is_default = False
 
@@ -492,6 +505,32 @@ class ConfigurationGenerator:
                             ext_dict.update({attribute: metrics})
 
         return ext_dict
+
+    def _get_attributes4metrics(self):
+        attributes = dict()
+        for metric in self.metrics:
+            for name, configuration in metric.items():
+                for attribute, value in configuration["attribute"].items():
+                    if attribute in [
+                        o["attribute"] for o in self.host_attribute_overrides
+                    ]:
+                        if attribute not in attributes:
+                            attributes.update({
+                                attribute: [{
+                                    "metric": name,
+                                    "value": value
+                                }]
+                            })
+
+                        else:
+                            tmp = attributes[attribute]
+                            tmp.append({
+                                "metric": name,
+                                "value": value
+                            })
+                            attributes.update({attribute: tmp})
+
+        return attributes
 
     def _handle_attributes(self, metric, attrs):
         attributes = ""
@@ -645,6 +684,19 @@ class ConfigurationGenerator:
                     elif key == "OS_KEYSTONE_PORT":
                         key = "{{ .labels.%s | default \"443\" }}" \
                               % create_label(key)
+
+                    elif key in overridden_attributes:
+                        if self._is_attribute_overridden_all_endpoints(
+                                attribute=key
+                        ):
+                            key = "{{ .labels.%s }}" % create_label(key.lower())
+
+                        else:
+                            key = "{{ .labels.%s__%s | default \"\" }}" % (
+                                create_label(value.lstrip("-").lstrip("-")),
+                                create_label(key)
+                            )
+                            value = ""
 
                     elif (
                             key.startswith("OS_KEYSTONE_") or
@@ -948,6 +1000,7 @@ class ConfigurationGenerator:
                 item for item in self.topology if
                 item["service"] in self.servicetypes
             ]
+            attributes4metrics = self._get_attributes4metrics()
 
             skipped_entities = list()
             for item in topo_entities:
@@ -1249,14 +1302,38 @@ class ConfigurationGenerator:
                             in non_fallback_urls_created
                         ]:
                             if o["label"] == "url":
-                                label = "endpoint_url"
+                                labels.update({"endpoint_url": o["value"]})
 
                             else:
-                                label = o["label"]
+                                if (self._is_attribute_overridden_all_endpoints(
+                                    o["attribute"]
+                                ) or o["attribute"] in self.global_attributes
+                                        or o["attribute"] in self.default_ports
+                                    or is_attribute_secret(o["attribute"])
+                                ):
+                                    labels.update({o["label"]: o["value"]})
 
-                            labels.update({
-                                label: o["value"]
-                            })
+                                else:
+                                    params = attributes4metrics[o["attribute"]]
+                                    for param in params:
+                                        if param["metric"] in \
+                                                metrics4servicetype:
+                                            labels.update({
+                                                "{}__{}".format(
+                                                    param["value"].lstrip(
+                                                        "-"
+                                                    ).lstrip("-").replace(
+                                                        "-", "_"
+                                                    ), create_label(
+                                                        o["attribute"]
+                                                    )
+                                                ): f"{param['value']} "
+                                                   f"{o['value']}"
+                                            })
+
+                            # labels.update({
+                            #     label: o["value"]
+                            # })
 
                     for attr in overriding_attributes:
                         if attr not in self.global_attributes and \
