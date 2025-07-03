@@ -4,7 +4,7 @@
 
 Summary:       ARGO Sensu configuration manager.
 Name:          argo-scg
-Version:       0.7.2
+Version:       0.7.3
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -48,6 +48,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 3 2025 Katarina Zailac <kzailac@srce.hr> - 0.7.3-1%{?dist}
+- ARGO-5022 URL path not passed properly
 * Wed Apr 2 2025 Katarina Zailac <kzailac@srce.hr> - 0.7.2-1%{?dist}
 - ARGO-4940 Ability to have optional attributes
 * Fri Sep 13 2024 Katarina Zailac <kzailac@srce.hr> - 0.7.1-1%{?dist}

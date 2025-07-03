@@ -2353,7 +2353,8 @@ mock_topology = [
         "ngi": "NI4OS",
         "tags": {
             "info_ID": "xxxx",
-            "info_URL": "https://bioinformatics.cing.ac.cy/MelGene/",
+            "info_URL":
+                "https://bioinformatics.cing.ac.cy/MelGene?bla=oai%3meh",
             "monitored": "1",
             "production": "1",
             "scope": "NI4OS-Europe"
@@ -10673,7 +10674,6 @@ class CheckConfigurationTests(unittest.TestCase):
         self.assertEqual(log.output, DUMMY_LOG)
 
 
-
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
         generator = ConfigurationGenerator(
@@ -10795,10 +10795,12 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "bioinformatics.cing.ac.cy",
-                            "generic_http_connect_path": "-u /MelGene/",
+                            "generic_http_connect_path":
+                                "-u /MelGene?bla=oai%3meh",
                             "ssl": "-S --sni",
                             "info_url":
-                                "https://bioinformatics.cing.ac.cy/MelGene/",
+                                "https://bioinformatics.cing.ac.cy/MelGene?"
+                                "bla=oai%3meh",
                             "service": "web.check",
                             "site": "CING",
                             "ngi": "NI4OS",
@@ -13894,9 +13896,11 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_certificate_validity":
                                 "generic.certificate.validity",
                             "info_url":
-                                "https://bioinformatics.cing.ac.cy/MelGene/",
+                                "https://bioinformatics.cing.ac.cy/"
+                                "MelGene?bla=oai%3meh",
                             "ssl": "-S --sni",
-                            "generic_http_connect_path": "-u /MelGene/",
+                            "generic_http_connect_path":
+                                "-u /MelGene?bla=oai%3meh",
                             "hostname": "bioinformatics.cing.ac.cy",
                             "service": "web.check",
                             "site": "CING",

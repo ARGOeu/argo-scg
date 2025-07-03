@@ -1037,9 +1037,12 @@ class ConfigurationGenerator:
                             labels.update({"ssl": "-S --sni"})
 
                     if o.path:
+                        path = o.path
+                        if o.query:
+                            path = f"{path}?{o.query}"
                         for entry in servicetypes_with_path:
                             lbl = f"{create_label(entry['metric'])}_path"
-                            val = f"{entry['attr_val']} {o.path}"
+                            val = f"{entry['attr_val']} {path}"
                             labels.update({lbl: val})
 
                     if port:
