@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.4-1] - 2025-07-17
+
+### Added
+
+* ARGO-5067 Add CHANGELOG.md
+
 ## [0.7.3-1] - 2025-03-07
 
 ### Fixed
