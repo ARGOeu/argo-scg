@@ -3085,6 +3085,21 @@ mock_topology = [
             "monitored": "1"
         }
     },
+    {
+        "date": "2025-10-09",
+        "group": "CSC",
+        "type": "SITES",
+        "service": "eudat.cms.confluence",
+        "hostname": "wiki.eduuni.fi",
+        "tags": {
+            "info_ID": "ARGO8",
+            "info_URL": "https://wiki.eduuni.fi/display/EUDATCDI/",
+            "info_ext_state": "production",
+            "monitored": "1",
+            "production": "0",
+            "scope": ""
+        }
+    },
 ]
 
 mock_metric_profiles = [
@@ -4029,7 +4044,6 @@ mock_metric_profiles = [
                     "argo.AMSPublisher-Check",
                     "org.nordugrid.ARC-CE-clean",
                     "org.nordugrid.ARC-CE-monitor"
-
                 ]
             }
         ]
@@ -4044,6 +4058,35 @@ mock_metric_profiles = [
                 "service": "argo.test.json.api",
                 "metrics": [
                     "generic.json.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2025-10-09",
+        "name": "ARGO_TEST58",
+        "description": "Profile with repeating service types 1",
+        "services": [
+            {
+                "service": "eudat.cms.confluence",
+                "metrics": [
+                    "generic.http.connect",
+                    "generic.tcp.connect"
+                ]
+            }
+        ]
+    },
+    {
+        "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "date": "2025-10-09",
+        "name": "ARGO_TEST59",
+        "description": "Profile with repeating service types 2",
+        "services": [
+            {
+                "service": "eudat.cms.confluence",
+                "metrics": [
+                    "generic.http.connect"
                 ]
             }
         ]
@@ -10673,6 +10716,107 @@ class CheckConfigurationTests(unittest.TestCase):
         )
         self.assertEqual(log.output, DUMMY_LOG)
 
+    def test_generate_check_configuration_with_repeating_servicetypes(self):
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST58", "ARGO_TEST59"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent = ["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            checks = generator.generate_checks(
+                publish=True, namespace="mockspace"
+            )
+        self.assertEqual(
+            sorted(checks, key=lambda k: k["metadata"]["name"]), [
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_http "
+                               "-H {{ .labels.hostname }} -t 60 --link "
+                               "--onredirect follow "
+                               "{{ .labels.ssl | default \" \" }} "
+                               "{{ .labels.generic_http_connect_port | "
+                               "default \" \" }} "
+                               "{{ .labels.generic_http_connect_path | "
+                               "default \" \" }}",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant.example.com"
+                    ],
+                    "handlers": [],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_http_connect == "
+                            "'generic.http.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.http.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False,
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ]
+                },
+                {
+                    "command": "/usr/lib64/nagios/plugins/check_tcp "
+                               "-H {{ .labels.hostname }} -t 120 -p 443",
+                    "subscriptions": [
+                        "entity:sensu-agent-mock_tenant.example.com"
+                    ],
+                    "handlers": [],
+                    "pipelines": [
+                        {
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }
+                    ],
+                    "proxy_requests": {
+                        "entity_attributes": [
+                            "entity.entity_class == 'proxy'",
+                            "entity.labels.generic_tcp_connect == "
+                            "'generic.tcp.connect'"
+                        ]
+                    },
+                    "interval": 300,
+                    "timeout": 900,
+                    "publish": True,
+                    "metadata": {
+                        "name": "generic.tcp.connect",
+                        "namespace": "mockspace",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "MOCK_TENANT"
+                        }
+                    },
+                    "round_robin": False
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
 
 class EntityConfigurationTests(unittest.TestCase):
     def test_generate_entity_configuration(self):
@@ -14741,6 +14885,51 @@ class EntityConfigurationTests(unittest.TestCase):
                             "service": "argo.test.json.api",
                             "site": "TEST_API",
                             "ngi": "",
+                            "tenants": "MOCK_TENANT"
+                        }
+                    }
+                }
+            ]
+        )
+        self.assertEqual(log.output, DUMMY_LOG)
+
+    def test_generate_entities_with_repeating_servicetypes(self):
+        self.maxDiff = None
+        generator = ConfigurationGenerator(
+            metrics=mock_metrics,
+            profiles=["ARGO_TEST58", "ARGO_TEST59"],
+            metric_profiles=mock_metric_profiles,
+            topology=mock_topology,
+            attributes=mock_attributes,
+            secrets_file="",
+            default_ports=mock_default_ports,
+            tenant="MOCK_TENANT",
+            default_agent=["sensu-agent-mock_tenant.example.com"]
+        )
+        with self.assertLogs(LOGNAME) as log:
+            _log_dummy()
+            entities = generator.generate_entities()
+        self.assertEqual(
+            sorted(entities, key=lambda k: k["metadata"]["name"]),
+            [
+                {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "eudat.cms.confluence__wiki.eduuni.fi",
+                        "namespace": "default",
+                        "labels": {
+                            "generic_tcp_connect": "generic.tcp.connect",
+                            "generic_http_connect": "generic.http.connect",
+                            "hostname": "wiki.eduuni.fi",
+                            "ssl": "-S --sni",
+                            "generic_http_connect_path":
+                                "-u /display/EUDATCDI/",
+                            "info_url":
+                                "https://wiki.eduuni.fi/display/EUDATCDI/",
+                            "service": "eudat.cms.confluence",
+                            "site": "CSC",
+                            "ngi": "",
+                            "state": "production",
                             "tenants": "MOCK_TENANT"
                         }
                     }
