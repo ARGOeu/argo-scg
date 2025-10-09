@@ -409,7 +409,13 @@ class ConfigurationGenerator:
         metrics = dict()
         for mp in self.metric_profiles:
             for service in mp["services"]:
-                metrics.update({service["service"]: service["metrics"]})
+                servicetype = service["service"]
+                if servicetype in metrics:
+                    service_metrics = metrics[servicetype]
+                    service_metrics += service["metrics"]
+
+                else:
+                    metrics.update({service["service"]: service["metrics"]})
 
         return metrics
 
