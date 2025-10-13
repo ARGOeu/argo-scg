@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.5-1] - 2025-10-13
+
+### Fixed
+
+* ARGO-5131 Missing checks when the same service type in multiple metric profiles
+
 ## [0.7.4-1] - 2025-07-17
 
 ### Added
@@ -20,7 +26,7 @@
 
 ## [0.7.1-1] - 2024-09-13
 
-### Added 
+### Added
 
 * ARGO-4827 Send tags bucket with extra information to AMS Publisher
 
