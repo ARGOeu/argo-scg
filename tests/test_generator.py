@@ -10967,7 +10967,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "bioinformatics.cing.ac.cy",
                             "generic_http_connect_path":
-                                "-u /MelGene?bla=oai%3meh",
+                                "-u \"/MelGene?bla=oai%3meh\"",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://bioinformatics.cing.ac.cy/MelGene?"
@@ -10987,7 +10987,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "hostname": "eewrc-las.cyi.ac.cy",
-                            "generic_http_connect_path": "-u /las/getUI.do",
+                            "generic_http_connect_path": "-u \"/las/getUI.do\"",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
                             "service": "web.check",
@@ -11007,7 +11007,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "sampaeos.if.usp.br",
                             "generic_http_connect_port": "-p 9000",
                             "generic_http_connect_path":
-                                "-u //eos/ops/opstest/",
+                                "-u \"//eos/ops/opstest/\"",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://sampaeos.if.usp.br:9000//eos/ops/"
@@ -11047,7 +11047,7 @@ class EntityConfigurationTests(unittest.TestCase):
                     "metadata": {
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
-                            "generic_http_connect_path": "-u /path",
+                            "generic_http_connect_path": "-u \"/path\"",
                             "generic_http_connect_port": "-p 45554",
                             "hostname": "www.srce.hr",
                             "info_url": "https://www.srce.hr:45554/path",
@@ -11428,7 +11428,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "catalogue.ni4os.eu",
                             "info_url": "https://catalogue.ni4os.eu/",
                             "ssl": "-S --sni",
-                            "generic_http_connect_path": "-u /",
+                            "generic_http_connect_path": "-u \"/\"",
                             "service": "eu.ni4os.app.web",
                             "site": "IPB",
                             "ngi": "NI4OS",
@@ -12695,7 +12695,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
-                            "generic_http_connect_path": "-u /path",
+                            "generic_http_connect_path": "-u \"/path\"",
                             "ssl": "-S --sni",
                             "info_url":
                                 "https://hostname1.argo.com/path",
@@ -12734,7 +12734,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "labels": {
                             "generic_http_connect": "generic.http.connect",
                             "info_url": "http://hostname3.argo.eu/",
-                            "generic_http_connect_path": "-u /",
+                            "generic_http_connect_path": "-u \"/\"",
                             "hostname": "hostname3.argo.eu",
                             "service": "eu.eosc.portal.services.url",
                             "site": "group3",
@@ -12771,7 +12771,7 @@ class EntityConfigurationTests(unittest.TestCase):
                         "namespace": "default",
                         "labels": {
                             "generic_http_json": "generic.http.json",
-                            "generic_http_json_path": "-p /some/path",
+                            "generic_http_json_path": "-p \"/some/path\"",
                             "info_url":
                                 "https://test-json.argo.grnet.gr/some/path",
                             "hostname": "test-json.argo.grnet.gr",
@@ -14114,7 +14114,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "MelGene?bla=oai%3meh",
                             "ssl": "-S --sni",
                             "generic_http_connect_path":
-                                "-u /MelGene?bla=oai%3meh",
+                                "-u \"/MelGene?bla=oai%3meh\"",
                             "hostname": "bioinformatics.cing.ac.cy",
                             "service": "web.check",
                             "site": "CING",
@@ -14134,7 +14134,7 @@ class EntityConfigurationTests(unittest.TestCase):
                                 "generic.certificate.validity",
                             "info_url":
                                 "http://eewrc-las.cyi.ac.cy/las/getUI.do",
-                            "generic_http_connect_path": "-u /las/getUI.do",
+                            "generic_http_connect_path": "-u \"/las/getUI.do\"",
                             "hostname": "eewrc-las.cyi.ac.cy",
                             "service": "web.check",
                             "site": "CYI",
@@ -14158,7 +14158,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "ssl": "-S --sni",
                             "generic_http_connect_port": "-p 9000",
                             "generic_http_connect_path":
-                                "-u //eos/ops/opstest/",
+                                "-u \"//eos/ops/opstest/\"",
                             "hostname": "sampaeos.if.usp.br",
                             "service": "web.check",
                             "site": "SAMPA",
@@ -14993,7 +14993,7 @@ class EntityConfigurationTests(unittest.TestCase):
                             "hostname": "wiki.eduuni.fi",
                             "ssl": "-S --sni",
                             "generic_http_connect_path":
-                                "-u /display/EUDATCDI/",
+                                "-u \"/display/EUDATCDI/\"",
                             "info_url":
                                 "https://wiki.eduuni.fi/display/EUDATCDI/",
                             "service": "eudat.cms.confluence",
