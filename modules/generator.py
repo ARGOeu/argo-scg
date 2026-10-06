@@ -1046,6 +1046,13 @@ class ConfigurationGenerator:
                         path = o.path
                         if o.query:
                             path = f"{path}?{o.query}"
+                        
+                        if not path.startswith("\""):
+                            path = "\"" + path
+
+                        if not path.endswith("\""):
+                            path += "\""
+
                         for entry in servicetypes_with_path:
                             lbl = f"{create_label(entry['metric'])}_path"
                             val = f"{entry['attr_val']} {path}"

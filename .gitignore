@@ -1,0 +1,8 @@
+# IDE cache
+.vscode
+
+# symlink folder
+argo_scg
+
+# pycache
+*/__pycache__
