@@ -1,11 +1,8 @@
-# python caches
+# IDE cache
+.vscode
 
-tests/__pycache__/*
-modules/__pycache__/*
-argo_scg/__pycache__/*
-
-# vscode config
-.vscode/*
-
-# symlink
+# symlink folder
 argo_scg
+
+# pycache
+*/__pycache__
