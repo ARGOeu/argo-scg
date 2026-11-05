@@ -7977,6 +7977,38 @@ class SensuCheckCallTests(unittest.TestCase):
 
     @patch("argo_scg.sensu.Sensu._get_entities")
     @patch("argo_scg.sensu.Sensu._get_checks")
+    def test_get_check_run_with_url_override_fallback(self, return_checks, return_entities):
+        metric = "eudat.b2share.invenio.healthcheck"
+        label = "eudat_b2share_invenio_healthcheck_url"
+        probe = "/usr/libexec/argo/probes/eudat-b2share/check_b2share.py"
+        return_checks.return_value = [{
+            "metadata": {"name": metric},
+            "subscriptions": ["entity:sensu-agent1"],
+            "command": probe + " {{ or .labels." + label +
+                       ' (printf "--url %s" .labels.endpoint_url) }}'
+        }]
+        labels = {
+            "eudat_b2share_invenio_healthcheck": metric,
+            "endpoint_url": "https://b2inst.gwdg.de"
+        }
+        return_entities.return_value = [{
+            "entity_class": "proxy",
+            "metadata": {"name": "b2inst", "labels": labels}
+        }]
+        for override in [None, "", "--url https://override.example.com"]:
+            with self.subTest(override=override):
+                if override is None:
+                    labels.pop(label, None)
+                else:
+                    labels[label] = override
+                run, timeout = self.sensu.get_check_run(entity="b2inst", check=metric)
+                self.assertEqual(
+                    run, probe + " " + (override or "--url https://b2inst.gwdg.de")
+                )
+                self.assertEqual(timeout, 900)
+
+    @patch("argo_scg.sensu.Sensu._get_entities")
+    @patch("argo_scg.sensu.Sensu._get_checks")
     def test_get_check_run_if_nonexisting_check(self, return_checks, return_entities):
         return_checks.return_value = self.checks
         return_entities.return_value = self.entities
