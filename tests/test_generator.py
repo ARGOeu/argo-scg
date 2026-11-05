@@ -4513,8 +4513,8 @@ class CheckConfigurationTests(unittest.TestCase):
         self.assertEqual(
             checks[0]["command"],
             "/usr/libexec/argo/probes/eudat-b2share/check_b2share.py "
-            '{{ .labels.eudat_b2share_invenio_healthcheck_url | '
-            'default (printf "--url %s" .labels.endpoint_url) }}'
+            '{{ or .labels.eudat_b2share_invenio_healthcheck_url '
+            '(printf "--url %s" .labels.endpoint_url) }}'
         )
         entities = generator.generate_entities(namespace="eudat")
         self.assertEqual(len(entities), 3)
@@ -8216,8 +8216,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
-                               "{{ .labels.eudat_gitlab_liveness_url | "
-                               'default (printf "--url %s" '
+                               "{{ or .labels.eudat_gitlab_liveness_url "
+                               '(printf "--url %s" '
                                '.labels.endpoint_url) }}',
                     "subscriptions": [
                         "entity:sensu-agent-mock_tenant.example.com"
@@ -8330,8 +8330,8 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
-                               "{{ .labels.eudat_gitlab_liveness_url | "
-                               'default (printf "--url %s" '
+                               "{{ or .labels.eudat_gitlab_liveness_url "
+                               '(printf "--url %s" '
                                '.labels.endpoint_url) }}',
                     "subscriptions": [
                         "entity:sensu-agent-mock_tenant.example.com"
