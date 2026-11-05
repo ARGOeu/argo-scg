@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import re
 import subprocess
 
 import requests
@@ -1189,7 +1190,23 @@ class Sensu:
 
         command = []
         for element in list_command:
-            if element.startswith(".labels"):
+            if element.startswith("or "):
+                # resolve the URL fallback emitted by ConfigurationGenerator
+                # when preparing ad-hoc check with scg-run-check
+                fallback = re.fullmatch(
+                    r'or \.labels\.(\w+) \(printf "([^"\n]*) %s" \.labels\.(\w+)\)',
+                    element,
+                )
+                if fallback is None:
+                    raise SensuException(f"Unsupported check token: {element}")
+                override_label, parameter, endpoint_label = fallback.groups()
+                labels = entity_configuration["metadata"]["labels"]
+                value = labels.get(override_label)
+                if not value:
+                    value = f"{parameter} {labels[endpoint_label]}"
+                command.append(value)
+
+            elif element.startswith(".labels"):
                 key = element[8:]
                 if "|" in key:
                     def_val = key.split("|")[1].split("default")[1].strip().replace('"', "")
