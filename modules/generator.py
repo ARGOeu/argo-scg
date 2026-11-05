@@ -849,7 +849,7 @@ class ConfigurationGenerator:
                             # URL overrides contain the entire argument. Hosts
                             # without an override still need the topology URL.
                             param = (
-                                '{{ .labels.%s | default (printf "%s %%s" '
+                                '{{ or .labels.%s (printf "%s %%s" '
                                 '.labels.endpoint_url) }}'
                             ) % (o["label"], o["parameter"])
                         used_default_params.append(o["label"])
