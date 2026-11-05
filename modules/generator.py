@@ -844,6 +844,14 @@ class ConfigurationGenerator:
                             ) and o["label"] not in used_default_params
                     ):
                         param = "{{ .labels.%s }}" % o["label"]
+                        if (configuration["attribute"].get("URL") ==
+                                o["parameter"]):
+                            # URL overrides contain the entire argument. Hosts
+                            # without an override still need the topology URL.
+                            param = (
+                                '{{ .labels.%s | default (printf "%s %%s" '
+                                '.labels.endpoint_url) }}'
+                            ) % (o["label"], o["parameter"])
                         used_default_params.append(o["label"])
                         parameters = f"{parameters} {param}"
 
