@@ -4465,6 +4465,73 @@ def _log_dummy():
 
 
 class CheckConfigurationTests(unittest.TestCase):
+    def test_url_parameter_overrides_fall_back_to_endpoint_url(self):
+        metric = "eudat.b2share.invenio.healthcheck"
+        hostnames = ["b2share.fz-juelich.de", "eudatis.csc.fi", "b2inst.gwdg.de"]
+        topology = [{
+            "group": hostname,
+            "service": "b2share.invenio",
+            "hostname": f"{hostname}_endpoint-id",
+            "tags": {
+                "hostname": hostname,
+                "info_URL": f"https://{hostname}",
+                "info_ext_URL": f"https://{hostname}"
+            }
+        } for hostname in hostnames]
+        generator = ConfigurationGenerator(
+            metrics=[{metric: {
+                "tags": [],
+                "probe": "check_b2share.py",
+                "config": {
+                    "path": "/usr/libexec/argo/probes/eudat-b2share/",
+                    "timeout": "15", "interval": "15", "maxCheckAttempts": "3"
+                },
+                "flags": {"NOHOSTNAME": "1", "NOTIMEOUT": "1"},
+                "attribute": {"URL": "--url"},
+                "parameter": {}
+            }}],
+            profiles=["B2SHARE"],
+            metric_profiles=[{
+                "name": "B2SHARE",
+                "services": [{"service": "b2share.invenio", "metrics": [metric]}]
+            }],
+            topology=topology,
+            attributes={"b2share": {
+                "global_attributes": [], "host_attributes": [],
+                "metric_parameters": [{
+                    "hostname": topology[index]["hostname"],
+                    "metric": metric,
+                    "parameter": "--url",
+                    "value": f"https://{hostname}/override"
+                } for index, hostname in enumerate(hostnames[:2])]
+            }},
+            secrets_file="", default_ports={}, tenant="eudat",
+            default_agent=["sensu-agent.example.com"]
+        )
+        checks = generator.generate_checks(publish=True, namespace="eudat")
+        self.assertEqual(len(checks), 1)
+        self.assertEqual(
+            checks[0]["command"],
+            "/usr/libexec/argo/probes/eudat-b2share/check_b2share.py "
+            '{{ .labels.eudat_b2share_invenio_healthcheck_url | '
+            'default (printf "--url %s" .labels.endpoint_url) }}'
+        )
+        entities = generator.generate_entities(namespace="eudat")
+        self.assertEqual(len(entities), 3)
+        labels_by_hostname = {
+            entity["metadata"]["labels"]["hostname"]: entity["metadata"]["labels"]
+            for entity in entities
+        }
+        for hostname in hostnames:
+            with self.subTest(hostname=hostname):
+                labels = labels_by_hostname[hostname]
+                self.assertEqual(labels["endpoint_url"], f"https://{hostname}")
+                self.assertEqual(
+                    labels["eudat_b2share_invenio_healthcheck_url"],
+                    f"--url https://{hostname}/override"
+                    if hostname in hostnames[:2] else ""
+                )
+
     def test_generate_checks_configuration(self):
         generator = ConfigurationGenerator(
             metrics=mock_metrics,
@@ -8149,7 +8216,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
-                               "{{ .labels.eudat_gitlab_liveness_url }}",
+                               "{{ .labels.eudat_gitlab_liveness_url | "
+                               'default (printf "--url %s" '
+                               '.labels.endpoint_url) }}',
                     "subscriptions": [
                         "entity:sensu-agent-mock_tenant.example.com"
                     ],
@@ -8261,7 +8330,9 @@ class CheckConfigurationTests(unittest.TestCase):
                 {
                     "command": "/usr/libexec/argo/probes/eudat-gitlab/"
                                "check_gitlab_liveness.sh -t 10 "
-                               "{{ .labels.eudat_gitlab_liveness_url }}",
+                               "{{ .labels.eudat_gitlab_liveness_url | "
+                               'default (printf "--url %s" '
+                               '.labels.endpoint_url) }}',
                     "subscriptions": [
                         "entity:sensu-agent-mock_tenant.example.com"
                     ],
