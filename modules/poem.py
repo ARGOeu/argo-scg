@@ -31,7 +31,24 @@ class Poem:
             raise PoemException(msg)
 
         else:
-            return response.json()
+            try:
+                data = response.json()
+            
+            except ValueError:
+                msg = f"{self.tenant}: Metrics fetch error (Invalid JSON structure): " \
+                    f"{response.status_code} {response.reason}"
+                    
+                self.logger.error(msg)
+                raise PoemException(msg)
+            
+            if not data:
+                msg = f"{self.tenant}: Metrics fetch error (Empty body): " \
+                f"{response.status_code} {response.reason}"
+                
+                self.logger.error(msg)
+                raise PoemException(msg)
+                
+            return data
 
     def get_metric_overrides(self):
         response = requests.get(
