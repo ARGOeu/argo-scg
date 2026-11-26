@@ -114,7 +114,7 @@ def main():
 
                     else:
                         subscriptions = sensu.get_check_subscriptions(
-                            check=check_name, namespace=namespace
+                            check=check, namespace=namespace
                         )
                         adhoc_check = generate_adhoc_check(
                             command=command,
@@ -188,6 +188,7 @@ def main():
 
             else:
                 print(f"Executing command:\n{command}")
+                
     except SensuException as err:
         print(err)
         sys.exit(2)
