@@ -82,7 +82,7 @@ def main():
             timeouts.append(timeout)
 
         elif args.metricprofiles is not None:
-            webapi = WebApi(webapi_url, webapi_token, entity_name)
+            webapi = WebApi(webapi_url, webapi_token, 'default')
 
             metric_profiles = webapi.get_metric_profiles()
             metric_profiles = [mp for mp in metric_profiles if mp[name] == 'default_metric']
