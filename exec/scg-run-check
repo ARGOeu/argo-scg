@@ -85,7 +85,7 @@ def main():
             webapi = WebApi(webapi_url, webapi_token, entity_name)
 
             metric_profiles = webapi.get_metric_profiles()
-            metric_profiles = [mp for mp in metric_profiles if mp[name] == args.metricprofile]
+            metric_profiles = [mp for mp in metric_profiles if mp['name'] == args.metricprofile]
 
             assert(len(metric_profiles) != 0)
 
