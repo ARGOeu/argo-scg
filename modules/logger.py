@@ -1,10 +1,8 @@
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import sys
 import shutil
 import os
 import gzip
-import traceback
 
 LOGFILE = "/var/log/argo-scg/argo-scg.log"
 LOGNAME = "argo-scg"
